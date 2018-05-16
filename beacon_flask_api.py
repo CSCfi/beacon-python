@@ -8,6 +8,8 @@ from webargs.flaskparser import use_kwargs
 app = Flask(__name__)
 api = Api(app)
 
+#Some hard coded data for the querys, some are taken from the beacon_dicts.py
+#These will be implemented later to thake the data from a database
 apiVersion = Beacon['apiVersion']
 beaconId = Beacon['id']
 refname = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11','12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', 'X', 'Y']
@@ -19,7 +21,8 @@ for set in BeaconDataset:
     datasetIds_list.append(set['id'])
 datasetresponses = ['ALL', 'HIT', 'MISS', 'NONE', None]
 
-
+#The abort_400() function returns a 400 code along with the parameters and a errormessage
+#The function is used if there are missing mandatory parameters or if they are in the wrong format/not valid
 def abort_400(referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, assemblyId, datasetIds, includeDatasetResponses, datasetAllelResponses):
     abort(400, {'beaconId': beaconId,
                 "apiVersion": apiVersion,
@@ -43,7 +46,8 @@ def abort_400(referenceName, start, startMin, startMax, end, endMin, endMax, ref
                                  },
                 'datasetAllelResponses': datasetAllelResponses}
           )
-
+#The datasetAllelResponseBuilder() function takes in the datasetIds and creates individual responses
+#for them which it puts in the datasetAllelResponses list, and returns it.
 def datasetAllelResponseBuilder(datasetId):
     j = 0
     for i in BeaconDataset:
@@ -65,6 +69,8 @@ def datasetAllelResponseBuilder(datasetId):
     }
     return datasetAllelResponses
 
+#The checkParameters() function checks if there is anything wrong with the query parameters that
+#the get or post recives. if there is something wrong it calls the appropriate error function (Now abort_400())
 def checkParameters(referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, assemblyId, datasetIds, includeDatasetResponses):
     datasetAllelResponses = []
 
@@ -93,13 +99,14 @@ def checkParameters(referenceName, start, startMin, startMax, end, endMin, endMa
 
     return datasetAllelResponses, includeDatasetResponses
 
+# '/' Get gives basic info on the api
 class Beacon_get(Resource):
     def get(self):
         return jsonify(Beacon)#Not the same order as in example
 
 api.add_resource(Beacon_get,'/')
 
-
+# '/query' Get/Post responds with the answer: 'exists': True/False  and the given parameters if the parameters are valid
 class Beacon_query(Resource):
     args = {
         'referenceName': fields.Str(
