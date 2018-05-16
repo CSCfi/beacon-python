@@ -20,7 +20,7 @@ for set in BeaconDataset:
 datasetresponses = ['ALL', 'HIT', 'MISS', 'NONE', None]
 
 
-def abort_400(referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, assemblyId, datasetIds, includeDatasetResponses):
+def abort_400(referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, assemblyId, datasetIds, includeDatasetResponses, datasetAllelResponses):
     abort(400, {'beaconId': beaconId,
                 "apiVersion": apiVersion,
                 'exists': False,
@@ -41,7 +41,7 @@ def abort_400(referenceName, start, startMin, startMax, end, endMin, endMax, ref
                                  'datasetIds': datasetIds,
                                  'includeDatasetResponses': includeDatasetResponses,
                                  },
-                'datasetAllelResponses': None}
+                'datasetAllelResponses': datasetAllelResponses}
           )
 
 def datasetAllelResponseBuilder(datasetId):
@@ -120,16 +120,16 @@ class Beacon_query(Resource):
 
         if datasetIds:
             if datasetIds[0] not in datasetIds_list:
-                abort_400(referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, assemblyId, datasetIds, includeDatasetResponses)
+                abort_400(referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, assemblyId, datasetIds, includeDatasetResponses, datasetAllelResponses)
 
         else:
             datasetIds = None
 
         if referenceName == '0' or start == 0 or referenceBases == '0' or alternateBases == '0' or assemblyId == '0':
-            abort_400(referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, assemblyId, datasetIds, includeDatasetResponses)
+            abort_400(referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, assemblyId, datasetIds, includeDatasetResponses, datasetAllelResponses)
 
         if referenceName not in refname or start not in start_list or referenceBases not in refbases or assemblyId not in assembly_list or includeDatasetResponses not in datasetresponses:
-            abort_400(referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, assemblyId, datasetIds, includeDatasetResponses)
+            abort_400(referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, assemblyId, datasetIds, includeDatasetResponses, datasetAllelResponses)
 
         if includeDatasetResponses == None:
             includeDatasetResponses = False
