@@ -115,15 +115,17 @@ class Beacon_query(Resource):
     @use_kwargs(args)
     def get(self, referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, assemblyId, datasetIds, includeDatasetResponses):
         datasetAllelResponses = []
-        for dataset in datasetIds:
-            datasetAllelResponses.append(datasetAllelResponseBuilder(dataset))
+
 
         if datasetIds:
             if datasetIds[0] not in datasetIds_list:
                 abort_400(referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, assemblyId, datasetIds, includeDatasetResponses, datasetAllelResponses)
-
+            else:
+                for dataset in datasetIds:
+                    datasetAllelResponses.append(datasetAllelResponseBuilder(dataset))
         else:
             datasetIds = None
+            datasetAllelResponses = None
 
         if referenceName == '0' or start == 0 or referenceBases == '0' or alternateBases == '0' or assemblyId == '0':
             abort_400(referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, assemblyId, datasetIds, includeDatasetResponses, datasetAllelResponses)
