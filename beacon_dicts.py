@@ -298,17 +298,3 @@ Beacon = {
         "size": "60270153"
          }
 }
-
-#class Beacon_dicts():
-#    def __init__(self):
-#        self.KeyValuePair = KeyValuePair
-#        self.info = info
-#        self.BeaconAllelRequest = BeaconAllelRequest
-#        self.ConsentCodeDataUseConditionRequirement = ConsentCodeDataUseConditionRequirement
-#        self.ConsentCodeDataUseConditionSecondary = ConsentCodeDataUseConditionSecondary
-#        self.ConsentCodeDataUseConditionPrimary = ConsentCodeDataUseConditionPrimary
-#        self.ConsentCodeDataUse = ConsentCodeDataUse
-#        self.DataUseConditions = DataUseConditions
-#        self.BeaconDataset = BeaconDataset
-#        self.Organization = Organization
-#        self.Beacon = Beacon
