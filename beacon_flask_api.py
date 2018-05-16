@@ -44,6 +44,27 @@ def abort_400(referenceName, start, startMin, startMax, end, endMin, endMax, ref
                 'datasetAllelResponses': None}
           )
 
+def datasetAllelResponseBuilder(datasetId):
+    j = 0
+    for i in BeaconDataset:
+        if datasetId in i['id']:
+            break
+        j += 1
+
+    datasetAllelResponses = {
+        'datasetId': datasetId,
+        'exists': False,
+        'frequency': 0,
+        'variantCount': BeaconDataset[j]['variantCount'],
+        'callCount': BeaconDataset[j]['callCount'],
+        'sampleCount': BeaconDataset[j]['sampleCount'],
+        'note': BeaconDataset[j]['description'],
+        'externalUrl': BeaconDataset[j]['externalUrl'],
+        'info': BeaconDataset[j]['info'],
+        'error': None
+    }
+    return datasetAllelResponses
+
 class Beacon_get(Resource):
     def get(self):
         return jsonify(Beacon)#Not the same order as in example
@@ -93,7 +114,9 @@ class Beacon_query(Resource):
 
     @use_kwargs(args)
     def get(self, referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, assemblyId, datasetIds, includeDatasetResponses):
-        datasetAllelResponses = ''
+        datasetAllelResponses = []
+        for dataset in datasetIds:
+            datasetAllelResponses.append(datasetAllelResponseBuilder(dataset))
 
         if datasetIds:
             if datasetIds[0] not in datasetIds_list:
