@@ -65,6 +65,34 @@ def datasetAllelResponseBuilder(datasetId):
     }
     return datasetAllelResponses
 
+def checkParameters(referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, assemblyId, datasetIds, includeDatasetResponses):
+    datasetAllelResponses = []
+
+    if datasetIds:
+        if datasetIds[0] not in datasetIds_list:
+            abort_400(referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases,
+                      assemblyId, datasetIds, includeDatasetResponses, datasetAllelResponses)
+        else:
+            for dataset in datasetIds:
+                datasetAllelResponses.append(datasetAllelResponseBuilder(dataset))
+    else:
+        datasetIds = None
+        datasetAllelResponses = None
+
+    if referenceName == '0' or start == 0 or referenceBases == '0' or alternateBases == '0' or assemblyId == '0':
+        abort_400(referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases,
+                  assemblyId, datasetIds, includeDatasetResponses, datasetAllelResponses)
+
+    if referenceName not in refname or start not in start_list or referenceBases not in refbases or assemblyId not in assembly_list or includeDatasetResponses not in datasetresponses:
+        abort_400(referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases,
+                  assemblyId, datasetIds, includeDatasetResponses, datasetAllelResponses)
+
+    if includeDatasetResponses == None:
+        includeDatasetResponses = False
+        datasetAllelResponses = None
+
+    return datasetAllelResponses, includeDatasetResponses
+
 class Beacon_get(Resource):
     def get(self):
         return jsonify(Beacon)#Not the same order as in example
@@ -114,29 +142,8 @@ class Beacon_query(Resource):
 
     @use_kwargs(args)
     def get(self, referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, assemblyId, datasetIds, includeDatasetResponses):
-        datasetAllelResponses = []
 
-
-        if datasetIds:
-            if datasetIds[0] not in datasetIds_list:
-                abort_400(referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, assemblyId, datasetIds, includeDatasetResponses, datasetAllelResponses)
-            else:
-                for dataset in datasetIds:
-                    datasetAllelResponses.append(datasetAllelResponseBuilder(dataset))
-        else:
-            datasetIds = None
-            datasetAllelResponses = None
-
-        if referenceName == '0' or start == 0 or referenceBases == '0' or alternateBases == '0' or assemblyId == '0':
-            abort_400(referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, assemblyId, datasetIds, includeDatasetResponses, datasetAllelResponses)
-
-        if referenceName not in refname or start not in start_list or referenceBases not in refbases or assemblyId not in assembly_list or includeDatasetResponses not in datasetresponses:
-            abort_400(referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, assemblyId, datasetIds, includeDatasetResponses, datasetAllelResponses)
-
-        if includeDatasetResponses == None:
-            includeDatasetResponses = False
-            datasetAllelResponses = None
-
+        datasetAllelResponses, includeDatasetResponses = checkParameters(referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, assemblyId, datasetIds, includeDatasetResponses)
 
         allelRequest = {'referenceName': referenceName,
                         'start': start,
@@ -162,6 +169,8 @@ class Beacon_query(Resource):
     @use_kwargs(args)
     def post(self, referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, assemblyId, datasetIds , includeDatasetResponses):
 
+        datasetAllelResponses, includeDatasetResponses = checkParameters(referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, assemblyId, datasetIds, includeDatasetResponses)
+
         allelRequest = {'referenceName': referenceName,
                         'start': start,
                         'startMin': startMin,
@@ -181,7 +190,7 @@ class Beacon_query(Resource):
                 "exists": False,
                 "error": None,
                 "alleleRequest": allelRequest,
-                "datasetAlleleResponses": None}
+                "datasetAlleleResponses": datasetAllelResponses}
 
 api.add_resource(Beacon_query,'/query')
 
