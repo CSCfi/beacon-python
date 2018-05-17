@@ -1,8 +1,9 @@
-from flask import Flask, jsonify, abort
+from flask import Flask, jsonify
 from flask_restful import Api, Resource
-from beacon_dicts import Beacon, BeaconDataset
+from beacon_dicts import BeaconDataset
 from webargs import fields
 from webargs.flaskparser import use_kwargs
+from error_handelers import *
 
 
 app = Flask(__name__)
@@ -21,31 +22,7 @@ for set in BeaconDataset:
     datasetIds_list.append(set['id'])
 datasetresponses = ['ALL', 'HIT', 'MISS', 'NONE', None]
 
-#The abort_400() function returns a 400 code along with the parameters and a errormessage
-#The function is used if there are missing mandatory parameters or if they are in the wrong format/not valid
-def abort_400(referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, assemblyId, datasetIds, includeDatasetResponses, datasetAllelResponses):
-    abort(400, {'beaconId': beaconId,
-                "apiVersion": apiVersion,
-                'exists': False,
-                'error': {
-                    'errorCode': 400,
-                    'errorMessage': 'Bad request (e.g. missing mandatory parameter)'
-                },
-                'allelRequest': {'referenceName': referenceName,
-                                 'start': start,
-                                 'startMin': startMin,
-                                 'startMax': startMax,
-                                 'end': end,
-                                 'endMin': endMin,
-                                 'endMax': endMax,
-                                 'referenceBases': referenceBases,
-                                 'alternateBases': alternateBases,
-                                 'assemblyId': assemblyId,
-                                 'datasetIds': datasetIds,
-                                 'includeDatasetResponses': includeDatasetResponses,
-                                 },
-                'datasetAllelResponses': datasetAllelResponses}
-          )
+
 #The datasetAllelResponseBuilder() function takes in the datasetIds and creates individual responses
 #for them which it puts in the datasetAllelResponses list, and returns it.
 def datasetAllelResponseBuilder(datasetId):
@@ -70,14 +47,14 @@ def datasetAllelResponseBuilder(datasetId):
     return datasetAllelResponses
 
 #The checkParameters() function checks if there is anything wrong with the query parameters that
-#the get or post recives. if there is something wrong it calls the appropriate error function (Now abort_400())
+#the get or post recives. if there is something wrong it calls the appropriate error function (Now bad_request())
 def checkParameters(referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, assemblyId, datasetIds, includeDatasetResponses):
     datasetAllelResponses = []
 
     if datasetIds:
         if datasetIds[0] not in datasetIds_list:
-            abort_400(referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases,
-                      assemblyId, datasetIds, includeDatasetResponses, datasetAllelResponses)
+            bad_request(referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases,
+                        assemblyId, datasetIds, includeDatasetResponses, datasetAllelResponses)
         else:
             for dataset in datasetIds:
                 datasetAllelResponses.append(datasetAllelResponseBuilder(dataset))
@@ -86,12 +63,12 @@ def checkParameters(referenceName, start, startMin, startMax, end, endMin, endMa
         datasetAllelResponses = None
 
     if referenceName == '0' or start == 0 or referenceBases == '0' or alternateBases == '0' or assemblyId == '0':
-        abort_400(referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases,
-                  assemblyId, datasetIds, includeDatasetResponses, datasetAllelResponses)
+        bad_request(referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases,
+                    assemblyId, datasetIds, includeDatasetResponses, datasetAllelResponses)
 
     if referenceName not in refname or start not in start_list or referenceBases not in refbases or assemblyId not in assembly_list or includeDatasetResponses not in datasetresponses:
-        abort_400(referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases,
-                  assemblyId, datasetIds, includeDatasetResponses, datasetAllelResponses)
+        bad_request(referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases,
+                    assemblyId, datasetIds, includeDatasetResponses, datasetAllelResponses)
 
     if includeDatasetResponses == None:
         includeDatasetResponses = False
