@@ -1,0 +1,20 @@
+
+
+def queryfunction(referenceName, start, referenceBases, alternateBases, dataset):
+
+    chromosome = referenceName              # Which chromosome to query
+    position = start                        # Depending on the parameters (startMin,endMin ect.)
+    referenceAllel = referenceBases         # The reference that we are comparing to
+    Allel = alternateBases                  # The Allele that we are interested in
+    dataset                                 # The specific data set that will be queried
+
+    Query the dataset:
+        -From the dataset find the chromosome
+        -From the chromosome find the position to query, "start-->end"
+        -from the position inspect the gene
+
+
+        if Allel in dataset[[chromosome[position]]:
+            return True
+        else:
+            return False
