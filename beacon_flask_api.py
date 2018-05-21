@@ -20,7 +20,7 @@ assembly_list =['GRCh37', 'GRCh38']
 datasetIds_list = []
 for set in BeaconDataset:
     datasetIds_list.append(set['id'])
-datasetresponses = ['ALL', 'HIT', 'MISS', 'NONE', None]
+datasetresponses = ['ALL', 'HIT', 'MISS', 'NONE']
 
 
 #The datasetAllelResponseBuilder() function takes in the datasetIds and creates individual responses
@@ -48,33 +48,46 @@ def datasetAllelResponseBuilder(datasetId):
 
 #The checkParameters() function checks if there is anything wrong with the query parameters that
 #the get or post recives. if there is something wrong it calls the appropriate error function (Now bad_request())
-def checkParameters(referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, assemblyId, datasetIds, includeDatasetResponses):
+def checkParameters(referenceName, start, startMin, startMax, end, endMin, endMax, \
+                    referenceBases, alternateBases, assemblyId, datasetIds, includeDatasetResponses):
     datasetAllelResponses = []
 
     if datasetIds:
-        if datasetIds[0] not in datasetIds_list:
-            bad_request(referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases,
-                        assemblyId, datasetIds, includeDatasetResponses, datasetAllelResponses)
-        else:
-            for dataset in datasetIds:
-                datasetAllelResponses.append(datasetAllelResponseBuilder(dataset))
+        for set in datasetIds:
+            if set not in datasetIds_list:
+                bad_request(referenceName, start, startMin, startMax, end, endMin, endMax, \
+                            referenceBases, alternateBases, assemblyId, datasetIds, includeDatasetResponses, datasetAllelResponses)
+            datasetAllelResponses.append(datasetAllelResponseBuilder(set))
     else:
         datasetIds = None
         datasetAllelResponses = None
 
     if referenceName == '0' or start == 0 or referenceBases == '0' or alternateBases == '0' or assemblyId == '0':
-        bad_request(referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases,
-                    assemblyId, datasetIds, includeDatasetResponses, datasetAllelResponses)
+        #if an error occures the 'exists' must be 'null'
+        for set in datasetAllelResponses:
+            set['exists'] = None
+        bad_request(referenceName, start, startMin, startMax, end, endMin, endMax, \
+                    referenceBases, alternateBases, assemblyId, datasetIds, includeDatasetResponses, datasetAllelResponses)
 
     if referenceName not in refname or start not in start_list or referenceBases not in refbases or assemblyId not in assembly_list or includeDatasetResponses not in datasetresponses:
-        bad_request(referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases,
-                    assemblyId, datasetIds, includeDatasetResponses, datasetAllelResponses)
+        #if an error occures the 'exists' must be 'null'
+        for set in datasetAllelResponses:
+            set['exists'] = None
+        bad_request(referenceName, start, startMin, startMax, end, endMin, endMax, \
+                    referenceBases, alternateBases, assemblyId, datasetIds, includeDatasetResponses, datasetAllelResponses)
 
-    if includeDatasetResponses == None:
-        includeDatasetResponses = False
+    if includeDatasetResponses == 'NONE':
         datasetAllelResponses = None
 
     return datasetAllelResponses, includeDatasetResponses
+
+# Determines the 'exists' in the beacon query by checking the dataset querys
+def checkifdatasetisTrue(datasets):
+    for value in datasets:
+        if value['exists'] == True:
+            return True
+    return False
+
 
 # '/' Get gives basic info on the api
 class Beacon_get(Resource):
@@ -120,7 +133,7 @@ class Beacon_query(Resource):
             missing=None
         )),
         'includeDatasetResponses': fields.Str(
-            missing=None,
+            missing='ALL',
         ),
     }
 
@@ -145,7 +158,7 @@ class Beacon_query(Resource):
 
         return {'beaconId': beaconId,
                 "apiVersion": apiVersion,
-                'exists': False,
+                'exists': checkifdatasetisTrue(datasetAllelResponses),
                 'error': None,
                 'allelRequest': allelRequest,
                 'datasetAllelResponses': datasetAllelResponses}
