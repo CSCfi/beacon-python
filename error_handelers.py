@@ -9,7 +9,7 @@ beaconId = Beacon['id']
 def bad_request(referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, assemblyId, datasetIds, includeDatasetResponses, datasetAllelResponses):
     abort(400, {'beaconId': beaconId,
                 "apiVersion": apiVersion,
-                'exists': False,
+                'exists': None,
                 'error': {
                     'errorCode': 400,
                     'errorMessage': 'Bad request, missing mandatory parameter or the value is not valid!'
@@ -32,7 +32,7 @@ def bad_request(referenceName, start, startMin, startMax, end, endMin, endMax, r
 def unauthorised(referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, assemblyId, datasetIds, includeDatasetResponses, datasetAllelResponses):
     abort(401, {'beaconId': beaconId,
                 "apiVersion": apiVersion,
-                'exists': False,
+                'exists': None,
                 'error': {
                     'errorCode': 401,
                     'errorMessage': 'Unauthenticated user trying to acces protected resource.'
@@ -56,7 +56,7 @@ def unauthorised(referenceName, start, startMin, startMax, end, endMin, endMax, 
 def forbidden(referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, assemblyId, datasetIds, includeDatasetResponses, datasetAllelResponses):
     abort(403, {'beaconId': beaconId,
                 "apiVersion": apiVersion,
-                'exists': False,
+                'exists': None,
                 'error': {
                     'errorCode': 403,
                     'errorMessage': 'Resource not granted for authenticated user or resource protected for all users.'
