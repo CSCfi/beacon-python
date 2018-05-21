@@ -7,6 +7,7 @@ def queryfunction(referenceName, start, referenceBases, alternateBases, dataset)
     referenceAllel = referenceBases         # The reference that we are comparing to
     Allel = alternateBases                  # The Allele that we are interested in
     dataset                                 # The specific data set that will be queried
+    alleleLength = len(Allele)
 
     Query the dataset:
         -From the dataset find the chromosome
@@ -18,3 +19,13 @@ def queryfunction(referenceName, start, referenceBases, alternateBases, dataset)
             return True
         else:
             return False
+
+def position(start, end, startMin, startMax, endMin, endMax):
+    if start != 0:
+        if end != 0:
+            # start --> end
+        else:
+            # only start
+
+    if startMin != 0 and startMax != 0 and endMin != 0 and endMax != 0:
+        
