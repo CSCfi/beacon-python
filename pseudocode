@@ -1,6 +1,6 @@
 
 
-def queryfunction(referenceName, start, referenceBases, alternateBases, dataset):
+def allelFind(referenceName, start, referenceBases, alternateBases, dataset):
 
     chromosome = referenceName              # Which chromosome to query
     position = start                        # Depending on the parameters (startMin,endMin ect.)
@@ -21,11 +21,25 @@ def queryfunction(referenceName, start, referenceBases, alternateBases, dataset)
             return False
 
 def position(start, end, startMin, startMax, endMin, endMax):
+    pos = []
     if start != 0:
         if end != 0:
             # start --> end
+            pos.append(start)
+            pos.append(end)
+            return pos
         else:
             # only start
+            pos.append(start)
+            return pos
 
     if startMin != 0 and startMax != 0 and endMin != 0 and endMax != 0:
-        
+        startRange = []
+        for s_base in range(dataset[[chromosome[startMin], dataset[[chromosome[startMax]]]:
+            startRange.append(s_base)
+
+        endRange = []
+        for e_base in range(dataset[[chromosome[endMin], dataset[[chromosome[endMax]]]:
+            endRange.append(e_base)
+
+         if 'first base in Allel' in startRange and 'last base in Allel' in endRange:

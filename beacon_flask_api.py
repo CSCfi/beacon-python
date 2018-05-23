@@ -1,9 +1,7 @@
 from flask import Flask, jsonify
 from flask_restful import Api, Resource
-from beacon_dicts import BeaconDataset
 from webargs import fields
 from webargs.flaskparser import use_kwargs
-
 from check_functions import *
 
 

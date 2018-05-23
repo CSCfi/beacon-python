@@ -13,6 +13,12 @@ for set in BeaconDataset:
     datasetIds_list.append(set['id'])
 datasetresponses = ['ALL', 'HIT', 'MISS', 'NONE']
 
+def position():
+    pass
+
+def allelFind():
+
+    return False
 
 #The datasetAllelResponseBuilder() function takes in the datasetIds and creates individual responses
 #for them which it puts in the datasetAllelResponses list, and returns it.
@@ -25,7 +31,7 @@ def datasetAllelResponseBuilder(datasetId):
 
     datasetAllelResponses = {
         'datasetId': datasetId,
-        'exists': False,
+        'exists': allelFind(),
         'frequency': 0,
         'variantCount': BeaconDataset[j]['variantCount'],
         'callCount': BeaconDataset[j]['callCount'],
