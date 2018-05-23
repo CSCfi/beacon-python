@@ -22,29 +22,16 @@ class Beacon(db.Model):
     frequency = db.Column('frequency', db.String)
 
 
-    def __init__(self, id, dataset_id, start, chromosome, reference, alternate, end, type, sv_length, variant_cnt, call_cnt, sample_cnt, frequency):
-        self.id = id
-        self.dataset_id = dataset_id
-        self.start = start
-        self.chromosome = chromosome
-        self.reference = reference
-        self.alternate = alternate
-        self.end = end
-        self.type = type
-        self.sv_length = sv_length
-        self.variant_cnt = variant_cnt
-        self.call_cnt = call_cnt
-        self.sample_cnt = sample_cnt
-        self.frequency = frequency
 
-#file = open('EGAD00000000028.SNPs.txt', 'r')
-#i = 1
-#while file:
-#    str = file.readline().rstrip()
-#
-#    print(str)
-#    dataset_id, start, chromosome, reference, alternate, end, type, sv_length, variant_cnt, call_cnt, sample_cnt, frequency = str.split(";")
-#    add_new = Beacon(i, dataset_id, start, chromosome, reference, alternate, end, type, sv_length, variant_cnt, call_cnt, sample_cnt, frequency)
-#    db.session.add(add_new)
-#    db.session.commit()
-#    i += 1
+file = open('EGAD00000000028.SNPs.txt', 'r')
+i = 1
+while file:
+    str = file.readline().rstrip()
+
+    print(str)
+    dataset_id, start, chromosome, reference, alternate, end, type, sv_length, variant_cnt, call_cnt, sample_cnt, frequency = str.split(";")
+    add_new = Beacon(id=i, dataset_id=dataset_id, start=start, chromosome=chromosome, reference=reference, alternate=alternate, \
+                     end=end, type=type, sv_length=sv_length, variant_cnt=variant_cnt, call_cnt=call_cnt, sample_cnt=sample_cnt, frequency=frequency)
+    db.session.add(add_new)
+    db.session.commit()
+    i += 1
