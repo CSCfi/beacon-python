@@ -1,5 +1,6 @@
 from beacon_dicts import BeaconDataset
 from error_handelers import *
+from beacon_database import Beacon_data_table, Beacon_dataset_table
 
 
 #Some hard coded data for the querys, some are taken from the beacon_dicts.py
@@ -16,9 +17,15 @@ datasetresponses = ['ALL', 'HIT', 'MISS', 'NONE']
 def position():
     pass
 
-def allelFind():
-
+def allelFind(chromosome, position, allel):
+    q_obj = Beacon_data_table
+    q_obj_chrm = q_obj.query.filter_by(chromosome=chromosome).all()   #list
+    for q_chrom in q_obj_chrm:
+        if q_chrom.start in position:
+            if q_chrom.alternate == allel:
+                return True
     return False
+
 
 #The datasetAllelResponseBuilder() function takes in the datasetIds and creates individual responses
 #for them which it puts in the datasetAllelResponses list, and returns it.
