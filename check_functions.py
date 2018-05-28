@@ -17,13 +17,10 @@ def position():
     pass
 
 def allelFind(chromosome, position, allel):
-    print(chromosome)
-    print(position)
-    print(allel)
     q_obj = Beacon_data_table
     q_obj_chrm = q_obj.query.filter_by(chromosome=chromosome).all()   #list
     for q_chrom in q_obj_chrm:
-        if q_chrom.start == str(position): #converting position to string becaus data is in string in database
+        if q_chrom.start == position: #converting position to string becaus data is in string in database
             if q_chrom.alternate == allel:
                 return True, q_chrom
 
@@ -40,11 +37,11 @@ def datasetAllelResponseBuilder(datasetId, referencename, start, alternateBases)
         j += 1
     exists, queryRow = allelFind(referencename, start, alternateBases)
     if exists == False:
-        queryRow.variant_cnt, queryRow.sample_cnt, queryRow.call_cnt = '0', '0', '0'
+        queryRow.variant_cnt, queryRow.sample_cnt, queryRow.call_cnt, queryRow.frequency = 0,0,0,0 # does not alter the database only the representation
     datasetAllelResponses = {
         'datasetId': datasetId,
         'exists': exists,
-        'frequency': 0,
+        'frequency': queryRow.frequency,
         'variantCount': queryRow.variant_cnt,
         'callCount': queryRow.call_cnt,
         'sampleCount': queryRow.sample_cnt,

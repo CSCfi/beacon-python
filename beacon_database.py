@@ -10,26 +10,26 @@ class Beacon_dataset_table(db.Model):
     description = db.Column(db.String(800))
     access_type = db.Column(db.String(50))
     reference_genome = db.Column(db.String(50))
-    variant_cnt = db.Column(db.String(50))
-    call_cnt = db.Column(db.String(50))
-    sample_cnt = db.Column(db.String(50))
+    variant_cnt = db.Column(db.Integer)
+    call_cnt = db.Column(db.Integer)
+    sample_cnt = db.Column(db.Integer)
     dataset_rows = db.relationship('Beacon_data_table', backref='dataset') # list with all the rows from the dataset
 
 class Beacon_data_table(db.Model):
     __tablename__ = 'EGAD00000000028'
     id = db.Column(db.Integer, primary_key=True)
     dataset_id = db.Column(db.Integer, db.ForeignKey('beacon_dataset_table.id'))
-    start = db.Column(db.String(50))
+    start = db.Column(db.Integer)
     chromosome = db.Column(db.String(50))
     reference = db.Column(db.String(50))
     alternate = db.Column(db.String(50))
-    end = db.Column(db.String(50))
+    end = db.Column(db.Integer)
     type = db.Column(db.String(50))
-    sv_length = db.Column(db.String(50))
-    variant_cnt = db.Column(db.String(50))
-    call_cnt = db.Column(db.String(50))
-    sample_cnt = db.Column(db.String(50))
-    frequency = db.Column(db.String(50))
+    sv_length = db.Column(db.Integer)
+    variant_cnt = db.Column(db.Integer)
+    call_cnt = db.Column(db.Integer)
+    sample_cnt = db.Column(db.Integer)
+    frequency = db.Column(db.Integer)
 
 
 
