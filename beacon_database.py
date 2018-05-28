@@ -1,9 +1,8 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from beacon_flask_api import db
+#app = Flask(__name__)
 
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://///Users/kakeinan/beacon-python/example.db'
-db = SQLAlchemy(app)
 
 class Beacon_dataset_table(db.Model):
     id = db.Column(db.Integer, primary_key=True)
