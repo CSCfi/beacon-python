@@ -1,7 +1,4 @@
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
 from beacon_flask_api import db
-#app = Flask(__name__)
 
 
 class Beacon_dataset_table(db.Model):
