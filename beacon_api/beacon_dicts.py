@@ -284,10 +284,10 @@ Organization = {
 Beacon = {
     'id': 'ega-beacon',
     'name': 'EGA Beacon',
-    'apiVersion': '0.3',
+    'apiVersion': '0.4',
     'organization': Organization,
     'description': 'This <a href=\"http://ga4gh.org/#/beacon\">Beacon</a> is based on the GA4GH Beacon <a href=\"https://github.com/ga4gh/beacon-team/blob/develop/src/main/resources/avro/beacon.avdl\">API 0.3</a>',
-    'version': 'v03',
+    'version': 'v04',
     'welcomeUrl': 'https://ega-archive.org/beacon_web/',
     'alternativeUrl': 'https://ega-archive.org/beacon_web/',
     'createDateTime': '2015-06-15T00:00.000Z',

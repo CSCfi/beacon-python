@@ -3,11 +3,14 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_restful import Api, Resource
 from webargs import fields
 from webargs.flaskparser import use_kwargs
-from check_functions import *
+from beacon_api.check_functions import *
+from beacon_api.error_handelers import BeaconError
+from beacon_api.beacon_dicts import Beacon
+
 
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://///Users/kakeinan/beacon-python/example.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://///Users/kakeinan/beacon-python/beacon_api/example.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 api = Api(app)
@@ -64,7 +67,9 @@ class Beacon_query(Resource):
     @use_kwargs(args)
     def get(self, referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, assemblyId, datasetIds, includeDatasetResponses):
 
-        datasetAllelResponses, includeDatasetResponses = checkParameters(referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, assemblyId, datasetIds, includeDatasetResponses)
+        error_ = BeaconError(referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, assemblyId, datasetIds, includeDatasetResponses)
+
+        datasetAllelResponses, includeDatasetResponses = checkParameters(referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, assemblyId, datasetIds, includeDatasetResponses, error_)
 
         allelRequest = {'referenceName': referenceName,
                         'start': start,
@@ -90,7 +95,14 @@ class Beacon_query(Resource):
     @use_kwargs(args)
     def post(self, referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, assemblyId, datasetIds , includeDatasetResponses):
 
-        datasetAllelResponses, includeDatasetResponses = checkParameters(referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, assemblyId, datasetIds, includeDatasetResponses)
+
+        error_ = BeaconError(referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases,
+                             alternateBases, assemblyId, datasetIds, includeDatasetResponses)
+
+        datasetAllelResponses, includeDatasetResponses = checkParameters(referenceName, start, startMin, startMax, end,
+                                                                         endMin, endMax, referenceBases, alternateBases,
+                                                                         assemblyId, datasetIds,
+                                                                         includeDatasetResponses, error_)
 
         allelRequest = {'referenceName': referenceName,
                         'start': start,

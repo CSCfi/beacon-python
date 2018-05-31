@@ -1,4 +1,4 @@
-from beacon_flask_api import db
+from beacon_api.beacon_flask_api import db
 
 
 class Beacon_dataset_table(db.Model):
@@ -27,8 +27,6 @@ class Beacon_data_table(db.Model):
     call_cnt = db.Column(db.Integer)
     sample_cnt = db.Column(db.Integer)
     frequency = db.Column(db.Integer)
-
-
 
 def load_dataset_table():
     add_new = Beacon_dataset_table(stable_id='EGAD00000000028',description= 'Sample variants',access_type= 'PUBLIC',reference_genome= 'grch37',variant_cnt= '74',call_cnt= '74',sample_cnt= '1')
