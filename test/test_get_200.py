@@ -7,12 +7,12 @@ def test_get_response_code():
 
 def test_get_200():
     payload = {'referenceName': '1',
-               'start': '123',
-               'startMin': '0',
-               'startMax': '0',
-               'end': '0',
-               'endMin': '0',
-               'endMax': '0',
+               'start': 123,
+               'startMin': 0,
+               'startMax': 0,
+               'end': 0,
+               'endMin': 0,
+               'endMax': 0,
                'referenceBases': 'A',
                'alternateBases': 'C',
                'assemblyId': 'GRCh37',

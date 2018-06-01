@@ -169,7 +169,7 @@ def test_invalid_start1():
 
 def test_invalid_start2():
     payload = {'referenceName': '1',
-               'start': '123',
+               'start': -123,
                'startMin': 0,
                'startMax': 0,
                'end': 0,

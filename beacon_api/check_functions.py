@@ -112,28 +112,44 @@ def checkParameters(referenceName, start, startMin, startMax, end, endMin, endMa
         if assemblyId == '0':
             error_.bad_request('Missing manadory parameter assemblyId')
 
-        
+    if start < 0:
+        error_.bad_request('Start is invalid')
 
-    if referenceName not in refname or includeDatasetResponses not in datasetresponses:
+    if startMin < 0:
+        error_.bad_request('Startmin is invalid')
+
+    if startMax < 0:
+        error_.bad_request('Startmin is invalid')
+
+    if endMin < 0:
+        error_.bad_request('Endmin is invalid')
+
+    if endMax < 0:
+        error_.bad_request('Endmax is invalid')
+
+    if end < 0:
+        error_.bad_request('End is invalid')
+
+    if referenceName not in refname:
         #if an error occures the 'exists' must be 'null'
         for set in datasetAllelResponses:
             set['exists'] = None
-        error_.bad_request('Referencename or includeDatasetResponses not valid')
+        error_.bad_request('Referencename not valid')
 
-
+    if includeDatasetResponses not in datasetresponses:
+        # if an error occures the 'exists' must be 'null'
+        for set in datasetAllelResponses:
+            set['exists'] = None
+        error_.bad_request('IncludeDatasetResponses not valid')
 
     if datasetIds:
         for set in datasetIds:
             if set not in datasetIds_list:
-                error_.bad_request(datasetAllelResponses)
+                error_.bad_request('Invalid datasetId')
             datasetAllelResponses.append(datasetAllelResponseBuilder(set, referenceName, pos, alternateBases, error_))
     else:
         datasetIds = None
         datasetAllelResponses = None
-
-
-
-
 
     if includeDatasetResponses == 'NONE':
         datasetAllelResponses = None
