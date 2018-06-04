@@ -41,14 +41,14 @@ HTTP Transport Protocol...
 - organization
 - datasets
 ##### Properties:
-##### Id:
+###### Id:
 - type: string
 - description: Unique identifier of the beacon. Use reverse domain name notation.
 - example: org.ga4gh.beacon
-##### Name:
+###### Name:
 - type: string
 - description: Name of the beacon.
-##### ApiVersion:
+###### ApiVersion:
 - type: string
 - description: Version of the API provided by the beacon.
 - example: v0.3
