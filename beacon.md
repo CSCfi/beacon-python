@@ -33,65 +33,65 @@ HTTP Transport Protocol...
 ## Beacon API Objects
 
 ### 1. Beacon 
-    type: object
-    required:
-      - id
-      - name
-      - apiVersion
-      - organization
-      - datasets
-    properties:
-      id:
-        type: string
-        description: Unique identifier of the beacon. Use reverse domain name notation.
-        example: org.ga4gh.beacon
-      name:
-        type: string
-        description: Name of the beacon.
-      apiVersion:
-        type: string
-        description: Version of the API provided by the beacon.
-        example: v0.3
-      organization:
-        BeaconOrganization
-      description:
-        type: string
-        description: Description of the beacon.
-      version:
-        type: string
-        description: Version of the beacon.
-        example: v0.1
-      welcomeUrl:
-        type: string
-        description: URL to the welcome page for this beacon (RFC 3986 format).
-        example: http://example.org/wiki/Main_Page
-      alternativeUrl:
-        type: string
-        description: Alternative URL to the API, e.g. a restricted version of this beacon (RFC 3986 format).
-        example: http://example.org/wiki/Main_Page
-      createDateTime:
-        type: string
-        description: The time the beacon was created (ISO 8601 format).
-        example: 2012-07-19 or 2017-01-17T20:33:40Z
-      updateDateTime:
-        type: string
-        description: The time the beacon was created (ISO 8601 format).
-        example: 2012-07-19 or 2017-01-17T20:33:40Z
-      datasets:
-        description: Datasets served by the beacon. Any beacon should specify at least one dataset.
-        type: array
-        items:
-          [BeaconDataset](#beacondataset)
-      sampleAlleleRequests:
-        description: Examples of interesting queries, e.g. a few queries demonstrating different esponses.
-        type: array
-        items:
-          $ref: "#/definitions/BeaconAlleleRequest"
-      info:
-        description: Additional structured metadata, key-value pairs.
-        type: array
-        items:
-          $ref: "#/definitions/KeyValuePair"
+##### Type: object
+##### Required:
+- id
+- name
+- apiVersion
+- organization
+- datasets
+##### Properties:
+##### Id:
+- type: string
+- description: Unique identifier of the beacon. Use reverse domain name notation.
+- example: org.ga4gh.beacon
+##### Name:
+- type: string
+- description: Name of the beacon.
+##### ApiVersion:
+- type: string
+- description: Version of the API provided by the beacon.
+- example: v0.3
+##### Organization:
+- [BeaconOrganization](#2.-beaconorganisation)
+##### Description:
+- type: string
+- description: Description of the beacon.
+##### Version:
+- type: string
+- description: Version of the beacon.
+- example: v0.1
+##### WelcomeUrl:
+- type: string
+- description: URL to the welcome page for this beacon (RFC 3986 format).
+- example: http://example.org/wiki/Main_Page
+##### AlternativeUrl:
+- type: string
+- description: Alternative URL to the API, e.g. a restricted version of this beacon (RFC 3986 format).
+- example: http://example.org/wiki/Main_Page
+##### CreateDateTime:
+- type: string
+- description: The time the beacon was created (ISO 8601 format).
+- example: 2012-07-19 or 2017-01-17T20:33:40Z
+##### UpdateDateTime:
+- type: string
+- description: The time the beacon was created (ISO 8601 format).
+- example: 2012-07-19 or 2017-01-17T20:33:40Z
+##### Datasets:
+- description: Datasets served by the beacon. Any beacon should specify at least one dataset.
+- type: array
+- items:
+- [BeaconDataset](#beacondataset)
+##### SampleAlleleRequests:
+- description: Examples of interesting queries, e.g. a few queries demonstrating different esponses.
+- type: array
+- items:
+- [BeaconAlleleRequest](#4.-beaconallelerequest)
+##### Info:
+- description: Additional structured metadata, key-value pairs.
+- type: array
+- items:
+- [KeyValuePair](#keyvaluepair)
 
 ### 2. BeaconOrganisation
     description: Organization owning the beacon.
