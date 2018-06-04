@@ -33,22 +33,22 @@ HTTP Transport Protocol...
 ## Beacon API Objects
 
 ### 1. Beacon 
-##### Type: object
-##### Required:
-- id
-- name
-- apiVersion
-- organization
-- datasets
-##### Properties:
-###### Id:
+#### Type: object
+#### Required:
+- [Id](#id:)
+- [Name](#name:)
+- [ApiVersion](#apiversion:)
+- [Organization](#organization:)
+- [Datasets](#datasets:)
+#### Properties:
+##### Id:
 - type: string
 - description: Unique identifier of the beacon. Use reverse domain name notation.
 - example: org.ga4gh.beacon
-###### Name:
+##### Name:
 - type: string
 - description: Name of the beacon.
-###### ApiVersion:
+##### ApiVersion:
 - type: string
 - description: Version of the API provided by the beacon.
 - example: v0.3
@@ -81,7 +81,7 @@ HTTP Transport Protocol...
 - description: Datasets served by the beacon. Any beacon should specify at least one dataset.
 - type: array
 - items:
-- [BeaconDataset](#beacondataset)
+- [BeaconDataset](#3.-beacondataset)
 ##### SampleAlleleRequests:
 - description: Examples of interesting queries, e.g. a few queries demonstrating different esponses.
 - type: array
@@ -91,168 +91,170 @@ HTTP Transport Protocol...
 - description: Additional structured metadata, key-value pairs.
 - type: array
 - items:
-- [KeyValuePair](#keyvaluepair)
+- [KeyValuePair](#keyvaluepair:)
+
+
 
 ### 2. BeaconOrganisation
-    description: Organization owning the beacon.
-    type: object
-    required:
-      - id
-      - name
-    properties:
-      id:
-        type: string
-        description: 'Unique identifier of the organization.'
-      name:
-        type: string
-        description: 'Name of the organization.'
-      description:
-        type: string
-        description: 'Description of the organization.'
-      address:
-        type: string
-        description: 'Address of the organization.'
-      welcomeUrl:
-        type: string
-        description: 'URL of the website of the organization (RFC 3986 format).'
-      contactUrl:
-        type: string
-        description: 'URL with the contact for the beacon operator/maintainer, e.g. link to a contact form (RFC 3986 format) or an email (RFC 2368 format).'
-      logoUrl:
-        type: string
-        description: 'URL to the logo (PNG/JPG format) of the organization (RFC 3986 format).'
-      info:
-        description: Additional structured metadata, key-value pairs.
-        type: array
-        items:
-          $ref: "#/definitions/KeyValuePair"    
+#### Description: Organization owning the beacon.
+#### Type: object
+#### Required:
+- id
+- name
+#### Properties:
+#####id:
+- type: string
+- description: 'Unique identifier of the organization.'
+#####name:
+- type: string
+- description: 'Name of the organization.'
+#####description:
+- type: string
+- description: 'Description of the organization.'
+#####address:
+- type: string
+- description: 'Address of the organization.'
+#####welcomeUrl:
+- type: string
+- description: 'URL of the website of the organization (RFC 3986 format).'
+#####contactUrl:
+- type: string
+- description: 'URL with the contact for the beacon operator/maintainer, e.g. link to a contact form (RFC 3986 format) or an email (RFC 2368 format).'
+#####logoUrl:
+- type: string
+- description: 'URL to the logo (PNG/JPG format) of the organization (RFC 3986 format).'
+#####info:
+- description: Additional structured metadata, key-value pairs.
+- type: array
+- items:
+    - [KeyValuePair](#keyvaluepair:)    
+    
+    
+    
+    
 
 ### 3. BeaconDataset
-    type: object
-    required:
-      - id
-      - name
-      - assemblyId
-      - createDateTime
-      - updateDateTime
-    properties:
-      id:
-        type: string
-        description: 'Unique identifier of the dataset.'
-      name:
-        type: string
-        description: 'Name of the dataset.'
-      assemblyId:
-        description: 'Assembly identifier (GRC notation, e.g. `GRCh37`).'
-        type: string
-        example: GRCh38
-      createDateTime:
-        type: string
-        description: 'The time the dataset was created (ISO 8601 format).'
-        example: 2012-07-29 or 2017-01-17T20:33:40Z
-      updateDateTime:
-        type: string
-        description: 'The time the dataset was created (ISO 8601 format).'
-        example: 2012-07-19 or 2017-01-17T20:33:40Z
-      version:
-        type: string
-        description: 'Version of the dataset.'
-      variantCount:
-        type: integer
-        format: int64
-        description: 'Total number of variants in the dataset.'
-        minimum: 0
-      callCount:
-        type: integer
-        format: int64
-        description: 'Total number of calls in the dataset.'
-        minimum: 0
-      sampleCount:
-        type: integer
-        format: int64
-        description: 'Total number of samples in the dataset.'
-        minimum: 0
-      externalUrl:
-        type: string
-        description: 'URL to an external system providing more dataset information (RFC 3986 format).'
-        example: http://example.org/wiki/Main_Page
-      info:
-        description: Additional structured metadata, key-value pairs.
-        type: array
-        items:
-          $ref: "#/definitions/KeyValuePair"    
-      dataUseConditions:
-        $ref: "#/definitions/DataUseConditions"
+#### Type: object
+#### Required:
+- [Id](#id:)
+- [Name](#name:)
+- [AssemblyId](#assemblyId:)
+- [CreateDateTime](#createDateTime:)
+- [UpdateDateTime](#updateDateTime:)
+#### Properties:
+##### Id:
+- type: string
+- description: 'Unique identifier of the dataset.'
+##### Name:
+- type: string
+- description: 'Name of the dataset.'
+##### AssemblyId:
+- description: 'Assembly identifier (GRC notation, e.g. `GRCh37`).'
+- type: string
+- example: GRCh38
+##### CreateDateTime:
+- type: string
+- description: 'The time the dataset was created (ISO 8601 format).'
+- example: 2012-07-29 or 2017-01-17T20:33:40Z
+##### UpdateDateTime:
+- type: string
+- description: 'The time the dataset was created (ISO 8601 format).'
+- example: 2012-07-19 or 2017-01-17T20:33:40Z
+##### Version:
+- type: string
+- description: 'Version of the dataset.'
+##### VariantCount:
+- type: integer
+- format: int64
+- description: 'Total number of variants in the dataset.'
+- minimum: 0
+##### CallCount:
+- type: integer
+- format: int64
+- description: 'Total number of calls in the dataset.'
+- minimum: 0
+##### SampleCount:
+- type: integer
+- format: int64
+- description: 'Total number of samples in the dataset.'
+- minimum: 0
+##### ExternalUrl:
+- type: string
+- description: 'URL to an external system providing more dataset information (RFC 3986 format).'
+- example: http://example.org/wiki/Main_Page
+##### Info:
+- description: Additional structured metadata, key-value pairs.
+- type: array
+- items:
+    - [KeyValuePair](#keyvaluepair:)    
+##### DataUseConditions:
+- [DataUseConditions](#dataUseConditions:)
 
-#### 4. BeaconAlleleRequest
-    description: 'Allele request as interpreted by the beacon.'
-    type: object
-    required:
-      - referenceName
-      - start
-      - startMin
-      - startMax
-      - endMin
-      - endMax
-      - referenceBases
-      - alternateBases
-      - assemblyId
-    properties:
-      referenceName:
+### 4. BeaconAlleleRequest
+#### Description: 'Allele request as interpreted by the beacon.'
+#### Type: object
+#### Required:
+- [referenceName](#referencename:)
+- [start](#start:)
+- [startMin](#startmin:)
+- [startMax](#startmax:)
+- [endMin](#endmin:)
+- [endMax](#endmax:)
+- [referenceBases](#referencebases:)
+- [alternateBases](#alternatebases:)
+- [assemblyId](#assemblyid:)
+#### Properties:
+##### referenceName:
         $ref: "#/definitions/Chromosome"
-      start:
-        description: 'Position, allele locus (0-based)'
-        type: integer
-        format: int64
-        minimum: 0
-      end:
-        type: integer
-      startMin:
-        type: integer
-      startMax:
-        type: integer
-      endMin:
-        type: integer
-      endMax:
-        type: integer
-      referenceBases:
-        description: >-
-          Reference bases for this variant (starting from `start`). For accepted values see the REF field in VCF 4.2 specification
-        type: string
-        enum:
-          - A
-          - C
-          - G
-          - T
-          - N
-      alternateBases:
-        description: >-
-          The bases that appear instead of the reference bases. For accepted values see the ALT field in VCF 4.2 specification
-        type: string
-      assemblyId:
-        description: 'Assembly identifier (GRC notation, e.g. `GRCh37`).'
-        type: string
-        example: GRCh38
-      datasetIds:
-        description: >-
-          Identifiers of datasets, as defined in `BeaconDataset`. If this field is null/not specified, all datasets should be queried.
-        type: array
-        items:
-          type: string
-      includeDatasetResponses:
-        description: >-
-          Indicator of whether responses for individual datasets
+##### start:
+- description: 'Position, allele locus (0-based)'
+- type: integer
+- format: int64
+- minimum: 0
+##### end:
+- type: integer
+##### startMin:
+- type: integer
+##### startMax:
+- type: integer
+##### endMin:
+- type: integer
+##### endMax:
+- type: integer
+##### referenceBases:
+- description: Reference bases for this variant (starting from `start`). For accepted values see the REF field in VCF 4.2 specification
+- type: string
+- enum:
+     - A
+     - C
+     - G
+     - T
+     - N
+##### alternateBases:
+- description: The bases that appear instead of the reference bases. For accepted values see the ALT field in VCF 4.2 specification
+- type: string
+##### assemblyId:
+- description: 'Assembly identifier (GRC notation, e.g. `GRCh37`).'
+- type: string
+- example: GRCh38
+##### datasetIds:
+- description: Identifiers of datasets, as defined in `BeaconDataset`. If this field is null/not specified, all datasets should be queried.
+- type: array
+- items:
+    - type: string
+##### includeDatasetResponses:
+- description: Indicator of whether responses for individual datasets
           (datasetAlleleResponses) should be included in the
           response (BeaconAlleleResponse) to this request or not. 
           If null (not specified), the default value of NONE is assumed.
-        type: string
-        enum: 
-          - ALL
-          - HIT
-          - MISS
-          - NONE
+- type: string
+- enum: 
+     - ALL
+     - HIT
+     - MISS
+     - NONE
 
-#### 5. BeaconAlleleResponse
+### 5. BeaconAlleleResponse
     type: object
     required:
       - beaconId
