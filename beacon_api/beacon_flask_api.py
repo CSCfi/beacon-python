@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_restful import Api, Resource
 from webargs import fields
 from webargs.flaskparser import use_kwargs
+
 from beacon_api.check_functions import *
 from beacon_api.error_handelers import BeaconError
 from beacon_api.beacon_dicts import Beacon

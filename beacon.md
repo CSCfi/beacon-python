@@ -4,9 +4,10 @@
 #### Description: A Beacon is a web service for genetic data sharing that can be queried for information about specific alleles.
 
 #### Authors:
-- ...
+- Kasper Keinänen
 
 #### Publication Date: 
+xx.06.2018
 #### Version: 1.0.0
 
 ## Executive Summary
@@ -91,7 +92,10 @@ HTTP Transport Protocol...
 - description: Additional structured metadata, key-value pairs.
 - type: array
 - items:
-- [KeyValuePair](#keyvaluepair:)
+- [KeyValuePair](#7.-keyvaluepair:)
+
+
+
 
 
 
@@ -99,35 +103,37 @@ HTTP Transport Protocol...
 #### Description: Organization owning the beacon.
 #### Type: object
 #### Required:
-- id
-- name
+- [id](#id:)
+- [name](#name:)
 #### Properties:
-#####id:
+##### id:
 - type: string
 - description: 'Unique identifier of the organization.'
-#####name:
+##### name:
 - type: string
 - description: 'Name of the organization.'
-#####description:
+##### description:
 - type: string
 - description: 'Description of the organization.'
-#####address:
+##### address:
 - type: string
 - description: 'Address of the organization.'
-#####welcomeUrl:
+##### welcomeUrl:
 - type: string
 - description: 'URL of the website of the organization (RFC 3986 format).'
-#####contactUrl:
+##### contactUrl:
 - type: string
 - description: 'URL with the contact for the beacon operator/maintainer, e.g. link to a contact form (RFC 3986 format) or an email (RFC 2368 format).'
-#####logoUrl:
+##### logoUrl:
 - type: string
 - description: 'URL to the logo (PNG/JPG format) of the organization (RFC 3986 format).'
-#####info:
+##### info:
 - description: Additional structured metadata, key-value pairs.
 - type: array
 - items:
-    - [KeyValuePair](#keyvaluepair:)    
+    - [KeyValuePair](#7.-keyvaluepair:)    
+    
+    
     
     
     
@@ -186,9 +192,15 @@ HTTP Transport Protocol...
 - description: Additional structured metadata, key-value pairs.
 - type: array
 - items:
-    - [KeyValuePair](#keyvaluepair:)    
+    - [KeyValuePair](#7.-keyvaluepair:)    
 ##### DataUseConditions:
-- [DataUseConditions](#dataUseConditions:)
+- [DataUseConditions](#dataUseConditions:)/////////////////////////////////////////////////////
+
+
+
+
+
+
 
 ### 4. BeaconAlleleRequest
 #### Description: 'Allele request as interpreted by the beacon.'
@@ -205,7 +217,7 @@ HTTP Transport Protocol...
 - [assemblyId](#assemblyid:)
 #### Properties:
 ##### referenceName:
-        $ref: "#/definitions/Chromosome"
+- [Chromosome](#9.-chromosome:)
 ##### start:
 - description: 'Position, allele locus (0-based)'
 - type: integer
@@ -254,75 +266,146 @@ HTTP Transport Protocol...
      - MISS
      - NONE
 
-### 5. BeaconAlleleResponse
-    type: object
-    required:
-      - beaconId
-    properties:
-      beaconId:
-        description: 'Identifier of the beacon, as defined in `Beacon`.'
-        type: string
-      apiVersion:
-        description: 'Version of the API. If specified, the value must match `apiVersion` in Beacon'
-        type: string
-      exists:
-        description: >-
-          Indicator of whether the given allele was observed in any of the datasets queried. This should be non-null, unless there was an error, in which case `error` has to be non-null.
-        type: boolean
-      alleleRequest:
-        $ref: "#/definitions/BeaconAlleleRequest"
-      datasetAlleleResponses:
-        description: 'Indicator of whether the given allele was  observed in individual datasets. This should be non-null if `includeDatasetResponses` in the corresponding `BeaconAlleleRequest` is true, and null otherwise.'
-        type: array
-        items:
-          $ref: "#/definitions/BeaconDatasetAlleleResponse"
-      error:
-        $ref: '#/definitions/BeaconError' 
 
-#### 5. BeaconDatasetAlleleDResponse
-    type: object
-    required:
-      - datasetId
-    properties:
-      datasetId:
-        type: string
-        description: 'not provided'
-      exists:
-        description: >-
-          Indicator of whether the given allele was observed in the dataset. This should be non-null, unless there was an error, in which case `error` has to be non-null.
-        type: boolean
-      error:
-        $ref: '#/definitions/BeaconError' 
-      frequency:
-        type: number
-        description: 'Frequency of this allele in the dataset. Between 0 and 1, inclusive.' 
-        minimum: 0
-        maximum: 1
-      variantCount:
-        type: integer
-        format: int64
-        description: 'Number of variants matching the allele request in the dataset.'
-        minimum: 0
-      callCount:
-        type: integer
-        format: int64
-        description: 'Number of calls matching the allele request in the dataset.'
-        minimum: 0
-      sampleCount:
-        type: integer
-        format: int64
-        description: 'Number of samples matching the allele request in the dataset'
-        minimum: 0
-      note:
-        type: string
-        description: 'Additional note or description of the response.'
-      externalUrl:
-        type: string
-        description: 'URL to an external system, such as a secured beacon or a system providing more information about a given allele (RFC 3986 format).'
-      info:
-        description: 'Additional structured metadata, key-value pairs.'
-        type: array
-        items:
-          $ref: "#/definitions/KeyValuePair"      
+
+
+
+
+### 5. BeaconAlleleResponse
+#### Type: object
+#### Required:
+- beaconId
+#### Properties:
+##### beaconId:
+- description: 'Identifier of the beacon, as defined in `Beacon`.'
+- type: string
+##### apiVersion:
+- description: 'Version of the API. If specified, the value must match `apiVersion` in Beacon'
+- type: string
+##### exists:
+- description: Indicator of whether the given allele was observed in any of the datasets queried. This should be non-null, unless there was an error, in which case `error` has to be non-null.
+- type: boolean
+##### alleleRequest:
+- [BeaconAlleleRequest](#4.-beaconallelerequest)
+##### datasetAlleleResponses:
+- description: 'Indicator of whether the given allele was  observed in individual datasets. This should be non-null if `includeDatasetResponses` in the corresponding `BeaconAlleleRequest` is true, and null otherwise.'
+- type: array
+- items:
+    - $ref: "#/definitions/BeaconDatasetAlleleResponse"
+##### error:
+- [BeaconError](#8.-beaconerror:) 
+        
+        
+      
+      
+        
+
+### 6. BeaconDatasetAlleleDResponse
+#### Type: object
+#### Required:
+- datasetId
+#### Properties:
+##### datasetId:
+- type: string
+- description: 'not provided'
+##### exists:
+- description: Indicator of whether the given allele was observed in the dataset. This should be non-null, unless there was an error, in which case `error` has to be non-null.
+- type: boolean
+##### error:
+- [BeaconError](#8.-beaconerror:) 
+##### frequency:
+- type: number
+- description: 'Frequency of this allele in the dataset. Between 0 and 1, inclusive.' 
+- minimum: 0
+- maximum: 1
+##### variantCount:
+- type: integer
+- format: int64
+- description: 'Number of variants matching the allele request in the dataset.'
+- minimum: 0
+##### callCount:
+- type: integer
+- format: int64
+- description: 'Number of calls matching the allele request in the dataset.'
+- minimum: 0
+##### sampleCount:
+- type: integer
+- format: int64
+- description: 'Number of samples matching the allele request in the dataset'
+- minimum: 0
+##### note:
+- type: string
+- description: 'Additional note or description of the response.'
+##### externalUrl:
+- type: string
+- description: 'URL to an external system, such as a secured beacon or a system providing more information about a given allele (RFC 3986 format).'
+##### info:
+- description: 'Additional structured metadata, key-value pairs.'
+- type: array
+- items:
+     - [KeyValuePair](#7.-keyvaluepair:) 
+     
+
+
+
+### 7. KeyValuePair:
+#### Type: object
+#### Required:
+- key
+- value
+#### Properties:
+##### key:
+- type: string
+##### value:
+- type: string 
+
+
+
+
+### 8. BeaconError:
+#### Description: Beacon-specific error. This should be non-null in exceptional situations only, in which case `exists` has to be null.
+#### Type: object
+#### Required:
+- errorCode
+#### Properties:
+##### errorCode:
+- type: integer
+- format: int32
+##### errorMessage:
+- type: string
+
+
+
+
+
+### 9. Chromosome:
+#### Description: 'Reference name (chromosome). Accepting values 1-22, X, Y.'
+#### Type: string
+#### Enum:
+- 1
+- 2
+- 3
+- 4
+- 5
+- 6
+- 7
+- 8
+- 9
+- 10
+- 11
+- 12
+- 13
+- 14
+- 15
+- 16
+- 17
+- 18
+- 19
+- 20
+- 21
+- 22
+- X 
+- Y
 
 ## Beacon API Example
+    
