@@ -34,7 +34,8 @@ HTTP Transport Protocol...
 ## Beacon API Objects
 
 ### 1. Beacon 
-#### Type: object
+#### Type: 
+object
 #### Required:
 - [Id](#id:)
 - [Name](#name:)
@@ -100,8 +101,10 @@ HTTP Transport Protocol...
 
 
 ### 2. BeaconOrganisation
-#### Description: Organization owning the beacon.
-#### Type: object
+#### Description: 
+Organization owning the beacon.
+#### Type: 
+object
 #### Required:
 - [id](#id:)
 - [name](#name:)
@@ -140,7 +143,8 @@ HTTP Transport Protocol...
     
 
 ### 3. BeaconDataset
-#### Type: object
+#### Type: 
+object
 #### Required:
 - [Id](#id:)
 - [Name](#name:)
@@ -203,8 +207,10 @@ HTTP Transport Protocol...
 
 
 ### 4. BeaconAlleleRequest
-#### Description: 'Allele request as interpreted by the beacon.'
-#### Type: object
+#### Description: 
+'Allele request as interpreted by the beacon.'
+#### Type: 
+object
 #### Required:
 - [referenceName](#referencename:)
 - [start](#start:)
@@ -272,7 +278,8 @@ HTTP Transport Protocol...
 
 
 ### 5. BeaconAlleleResponse
-#### Type: object
+#### Type: 
+object
 #### Required:
 - beaconId
 #### Properties:
@@ -301,7 +308,8 @@ HTTP Transport Protocol...
         
 
 ### 6. BeaconDatasetAlleleDResponse
-#### Type: object
+#### Type: 
+object
 #### Required:
 - datasetId
 #### Properties:
@@ -349,7 +357,8 @@ HTTP Transport Protocol...
 
 
 ### 7. KeyValuePair:
-#### Type: object
+#### Type: 
+object
 #### Required:
 - key
 - value
@@ -363,8 +372,10 @@ HTTP Transport Protocol...
 
 
 ### 8. BeaconError:
-#### Description: Beacon-specific error. This should be non-null in exceptional situations only, in which case `exists` has to be null.
-#### Type: object
+#### Description: 
+Beacon-specific error. This should be non-null in exceptional situations only, in which case `exists` has to be null.
+#### Type: 
+object
 #### Required:
 - errorCode
 #### Properties:
@@ -379,8 +390,10 @@ HTTP Transport Protocol...
 
 
 ### 9. Chromosome:
-#### Description: 'Reference name (chromosome). Accepting values 1-22, X, Y.'
-#### Type: string
+#### Description: 
+'Reference name (chromosome). Accepting values 1-22, X, Y.'
+#### Type: 
+string
 #### Enum:
 - 1
 - 2
