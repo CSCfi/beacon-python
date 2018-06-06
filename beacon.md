@@ -29,7 +29,70 @@ HTTP Transport Protocol...
 
 ## Beacon API Methods
 
+#### Beacon_get Class:
+##### - get()
 
+The `get()` method in the Beacon_get class uses the HTTP protocol 'GET' to returns a Json object of all the nessesary info on the beacon and the Api. It 
+uses the '/' path and only serves an information giver. The parameters that the method returns and their descriptions 
+can be found under the title: [Beacon](#1.-beacon).
+
+        
+#### Beacon_query Class:
+##### - get()
+The `get()` method of the Beacon_query class gets it's parameters from the `@use_kwargs(args)` decorator and uses the HTTP
+protocol 'GET' to return a Json object. The object contains the `alleleRequest` that was submitted, the `datasetAlleleResponse`
+that was received, some general info on the api and the parameter `exists`. The `exists` parameter is the answer from the
+query that tells the user if the allele was found or not.
+###
+But first the methods creates the BeaconError object `error_` so it can use it's error handlers. Then it checks that the
+submitted parameters are valid and gets the `datasetAllelResponses` and the `includeDatasetResponses` from the 
+`checkParameters()` method.
+
+##### - post()
+The `post()` method runs the same code as the `get()` method but uses the HTTP protocol `POST` insted. The main difference
+between the methods is that the parameters are not sent in the URL. This is more secure because the `GET` requests URLs get
+logged and then if you use the `POST` instead, you dont reveal the parameters that you query with.
+
+#### BeaconError Class:
+##### - bad_request()
+The `bad_request()` method aborts the actions of the api and returns a 400 error code and a customised error message. 
+The method is called if one of the required parameters are missing or invalid.
+
+##### - unauthorised()
+The `unauthorised()` method aborts the actions of the api and returns a 401 error code with the error message 
+`'Unauthenticated user trying to access protected resource.'`. The method is called if the user doese'nt have access 
+rights to the selected dataset.
+
+##### - forbidden()
+The `forbidden()` method method aborts the actions of the api and returns a 403 error code with the error message 
+`'Resource not granted for authenticated user or resource protected for all users.'`. The method is called if the dataset
+is protected or if the user is authenticated but not granted the resource.
+
+#### Other functions:
+##### - position()
+The `position()` function checks the values of the position parameters (start, startMin, startMax, end, endMain, endMax)
+and returns a positon list `pos` that depending on the submitted parameters, either have one, two or four items.
+
+##### - allelFind()
+The `allelFind()` function queries the database with the submitted parameters and checks if it finds the allele in the right place.
+It returns `True` if found and `False`if not. It also returns the object to the row that was queried in the database.
+
+##### - datasetAllelResponseBuilder()
+The `datasetAllelResponseBuilder()` function calls the `allelFind()` function and receives the answer to the exist parameter
+and the database object to the row in the database. If `exists == False` the function sets the variant_cnt, sample_cnt,
+call_cnt and frequensy to 0. And if `exists == True` the function gets the parameter values from the database.
+
+##### - checkParameters()
+The `checkParameters()` function valiates the submitted parameters values and checks if required parameters are missing.
+It calls the appropriate BeaconError method if something is wrong.
+
+##### - checkifdatasetisTrue()
+The `checkifdatasetisTrue()` function checks the individual datasets and returns `True` if any of the datasets have 
+`exists == True`.
+
+                
+
+    
 
 ## Beacon API Objects
 
