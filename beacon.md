@@ -550,7 +550,63 @@ Example of how to use the GET method in the "/" path:
 #### - /query
 Example of how to use the GET method in the "/query" path:
 
-    http://localhost:5000/query?referenceName=1&start=0&end=0&startMin=28000000&startMax=29000000&endMin=28000000&endMax=29000000&referenceBases=A&alternateBases=T&assemblyId=GRCh37&datasetIds=EGAD00000000028&includeDatasetResponses=ALL
+    curl -v 'http://localhost:5000/query?referenceName=1&start=0&end=0&startMin=28000000&startMax=29000000&endMin=28000000&endMax=29000000&referenceBases=A&alternateBases=T&assemblyId=GRCh37&datasetIds=EGAD00000000028&includeDatasetResponses=ALL'
+######
+    
+    > GET /query?referenceName=1&start=0&end=0&startMin=28000000&startMax=29000000&endMin=28000000&endMax=29000000&referenceBases=A&alternateBases=T&assemblyId=GRCh37&datasetIds=EGAD00000000028&includeDatasetResponses=ALL HTTP/1.1
+    > Host: localhost:5000
+    > User-Agent: curl/7.54.0
+    > Accept: */*
+    > 
+    * HTTP 1.0, assume close after body
+    < HTTP/1.0 200 OK
+    < Content-Type: application/json
+    < Content-Length: 1078
+    < Server: Werkzeug/0.14.1 Python/3.6.5
+    < Date: Mon, 11 Jun 2018 07:29:26 GMT
+    < 
+    {
+        "beaconId": "ega-beacon",
+        "apiVersion": "0.4",
+        "exists": true,
+        "error": null,
+        "allelRequest": {
+            "referenceName": "1",
+            "start": 0,
+            "startMin": 28000000,
+            "startMax": 29000000,
+            "end": 0,
+            "endMin": 28000000,
+            "endMax": 29000000,
+            "referenceBases": "A",
+            "alternateBases": "T",
+            "assemblyId": "GRCh37",
+            "datasetIds": [
+                "EGAD00000000028"
+            ],
+            "includeDatasetResponses": "ALL"
+        },
+        "datasetAllelResponses": [
+            {
+                "datasetId": "EGAD00000000028",
+                "exists": true,
+                "frequency": 0.5,
+                "variantCount": 1,
+                "callCount": 1,
+                "sampleCount": 1,
+                "note": "This sample set comprises cases of schizophrenia with additional cognitive measurements, collected in Aberdeen, Scotland.",
+                "externalUrl": null,
+                "info": {
+                    "accessType": "PUBLIC",
+                    "authorized": "false"
+                },
+                "error": null
+            }
+        ]
+    }
+    * Closing connection 0
+    
+    
 ######
 Example of how to use the POST method in the "/query" path:
    
