@@ -1,24 +1,40 @@
 # Beacon API Specification v1.0.0
 
-#### Name: Beacon
+#### Name: Beacon API
 #### Description: A Beacon is a web service for genetic data sharing that can be queried for information about specific alleles.
 
 #### Authors:
+- Ilkka Lappalainen
+- Jordi Rambla
+- Juha Törnroos
 - Kasper Keinänen
+- Marc Fiume
+- Michael Baudis
+- Miro Cupack
+- Sabela de la Torre
+- Saif 
 
-#### Publication Date: 
-xx.06.2018
+
+
+#### Publication Date: xx.06.2018
 #### Version: 1.0.0
 
 ## Executive Summary
+The main purpose of Beacon is to make genetic data discoverable without a need to apply access to datasets beforehand. With Beacon it is possible to make simple queries to the datasets and discover interesting datasets. If interesting dataset is found Beacon will point to appropriate place to apply dataset permissions (e.g. to EGA).    
 
 ## Document Scope 
+This document explains what are the design principles in Beacon API, how protocol works, what methods are offered by the API and shows API works in practise by providing examples. This document does not editorialise how Beacon API should be implemented. However there are implementations of this API, such as [ELIXIR Beacon reference implementation](https://github.com/ga4gh-beacon/beacon-elixir).  
 
 ### Referenced External Standards
-- ADA-M [version]
-- Consent Codes [version]
+- [ADA-M](https://github.com/ga4gh/ADA-M) 
+- [GA4GH Consent Codes](https://github.com/ga4gh/ga4gh-consent-policy)
 
 ## Design Principles
+Beacon provides REST API on top of HTTP protocol.
+
+
+
+## API Protocol
 The Beacon API has two endpoints:
 
 #### - `/`
@@ -28,32 +44,27 @@ about the API.
 #### - `/query`
 The `/query` endpoint has two methods, the `get()` and the `post()`.
 
-## API Protocol
-
-HTTP Transport Protocol: `GET` and `POST`
-#####
-Rest-API
-
-### Security...
+### Security
+Three level access tiers: open, regisered and controlled. 
 
 ## Beacon API Methods
 
 #### Beacon `/` endpoint:
-##### - `get()`
+##### - METHOD: `GET`
 The `get()` method uses the HTTP protocol 'GET' to returns a Json object of all the necessary info on the beacon and the Api. It
 uses the `/` path and only serves an information giver. The parameters that the method returns and their descriptions
 can be found under the title: [Beacon]()
 
         
 #### Beacon `/query` endpoint:
-##### - get()
+##### - METHOD: `GET`
 The `get()` method uses the HTTP
 protocol 'GET' to return a Json object. The object contains the `alleleRequest` that was submitted, the `datasetAlleleResponse`
 that was received, some general info on the api and the parameter `exists`. The `exists` parameter is the answer from the
 query that tells the user if the allele was found or not.
 
 
-##### - post()
+##### - METHOD: `POST`
 The `post()` method runs the same code as the `get()` method but uses the HTTP protocol `POST` instead. The main difference
 between the methods is that the parameters are not sent in the URL. This is more secure because the `GET` requests URLs get
 logged and then if you use the `POST` instead, you dont reveal the parameters that you query with.
@@ -670,3 +681,4 @@ Example of how to use the POST method in the "/query" path:
     * Closing connection 0
     
     
+
