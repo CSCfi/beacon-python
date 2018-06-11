@@ -64,393 +64,394 @@ logged and then if you use the `POST` instead, you dont reveal the parameters th
     
 
 ## Beacon API Objects
-
-### 1. Beacon 
-#### Type: 
-object
-#### Required:
-- [Id](#id:)
-- [Name](#name:)
-- [ApiVersion](#apiversion:)
-- [Organization](#organization:)
-- [Datasets](#datasets:)
+### 1. Beacon
+#### Required parameters:
+- id
+- name
+- apiVersion
+- organization
+- datasets
 #### Properties:
-##### Id:
-- type: string
-- description: Unique identifier of the beacon. Use reverse domain name notation.
-- example: org.ga4gh.beacon
-##### Name:
-- type: string
-- description: Name of the beacon.
-##### ApiVersion:
-- type: string
-- description: Version of the API provided by the beacon.
-- example: v0.3
-##### Organization:
-- [BeaconOrganization](#2.-beaconorganisation)
-##### Description:
-- type: string
-- description: Description of the beacon.
-##### Version:
-- type: string
-- description: Version of the beacon.
-- example: v0.1
-##### WelcomeUrl:
-- type: string
-- description: URL to the welcome page for this beacon (RFC 3986 format).
-- example: http://example.org/wiki/Main_Page
-##### AlternativeUrl:
-- type: string
-- description: Alternative URL to the API, e.g. a restricted version of this beacon (RFC 3986 format).
-- example: http://example.org/wiki/Main_Page
-##### CreateDateTime:
-- type: string
-- description: The time the beacon was created (ISO 8601 format).
-- example: 2012-07-19 or 2017-01-17T20:33:40Z
-##### UpdateDateTime:
-- type: string
-- description: The time the beacon was created (ISO 8601 format).
-- example: 2012-07-19 or 2017-01-17T20:33:40Z
-##### Datasets:
-- description: Datasets served by the beacon. Any beacon should specify at least one dataset.
-- type: array
-- items:
-- [BeaconDataset](#3.-beacondataset)
-##### SampleAlleleRequests:
-- description: Examples of interesting queries, e.g. a few queries demonstrating different esponses.
-- type: array
-- items:
-- [BeaconAlleleRequest](#4.-beaconallelerequest)
-##### Info:
-- description: Additional structured metadata, key-value pairs.
-- type: array
-- items:
-- [KeyValuePair](#7.-keyvaluepair:)
+**id:** Unique identifier of the beacon. Use reverse domain name notation.
 
+*example: org.ga4gh.beacon*     
+          
+**name:** Name of the beacon.
+          
+**apiVersion:** Version of the API provided by the beacon.
 
+*example: v0.3*
+        
+**organization:** [Organization](#4.-beaconorganization)
+        
+**description:** Description of the beacon.
+        
+**version:** Version of the beacon.
 
+*example: v0.1*
+        
+**welcomeUrl:** URL to the welcome page for this beacon (RFC 3986 format).
 
+*example: 'http://example.org/wiki/Main_Page'*
+       
+**alternativeUrl:** Alternative URL to the API, e.g. a restricted version of this beacon(RFC 3986 format).
 
+*example: 'http://example.org/wiki/Main_Page'*
+          
+**createDateTime:** The time the beacon was created (ISO 8601 format).
 
-### 2. BeaconOrganisation
-#### Description: 
-Organization owning the beacon.
-#### Type: 
-object
-#### Required:
-- [id](#id:)
-- [name](#name:)
+*example: '2012-07-19 or 2017-01-17T20:33:40Z'*
+       
+**updateDateTime:** The time the beacon was created (ISO 8601 format).
+
+*example: '2012-07-19 or 2017-01-17T20:33:40Z'*
+        
+**datasets:** Datasets served by the beacon. Any beacon should specify at least one dataset. ([BeaconDataset](#5.-beacondataset))
+        
+**sampleAlleleRequests:** Examples of interesting queries, e.g. a few queries demonstrating different esponses. ([BeaconAlleleRequest](#2.-beaconallelerequest))
+          
+**info:** Additional structured metadata, key-value pairs. ([KeyValuePair](#8.-keyvaluepair))
+          
+### 2. BeaconAlleleRequest
+Allele request as interpreted by the beacon.
+
+#### Required parameters:
+- referenceName
+- referenceBases
+- assemblyId
 #### Properties:
-##### id:
-- type: string
-- description: 'Unique identifier of the organization.'
-##### name:
-- type: string
-- description: 'Name of the organization.'
-##### description:
-- type: string
-- description: 'Description of the organization.'
-##### address:
-- type: string
-- description: 'Address of the organization.'
-##### welcomeUrl:
-- type: string
-- description: 'URL of the website of the organization (RFC 3986 format).'
-##### contactUrl:
-- type: string
-- description: 'URL with the contact for the beacon operator/maintainer, e.g. link to a contact form (RFC 3986 format) or an email (RFC 2368 format).'
-##### logoUrl:
-- type: string
-- description: 'URL to the logo (PNG/JPG format) of the organization (RFC 3986 format).'
-##### info:
-- description: Additional structured metadata, key-value pairs.
-- type: array
-- items:
-    - [KeyValuePair](#7.-keyvaluepair:)    
-    
-    
-    
-    
-    
-    
+**referenceName:** `string`
 
-### 3. BeaconDataset
-#### Type: 
-object
-#### Required:
-- [Id](#id:)
-- [Name](#name:)
-- [AssemblyId](#assemblyId:)
-- [CreateDateTime](#createDateTime:)
-- [UpdateDateTime](#updateDateTime:)
-#### Properties:
-##### Id:
-- type: string
-- description: 'Unique identifier of the dataset.'
-##### Name:
-- type: string
-- description: 'Name of the dataset.'
-##### AssemblyId:
-- description: 'Assembly identifier (GRC notation, e.g. `GRCh37`).'
-- type: string
-- example: GRCh38
-##### CreateDateTime:
-- type: string
-- description: 'The time the dataset was created (ISO 8601 format).'
-- example: 2012-07-29 or 2017-01-17T20:33:40Z
-##### UpdateDateTime:
-- type: string
-- description: 'The time the dataset was created (ISO 8601 format).'
-- example: 2012-07-19 or 2017-01-17T20:33:40Z
-##### Version:
-- type: string
-- description: 'Version of the dataset.'
-##### VariantCount:
-- type: integer
-- format: int64
-- description: 'Total number of variants in the dataset.'
-- minimum: 0
-##### CallCount:
-- type: integer
-- format: int64
-- description: 'Total number of calls in the dataset.'
-- minimum: 0
-##### SampleCount:
-- type: integer
-- format: int64
-- description: 'Total number of samples in the dataset.'
-- minimum: 0
-##### ExternalUrl:
-- type: string
-- description: 'URL to an external system providing more dataset information (RFC 3986 format).'
-- example: http://example.org/wiki/Main_Page
-##### Info:
-- description: Additional structured metadata, key-value pairs.
-- type: array
-- items:
-    - [KeyValuePair](#7.-keyvaluepair:)    
-##### DataUseConditions:
-- [DataUseConditions](#dataUseConditions:)/////////////////////////////////////////////////////
+Reference name (chromosome). Accepting values 1-22, X, Y.
+
+**start:** `integer`
+
+Precise start coordinate position, allele locus (0-based).
+* **start** only:
+  - for single positions, e.g. the start of a specified sequence alteration where the size is given through the specified alternateBases
+  - typical use are queries for SNV and small InDels
+  - the use of "start" without an "end" parameter requires the use of "referenceBases"
+* **start** and **end**:
+  - special use case for exactly determined structural changes
+
+**end:** `integer`
+
+Precise end coordinate. See start.
+
+**startMin:** `integer`
+
+Minimum start coordinate
+* startMin + startMax + endMin + endMax
+  - for querying imprecise positions (e.g. identifying all structural variants starting anywhere between startMin <-> startMax, and ending anywhere between endMin <-> endMax
+  - single or douple sided precise matches can be achieved by setting startMin = startMax XOR endMin = endMax
+
+**startMax:** `integer`
+
+Maximum start coordinate. See startMin.
+
+**endMin:** `integer`
+
+Minimum end coordinate. See startMin.
+
+**endMAx:** `integer`
+
+Maximum end coordinate. See startMin.
+
+**referenceBases:** `string`
+
+Reference bases for this variant (starting from `start`).
+
+Accepted values: [ACGT]*
+
+When querying for variants without specific base alterations (e.g. imprecise structural variants with separate variant_type as well as start_min & end_min ... parameters), the use of a single "N" value is required.
+
+**alternateBases:** `string`
+
+The bases that appear instead of the reference bases. Accepted
+values: [ACGT]* or N.
+Symbolic ALT alleles (DEL, INS, DUP, INV, CNV, DUP:TANDEM, DEL:ME,
+INS:ME) will be represented in `variantType`.
+
+Optional: either `alternateBases` or `variantType` is required.
+
+**variantType:** `string`
+
+The `variantType` is used to denote e.g. structural variants.
+
+Examples:
+* DUP: duplication of sequence following `start`; not necessarily in
+situ
+* DEL: deletion of sequence following `start`
+
+Optional: either `alternateBases` or `variantType` is required.
+
+**assemblyId:** `string`
+
+Assembly identifier (GRC notation, e.g. `GRCh37`).
+
+**datasetIds:** `array`
+
+Identifiers of datasets, as defined in `BeaconDataset`. If this field is null/not specified, all datasets should be queried.
+
+**includeDatasetResponses:** `string`
+
+Indicator of whether responses for individual datasets
+(datasetAlleleResponses) should be included in the response
+(BeaconAlleleResponse) to this request or not. If null (not
+specified), the default value of NONE is assumed.
+
+Values: [ALL, HIT, MISS, NONE]
 
 
+### 3. BeaconAlleleResponse
+The response to the given query.
 
-
-
-
-
-### 4. BeaconAlleleRequest
-#### Description: 
-'Allele request as interpreted by the beacon.'
-#### Type: 
-object
-#### Required:
-- [referenceName](#referencename:)
-- [start](#start:)
-- [startMin](#startmin:)
-- [startMax](#startmax:)
-- [endMin](#endmin:)
-- [endMax](#endmax:)
-- [referenceBases](#referencebases:)
-- [alternateBases](#alternatebases:)
-- [assemblyId](#assemblyid:)
-#### Properties:
-##### referenceName:
-- [Chromosome](#9.-chromosome:)
-##### start:
-- description: 'Position, allele locus (0-based)'
-- type: integer
-- format: int64
-- minimum: 0
-##### end:
-- type: integer
-##### startMin:
-- type: integer
-##### startMax:
-- type: integer
-##### endMin:
-- type: integer
-##### endMax:
-- type: integer
-##### referenceBases:
-- description: Reference bases for this variant (starting from `start`). For accepted values see the REF field in VCF 4.2 specification
-- type: string
-- enum:
-     - A
-     - C
-     - G
-     - T
-     - N
-##### alternateBases:
-- description: The bases that appear instead of the reference bases. For accepted values see the ALT field in VCF 4.2 specification
-- type: string
-##### assemblyId:
-- description: 'Assembly identifier (GRC notation, e.g. `GRCh37`).'
-- type: string
-- example: GRCh38
-##### datasetIds:
-- description: Identifiers of datasets, as defined in `BeaconDataset`. If this field is null/not specified, all datasets should be queried.
-- type: array
-- items:
-    - type: string
-##### includeDatasetResponses:
-- description: Indicator of whether responses for individual datasets
-          (datasetAlleleResponses) should be included in the
-          response (BeaconAlleleResponse) to this request or not. 
-          If null (not specified), the default value of NONE is assumed.
-- type: string
-- enum: 
-     - ALL
-     - HIT
-     - MISS
-     - NONE
-
-
-
-
-
-
-### 5. BeaconAlleleResponse
-#### Type: 
-object
-#### Required:
+#### Required parameters:
 - beaconId
 #### Properties:
-##### beaconId:
-- description: 'Identifier of the beacon, as defined in `Beacon`.'
-- type: string
-##### apiVersion:
-- description: 'Version of the API. If specified, the value must match `apiVersion` in Beacon'
-- type: string
-##### exists:
-- description: Indicator of whether the given allele was observed in any of the datasets queried. This should be non-null, unless there was an error, in which case `error` has to be non-null.
-- type: boolean
-##### alleleRequest:
-- [BeaconAlleleRequest](#4.-beaconallelerequest)
-##### datasetAlleleResponses:
-- description: 'Indicator of whether the given allele was  observed in individual datasets. This should be non-null if `includeDatasetResponses` in the corresponding `BeaconAlleleRequest` is true, and null otherwise.'
-- type: array
-- items:
-    - $ref: "#/definitions/BeaconDatasetAlleleResponse"
-##### error:
-- [BeaconError](#8.-beaconerror:) 
-        
-        
-      
-      
-        
+**beaconId:** `string`
 
-### 6. BeaconDatasetAlleleDResponse
-#### Type: 
-object
-#### Required:
-- datasetId
+Identifier of the beacon, as defined in `Beacon`.
+
+**apiVersion:** `string`
+
+Version of the API. If specified, the value must match `apiVersion` in Beacon
+
+**exists: `boolean`** 
+
+Indicator of whether the given allele was observed in any of the
+datasets queried. This should be non-null, unless there was an
+error, in which case `error` has to be non-null.
+
+**alleleRequest:** `object`
+
+[BeaconAlleleRequest](#2.-beaconallelerequest)
+
+**datasetAlleleResponses:** `array`
+
+Indicator of whether the given allele was  observed in individual
+datasets. This should be non-null if `includeDatasetResponses` in
+the corresponding `BeaconAlleleRequest` is true, and null otherwise.
+
+Array items: [BeaconDatasetAlleleResponse](#6.-beacondatasetalleleresponse)
+
+**error:** [BeaconError](#7.--beaconerror)
+
+### 4. BeaconOrganization
+The organization owning the beacon.
+
+#### Required parameters:
+- id
+- name
 #### Properties:
-##### datasetId:
-- type: string
-- description: 'not provided'
-##### exists:
-- description: Indicator of whether the given allele was observed in the dataset. This should be non-null, unless there was an error, in which case `error` has to be non-null.
-- type: boolean
-##### error:
-- [BeaconError](#8.-beaconerror:) 
-##### frequency:
-- type: number
-- description: 'Frequency of this allele in the dataset. Between 0 and 1, inclusive.' 
-- minimum: 0
-- maximum: 1
-##### variantCount:
-- type: integer
-- format: int64
-- description: 'Number of variants matching the allele request in the dataset.'
-- minimum: 0
-##### callCount:
-- type: integer
-- format: int64
-- description: 'Number of calls matching the allele request in the dataset.'
-- minimum: 0
-##### sampleCount:
-- type: integer
-- format: int64
-- description: 'Number of samples matching the allele request in the dataset'
-- minimum: 0
-##### note:
-- type: string
-- description: 'Additional note or description of the response.'
-##### externalUrl:
-- type: string
-- description: 'URL to an external system, such as a secured beacon or a system providing more information about a given allele (RFC 3986 format).'
-##### info:
-- description: 'Additional structured metadata, key-value pairs.'
-- type: array
-- items:
-     - [KeyValuePair](#7.-keyvaluepair:) 
-     
+
+**id:** `string`
+
+Unique identifier of the organization
+
+**name:** `string`
+
+Name of the organization.
+
+**description:** `string`
+
+Description of the organization.
+
+**address:** `string`
+
+Address of the organization.
+
+**welcomeUrl:** `string`
+
+URL of the website of the organization (RFC 3986 format).
+
+**contactUrl:** `string`
+
+URL with the contact for the beacon operator/maintainer, e.g. link
+to a contact form (RFC 3986 format) or an email (RFC 2368 format).
+
+**logoUrl:** `string`
+
+URL to the logo (PNG/JPG format) of the organization (RFC 3986
+format).
+
+**info:** `array`
+
+Additional structured metadata, key-value pairs.
+
+Array items: [KeyValuePair](#8.-keyvaluepair)
+
+### 5. BeaconDataset
+
+#### Required parameters:
+- id
+- name
+- assemblyId
+- createDateTime
+- updateDateTime
+
+#### Properties:
+
+**id:** `string`
+
+Unique identifier of the dataset.
+
+**name:** `string`
+
+Name of the dataset.
+
+**assemblyId:** `string`
+
+Assembly identifier (GRC notation, e.g. `GRCh37`).
+
+**createDateTime:** `string`
+
+The time the dataset was created (ISO 8601 format).
+
+*example: '2012-07-19 or 2017-01-17T20:33:40Z'*
+
+**version:** `string`
+
+Version of the dataset.
+
+**variantCount:** `integer`
+
+Total number of variants in the dataset.
+
+*minimum: 0*
+
+**callCount:** `integer`
+
+Total number of calls in the dataset.
+
+*minimum: 0*
+
+**sampleCount:** `integer`
+
+Total number of samples in the dataset.
+
+*minimum: 0*
+
+**externalUrl:** `string`
+
+URL to an external system providing more dataset information (RFC 3986 format).
+
+*example: 'http://example.org/wiki/Main_Page'*
+
+**info:** `array`
+
+Additional structured metadata, key-value pairs.
+
+Array items: [KeyValuePair](#8.-keyvaluepair)
+
+### 6. BeaconDatasetAlleleResponse
+The individual responces from the different datasets. 
+#### Required parameters:
+- datasetId
+
+#### Properties:
+
+**datasetId:** `string
+
+The unique Id for the dataset.
+
+**exists:** `boolean`
+
+Indicator of whether the given allele was observed in the dataset.
+This should be non-null, unless there was an error, in which case
+`error` has to be non-null.
+
+**error:** [BeaconError](#7.--beaconerror)
+
+**frequency:** `integer`
+
+Frequency of this allele in the dataset. Between 0 and 1, inclusive.
+
+*minimum: 0*
+
+*maximum: 1*
+
+**variantCount:** `integer`
+
+Number of variants matching the allele request in the dataset.
+
+*minimum: 0*
+
+**callCount:** `integer`
+
+Number of calls matching the allele request in the dataset.
+
+*minimum: 0*
+
+**sampleCount:** `integer`
+
+Number of samples matching the allele request in the dataset
+
+*minimum: 0*
+
+**note:** `string`
+
+Additional note or description of the response.
+
+**externalUrl:** `string`
+
+URL to an external system, such as a secured beacon or a system
+providing more information about a given allele (RFC 3986 format).
+
+**info:**: `array`
+
+Additional structured metadata, key-value pairs.
+
+Array items: [KeyValuePair](#8.-keyvaluepair)
 
 
+### 7.  BeaconError
+Beacon-specific error. This should be non-null in exceptional situations only, in which case `exists` has to be null.
+#### Required parameters:
+- errorCode
+#### Properties:
 
-### 7. KeyValuePair:
-#### Type: 
-object
-#### Required:
+**errorCode:** `integer`
+
+**errorMessage:** `string`
+
+### 8. KeyValuePair
+#### Required parameters:
 - key
 - value
 #### Properties:
-##### key:
-- type: string
-##### value:
-- type: string 
+**key:** `string`
 
+**value:** `string`
 
-
-
-### 8. BeaconError:
-#### Description: 
-Beacon-specific error. This should be non-null in exceptional situations only, in which case `exists` has to be null.
-#### Type: 
-object
-#### Required:
-- errorCode
+### 9. DataUseConditions
+#### Required parameters:
+- consentCodeDataUse
+- adamDataUse
 #### Properties:
-##### errorCode:
-- type: integer
-- format: int32
-##### errorMessage:
-- type: string
+**consentCodeDataUse:** 
+https://raw.githubusercontent.com/sdelatorrep/ga4gh-consent-policy/openapi_v2.0/consent_code.yaml#/definitions/ConsentCodeDataUse
 
+**adamDataUse:** [AdamDataUse](#10.-adamdatause)
 
+### 10. AdamDataUse
+#### Required parameters:
+- header
+- profile
+- terms
+- metaConditions
+#### Properties:
+**header:** 
+https://raw.githubusercontent.com/sdelatorrep/ADA-M/openapi_v2.0/adam.yaml#/definitions/AdamHeader
 
+**profile:** 
+https://raw.githubusercontent.com/sdelatorrep/ADA-M/openapi_v2.0/adam.yaml#/definitions/AdamProfile
 
+**terms:**
+https://raw.githubusercontent.com/sdelatorrep/ADA-M/openapi_v2.0/adam.yaml#/definitions/AdamTerms
 
-### 9. Chromosome:
-#### Description: 
-'Reference name (chromosome). Accepting values 1-22, X, Y.'
-#### Type: 
-string
-#### Enum:
-- 1
-- 2
-- 3
-- 4
-- 5
-- 6
-- 7
-- 8
-- 9
-- 10
-- 11
-- 12
-- 13
-- 14
-- 15
-- 16
-- 17
-- 18
-- 19
-- 20
-- 21
-- 22
-- X 
-- Y
+**metaConditions:**
+https://raw.githubusercontent.com/sdelatorrep/ADA-M/openapi_v2.0/adam.yaml#/definitions/AdamMetaConditions
 
 ## Beacon API Example
 #### - /
