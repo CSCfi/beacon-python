@@ -19,76 +19,45 @@ xx.06.2018
 - Consent Codes [version]
 
 ## Design Principles
+The Beacon API has two endpoints:
 
+#### - `/`
+The `/` endpoint has only one method, the `get()` method.
+about the API.
+
+#### - `/query`
+The `/query` endpoint has two methods, the `get()` and the `post()`.
 
 ## API Protocol
 
-HTTP Transport Protocol...
+HTTP Transport Protocol: `GET` and `POST`
+#####
+Rest-API
 
 ### Security...
 
 ## Beacon API Methods
 
-#### Beacon_get Class:
-##### - get()
-
-The `get()` method in the Beacon_get class uses the HTTP protocol 'GET' to returns a Json object of all the nessesary info on the beacon and the Api. It 
-uses the '/' path and only serves an information giver. The parameters that the method returns and their descriptions 
-can be found under the title: [Beacon](#1.-beacon).
+#### Beacon `/` endpoint:
+##### - `get()`
+The `get()` method uses the HTTP protocol 'GET' to returns a Json object of all the necessary info on the beacon and the Api. It
+uses the `/` path and only serves an information giver. The parameters that the method returns and their descriptions
+can be found under the title: [Beacon]()
 
         
-#### Beacon_query Class:
+#### Beacon `/query` endpoint:
 ##### - get()
-The `get()` method of the Beacon_query class gets it's parameters from the `@use_kwargs(args)` decorator and uses the HTTP
+The `get()` method uses the HTTP
 protocol 'GET' to return a Json object. The object contains the `alleleRequest` that was submitted, the `datasetAlleleResponse`
 that was received, some general info on the api and the parameter `exists`. The `exists` parameter is the answer from the
 query that tells the user if the allele was found or not.
-###
-But first the methods creates the BeaconError object `error_` so it can use it's error handlers. Then it checks that the
-submitted parameters are valid and gets the `datasetAllelResponses` and the `includeDatasetResponses` from the 
-`checkParameters()` method.
+
 
 ##### - post()
-The `post()` method runs the same code as the `get()` method but uses the HTTP protocol `POST` insted. The main difference
+The `post()` method runs the same code as the `get()` method but uses the HTTP protocol `POST` instead. The main difference
 between the methods is that the parameters are not sent in the URL. This is more secure because the `GET` requests URLs get
 logged and then if you use the `POST` instead, you dont reveal the parameters that you query with.
 
-#### BeaconError Class:
-##### - bad_request()
-The `bad_request()` method aborts the actions of the api and returns a 400 error code and a customised error message. 
-The method is called if one of the required parameters are missing or invalid.
-
-##### - unauthorised()
-The `unauthorised()` method aborts the actions of the api and returns a 401 error code with the error message 
-`'Unauthenticated user trying to access protected resource.'`. The method is called if the user doese'nt have access 
-rights to the selected dataset.
-
-##### - forbidden()
-The `forbidden()` method method aborts the actions of the api and returns a 403 error code with the error message 
-`'Resource not granted for authenticated user or resource protected for all users.'`. The method is called if the dataset
-is protected or if the user is authenticated but not granted the resource.
-
-#### Other functions:
-##### - position()
-The `position()` function checks the values of the position parameters (start, startMin, startMax, end, endMain, endMax)
-and returns a positon list `pos` that depending on the submitted parameters, either have one, two or four items.
-
-##### - allelFind()
-The `allelFind()` function queries the database with the submitted parameters and checks if it finds the allele in the right place.
-It returns `True` if found and `False`if not. It also returns the object to the row that was queried in the database.
-
-##### - datasetAllelResponseBuilder()
-The `datasetAllelResponseBuilder()` function calls the `allelFind()` function and receives the answer to the exist parameter
-and the database object to the row in the database. If `exists == False` the function sets the variant_cnt, sample_cnt,
-call_cnt and frequensy to 0. And if `exists == True` the function gets the parameter values from the database.
-
-##### - checkParameters()
-The `checkParameters()` function valiates the submitted parameters values and checks if required parameters are missing.
-It calls the appropriate BeaconError method if something is wrong.
-
-##### - checkifdatasetisTrue()
-The `checkifdatasetisTrue()` function checks the individual datasets and returns `True` if any of the datasets have 
-`exists == True`.
 
                 
 
@@ -484,4 +453,164 @@ string
 - Y
 
 ## Beacon API Example
+#### - /
+Example of how to use the GET method in the "/" path:    
+`curl -v http://localhost:5000/` 
+    
+    > GET / HTTP/1.1
+    > Host: localhost:5000
+    > User-Agent: curl/7.54.0
+    > Accept: */*
+    > 
+    * HTTP 1.0, assume close after body
+    < HTTP/1.0 200 OK
+    < Content-Type: application/json
+    < Content-Length: 2391
+    < Server: Werkzeug/0.14.1 Python/3.6.5
+    < Date: Fri, 08 Jun 2018 12:07:36 GMT
+    < 
+    {
+      "alternativeUrl": "https://ega-archive.org/beacon_web/", 
+      "apiVersion": "0.4", 
+      "createDateTime": "2015-06-15T00:00.000Z", 
+      "dataset": [
+        {
+          "assemblyId": "grch37", 
+          "callCount": 74, 
+          "createDateTime": null, 
+          "description": "This sample set comprises cases of schizophrenia with additional cognitive measurements, collected in Aberdeen, Scotland.", 
+          "externalUrl": null, 
+          "id": "EGAD00000000028", 
+          "info": {
+            "accessType": "PUBLIC", 
+            "authorized": "false"
+          }, 
+          "name": null, 
+          "sampleCount": 1, 
+          "updateDateTime": null, 
+          "variantCount": 74, 
+          "version": null
+        }
+      ], 
+      "description": "This <a href=\"http://ga4gh.org/#/beacon\">Beacon</a> is based on the GA4GH Beacon <a href=\"https://github.com/ga4gh/beacon-team/blob/develop/src/main/resources/avro/beacon.avdl\">API 0.4</a>", 
+      "id": "ega-beacon", 
+      "info": {
+        "size": "60270153"
+      }, 
+      "name": "EGA Beacon", 
+      "organization": {
+        "address": "", 
+        "contactUrl": "mailto:beacon.ega@crg.eu", 
+        "description": "The European Genome-phenome Archive (EGA) is a service for permanent archiving and sharing of all types of personally identifiable genetic and phenotypic data resulting from biomedical research projects.", 
+        "id": "EGA", 
+        "info": null, 
+        "logoUrl": "https://ega-archive.org/images/logo.png", 
+        "name": "European Genome-Phenome Archive (EGA)", 
+        "welcomeUrl": "https://ega-archive.org/"
+      }, 
+      "sampleAlleleRequests": [
+        {
+          "alternateBases": "A", 
+          "assemblyId": "GRCh37", 
+          "datasetIds": null, 
+          "includeDatasetResponses": false, 
+          "referenceBases": "C", 
+          "referenceName": "17", 
+          "start": 6689
+        }, 
+        {
+          "alternateBases": "G", 
+          "assemblyId": "GRCh37", 
+          "datasetIds": [
+            "EGAD00000000028"
+          ], 
+          "includeDatasetResponses": "ALL", 
+          "referenceBases": "A", 
+          "referenceName": "1", 
+          "start": 14929
+        }, 
+        {
+          "alternateBases": "CCCCT", 
+          "assemblyId": "GRCh37", 
+          "datasetIds": [
+            "EGAD00001000740", 
+            "EGAD00001000741"
+          ], 
+          "includeDatasetResponses": "HIT", 
+          "referenceBases": "C", 
+          "referenceName": "1", 
+          "start": 866510
+        }
+      ], 
+      "updateDateTime": null, 
+      "version": "v04", 
+      "welcomeUrl": "https://ega-archive.org/beacon_web/"
+    }
+    * Closing connection 0
+#### - /query
+Example of how to use the GET method in the "/query" path:
+
+    http://localhost:5000/query?referenceName=1&start=0&end=0&startMin=28000000&startMax=29000000&endMin=28000000&endMax=29000000&referenceBases=A&alternateBases=T&assemblyId=GRCh37&datasetIds=EGAD00000000028&includeDatasetResponses=ALL
+######
+Example of how to use the POST method in the "/query" path:
+   
+    curl -v -d "referenceName=1&start=14929&referenceBases=A&alternateBases=G&assemblyId=GRCh37&datasetIds=EGAD00000000028&includeDatsetResponses=ALL" http://localhost:5000/query
+######
+
+    > POST /query HTTP/1.1
+    > Host: localhost:5000
+    > User-Agent: curl/7.54.0
+    > Accept: */*
+    > Content-Length: 133
+    > Content-Type: application/x-www-form-urlencoded
+    > 
+    * upload completely sent off: 133 out of 133 bytes
+    * HTTP 1.0, assume close after body
+    < HTTP/1.0 200 OK
+    < Content-Type: application/json
+    < Content-Length: 1056
+    < Server: Werkzeug/0.14.1 Python/3.6.5
+    < Date: Mon, 11 Jun 2018 07:15:48 GMT
+    < 
+    {
+        "beaconId": "ega-beacon",
+        "apiVersion": "0.4",
+        "exists": true,
+        "error": null,
+        "alleleRequest": {
+            "referenceName": "1",
+            "start": 14929,
+            "startMin": 0,
+            "startMax": 0,
+            "end": 0,
+            "endMin": 0,
+            "endMax": 0,
+            "referenceBases": "A",
+            "alternateBases": "G",
+            "assemblyId": "GRCh37",
+            "datasetIds": [
+                "EGAD00000000028"
+            ],
+            "includeDatasetResponses": "ALL"
+        },
+        "datasetAlleleResponses": [
+            {
+                "datasetId": "EGAD00000000028",
+                "exists": true,
+                "frequency": 0.5,
+                "variantCount": 1,
+                "callCount": 1,
+                "sampleCount": 1,
+                "note": "This sample set comprises cases of schizophrenia with additional cognitive measurements, collected in Aberdeen, Scotland.",
+                "externalUrl": null,
+                "info": {
+                    "accessType": "PUBLIC",
+                    "authorized": "false"
+                },
+                "error": null
+            }
+        ]
+    }
+    * Closing connection 0
+    
     
