@@ -74,8 +74,11 @@ class Beacon_query(Resource):
     def get(self, referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, assemblyId, datasetIds, includeDatasetResponses):
 
         error_ = BeaconError(referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, assemblyId, datasetIds, includeDatasetResponses)
-        datasetAllelResponses, includeDatasetResponses = checkParameters(referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, assemblyId, datasetIds, includeDatasetResponses, error_)
-
+        datasetAllelResponses, true_datasetAllelResponses, false_datasetAllelResponses, includeDatasetResponses = checkParameters(
+            referenceName, start, startMin, startMax, end,
+            endMin, endMax, referenceBases, alternateBases,
+            assemblyId, datasetIds,
+            includeDatasetResponses, error_)
         allelRequest = {'referenceName': referenceName,
                         'start': start,
                         'startMin': startMin,
@@ -95,7 +98,8 @@ class Beacon_query(Resource):
                 'exists': checkifdatasetisTrue(datasetAllelResponses),
                 'error': None,
                 'allelRequest': allelRequest,
-                'datasetAllelResponses': datasetAllelResponses}
+                'datasetAllelResponses': checkInclude(includeDatasetResponses, datasetAllelResponses, true_datasetAllelResponses, false_datasetAllelResponses)
+                }
 
     '''The `post()` method runs the same code as the `get()` method but uses the HTTP protocol `POST` instead. The main difference
     between the methods is that the parameters are not sent in the URL. This is more secure because the `GET` requests URLs get
@@ -108,10 +112,11 @@ class Beacon_query(Resource):
         error_ = BeaconError(referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases,
                              alternateBases, assemblyId, datasetIds, includeDatasetResponses)
 
-        datasetAllelResponses, includeDatasetResponses = checkParameters(referenceName, start, startMin, startMax, end,
+        datasetAllelResponses, true_datasetAllelResponses, false_datasetAllelResponses, includeDatasetResponses = checkParameters(referenceName, start, startMin, startMax, end,
                                                                          endMin, endMax, referenceBases, alternateBases,
                                                                          assemblyId, datasetIds,
                                                                          includeDatasetResponses, error_)
+
 
         allelRequest = {'referenceName': referenceName,
                         'start': start,
@@ -132,7 +137,8 @@ class Beacon_query(Resource):
                 "exists": checkifdatasetisTrue(datasetAllelResponses),
                 "error": None,
                 "alleleRequest": allelRequest,
-                "datasetAlleleResponses": datasetAllelResponses}
+                "datasetAlleleResponses": checkInclude(includeDatasetResponses, datasetAllelResponses, true_datasetAllelResponses, false_datasetAllelResponses)
+                }
 
 api.add_resource(Beacon_query,'/query')
 

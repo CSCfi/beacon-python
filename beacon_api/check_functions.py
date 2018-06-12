@@ -1,16 +1,19 @@
-from beacon_api.beacon_database import constructor
 from beacon_api.beacon_database import *
 
 
 #Some hard coded data for the querys, some are taken from the beacon_dicts.py
 #These will be implemented later to thake the data from a database
 refname = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11','12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', 'X', 'Y']
+datasetresponses = ['ALL', 'HIT', 'MISS', 'NONE']
+assembliIds = ['GRCh37', 'GRCh38', 'grch37', 'grch38']
+Bases = ['A', 'C', 'G', 'T', '*', 'N']
+variantTypes = ['DEL', 'INS', 'DUP', 'INV', 'CNV', 'DUP:TANDEM', 'DEL:ME', 'INS:ME']
 Beacon = constructor()
 BeaconDataset = Beacon['dataset']
 datasetIds_list = []
 for dset in BeaconDataset:
     datasetIds_list.append(dset['id'])
-datasetresponses = ['ALL', 'HIT', 'MISS', 'NONE']
+
 
 '''The `position()` function checks the values of the position parameters (start, startMin, startMax, end, endMain, endMax)
 and returns a positon list `pos` that depending on the submitted parameters, either have one, two or four items.
@@ -39,7 +42,7 @@ def position(start, end, startMin, startMax, endMin, endMax):
 '''The `allelFind()` function queries the database with the submitted parameters and checks if it finds the allele in the right place.
 It returns `True` if found and `False`if not. It also returns the object to the row that was queried in the database.'''
 
-def allelFind(chromosome, position, allel, error_):
+def allelFind(chromosome, position, allel):
     q_obj = Beacon_data_table
     q_obj_chrm = q_obj.query.filter_by(chromosome=chromosome).all()   #list
     if not q_obj_chrm:
@@ -71,14 +74,14 @@ def allelFind(chromosome, position, allel, error_):
 and the database object to the row in the database. If `exists == False` the function sets the variant_cnt, sample_cnt,
 call_cnt and frequensy to 0. And if `exists == True` the function gets the parameter values from the database.'''
 
-def datasetAllelResponseBuilder(datasetId, referencename, pos, alternateBases, error_):
+def datasetAllelResponseBuilder(datasetId, referencename, pos, alternateBases):
     error = None
     j = 0
     for i in BeaconDataset:
         if datasetId in i['id']:
             break
         j += 1
-    exists, queryRow = allelFind(referencename, pos, alternateBases, error_)
+    exists, queryRow = allelFind(referencename, pos, alternateBases)
 
     if exists == False:
         queryRow.variant_cnt, queryRow.sample_cnt, queryRow.call_cnt, queryRow.frequency = 0,0,0,0 # does not alter the database only the representation
@@ -148,7 +151,7 @@ def checkParameters(referenceName, start, startMin, startMax, end, endMin, endMa
         #if an error occures the 'exists' must be 'null'
         for set in datasetAllelResponses:
             set['exists'] = None
-        error_.bad_request('Referencename not valid')
+        error_.bad_request('referenceName not valid')
 
     if includeDatasetResponses not in datasetresponses:
         # if an error occures the 'exists' must be 'null'
@@ -156,19 +159,40 @@ def checkParameters(referenceName, start, startMin, startMax, end, endMin, endMa
             set['exists'] = None
         error_.bad_request('IncludeDatasetResponses not valid')
 
+    if assemblyId not in assembliIds:
+        error_.bad_request('assemblyId not valid')
+
+    for nucleotide1 in alternateBases:
+        if nucleotide1 not in Bases:
+            error_.bad_request('alternateBases not valid')
+
+    for nucleotide2 in referenceBases:
+        if nucleotide2 not in Bases:
+            error_.bad_request('referenceBases not valid')
+
     if datasetIds:
         for set in datasetIds:
             if set not in datasetIds_list:
                 error_.bad_request('Invalid datasetId')
-            datasetAllelResponses.append(datasetAllelResponseBuilder(set, referenceName, pos, alternateBases, error_))
+            datasetAllelResponses.append(datasetAllelResponseBuilder(set, referenceName, pos, alternateBases))
     else:
         datasetIds = None
         datasetAllelResponses = None
 
-    if includeDatasetResponses == 'NONE':
-        datasetAllelResponses = None
 
-    return datasetAllelResponses, includeDatasetResponses
+
+    false_datasetAllelResponses = []
+    true_datasetAllelResponses = []
+
+    for response in datasetAllelResponses:
+        if response['exists'] == False:
+            false_datasetAllelResponses.append(response)
+        elif response['exists'] == True:
+            true_datasetAllelResponses.append(response)
+
+
+
+    return datasetAllelResponses, true_datasetAllelResponses, false_datasetAllelResponses, includeDatasetResponses
 
 '''The `checkifdatasetisTrue()` function checks the individual datasets and returns `True` if any of the datasets have 
 `exists == True`.'''
@@ -178,3 +202,13 @@ def checkifdatasetisTrue(datasets):
         if value['exists'] == True:
             return True
     return False
+
+def checkInclude(includeDatasetResponses, alldatasets, trurdatasets, falsedatasets):
+    if includeDatasetResponses == 'ALL':
+        return alldatasets
+    elif includeDatasetResponses == 'NONE':
+        return []
+    elif includeDatasetResponses == 'HIT':
+        return trurdatasets
+    elif includeDatasetResponses == 'MISS':
+        return falsedatasets
