@@ -1,4 +1,5 @@
 
+
 KeyValuePair = {
     'key': 'string',
     'value': 'string'
@@ -6,39 +7,7 @@ KeyValuePair = {
 
 info = [KeyValuePair]
 
-BeaconAllelRequest = [{
-    "alternateBases": None,
-    "referenceBases": None,
-    "referenceName": "17",
-    "start": 6689,
-    "assemblyId": "GRCh37",
-    "datasetIds": None,
-    "includeDatasetResponses": False
-},
-{
-    "alternateBases": None,
-    "referenceBases": None,
-    "referenceName": "1",
-    "start": 1040026,
-    "assemblyId": "GRCh37",
-    "datasetIds": [
-    "EGAD00001000740",
-    "EGAD00001000741"
-    ],
-    "includeDatasetResponses": False
-},
-{
-    "alternateBases": "C",
-    "referenceBases": None,
-    "referenceName": "1",
-    "start": 1040026,
-    "assemblyId": "GRCh37",
-    "datasetIds": [
-    "EGAD00001000740"
-    ],
-    "includeDatasetResponses": False
-}
-]
+
 
 ConsentCodeDataUseConditionRequirement = {
     'code': '''Data use requirements:
@@ -97,6 +66,12 @@ ConsentCodeDataUse = {
 DataUseConditions = {
     'consentCodeDataUse': ConsentCodeDataUse
 }
+
+#
+
+
+
+
 
 BeaconDataset = [{
     "id": "EGAD00001000433",
@@ -270,31 +245,6 @@ BeaconDataset = [{
 }
 ]
 
-Organization = {
-    'id': 'EGA',
-    'name': 'European Genome-Phenome Archive (EGA)',
-    'description': 'The European Genome-phenome Archive (EGA) is a service for permanent archiving and sharing of all types of personally identifiable genetic and phenotypic data resulting from biomedical research projects.',
-    'address': '',
-    'welcomeUrl': 'https://ega-archive.org/',
-    'contactUrl': 'mailto:beacon.ega@crg.eu',
-    'logoUrl': 'https://ega-archive.org/images/logo.png',
-    'info': None,
-}
 
-Beacon = {
-    'id': 'ega-beacon',
-    'name': 'EGA Beacon',
-    'apiVersion': '0.4',
-    'organization': Organization,
-    'description': 'This <a href=\"http://ga4gh.org/#/beacon\">Beacon</a> is based on the GA4GH Beacon <a href=\"https://github.com/ga4gh/beacon-team/blob/develop/src/main/resources/avro/beacon.avdl\">API 0.3</a>',
-    'version': 'v04',
-    'welcomeUrl': 'https://ega-archive.org/beacon_web/',
-    'alternativeUrl': 'https://ega-archive.org/beacon_web/',
-    'createDateTime': '2015-06-15T00:00.000Z',
-    'updateDateTime': None,
-    'dataset': BeaconDataset,
-    'sampleAlleleRequests': BeaconAllelRequest,
-    'info': {
-        "size": "60270153"
-         }
-}
+
+

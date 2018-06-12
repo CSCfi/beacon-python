@@ -1,15 +1,20 @@
-from beacon_api.beacon_dicts import BeaconDataset
+from beacon_api.beacon_database import constructor
 from beacon_api.beacon_database import *
 
 
 #Some hard coded data for the querys, some are taken from the beacon_dicts.py
 #These will be implemented later to thake the data from a database
 refname = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11','12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', 'X', 'Y']
+Beacon = constructor()
+BeaconDataset = Beacon['dataset']
 datasetIds_list = []
-for set in BeaconDataset:
-    datasetIds_list.append(set['id'])
+for dset in BeaconDataset:
+    datasetIds_list.append(dset['id'])
 datasetresponses = ['ALL', 'HIT', 'MISS', 'NONE']
 
+'''The `position()` function checks the values of the position parameters (start, startMin, startMax, end, endMain, endMax)
+and returns a positon list `pos` that depending on the submitted parameters, either have one, two or four items.
+'''
 
 def position(start, end, startMin, startMax, endMin, endMax):
     pos = []
@@ -31,11 +36,15 @@ def position(start, end, startMin, startMax, endMin, endMax):
         pos.append(endMax)
         return pos
 
+'''The `allelFind()` function queries the database with the submitted parameters and checks if it finds the allele in the right place.
+It returns `True` if found and `False`if not. It also returns the object to the row that was queried in the database.'''
+
 def allelFind(chromosome, position, allel, error_):
     q_obj = Beacon_data_table
     q_obj_chrm = q_obj.query.filter_by(chromosome=chromosome).all()   #list
     if not q_obj_chrm:
-        error_.bad_request('Chromosome maching referenceName={}, not found in dataset'.format(chromosome))
+        return None, q_obj.query.filter_by(chromosome=1).all()[0] # expecting that there will allways be chromosome 1 and just returns it as dummy
+
     for q_chrom in q_obj_chrm:
         # only start
         if len(position) == 1:
@@ -58,10 +67,12 @@ def allelFind(chromosome, position, allel, error_):
 
     return False, q_chrom
 
+'''The `datasetAllelResponseBuilder()` function calls the `allelFind()` function and receives the answer to the exist parameter
+and the database object to the row in the database. If `exists == False` the function sets the variant_cnt, sample_cnt,
+call_cnt and frequensy to 0. And if `exists == True` the function gets the parameter values from the database.'''
 
-#The datasetAllelResponseBuilder() function takes in the datasetIds and creates individual responses
-#for them which it puts in the datasetAllelResponses list, and returns it.
 def datasetAllelResponseBuilder(datasetId, referencename, pos, alternateBases, error_):
+    error = None
     j = 0
     for i in BeaconDataset:
         if datasetId in i['id']:
@@ -71,7 +82,10 @@ def datasetAllelResponseBuilder(datasetId, referencename, pos, alternateBases, e
 
     if exists == False:
         queryRow.variant_cnt, queryRow.sample_cnt, queryRow.call_cnt, queryRow.frequency = 0,0,0,0 # does not alter the database only the representation
-    datasetAllelResponses = {
+    elif exists == None:
+        queryRow.variant_cnt, queryRow.sample_cnt, queryRow.call_cnt, queryRow.frequency = 0,0,0,0 # does not alter the database only the representation
+        error = 'Chromosome maching referenceName={}, not found in dataset'.format(referencename)
+    datasetAllelResponse = {
         'datasetId': datasetId,
         'exists': exists,
         'frequency': queryRow.frequency,
@@ -81,13 +95,13 @@ def datasetAllelResponseBuilder(datasetId, referencename, pos, alternateBases, e
         'note': BeaconDataset[j]['description'],
         'externalUrl': BeaconDataset[j]['externalUrl'],
         'info': BeaconDataset[j]['info'],
-        'error': None
+        'error': error
     }
-    return datasetAllelResponses
+    return datasetAllelResponse
 
+'''The `checkParameters()` function valiates the submitted parameters values and checks if required parameters are missing.
+It calls the appropriate BeaconError method if something is wrong.'''
 
-#The checkParameters() function checks if there is anything wrong with the query parameters that
-#the get or post recives. if there is something wrong it calls the appropriate error function (Now bad_request())
 def checkParameters(referenceName, start, startMin, startMax, end, endMin, endMax, \
                     referenceBases, alternateBases, assemblyId, datasetIds, includeDatasetResponses, error_):
     datasetAllelResponses = []
@@ -156,7 +170,9 @@ def checkParameters(referenceName, start, startMin, startMax, end, endMin, endMa
 
     return datasetAllelResponses, includeDatasetResponses
 
-# Determines the 'exists' in the beacon query by checking the dataset querys
+'''The `checkifdatasetisTrue()` function checks the individual datasets and returns `True` if any of the datasets have 
+`exists == True`.'''
+
 def checkifdatasetisTrue(datasets):
     for value in datasets:
         if value['exists'] == True:

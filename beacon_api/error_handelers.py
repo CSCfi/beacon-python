@@ -1,8 +1,7 @@
 from flask import abort
-from beacon_api.beacon_dicts import Beacon
 
-apiVersion = Beacon['apiVersion']
-beaconId = Beacon['id']
+apiVersion = "0.4"
+beaconId = "ega-beacon"
 class BeaconError():
     def __init__(self, referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, assemblyId, datasetIds, includeDatasetResponses):
         self.referenceName = referenceName
@@ -18,9 +17,9 @@ class BeaconError():
         self.datasetIds = datasetIds
         self.includeDatasetResponses = includeDatasetResponses
 
+    '''The `bad_request()` method aborts the actions of the api and returns a 400 error code and a customised error message. 
+    The method is called if one of the required parameters are missing or invalid.'''
 
-    #The bad_request() function returns a 400 code along with the parameters and a errormessage
-    #The function is used if there are missing mandatory parameters or if they are in the wrong format/not valid
     def bad_request(self, message):
         abort(400, {'beaconId': beaconId,
                     "apiVersion": apiVersion,
@@ -44,13 +43,18 @@ class BeaconError():
                                      },
                     'datasetAllelResponses': []}
               )
+
+    '''The `unauthorised()` method aborts the actions of the api and returns a 401 error code with the error message 
+    `'Unauthenticated user trying to access protected resource.'`. The method is called if the user does'nt have access 
+    '''
+
     def unauthorised(self, datasetAllelResponses):
         abort(401, {'beaconId': beaconId,
                     "apiVersion": apiVersion,
                     'exists': None,
                     'error': {
                         'errorCode': 401,
-                        'errorMessage': 'Unauthenticated user trying to acces protected resource.'
+                        'errorMessage': 'Unauthenticated user trying to access protected resource.'
                     },
                     'allelRequest': {'referenceName': self.referenceName,
                                      'start': self.start,
@@ -67,6 +71,11 @@ class BeaconError():
                                      },
                     'datasetAllelResponses': datasetAllelResponses}
               )
+
+    '''The `forbidden()` method method aborts the actions of the api and returns a 403 error code with the error message 
+    `'Resource not granted for authenticated user or resource protected for all users.'`. The method is called if the dataset
+    is protected or if the user is authenticated but not granted the resource.
+    '''
 
     def forbidden(self, datasetAllelResponses):
         abort(403, {'beaconId': beaconId,
