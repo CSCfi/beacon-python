@@ -1,7 +1,7 @@
 import requests
 
 
-def test_flase():
+def test_false():
     payload = {'referenceName': '1',
                'start': 123,
                'startMin': 0,
@@ -12,7 +12,7 @@ def test_flase():
                'referenceBases': 'A',
                'alternateBases': 'C',
                'assemblyId': 'GRCh37',
-               'datasetIds': 'EGAD00001000740',
+               'datasetIds': 'EGAD00000000028',
                'includeDatasetResponses': 'ALL',
                }
     r = requests.get('http://localhost:5000/query', params=payload)
@@ -31,7 +31,7 @@ def test_true1():
                'referenceBases': 'A',
                'alternateBases': 'G',
                'assemblyId': 'GRCh37',
-               'datasetIds': 'EGAD00001000740',
+               'datasetIds': 'EGAD00000000028',
                'includeDatasetResponses': 'ALL',
                }
     r = requests.get('http://localhost:5000/query', params=payload)
@@ -49,7 +49,7 @@ def test_true2():
                'referenceBases': 'A',
                'alternateBases': 'G',
                'assemblyId': 'GRCh37',
-               'datasetIds': 'EGAD00001000740',
+               'datasetIds': 'EGAD00000000028',
                'includeDatasetResponses': 'ALL',
                }
     r = requests.get('http://localhost:5000/query', params=payload)
@@ -67,7 +67,7 @@ def test_true3():
                'referenceBases': 'TG',
                'alternateBases': 'T',
                'assemblyId': 'GRCh37',
-               'datasetIds': 'EGAD00001000740',
+               'datasetIds': 'EGAD00000000028',
                'includeDatasetResponses': 'ALL',
                }
     r = requests.get('http://localhost:5000/query', params=payload)

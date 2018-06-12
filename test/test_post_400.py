@@ -110,7 +110,7 @@ def test_invalid_refName1():
                'referenceBases': 'A',
                'alternateBases': 'C',
                'assemblyId': 'GRCh37',
-               'datasetIds': 'EGAD00001000740',
+               'datasetIds': 'EGAD00000000028',
                'includeDatasetResponses': 'ALL',
                }
     r = requests.post('http://localhost:5000/query', params=payload)
@@ -127,7 +127,7 @@ def test_invalid_refName2():
                'referenceBases': 'A',
                'alternateBases': 'C',
                'assemblyId': 'GRCh37',
-               'datasetIds': 'EGAD00001000740',
+               'datasetIds': 'EGAD00000000028',
                'includeDatasetResponses': 'ALL',
                }
     r = requests.post('http://localhost:5000/query', params=payload)
@@ -144,7 +144,7 @@ def test_invalid_refName3():
                'referenceBases': 'A',
                'alternateBases': 'C',
                'assemblyId': 'GRCh37',
-               'datasetIds': 'EGAD00001000740',
+               'datasetIds': 'EGAD00000000028',
                'includeDatasetResponses': 'ALL',
                }
     r = requests.post('http://localhost:5000/query', params=payload)
@@ -161,7 +161,7 @@ def test_invalid_start1():
                'referenceBases': 'A',
                'alternateBases': 'C',
                'assemblyId': 'GRCh37',
-               'datasetIds': 'EGAD00001000740',
+               'datasetIds': 'EGAD00000000028',
                'includeDatasetResponses': 'ALL',
                }
     r = requests.post('http://localhost:5000/query', params=payload)
@@ -178,7 +178,7 @@ def test_invalid_start2():
                'referenceBases': 'A',
                'alternateBases': 'C',
                'assemblyId': 'GRCh37',
-               'datasetIds': 'EGAD00001000740',
+               'datasetIds': 'EGAD00000000028',
                'includeDatasetResponses': 'ALL',
                }
     r = requests.post('http://localhost:5000/query', params=payload)
@@ -195,7 +195,7 @@ def test_invalid_refBases():
                'referenceBases': 'R',
                'alternateBases': 'C',
                'assemblyId': 'GRCh37',
-               'datasetIds': 'EGAD00001000740',
+               'datasetIds': 'EGAD00000000028',
                'includeDatasetResponses': 'ALL',
                }
     r = requests.post('http://localhost:5000/query', params=payload)
@@ -212,7 +212,7 @@ def test_invalid_altBases():
                'referenceBases': 'A',
                'alternateBases': 'R',
                'assemblyId': 'GRCh37',
-               'datasetIds': 'EGAD00001000740',
+               'datasetIds': 'EGAD00000000028',
                'includeDatasetResponses': 'ALL',
                }
     r = requests.post('http://localhost:5000/query', params=payload)
@@ -229,7 +229,7 @@ def test_invalid_assemblyId():
                'referenceBases': 'A',
                'alternateBases': 'R',
                'assemblyId': '00000',
-               'datasetIds': 'EGAD00001000740',
+               'datasetIds': 'EGAD00000000028',
                'includeDatasetResponses': 'ALL',
                }
     r = requests.post('http://localhost:5000/query', params=payload)

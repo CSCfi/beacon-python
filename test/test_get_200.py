@@ -16,7 +16,7 @@ def test_get_200():
                'referenceBases': 'A',
                'alternateBases': 'C',
                'assemblyId': 'GRCh37',
-               'datasetIds': 'EGAD00001000740',
+               'datasetIds': 'EGAD00000000028',
                'includeDatasetResponses': 'ALL',
                }
     r = requests.get('http://localhost:5000/query', params=payload)
