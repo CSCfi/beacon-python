@@ -19,7 +19,7 @@ def test_missing_refName():
                }
     r = requests.post('http://localhost:5000/query', params=payload)
     assert r.status_code == 400
-    assert r.json()['message']['error']['errorMessage'] == 'Missing manadory parameter referenceName'
+    assert r.json()['message']['error']['errorMessage'] == 'Missing mandatory parameter referenceName'
 
 def test_missing_start_and_startMin():
     payload = {'referenceName': '1',
@@ -37,7 +37,7 @@ def test_missing_start_and_startMin():
                }
     r = requests.post('http://localhost:5000/query', params=payload)
     assert r.status_code == 400
-    assert r.json()['message']['error']['errorMessage'] == 'Missing manadory parameter start or startMin'
+    assert r.json()['message']['error']['errorMessage'] == 'Missing mandatory parameter start or startMin'
 
 def test_missing_refBases():
     payload = {'referenceName': '1',
@@ -55,7 +55,7 @@ def test_missing_refBases():
                }
     r = requests.post('http://localhost:5000/query', params=payload)
     assert r.status_code == 400
-    assert r.json()['message']['error']['errorMessage'] == 'Missing manadory parameter referenceBases'
+    assert r.json()['message']['error']['errorMessage'] == 'Missing mandatory parameter referenceBases'
 
 
 def test_missing_altBases():
@@ -74,7 +74,7 @@ def test_missing_altBases():
                }
     r = requests.post('http://localhost:5000/query', params=payload)
     assert r.status_code == 400
-    assert r.json()['message']['error']['errorMessage'] == 'Missing manadory parameter alternateBases'
+    assert r.json()['message']['error']['errorMessage'] == 'Missing mandatory parameter alternateBases or variantType'
 
 
 
@@ -94,7 +94,7 @@ def test_missing_assemblyId():
                }
     r = requests.post('http://localhost:5000/query', params=payload)
     assert r.status_code == 400
-    assert r.json()['message']['error']['errorMessage'] == 'Missing manadory parameter assemblyId'
+    assert r.json()['message']['error']['errorMessage'] == 'Missing mandatory parameter assemblyId'
 
 
 
@@ -115,6 +115,8 @@ def test_invalid_refName1():
                }
     r = requests.post('http://localhost:5000/query', params=payload)
     assert r.status_code == 400
+    assert r.json()['message']['error']['errorMessage'] == 'referenceName not valid'
+
 
 def test_invalid_refName2():
     payload = {'referenceName': 99,
@@ -132,6 +134,8 @@ def test_invalid_refName2():
                }
     r = requests.post('http://localhost:5000/query', params=payload)
     assert r.status_code == 400
+    assert r.json()['message']['error']['errorMessage'] == 'referenceName not valid'
+
 
 def test_invalid_refName3():
     payload = {'referenceName': '0',
@@ -149,6 +153,8 @@ def test_invalid_refName3():
                }
     r = requests.post('http://localhost:5000/query', params=payload)
     assert r.status_code == 400
+    assert r.json()['message']['error']['errorMessage'] == 'Missing mandatory parameter referenceName'
+
 
 def test_invalid_start1():
     payload = {'referenceName': '1',
@@ -166,6 +172,8 @@ def test_invalid_start1():
                }
     r = requests.post('http://localhost:5000/query', params=payload)
     assert r.status_code == 400
+    assert r.json()['message']['error']['errorMessage'] == 'Missing mandatory parameter start or startMin'
+
 
 def test_invalid_start2():
     payload = {'referenceName': '1',
@@ -183,6 +191,8 @@ def test_invalid_start2():
                }
     r = requests.post('http://localhost:5000/query', params=payload)
     assert r.status_code == 400
+    assert r.json()['message']['error']['errorMessage'] == 'start not valid'
+
 
 def test_invalid_refBases():
     payload = {'referenceName': '1',
@@ -200,6 +210,8 @@ def test_invalid_refBases():
                }
     r = requests.post('http://localhost:5000/query', params=payload)
     assert r.status_code == 400
+    assert r.json()['message']['error']['errorMessage'] == 'referenceBases not valid'
+
 
 def test_invalid_altBases():
     payload = {'referenceName': '1',
@@ -217,6 +229,8 @@ def test_invalid_altBases():
                }
     r = requests.post('http://localhost:5000/query', params=payload)
     assert r.status_code == 400
+    assert r.json()['message']['error']['errorMessage'] == 'alternateBases not valid'
+
 
 def test_invalid_assemblyId():
     payload = {'referenceName': '1',
@@ -227,12 +241,32 @@ def test_invalid_assemblyId():
                'endMin': 0,
                'endMax': 0,
                'referenceBases': 'A',
-               'alternateBases': 'R',
+               'alternateBases': 'T',
                'assemblyId': '00000',
                'datasetIds': 'EGAD00000000028',
                'includeDatasetResponses': 'ALL',
                }
     r = requests.post('http://localhost:5000/query', params=payload)
     assert r.status_code == 400
+    assert r.json()['message']['error']['errorMessage'] == 'assemblyId not valid'
+
+
+def test_invalid_includeDatasetResponses():
+    payload = {'referenceName': '1',
+               'start': 123,
+               'startMin': 0,
+               'startMax': 0,
+               'end': 0,
+               'endMin': 0,
+               'endMax': 0,
+               'referenceBases': 'A',
+               'alternateBases': 'C',
+               'assemblyId': 'GRCh37',
+               'datasetIds': 'EGAD00000000028',
+               'includeDatasetResponses': 'asd',
+               }
+    r = requests.post('http://localhost:5000/query', params=payload)
+    assert r.status_code == 400
+    assert r.json()['message']['error']['errorMessage'] == 'includeDatasetResponses not valid'
 
 ########################################################################################################################
