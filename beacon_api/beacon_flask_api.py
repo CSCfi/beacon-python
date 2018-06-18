@@ -50,12 +50,15 @@ class Beacon_query(Resource):
         'alternateBases': fields.Str(
             missing='0'
         ),
+        'variantType': fields.Str(
+            missing='0'
+        ),
         'assemblyId': fields.Str(
             missing='0'
         ),
-        'datasetIds': fields.List(fields.Str(
-            missing=None
-        )),
+        'datasetIds': fields.List(
+            fields.Str(),
+            missing=[]),
         'includeDatasetResponses': fields.Str(
             missing='ALL',
         ),
@@ -71,12 +74,12 @@ class Beacon_query(Resource):
     `checkParameters()` method.'''
 
     @use_kwargs(args)
-    def get(self, referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, assemblyId, datasetIds, includeDatasetResponses):
+    def get(self, referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, variantType,assemblyId, datasetIds, includeDatasetResponses):
 
         error_ = BeaconError(referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, assemblyId, datasetIds, includeDatasetResponses)
         datasetAllelResponses, true_datasetAllelResponses, false_datasetAllelResponses, includeDatasetResponses = checkParameters(
             referenceName, start, startMin, startMax, end,
-            endMin, endMax, referenceBases, alternateBases,
+            endMin, endMax, referenceBases, alternateBases, variantType,
             assemblyId, datasetIds,
             includeDatasetResponses, error_)
         allelRequest = {'referenceName': referenceName,
@@ -88,6 +91,7 @@ class Beacon_query(Resource):
                         'endMax': endMax,
                         'referenceBases': referenceBases,
                         'alternateBases': alternateBases,
+                        'variantType': variantType,
                         'assemblyId': assemblyId,
                         'datasetIds': datasetIds,
                         'includeDatasetResponses': includeDatasetResponses,
@@ -106,14 +110,14 @@ class Beacon_query(Resource):
     logged and then if you use the `POST` instead, you dont reveal the parameters that you query with.'''
 
     @use_kwargs(args)
-    def post(self, referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, assemblyId, datasetIds , includeDatasetResponses):
+    def post(self, referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, variantType,assemblyId, datasetIds , includeDatasetResponses):
 
 
         error_ = BeaconError(referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases,
                              alternateBases, assemblyId, datasetIds, includeDatasetResponses)
 
         datasetAllelResponses, true_datasetAllelResponses, false_datasetAllelResponses, includeDatasetResponses = checkParameters(referenceName, start, startMin, startMax, end,
-                                                                         endMin, endMax, referenceBases, alternateBases,
+                                                                         endMin, endMax, referenceBases, alternateBases, variantType,
                                                                          assemblyId, datasetIds,
                                                                          includeDatasetResponses, error_)
 
@@ -127,6 +131,7 @@ class Beacon_query(Resource):
                         'endMax': endMax,
                         'referenceBases': referenceBases,
                         'alternateBases': alternateBases,
+                        'variantType': variantType,
                         'assemblyId': assemblyId,
                         'datasetIds': datasetIds,
                         'includeDatasetResponses': includeDatasetResponses,

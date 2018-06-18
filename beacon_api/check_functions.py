@@ -6,7 +6,7 @@ from beacon_api.beacon_database import *
 refname = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11','12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', 'X', 'Y']
 datasetresponses = ['ALL', 'HIT', 'MISS', 'NONE']
 assembliIds = ['GRCh37', 'GRCh38', 'grch37', 'grch38']
-Bases = ['A', 'C', 'G', 'T', '*', 'N']
+Bases = ['A', 'C', 'G', 'T', 'N']
 variantTypes = ['DEL', 'INS', 'DUP', 'INV', 'CNV', 'DUP:TANDEM', 'DEL:ME', 'INS:ME']
 Beacon = constructor()
 BeaconDataset = Beacon['dataset']
@@ -106,84 +106,106 @@ def datasetAllelResponseBuilder(datasetId, referencename, pos, alternateBases):
 It calls the appropriate BeaconError method if something is wrong.'''
 
 def checkParameters(referenceName, start, startMin, startMax, end, endMin, endMax, \
-                    referenceBases, alternateBases, assemblyId, datasetIds, includeDatasetResponses, error_):
+                    referenceBases, alternateBases, variantType,assemblyId, datasetIds, includeDatasetResponses, error_):
     datasetAllelResponses = []
 
     pos = position(start, end, startMin, startMax, endMin, endMax)
 
-    if referenceName == '0' or start == 0 or referenceBases == '0' or alternateBases == '0' or assemblyId == '0':
 
-        #if an error occures the 'exists' must be 'null'
-        for set in datasetAllelResponses:
-            set['exists'] = None
-        if referenceName == '0':
-            error_.bad_request('Missing manadory parameter referenceName')
-        if start == 0:
-            if startMin == 0:
-                error_.bad_request('Missing manadory parameter start or startMin')
 
-        if referenceBases == '0':
-            error_.bad_request('Missing manadory parameter referenceBases')
-        if alternateBases == '0':
-            error_.bad_request('Missing manadory parameter alternateBases')
-        if assemblyId == '0':
-            error_.bad_request('Missing manadory parameter assemblyId')
-
-    if start < 0:
-        error_.bad_request('Start is invalid')
-
-    if startMin < 0:
-        error_.bad_request('Startmin is invalid')
-
-    if startMax < 0:
-        error_.bad_request('Startmin is invalid')
-
-    if endMin < 0:
-        error_.bad_request('Endmin is invalid')
-
-    if endMax < 0:
-        error_.bad_request('Endmax is invalid')
-
-    if end < 0:
-        error_.bad_request('End is invalid')
-
-    if referenceName not in refname:
+    # check if referenceName parameter is missing
+    if referenceName == '0':
+        error_.bad_request('Missing mandatory parameter referenceName')
+    # check if referenceName is valid
+    elif referenceName not in refname:
         #if an error occures the 'exists' must be 'null'
         for set in datasetAllelResponses:
             set['exists'] = None
         error_.bad_request('referenceName not valid')
 
-    if includeDatasetResponses not in datasetresponses:
-        # if an error occures the 'exists' must be 'null'
-        for set in datasetAllelResponses:
-            set['exists'] = None
-        error_.bad_request('IncludeDatasetResponses not valid')
 
-    if assemblyId not in assembliIds:
-        error_.bad_request('assemblyId not valid')
 
-    for nucleotide1 in alternateBases:
-        if nucleotide1 not in Bases:
-            error_.bad_request('alternateBases not valid')
+    # check if start/startMin parameter is missing
+    if start == 0:
+        if startMin == 0:
+            error_.bad_request('Missing mandatory parameter start or startMin')
+    # check if the positional arguments are valid
+    elif start < 0:
+        error_.bad_request('start not valid')
+    if startMin < 0:
+        error_.bad_request('startMin not valid')
+    if startMax < 0:
+        error_.bad_request('startMin not valid')
+    if endMin < 0:
+        error_.bad_request('endMin not valid')
+    if endMax < 0:
+        error_.bad_request('endMax not valid')
+    if end < 0:
+        error_.bad_request('end not valid')
 
+
+
+    # check if referenceBases parameter is missing
+    if referenceBases == '0':
+        error_.bad_request('Missing mandatory parameter referenceBases')
+    # check if the string items in the referenceBases are valid
     for nucleotide2 in referenceBases:
         if nucleotide2 not in Bases:
             error_.bad_request('referenceBases not valid')
 
+
+
+    # check if alternateBases parameter is missing
+    if alternateBases == '0':
+        # if alternateBases is missing, check if variantType is missing
+        if variantType == '0':
+            error_.bad_request('Missing mandatory parameter alternateBases or variantType')
+        # check if variantType parameter is valid
+        elif variantType not in variantTypes:
+            error_.bad_request('variantType not valid')
+    # check if the string items in the alternateBases are valid
+    for nucleotide1 in alternateBases:
+        if nucleotide1 not in Bases:
+            error_.bad_request('alternateBases not valid')
+
+
+    # check if assemblyId is missing
+    if assemblyId == '0':
+        error_.bad_request('Missing mandatory parameter assemblyId')
+    # check if assemblyId parameter is valid
+    elif assemblyId not in assembliIds:
+        error_.bad_request('assemblyId not valid')
+
+
+
+    # check if includeDataserResponses is missing
+    if includeDatasetResponses not in datasetresponses:
+        # if an error occures the 'exists' must be 'null'
+        for set in datasetAllelResponses:
+            set['exists'] = None
+        error_.bad_request('includeDatasetResponses not valid')
+
+
+    # checks if there are datasetIds given. If there are, then check if the the datasetIds are in the database Table.
+    # If not give ERROR. If they are correct, build a response for each dataset that is correct.
     if datasetIds:
         for set in datasetIds:
             if set not in datasetIds_list:
-                error_.bad_request('Invalid datasetId')
+                error_.bad_request('datasetId not valid')
             datasetAllelResponses.append(datasetAllelResponseBuilder(set, referenceName, pos, alternateBases))
+    # if no datasets where given, it will query all datasets in the database
     else:
-        datasetIds = None
-        datasetAllelResponses = None
+        datasetIds = datasetIds_list
+        for set in datasetIds:
+            datasetAllelResponses.append(datasetAllelResponseBuilder(set, referenceName, pos, alternateBases))
 
 
 
+
+    # creates empty lists for specific datasetResponses
     false_datasetAllelResponses = []
     true_datasetAllelResponses = []
-
+    # fills the lists with the responses
     for response in datasetAllelResponses:
         if response['exists'] == False:
             false_datasetAllelResponses.append(response)
@@ -196,13 +218,14 @@ def checkParameters(referenceName, start, startMin, startMax, end, endMin, endMa
 
 '''The `checkifdatasetisTrue()` function checks the individual datasets and returns `True` if any of the datasets have 
 `exists == True`.'''
-
+# function checks if there are any True in the datasetResponses, if there is it will give a Tru for the whole response
 def checkifdatasetisTrue(datasets):
     for value in datasets:
         if value['exists'] == True:
             return True
     return False
 
+# the function returns those datasetresponses that the includeDatasetResponses parameter decides
 def checkInclude(includeDatasetResponses, alldatasets, trurdatasets, falsedatasets):
     if includeDatasetResponses == 'ALL':
         return alldatasets
