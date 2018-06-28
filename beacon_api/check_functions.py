@@ -12,7 +12,7 @@ Beacon = constructor()
 BeaconDataset = Beacon['dataset']
 datasetIds_list = []
 for dset in BeaconDataset:
-    datasetIds_list.append(dset['id'])
+    datasetIds_list.append(dset['name'])
 
 
 '''The `position()` function checks the values of the position parameters (start, startMin, startMax, end, endMain, endMax)
@@ -44,7 +44,9 @@ It returns `True` if found and `False`if not. It also returns the object to the 
 
 def allelFind(chromosome, position, allel):
     q_obj = Beacon_data_table
-    q_obj_chrm = q_obj.query.filter_by(chromosome=chromosome).all()   #list
+    print(1)
+    q_obj_chrm = q_obj.query.filter_by(chromosome=chromosome).all()#list
+    print(2)
     if not q_obj_chrm:
         return None, q_obj.query.filter_by(chromosome=1).all()[0] # expecting that there will allways be chromosome 1 and just returns it as dummy
 
@@ -78,7 +80,7 @@ def datasetAllelResponseBuilder(datasetId, referencename, pos, alternateBases):
     error = None
     j = 0
     for i in BeaconDataset:
-        if datasetId in i['id']:
+        if datasetId in i['name']:
             break
         j += 1
     exists, queryRow = allelFind(referencename, pos, alternateBases)
@@ -196,6 +198,7 @@ def checkParameters(referenceName, start, startMin, startMax, end, endMin, endMa
     # if no datasets where given, it will query all datasets in the database
     else:
         datasetIds = datasetIds_list
+        print(datasetIds)
         for set in datasetIds:
             datasetAllelResponses.append(datasetAllelResponseBuilder(set, referenceName, pos, alternateBases))
 

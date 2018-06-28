@@ -1,28 +1,34 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-import csv
+import csv, datetime
 
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://///Users/kakeinan/beacon-python/beacon_api/example.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://///Users/kakeinan/beacon-python/beacon_api/beaconDatabase.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
-
+# NOTE: if beacon_dataset_table is not filled the query wont know about tthe right datasets.
 
 class Beacon_dataset_table(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    stable_id = db.Column(db.String(50))
+    name = db.Column(db.String(50))
     description = db.Column(db.String(800))
-    access_type = db.Column(db.String(50))
-    reference_genome = db.Column(db.String(50))
-    variant_cnt = db.Column(db.Integer)
-    call_cnt = db.Column(db.Integer)
-    sample_cnt = db.Column(db.Integer)
+    assemblyId = db.Column(db.String(20))
+    createDateTime = db.Column(db.DateTime, default=datetime.date.today())
+    updateDateTime = db.Column(db.DateTime)
+    version = db.Column(db.String(5))
+    variantCount = db.Column(db.Integer)
+    callCount = db.Column(db.Integer)
+    sampleCount = db.Column(db.Integer)
+    externalUrl = db.Column(db.String(50))
+    accessType = db.Column(db.String(10))
+    authorized = db.Column(db.String(10))
+
     dataset_rows = db.relationship('Beacon_data_table', backref='dataset') # list with all the rows from the dataset
 
 class Beacon_data_table(db.Model):
-    __tablename__ = 'EGAD00000000028'
+    __tablename__ = 'genomes'
     id = db.Column(db.Integer, primary_key=True)
     dataset_id = db.Column(db.Integer, db.ForeignKey('beacon_dataset_table.id'))
     start = db.Column(db.Integer)
@@ -32,18 +38,19 @@ class Beacon_data_table(db.Model):
     end = db.Column(db.Integer)
     type = db.Column(db.String(50))
     sv_length = db.Column(db.Integer)
-    variant_cnt = db.Column(db.Integer)
-    call_cnt = db.Column(db.Integer)
-    sample_cnt = db.Column(db.Integer)
+    variantCount = db.Column(db.Integer)
+    callCount = db.Column(db.Integer)
+    sampleCount = db.Column(db.Integer)
     frequency = db.Column(db.Integer)
 
 
-
-def load_dataset_table():
-    add_new = Beacon_dataset_table(stable_id='EGAD00000000028',description= 'Sample variants',access_type= 'PUBLIC',reference_genome= 'grch37',variant_cnt= '74',call_cnt= '74',sample_cnt= '1')
+# The load dataset_table() function loads the dataset table to the database. This table gives the user meta-data on the datasets
+def load_dataset_table(name=None, description=None, assemblyId=None, version=None, variantCount=None, callCount=None, sampleCount=None, externalUrl=None, accessType=None, authorized=None):
+    add_new = Beacon_dataset_table(name=name, description=description, assemblyId=assemblyId, version=version, variantCount=variantCount, callCount=callCount, sampleCount=sampleCount, externalUrl=externalUrl, accessType=accessType, authorized=authorized)
     db.session.add(add_new)
     db.session.commit()
 
+# The chunk() function divides the data into chunks with 10000 rows each. It yieldes them as e generator to make the process more efficient.
 def chunks(data, n=10000):
     buffer = [None] * n
     idx = 0
@@ -55,9 +62,11 @@ def chunks(data, n=10000):
             buffer = [None] * n
             idx = 0
     if idx > 0:
-        yield buffer[:idx]
+        yield buffer[:idx] # if there is less than 10000 rows left it yields the rest
 
-
+# The load_data_table() function loads all the data from the given file into the database. Because of the big amount of
+# rows in the files the function uses the chunk() funktion to divede the rows into 10000 row chunks witch it commits in chunks.
+# This is because it takes significantly less time to commit them as 10000 row chunks than row by row.
 def load_data_table(filename):
     rows = 0
     csvData = csv.reader(open('./beacon_api/{}'.format(filename), "r"), delimiter=";")
@@ -65,29 +74,15 @@ def load_data_table(filename):
     divData = chunks(csvData)  # divide into 10000 rows each
 
     for chunk in divData:
-        for dataset_id, start, chromosome, reference, alternate, end, type, sv_length, variant_cnt, call_cnt, sample_cnt, frequency in chunk:
+        for dataset_id, start, chromosome, reference, alternate, end, type, sv_length, variantCount, callCount, sampleCount, frequency in chunk:
             add_new = Beacon_data_table(dataset=dataset, start=start, chromosome=chromosome, reference=reference,
                                         alternate=alternate, \
-                                        end=end, type=type, sv_length=sv_length, variant_cnt=variant_cnt, call_cnt=call_cnt, sample_cnt=sample_cnt, frequency=frequency)
-        db.session.add(add_new)
+                                        end=end, type=type, sv_length=sv_length, variantCount=variantCount, callCount=callCount, sampleCount=sampleCount, frequency=frequency)
+            db.session.add(add_new)
         db.session.commit()
         rows += 10000
         print(rows)
 
-#def load_data_table(filename):
-#    file = open('./beacon_api/{}'.format(filename), 'r')
-#    dataset = Beacon_dataset_table.query.filter_by(id=1).first()
-#    i = 0
-#    while file:
-#        str = file.readline().rstrip()
-#        dataset_id, start, chromosome, reference, alternate, end, type, sv_length, variant_cnt, call_cnt, sample_cnt, frequency = str.split(";")
-#        add_new = Beacon_data_table(dataset=dataset, start=start, chromosome=chromosome, reference=reference, alternate=alternate, \
-#                         end=end, type=type, sv_length=sv_length, variant_cnt=variant_cnt, call_cnt=call_cnt, sample_cnt=sample_cnt, frequency=frequency)
-#        db.session.add(add_new)
-#        db.session.commit()
-#        i += 1
-#        if i % 1000 == 0:
-#            print(i)
 
 def constructor():
 
@@ -130,19 +125,19 @@ def constructor():
     db_table = db_object.query.all() # List of all the rows in the beacon_dataset_table
     for row_obj in db_table:
         asd = {
-            "id": row_obj.stable_id,
-            "name": None,
-            "description": "This sample set comprises cases of schizophrenia with additional cognitive measurements, collected in Aberdeen, Scotland.",
-            "assemblyId": row_obj.reference_genome,
+            "id": row_obj.id,
+            "name": row_obj.name,
+            "description": row_obj.description,
+            "assemblyId": row_obj.assemblyId,
             "createDateTime": None,
             "updateDateTime": None,
             "version": None,
-            "variantCount": row_obj.variant_cnt,
-            "callCount": row_obj.call_cnt,
-            "sampleCount": row_obj.sample_cnt,
+            "variantCount": row_obj.variantCount,
+            "callCount": row_obj.callCount,
+            "sampleCount": row_obj.sampleCount,
             "externalUrl": None,
             "info": {
-                "accessType": row_obj.access_type,
+                "accessType": row_obj.accessType,
                 "authorized": "false"
             }
         }
