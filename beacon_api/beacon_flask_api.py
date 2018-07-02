@@ -76,7 +76,7 @@ class Beacon_query(Resource):
     @use_kwargs(args)
     def get(self, referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, variantType,assemblyId, datasetIds, includeDatasetResponses):
 
-        error_ = BeaconError(referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, assemblyId, datasetIds, includeDatasetResponses)
+        error_ = BeaconError(referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, variantType,assemblyId, datasetIds, includeDatasetResponses)
         datasetAllelResponses, true_datasetAllelResponses, false_datasetAllelResponses, includeDatasetResponses = checkParameters(
             referenceName, start, startMin, startMax, end,
             endMin, endMax, referenceBases, alternateBases, variantType,
@@ -114,7 +114,7 @@ class Beacon_query(Resource):
 
 
         error_ = BeaconError(referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases,
-                             alternateBases, assemblyId, datasetIds, includeDatasetResponses)
+                             alternateBases, variantType,assemblyId, datasetIds, includeDatasetResponses)
 
         datasetAllelResponses, true_datasetAllelResponses, false_datasetAllelResponses, includeDatasetResponses = checkParameters(referenceName, start, startMin, startMax, end,
                                                                          endMin, endMax, referenceBases, alternateBases, variantType,

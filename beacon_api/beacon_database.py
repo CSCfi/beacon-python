@@ -8,7 +8,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://///Users/kakeinan/beacon-pytho
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
-# NOTE: if beacon_dataset_table is not filled the query wont know about tthe right datasets.
+# NOTE: if beacon_dataset_table is not filled the query wont know about the right datasets.
 
 class Beacon_dataset_table(db.Model):
     id = db.Column(db.Integer, primary_key=True)

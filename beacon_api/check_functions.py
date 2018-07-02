@@ -1,4 +1,7 @@
 from beacon_api.beacon_database import *
+import sqlite3,time
+
+
 
 
 #Some hard coded data for the querys, some are taken from the beacon_dicts.py
@@ -6,8 +9,8 @@ from beacon_api.beacon_database import *
 refname = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11','12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', 'X', 'Y']
 datasetresponses = ['ALL', 'HIT', 'MISS', 'NONE']
 assembliIds = ['GRCh37', 'GRCh38', 'grch37', 'grch38']
-Bases = ['A', 'C', 'G', 'T', 'N']
-variantTypes = ['DEL', 'INS', 'DUP', 'INV', 'CNV', 'DUP:TANDEM', 'DEL:ME', 'INS:ME']
+Bases = ['A', 'C', 'G', 'T', 'N', '0'] # The Zero is there to validate thet it is missing
+variantTypes = ['DEL', 'INS', 'DUP', 'INV', 'CNV', 'SNP', 'DUP:TANDEM', 'DEL:ME', 'INS:ME']
 Beacon = constructor()
 BeaconDataset = Beacon['dataset']
 datasetIds_list = []
@@ -42,61 +45,104 @@ def position(start, end, startMin, startMax, endMin, endMax):
 '''The `allelFind()` function queries the database with the submitted parameters and checks if it finds the allele in the right place.
 It returns `True` if found and `False`if not. It also returns the object to the row that was queried in the database.'''
 
-def allelFind(chromosome, position, allel):
-    q_obj = Beacon_data_table
-    print(1)
-    q_obj_chrm = q_obj.query.filter_by(chromosome=chromosome).all()#list
-    print(2)
-    if not q_obj_chrm:
-        return None, q_obj.query.filter_by(chromosome=1).all()[0] # expecting that there will allways be chromosome 1 and just returns it as dummy
+def allelFind(chromosome, position, allel=None, variantType=None):
+    # if alternateBases or variantType are not defined they are set to None
+    eka = time.time()
+    conn = sqlite3.connect('/Users/kakeinan/beacon-python/beacon_api/beaconDatabase.db')
+    c = conn.cursor()
 
-    for q_chrom in q_obj_chrm:
-        # only start
+    if variantType != None:
         if len(position) == 1:
-            if q_chrom.start == position[0]:
-                if q_chrom.alternate == allel:
-                    return True, q_chrom
-        # start --> end
+            c.execute('SELECT * FROM genomes WHERE chromosome=? AND start=? AND  type=?',(chromosome, position[0], variantType))
+
         elif len(position) == 2:
-            if q_chrom.start == position[0] and q_chrom.end == position[1]:
-                if q_chrom.alternate == allel:
-                    return True, q_chrom
-        # startMin ... startMax --> endMin .. endMax
-        elif len(position) == 4:
-            startRange = range(position[0], position[1]+1)
-            endRange = range(position[2], position[3]+1)
-            if q_chrom.start in startRange and q_chrom.end in endRange:
-                if q_chrom.alternate == allel:
-                    return True, q_chrom
+            c.execute('SELECT * FROM genomes WHERE chromosome=? AND start=? AND end=? AND type=?',(chromosome, position[0], position[1] , variantType))
 
+        else:
+            c.execute('SELECT * FROM genomes WHERE chromosome=? AND start>=? AND start<=? AND end>=? AND end<=? AND type=?',(chromosome, position[0], position[1], position[2], position[3], variantType))
 
-    return False, q_chrom
+    elif variantType == None:
+        if len(position) == 1:
+            c.execute('SELECT * FROM genomes WHERE chromosome=? AND start=? AND  alternate=?',
+                      (chromosome, position[0], allel))
+
+        elif len(position) == 2:
+            c.execute('SELECT * FROM genomes WHERE chromosome=? AND start=? AND end=? AND alternate=?',
+                      (chromosome, position[0], position[1], allel))
+        else:
+            c.execute(
+                'SELECT * FROM genomes WHERE chromosome=? AND start>=? AND start<=? AND end>=? AND end<=? AND alternate=?',
+                (chromosome, position[0], position[1], position[2], position[3], allel))
+
+    print("sql haku: {}".format(time.time()-eka))
+    row = c.fetchone()
+    conn.close()
+
+    if row == None:
+        return False, row
+    else:
+        return True, row
+
+#
+#    q_obj = Beacon_data_table
+#    q_obj_chrm = q_obj.query.filter_by(chromosome=chromosome).all()#list
+#
+#    if not q_obj_chrm:
+#        return None, q_obj.query.filter_by(chromosome=1).all()[0] # expecting that there will allways be chromosome 1 and just returns it as dummy
+#
+#    for q_chrom in q_obj_chrm:
+#        # only start
+#        if len(position) == 1:
+#            if q_chrom.start == position[0]:
+#                if q_chrom.alternate == allel:
+#                    print("SQLAlchemy haku: {}".format(time.time() - toka))
+#
+#                    return True, q_chrom
+#        # start --> end
+#        elif len(position) == 2:
+#            if q_chrom.start == position[0] and q_chrom.end == position[1]:
+#                if q_chrom.alternate == allel:
+#                    return True, q_chrom
+#        # startMin ... startMax --> endMin .. endMax
+#        elif len(position) == 4:
+#            startRange = range(position[0], position[1]+1)
+#            endRange = range(position[2], position[3]+1)
+#            if q_chrom.start in startRange and q_chrom.end in endRange:
+#                if q_chrom.alternate == allel:
+#                    return True, q_chrom
+#
+#
+#    return False, q_chrom
 
 '''The `datasetAllelResponseBuilder()` function calls the `allelFind()` function and receives the answer to the exist parameter
 and the database object to the row in the database. If `exists == False` the function sets the variant_cnt, sample_cnt,
 call_cnt and frequensy to 0. And if `exists == True` the function gets the parameter values from the database.'''
 
-def datasetAllelResponseBuilder(datasetId, referencename, pos, alternateBases):
+def datasetAllelResponseBuilder(datasetId, referencename, pos, alternateBases, variantType):
     error = None
     j = 0
     for i in BeaconDataset:
         if datasetId in i['name']:
             break
         j += 1
-    exists, queryRow = allelFind(referencename, pos, alternateBases)
+
+    exists, row = allelFind(referencename, pos, alternateBases, variantType)
 
     if exists == False:
-        queryRow.variant_cnt, queryRow.sample_cnt, queryRow.call_cnt, queryRow.frequency = 0,0,0,0 # does not alter the database only the representation
-    elif exists == None:
-        queryRow.variant_cnt, queryRow.sample_cnt, queryRow.call_cnt, queryRow.frequency = 0,0,0,0 # does not alter the database only the representation
-        error = 'Chromosome maching referenceName={}, not found in dataset'.format(referencename)
+        variantCount, sampleCount, callCount, frequency = 0,0,0,0 # does not alter the database only the representation
+    else:
+        frequency = row[12]
+        sampleCount = row[11]
+        callCount = row[10]
+        variantCount = row[9]
+
     datasetAllelResponse = {
         'datasetId': datasetId,
         'exists': exists,
-        'frequency': queryRow.frequency,
-        'variantCount': queryRow.variant_cnt,
-        'callCount': queryRow.call_cnt,
-        'sampleCount': queryRow.sample_cnt,
+        'frequency': frequency,
+        'variantCount': variantCount,
+        'callCount': callCount,
+        'sampleCount': sampleCount,
         'note': BeaconDataset[j]['description'],
         'externalUrl': BeaconDataset[j]['externalUrl'],
         'info': BeaconDataset[j]['info'],
@@ -194,13 +240,12 @@ def checkParameters(referenceName, start, startMin, startMax, end, endMin, endMa
         for set in datasetIds:
             if set not in datasetIds_list:
                 error_.bad_request('datasetId not valid')
-            datasetAllelResponses.append(datasetAllelResponseBuilder(set, referenceName, pos, alternateBases))
+            datasetAllelResponses.append(datasetAllelResponseBuilder(set, referenceName, pos, alternateBases, variantType))
     # if no datasets where given, it will query all datasets in the database
     else:
         datasetIds = datasetIds_list
-        print(datasetIds)
         for set in datasetIds:
-            datasetAllelResponses.append(datasetAllelResponseBuilder(set, referenceName, pos, alternateBases))
+            datasetAllelResponses.append(datasetAllelResponseBuilder(set, referenceName, pos, alternateBases, variantType))
 
 
 
