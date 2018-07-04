@@ -53,7 +53,7 @@ Three level access tiers: open, regisered and controlled.
 ##### - METHOD: `GET`
 The `get()` method uses the HTTP protocol 'GET' to returns a Json object of all the necessary info on the beacon and the Api. It
 uses the `/` path and only serves an information giver. The parameters that the method returns and their descriptions
-can be found under the title: [Beacon]()
+can be found under the title: [Beacon](#1.-beacon)
 
         
 #### Beacon `/query` endpoint:
@@ -75,394 +75,220 @@ logged and then if you use the `POST` instead, you dont reveal the parameters th
     
 
 ## Beacon API Objects
+
 ### 1. Beacon
-#### Required parameters:
-- id
-- name
-- apiVersion
-- organization
-- datasets
-#### Properties:
-**id:** Unique identifier of the beacon. Use reverse domain name notation.
 
-*example: org.ga4gh.beacon*     
-          
-**name:** Name of the beacon.
-          
-**apiVersion:** Version of the API provided by the beacon.
+(Required properties are marked with *)
 
-*example: v0.3*
-        
-**organization:** [Organization](#4.-beaconorganization)
-        
-**description:** Description of the beacon.
-        
-**version:** Version of the beacon.
+|Properties|Description|Type|Example|
+|---|---|:---:|---|
+|**id***|Unique identifier of the beacon. Use reverse domain name notation.|string|org.ga4gh.beacon|
+|**name***|Name of the beacon|string|-|
+|**apiVersion***|Version of the API provided by the beacon.|string|v0.3|
+|**organisation***|asd|object|[Organization](#)|
+|**datasets***|Datasets served by the beacon. Any beacon should specify at least one dataset.|array|items --> [BeaconDataset](#)|
+|description|Description of the beacon.|string|-|
+|version|Version of the beacon.|string|v0.1|
+|welcomeUrl|URL to the welcome page for this beacon (RFC 3986 format).|string|'http://example.org/wiki/Main_Page'|
+|alternativeUrl|Alternative URL to the API, e.g. a restricted version of this beacon (RFC 3986 format).|string|'http://example.org/wiki/Main_Page'|
+|createDateTime|The time the beacon was created (ISO 8601 format).|string|'2012-07-19 or 2017-01-17T20:33:40Z'|
+|updateDateTime|The time the beacon was updated in (ISO 8601 format).|string|'2012-07-19 or 2017-01-17T20:33:40Z'|
+|sampleAlleleRequests|Examples of interesting queries, e.g. a few queries demonstrating different responses.|array|items --> [BeaconAlleleRequest](#)|
+|info|'Additional structured metadata, key-value pairs.'|array|items --> [KeyValuePair](#)|
 
-*example: v0.1*
-        
-**welcomeUrl:** URL to the welcome page for this beacon (RFC 3986 format).
 
-*example: 'http://example.org/wiki/Main_Page'*
-       
-**alternativeUrl:** Alternative URL to the API, e.g. a restricted version of this beacon(RFC 3986 format).
-
-*example: 'http://example.org/wiki/Main_Page'*
-          
-**createDateTime:** The time the beacon was created (ISO 8601 format).
-
-*example: '2012-07-19 or 2017-01-17T20:33:40Z'*
-       
-**updateDateTime:** The time the beacon was created (ISO 8601 format).
-
-*example: '2012-07-19 or 2017-01-17T20:33:40Z'*
-        
-**datasets:** Datasets served by the beacon. Any beacon should specify at least one dataset. ([BeaconDataset](#5.-beacondataset))
-        
-**sampleAlleleRequests:** Examples of interesting queries, e.g. a few queries demonstrating different esponses. ([BeaconAlleleRequest](#2.-beaconallelerequest))
-          
-**info:** Additional structured metadata, key-value pairs. ([KeyValuePair](#8.-keyvaluepair))
           
 ### 2. BeaconAlleleRequest
-Allele request as interpreted by the beacon.
 
-#### Required parameters:
-- referenceName
-- referenceBases
-- assemblyId
-#### Properties:
-**referenceName:** `string`
+>**Allele request as interpreted by the beacon.**
 
-Reference name (chromosome). Accepting values 1-22, X, Y.
+(Required properties are marked with *)
 
-**start:** `integer`
+(Either of two is Required ~)
 
-Precise start coordinate position, allele locus (0-based).
-* **start** only:
-  - for single positions, e.g. the start of a specified sequence alteration where the size is given through the specified alternateBases
-  - typical use are queries for SNV and small InDels
-  - the use of "start" without an "end" parameter requires the use of "referenceBases"
-* **start** and **end**:
-  - special use case for exactly determined structural changes
+|Properties|Description|Type|Example|
+|---|---|:---:|---|
+|**referenceName***|Reference name (chromosome). Accepting values 1-22, X, Y.|string|`'1'`|
+|**referenceBases***|Reference bases for this variant (starting from `start`). Accepted values: [ACGT]* When querying for variants without specific base alterations (e.g. imprecise structural variants with separate variant_type as well as start_min & end_min ... parameters), the use of a single "N" value is required.<br/>See the REF field in [VCF 4.2 specification](https://samtools.github.io/hts-specs/VCFv4.2.pdf).|string|`'G'`|
+|**assemblyId***|Assembly identifier|string|`'GRCh38'`|
+|start~|<p>* `start` only:<br />- for single positions, e.g. the start of a specified sequence alteration where the size is given through the specified alternateBases<br />- typical use are queries for SNV and small InDels<br />- the use of `start` without an `end` parameter requires the use of `referenceBases`<br />* `start` and `end:<br /> - special use case for exactly determined structural changes |integer|`345233`|
+|startMin~|Minimum start coordinate<br />* `startMin` + `startMax` + `endMin` + `endMax`:<br />- for querying imprecise positions (e.g. identifying all structural variants starting anywhere between `startMin` <-> `startMax`, and ending anywhere between `endMin` <-> `endMax`<br />- single or douple sided precise matches can be achieved by setting `startMin` = `startMax` OR `endMin` = `endMax<br/> <br/>For more information on range querys, see: [Beacon-Querys](https://github.com/ga4gh-beacon/specification/wiki/Beacon-Queries#range-queries-and-structural-variants)|integer|`23433`|
+|startMax|Maximum start coordinate. See `startMin`.|integer|`23450`|
+|end|Precise end coordinate. See `start`.|integer|`455635`|
+|endMin|Minimum end coordinate. See `startMin`.|integer|`23500`|
+|endMax|Maximum end coordinate. See `startMin.|integer|`23520`|
+|alternateBases~|The bases that appear instead of the reference bases. Accepted values: [ACGT]* or N.<br /> <br/>Symbolic ALT alleles (DEL, INS, DUP, INV, CNV, DUP:TANDEM, DEL:ME, INS:ME) will be represented in variantType.<br/> <br/> See the ALT field in [VCF 4.2 specification](https://samtools.github.io/hts-specs/VCFv4.2.pdf)<br/> <br/>*Either `alternateBases` OR `varianType` is REQUIRED*|string|`'A'`|
+|variantType~|The `variantType` is used to denote e.g. structural variants.<br/> <br/>*Either `alternateBases` OR `varianType is REQUIRED*|string|`'INS'`|
+|datasetIds|Identifiers of datasets, as defined in `BeaconDataset`. If this field is null/not specified, all datasets should be queried.|array|`['dataset1', 'dataset2']`|
+|includeDatasetResponses|Indicator of whether responses for individual datasets (`datasetAlleleResponses`) should be included in the response (`BeaconAlleleResponse) to this request or not. If null (not specified), the default value of NONE is assumed.<br/> <br/>Accepted values : ['ALL', 'HIT', 'MISS', 'NONE']|string|`'ALL'`|
 
-**end:** `integer`
-
-Precise end coordinate. See start.
-
-**startMin:** `integer`
-
-Minimum start coordinate
-* startMin + startMax + endMin + endMax
-  - for querying imprecise positions (e.g. identifying all structural variants starting anywhere between startMin <-> startMax, and ending anywhere between endMin <-> endMax
-  - single or douple sided precise matches can be achieved by setting startMin = startMax XOR endMin = endMax
-
-**startMax:** `integer`
-
-Maximum start coordinate. See startMin.
-
-**endMin:** `integer`
-
-Minimum end coordinate. See startMin.
-
-**endMAx:** `integer`
-
-Maximum end coordinate. See startMin.
-
-**referenceBases:** `string`
-
-Reference bases for this variant (starting from `start`).
-
-Accepted values: [ACGT]*
-
-When querying for variants without specific base alterations (e.g. imprecise structural variants with separate variant_type as well as start_min & end_min ... parameters), the use of a single "N" value is required.
-
-**alternateBases:** `string`
-
-The bases that appear instead of the reference bases. Accepted
-values: [ACGT]* or N.
-Symbolic ALT alleles (DEL, INS, DUP, INV, CNV, DUP:TANDEM, DEL:ME,
-INS:ME) will be represented in `variantType`.
-
-Optional: either `alternateBases` or `variantType` is required.
-
-**variantType:** `string`
-
-The `variantType` is used to denote e.g. structural variants.
-
-Examples:
-* DUP: duplication of sequence following `start`; not necessarily in
-situ
-* DEL: deletion of sequence following `start`
-
-Optional: either `alternateBases` or `variantType` is required.
-
-**assemblyId:** `string`
-
-Assembly identifier (GRC notation, e.g. `GRCh37`).
-
-**datasetIds:** `array`
-
-Identifiers of datasets, as defined in `BeaconDataset`. If this field is null/not specified, all datasets should be queried.
-
-**includeDatasetResponses:** `string`
-
-Indicator of whether responses for individual datasets
-(datasetAlleleResponses) should be included in the response
-(BeaconAlleleResponse) to this request or not. If null (not
-specified), the default value of NONE is assumed.
-
-Values: [ALL, HIT, MISS, NONE]
 
 
 ### 3. BeaconAlleleResponse
-The response to the given query.
+>**The response to the given query.**
 
-#### Required parameters:
-- beaconId
-#### Properties:
-**beaconId:** `string`
+(Required properties are marked with *)
 
-Identifier of the beacon, as defined in `Beacon`.
+|Properties|Description|Type|Example|
+|---|---|:---:|---|
+|**beaconId***|Identifier of the beacon, as defined in `Beacon`.|string|-|
+|apiVersion|Version of the API. If specified, the value must match `apiVersion` in Beacon|string|-|
+|exists|Indicator of whether the given allele was observed in any of the datasets queried. This should be non-null, unless there was an error, in which case `error` has to be non-null.|boolean|`TRUE`|
+|alleleRequest|The request that is sent to the Beacon.|object|[BeaconAlleleRequest](#)|
+|datasetAlleleResponses|The response that the user receives from the Beacon|object|[BeaconDatasetAlleleResponse](#)|
+|error|The error message and the appropriate HTTP status code|object|[Error](#)|
 
-**apiVersion:** `string`
 
-Version of the API. If specified, the value must match `apiVersion` in Beacon
 
-**exists: `boolean`** 
 
-Indicator of whether the given allele was observed in any of the
-datasets queried. This should be non-null, unless there was an
-error, in which case `error` has to be non-null.
-
-**alleleRequest:** `object`
-
-[BeaconAlleleRequest](#2.-beaconallelerequest)
-
-**datasetAlleleResponses:** `array`
-
-Indicator of whether the given allele was  observed in individual
-datasets. This should be non-null if `includeDatasetResponses` in
-the corresponding `BeaconAlleleRequest` is true, and null otherwise.
-
-Array items: [BeaconDatasetAlleleResponse](#6.-beacondatasetalleleresponse)
-
-**error:** [BeaconError](#7.--beaconerror)
 
 ### 4. BeaconOrganization
-The organization owning the beacon.
 
-#### Required parameters:
-- id
-- name
-#### Properties:
+>**The organization owning the beacon.**
 
-**id:** `string`
+(Required properties are marked with *)
 
-Unique identifier of the organization
+|Properties|Description|Type|Example|
+|---|---|:---:|---|
+|**id***|Unique identifier of the organization.|string|-|
+|**name***|Name of the organization.|string|-|
+|description|Description of the organization.|string|-|
+|address|Address of the organization.|string|-|
+|welcomeUrl|URL of the website of the organization (RFC 3986 format).|string|-|
+|contactUrl|URL with the contact for the beacon operator/maintainer, e.g. link to a contact form (RFC 3986 format) or an email (RFC 2368 format).|string|-|
+|logoUrl|URL to the logo (PNG/JPG format) of the organization (RFC 3986 format).|string|-|
+|info|Additional structured metadata, key-value pairs.|string|[KeyValuePair](#)|
 
-**name:** `string`
-
-Name of the organization.
-
-**description:** `string`
-
-Description of the organization.
-
-**address:** `string`
-
-Address of the organization.
-
-**welcomeUrl:** `string`
-
-URL of the website of the organization (RFC 3986 format).
-
-**contactUrl:** `string`
-
-URL with the contact for the beacon operator/maintainer, e.g. link
-to a contact form (RFC 3986 format) or an email (RFC 2368 format).
-
-**logoUrl:** `string`
-
-URL to the logo (PNG/JPG format) of the organization (RFC 3986
-format).
-
-**info:** `array`
-
-Additional structured metadata, key-value pairs.
-
-Array items: [KeyValuePair](#8.-keyvaluepair)
 
 ### 5. BeaconDataset
 
-#### Required parameters:
-- id
-- name
-- assemblyId
-- createDateTime
-- updateDateTime
+>**THe individual datasets that the user can query.**
 
-#### Properties:
+(Required properties are marked with *)
 
-**id:** `string`
+|Properties|Description|Type|Example|
+|---|---|:---:|---|
+|**id***|Unique identifier of the dataset.|string|-|
+|**name***|Name of the dataset.|string|-|
+|**assemblyId***|Assembly identifier|string|`'GRCh38'`|
+|**createDateTime***|The time the dataset was created (ISO 8601 format).|string|`'2012-07-29 or 2017-01-17T20:33:40Z'`|
+|**updateDateTime***|The time the dataset was updated in (ISO 8601 format).|string|`'2012-07-19 or 2017-01-17T20:33:40Z'`|
+|description|Description of the dataset.|string|-|
+|version|Version of the dataset.|string|-|
+|variantCount|Total number of variants in the dataset.|integer|`230453`|
+|callCount|Total number of calls in the dataset.|integer|`213454`|
+|sampleCount|Total number of samples in the dataset.|integer|`13`|
+|externalUrl|URL to an external system providing more dataset information (RFC 3986 format).|string|-|
+|info|Additional structured metadata, key-value pairs.|array|[KeyValuePair]()|
+|dataUseConditions|Data use conditions ruling this dataset.|object|[DataUseConditions]()|
 
-Unique identifier of the dataset.
 
-**name:** `string`
-
-Name of the dataset.
-
-**assemblyId:** `string`
-
-Assembly identifier (GRC notation, e.g. `GRCh37`).
-
-**createDateTime:** `string`
-
-The time the dataset was created (ISO 8601 format).
-
-*example: '2012-07-19 or 2017-01-17T20:33:40Z'*
-
-**version:** `string`
-
-Version of the dataset.
-
-**variantCount:** `integer`
-
-Total number of variants in the dataset.
-
-*minimum: 0*
-
-**callCount:** `integer`
-
-Total number of calls in the dataset.
-
-*minimum: 0*
-
-**sampleCount:** `integer`
-
-Total number of samples in the dataset.
-
-*minimum: 0*
-
-**externalUrl:** `string`
-
-URL to an external system providing more dataset information (RFC 3986 format).
-
-*example: 'http://example.org/wiki/Main_Page'*
-
-**info:** `array`
-
-Additional structured metadata, key-value pairs.
-
-Array items: [KeyValuePair](#8.-keyvaluepair)
 
 ### 6. BeaconDatasetAlleleResponse
-The individual responces from the different datasets. 
-#### Required parameters:
-- datasetId
 
-#### Properties:
+>**The individual responces from the different datasets.**
 
-**datasetId:** `string
+(Required properties are marked with *)
 
-The unique Id for the dataset.
+|Properties|Description|Type|Example|
+|---|---|:---:|---|
+|**datasetId***|Unique identifier of the dataset.|string|-|
+|exists|Indicator of whether the given allele was observed in the dataset. This should be non-null, unless there was an error, in which case `error` has to be non-null.|boolean|`TRUE`|
+|error|The error message and the appropriate HTTP status code|object|[BeaconError]()|
+|frequency|Frequency of this allele in the dataset. Between 0 and 1, inclusive.|float|`0.07`|
+|variantCount|Number of variants matching the allele request in the dataset.|integer|`2`|
+|callCount|Number of calls matching the allele request in the dataset.|integer|`3`|
+|sampleCount|Number of samples matching the allele request in the dataset|integer|`1`|
+|note|Additional note or description of the response.|string|-|
+|externalUrl|URL to an external system, such as a secured beacon or a system providing more information about a given allele (RFC 3986 format).|string|-|
+|info|Additional structured metadata, key-value pairs.|array|[KeyValuePair]()|
 
-**exists:** `boolean`
-
-Indicator of whether the given allele was observed in the dataset.
-This should be non-null, unless there was an error, in which case
-`error` has to be non-null.
-
-**error:** [BeaconError](#7.--beaconerror)
-
-**frequency:** `integer`
-
-Frequency of this allele in the dataset. Between 0 and 1, inclusive.
-
-*minimum: 0*
-
-*maximum: 1*
-
-**variantCount:** `integer`
-
-Number of variants matching the allele request in the dataset.
-
-*minimum: 0*
-
-**callCount:** `integer`
-
-Number of calls matching the allele request in the dataset.
-
-*minimum: 0*
-
-**sampleCount:** `integer`
-
-Number of samples matching the allele request in the dataset
-
-*minimum: 0*
-
-**note:** `string`
-
-Additional note or description of the response.
-
-**externalUrl:** `string`
-
-URL to an external system, such as a secured beacon or a system
-providing more information about a given allele (RFC 3986 format).
-
-**info:**: `array`
-
-Additional structured metadata, key-value pairs.
-
-Array items: [KeyValuePair](#8.-keyvaluepair)
 
 
 ### 7.  BeaconError
-Beacon-specific error. This should be non-null in exceptional situations only, in which case `exists` has to be null.
-#### Required parameters:
-- errorCode
-#### Properties:
 
-**errorCode:** `integer`
+>**Beacon-specific error. This should be non-null in exceptional situations only, in which case `exists` has to be null.**
+>
+>**See [Error]() for more information on the Beacon-specific errors.**
 
-**errorMessage:** `string`
+(Required properties are marked with *)
+
+|Properties|Description|Type|Example|
+|---|---|:---:|---|
+|**errorCode***|The HTTP status code that is given in the event that an error occurs|integer|`400`|
+|errorMessage|The error message explaining why the error occurred|string|`Missing mandatory parameter referenceName`|
+
 
 ### 8. KeyValuePair
-#### Required parameters:
-- key
-- value
-#### Properties:
-**key:** `string`
 
-**value:** `string`
+>**Additional structured metadata**
+
+(Required properties are marked with *)
+
+
+|Properties|Description|Type|Example|
+|---|---|:---:|---|
+|**key***|-|string|-|
+|**value***|-|string|-|
+
 
 ### 9. DataUseConditions
-#### Required parameters:
-- consentCodeDataUse
-- adamDataUse
-#### Properties:
-**consentCodeDataUse:** 
-https://raw.githubusercontent.com/sdelatorrep/ga4gh-consent-policy/openapi_v2.0/consent_code.yaml#/definitions/ConsentCodeDataUse
 
-**adamDataUse:** [AdamDataUse](#10.-adamdatause)
+>**Data use conditions ruling this dataset.**
+
+(Required properties are marked with *)
+
+|Properties|Description|Type|Example|
+|---|---|:---:|---|
+|*consentCodeDataUse**|The consent code for the use of data.|object|[consentCodeDatause](https://raw.githubusercontent.com/ga4gh/ga4gh-consent-policy/806ea53cffacb2055c3639f0fc9783f0dcd8cb02/consent_code.yaml#/components/schemas/ConsentCodeDataUse)|
+|*adamDataUse**|The Automatable Discovery and Access Matrix (ADA-M) provides a standardized way to unambiguously represent the conditions related to data discovery and access. |object|[ADA-M]() |
+
+
 
 ### 10. AdamDataUse
-#### Required parameters:
-- header
-- profile
-- terms
-- metaConditions
-#### Properties:
-**header:** 
-https://raw.githubusercontent.com/sdelatorrep/ADA-M/openapi_v2.0/adam.yaml#/definitions/AdamHeader
 
-**profile:** 
-https://raw.githubusercontent.com/sdelatorrep/ADA-M/openapi_v2.0/adam.yaml#/definitions/AdamProfile
+>**The Automatable Discovery and Access Matrix (ADA-M) provides a standardized way to unambiguously represent the conditions related to data discovery and access.**
 
-**terms:**
-https://raw.githubusercontent.com/sdelatorrep/ADA-M/openapi_v2.0/adam.yaml#/definitions/AdamTerms
+(Required properties are marked with *)
 
-**metaConditions:**
-https://raw.githubusercontent.com/sdelatorrep/ADA-M/openapi_v2.0/adam.yaml#/definitions/AdamMetaConditions
+|Properties|Description|Type|Example|
+|---|---|:---:|---|
+|**header***|General description of what the data is.|object|[AdamHeader](https://raw.githubusercontent.com/sdelatorrep/ADA-M/openapi_v2.0/adam.yaml#/definitions/AdamHeader)|
+|**profile***|Profile of the data.|object|[AdamProfile](https://raw.githubusercontent.com/sdelatorrep/ADA-M/openapi_v2.0/adam.yaml#/definitions/AdamProfile)|
+|**terms***|Terms related to the use of the data.|object|[AdamTerms](https://raw.githubusercontent.com/sdelatorrep/ADA-M/openapi_v2.0/adam.yaml#/definitions/AdamTerms)|
+|**metaConditions***|Special conditions.|object|[AdamMtaConditions](https://raw.githubusercontent.com/sdelatorrep/ADA-M/openapi_v2.0/adam.yaml#/definitions/AdamMetaConditions)|
+
+
+## Errors
+
+The server MUST respond with the appropriate HTTP status code when an error condition is detected. In the case of transient 
+server errors, (e.g., 500 and other 5xx status codes), the client SHOULD implement appropriate retry logic.
+
+For errors that are specific to the Beacon API, the response will be one of the HTTP status codes represented in the table below. 
+The response body SHOULD be a JSON object (content-type application/json) providing machine-readable information 
+about the nature of the error, along with a human-readable description. 
+
+
+The following errors types are defined: 
+
+| Error type | HTTP status code | Description |
+|---|:---:|---|
+|Bad request|400|Mandatory parameters are missing or they are invalid|
+|Unauthorized|401|When an unauthenticated user is trying to access a protected resource|
+|Forbidden|403|The resource is protected for all users, or the user is authenticated but he/she is not granted access for this resource|
+
+The error type SHOULD be chosen from this table and be accompanied by the specified HTTP status code. 
+An example of a valid JSON error response is:
+
+```json
+"error": {
+            "errorCode": 400,
+            "errorMessage": "Missing mandatory parameter referenceName"
+        }
+```    
+
+
+
 
 ## Beacon API Example
 #### - /
