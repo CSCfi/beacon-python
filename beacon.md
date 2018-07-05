@@ -106,7 +106,7 @@ If a request to the URL of an API method includes the Origin header, its content
 |alternativeUrl|Alternative URL to the API, e.g. a restricted version of this beacon (RFC 3986 format).|string|'http://example.org/wiki/Main_Page'|
 |createDateTime|The time the beacon was created (ISO 8601 format).|string|'2012-07-19 or 2017-01-17T20:33:40Z'|
 |updateDateTime|The time the beacon was updated in (ISO 8601 format).|string|'2012-07-19 or 2017-01-17T20:33:40Z'|
-|sampleAlleleRequests|Examples of interesting queries, e.g. a few queries demonstrating different responses.|array|Array of BeaconAlleleRequest objects (see [Query endpoint request](#beaconallelerequest))|
+|sampleAlleleRequests|Examples of interesting queries, e.g. a few queries demonstrating different responses.|array|Array of [BeaconAlleleRequest objects](#beaconallelerequest) (see Query endpoint request)|
 |info|'Additional structured metadata, key-value pairs.'|array|-|
 
 **<a name="beaconorganization"></a>Beacon Organisation object** 
@@ -267,7 +267,7 @@ An example `GET` request and response to the info endpoint:
 ##### - Content-Type: `application/x-www-form-urlencoded`(POST)
 ##### - Parameters: `BeaconAlleleRequest`
 
-**<a name=”beaconallelerequest”></a>BeaconAlleleRequest object**
+<a name=”beaconallelerequest”></a>**BeaconAlleleRequest object**
 
 |Parameter (* mandatory, ~ one of these is mandatory)|Description|Type|Example|
 |---|---|:---:|---|
