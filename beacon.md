@@ -118,11 +118,11 @@ logged and then if you use the `POST` instead, you dont reveal the parameters th
 |endMin|Minimum end coordinate. See `startMin`.|integer|`23500`|
 |endMax|Maximum end coordinate. See `startMin.|integer|`23520`|
 |alternateBases~|The bases that appear instead of the reference bases. Accepted values: [ACGT]* or N.<br /> <br/>Symbolic ALT alleles (DEL, INS, DUP, INV, CNV, DUP:TANDEM, DEL:ME, INS:ME) will be represented in variantType.<br/> <br/> See the ALT field in [VCF 4.2 specification](https://samtools.github.io/hts-specs/VCFv4.2.pdf)<br/> <br/>*Either `alternateBases` OR `varianType` is REQUIRED*|string|`'A'`|
-|variantType~|The `variantType` is used to denote e.g. structural variants. See [variantType gossary](#variantType-glossary:) for more.<br/> <br/>*Either `alternateBases` OR `varianType is REQUIRED*|string|`'INS'`|
+|variantType~|The `variantType` is used to denote e.g. structural variants. See [variantType gossary](#asd) for more.<br/> <br/>*Either `alternateBases` OR `varianType is REQUIRED*|string|`'INS'`|
 |datasetIds|Identifiers of datasets, as defined in `BeaconDataset`. If this field is null/not specified, all datasets should be queried.|array|`['dataset1', 'dataset2']`|
 |includeDatasetResponses|Indicator of whether responses for individual datasets (`datasetAlleleResponses`) should be included in the response (`BeaconAlleleResponse) to this request or not. If null (not specified), the default value of NONE is assumed.<br/> <br/>Accepted values : ['ALL', 'HIT', 'MISS', 'NONE']|string|`'ALL'`|
 
-### VariantType glossary:
+### <a name="asd"></a>VariantType glossary:
 
 |Abbreviation|Description|
 |:---:|---|
