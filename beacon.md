@@ -267,7 +267,7 @@ An example `GET` request and response to the info endpoint:
 ##### - Content-Type: `application/x-www-form-urlencoded`(POST)
 ##### - Parameters: `BeaconAlleleRequest`
 
-<a name=”beaconallelerequest”></a>**BeaconAlleleRequest object**
+<a name="beaconallelerequest"></a>**BeaconAlleleRequest object**
 
 |Parameter (* mandatory, ~ one of these is mandatory)|Description|Type|Example|
 |---|---|:---:|---|
