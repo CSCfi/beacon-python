@@ -118,10 +118,23 @@ logged and then if you use the `POST` instead, you dont reveal the parameters th
 |endMin|Minimum end coordinate. See `startMin`.|integer|`23500`|
 |endMax|Maximum end coordinate. See `startMin.|integer|`23520`|
 |alternateBases~|The bases that appear instead of the reference bases. Accepted values: [ACGT]* or N.<br /> <br/>Symbolic ALT alleles (DEL, INS, DUP, INV, CNV, DUP:TANDEM, DEL:ME, INS:ME) will be represented in variantType.<br/> <br/> See the ALT field in [VCF 4.2 specification](https://samtools.github.io/hts-specs/VCFv4.2.pdf)<br/> <br/>*Either `alternateBases` OR `varianType` is REQUIRED*|string|`'A'`|
-|variantType~|The `variantType` is used to denote e.g. structural variants.<br/> <br/>*Either `alternateBases` OR `varianType is REQUIRED*|string|`'INS'`|
+|variantType~|The `variantType` is used to denote e.g. structural variants. See [variantType gossary](#variantType-glossary:) for more.<br/> <br/>*Either `alternateBases` OR `varianType is REQUIRED*|string|`'INS'`|
 |datasetIds|Identifiers of datasets, as defined in `BeaconDataset`. If this field is null/not specified, all datasets should be queried.|array|`['dataset1', 'dataset2']`|
 |includeDatasetResponses|Indicator of whether responses for individual datasets (`datasetAlleleResponses`) should be included in the response (`BeaconAlleleResponse) to this request or not. If null (not specified), the default value of NONE is assumed.<br/> <br/>Accepted values : ['ALL', 'HIT', 'MISS', 'NONE']|string|`'ALL'`|
 
+### variantType glossary:
+
+|Abbreviation|Description|
+|:---:|---|
+|INS|**Insertion**: The insertion of a single stretch of DNA sequence into a specific position.|
+|DEL|**Deletion**: The deletion of a single stretch of DNA sequence from a position.|
+|DUP|**Duplication**: The copying of a stretch of DNA sequence and adding it to the end of the sequence.|
+|INV|**Inversion**: Taking a specific stretch from a DNA sequence and inverting it (flipping it) and adding it to the same position.|
+|CNV|**Copy Number Variation**: When a section of the DNA sequense is repeated.|
+|SNP|**Single Nucleotide Polymorphism**: The substitution of a single base-pair.  e.g. 'A' --> 'C'. |
+
+![alt text](https://www.ebi.ac.uk/training/online/sites/ebi.ac.uk.training.online/files/resize/GenVar_Fig_Structural_variation-600x391.png)
+![](https://www.ebi.ac.uk/training/online/sites/ebi.ac.uk.training.online/files/resize/GenVar_Fig_SNP_2-750x112.png)
 
 
 ### 3. BeaconAlleleResponse
@@ -451,7 +464,7 @@ curl -v 'http://localhost:5000/query?referenceName=1&start=0&end=0&startMin=2800
     ]
 }
 * Closing connection 0
-``
+```
     
 
 Example of how to use the POST method in the "/query" path:
