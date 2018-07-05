@@ -122,7 +122,7 @@ logged and then if you use the `POST` instead, you dont reveal the parameters th
 |datasetIds|Identifiers of datasets, as defined in `BeaconDataset`. If this field is null/not specified, all datasets should be queried.|array|`['dataset1', 'dataset2']`|
 |includeDatasetResponses|Indicator of whether responses for individual datasets (`datasetAlleleResponses`) should be included in the response (`BeaconAlleleResponse) to this request or not. If null (not specified), the default value of NONE is assumed.<br/> <br/>Accepted values : ['ALL', 'HIT', 'MISS', 'NONE']|string|`'ALL'`|
 
-### variantType glossary:
+### VariantType glossary:
 
 |Abbreviation|Description|
 |:---:|---|
