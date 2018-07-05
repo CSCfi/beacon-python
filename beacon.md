@@ -85,7 +85,7 @@ logged and then if you use the `POST` instead, you dont reveal the parameters th
 |**id***|Unique identifier of the beacon. Use reverse domain name notation.|string|org.ga4gh.beacon|
 |**name***|Name of the beacon|string|-|
 |**apiVersion***|Version of the API provided by the beacon.|string|v0.3|
-|**organisation***|asd|object|[Organization](#organisation)|
+|**organisation***|asd|object|[BeaconOrganization](#beaconorganization)|
 |**datasets***|Datasets served by the beacon. Any beacon should specify at least one dataset.|array|items --> [BeaconDataset](#beacondataset)|
 |description|Description of the beacon.|string|-|
 |version|Version of the beacon.|string|v0.1|
@@ -131,7 +131,7 @@ logged and then if you use the `POST` instead, you dont reveal the parameters th
 |DUP|**Duplication**: The copying of a stretch of DNA sequence and adding it to the end of the sequence.|
 |INV|**Inversion**: Taking a specific stretch from a DNA sequence and inverting it (flipping it) and adding it to the same position.|
 |CNV|**Copy Number Variation**: When a section of the DNA sequense is repeated.|
-|SNP|**Single Nucleotide Polymorphism**: The substitution of a single base-pair.  e.g. 'A' --> 'C'. |
+|SNP|**Single Nucleotide Polymorphism**: The substitution of a single base-pair.  e.g. 'G' --> 'T'. |
 
 ![alt text](https://www.ebi.ac.uk/training/online/sites/ebi.ac.uk.training.online/files/resize/GenVar_Fig_Structural_variation-600x391.png)
 ![](https://www.ebi.ac.uk/training/online/sites/ebi.ac.uk.training.online/files/resize/GenVar_Fig_SNP_2-750x112.png)
@@ -149,13 +149,13 @@ logged and then if you use the `POST` instead, you dont reveal the parameters th
 |exists|Indicator of whether the given allele was observed in any of the datasets queried. This should be non-null, unless there was an error, in which case `error` has to be non-null.|boolean|`TRUE`|
 |alleleRequest|The request that is sent to the Beacon.|object|[BeaconAlleleRequest](#beaconallelrequest)|
 |datasetAlleleResponses|The response that the user receives from the Beacon|object|[BeaconDatasetAlleleResponse](#beacondatasetallelresponse)|
-|error|The error message and the appropriate HTTP status code|object|[Error](#error)|
+|error|The error message and the appropriate HTTP status code|object|[Errors](#errors)|
 
 
 
 
 
-### <a name="beaconorganisation"></a>4. BeaconOrganization
+### <a name="beaconorganization"></a>4. BeaconOrganization
 
 >**The organization owning the beacon.**
 
@@ -175,7 +175,7 @@ logged and then if you use the `POST` instead, you dont reveal the parameters th
 
 ### <a name="beacondataset"></a>5. BeaconDataset
 
->**THe individual datasets that the user can query.**
+>**The individual datasets that the user can query.**
 
 (Required properties are marked with *)
 
@@ -207,14 +207,14 @@ logged and then if you use the `POST` instead, you dont reveal the parameters th
 |---|---|:---:|---|
 |**datasetId***|Unique identifier of the dataset.|string|-|
 |exists|Indicator of whether the given allele was observed in the dataset. This should be non-null, unless there was an error, in which case `error` has to be non-null.|boolean|`TRUE`|
-|error|The error message and the appropriate HTTP status code|object|[BeaconError](beaconerror)|
+|error|The error message and the appropriate HTTP status code|object|[BeaconError](#beaconerror)|
 |frequency|Frequency of this allele in the dataset. Between 0 and 1, inclusive.|float|`0.07`|
 |variantCount|Number of variants matching the allele request in the dataset.|integer|`2`|
 |callCount|Number of calls matching the allele request in the dataset.|integer|`3`|
 |sampleCount|Number of samples matching the allele request in the dataset|integer|`1`|
 |note|Additional note or description of the response.|string|-|
 |externalUrl|URL to an external system, such as a secured beacon or a system providing more information about a given allele (RFC 3986 format).|string|-|
-|info|Additional structured metadata, key-value pairs.|array|[KeyValuePair](keyvaluepair)|
+|info|Additional structured metadata, key-value pairs.|array|[KeyValuePair](#keyvaluepair)|
 
 
 
@@ -222,7 +222,7 @@ logged and then if you use the `POST` instead, you dont reveal the parameters th
 
 >**Beacon-specific error. This should be non-null in exceptional situations only, in which case `exists` has to be null.**
 >
->**See [Error](#error) for more information on the Beacon-specific errors.**
+>**See [Errors](#errors) for more information on the Beacon-specific errors.**
 
 (Required properties are marked with *)
 
@@ -245,7 +245,7 @@ logged and then if you use the `POST` instead, you dont reveal the parameters th
 |**value***|-|string|-|
 
 
-### <a name="datausecondition"></a>9. DataUseConditions
+### <a name="datauseconditions"></a>9. DataUseConditions
 
 >**Data use conditions ruling this dataset.**
 
