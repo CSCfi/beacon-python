@@ -53,7 +53,7 @@ Three level access tiers: open, regisered and controlled.
 ##### - METHOD: `GET`
 The `get()` method uses the HTTP protocol 'GET' to returns a Json object of all the necessary info on the beacon and the Api. It
 uses the `/` path and only serves an information giver. The parameters that the method returns and their descriptions
-can be found under the title: [Beacon](#1.-beacon)
+can be found under the title: [Beacon](#beacon)
 
         
 #### Beacon `/query` endpoint:
