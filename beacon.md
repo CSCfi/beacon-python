@@ -76,7 +76,7 @@ logged and then if you use the `POST` instead, you dont reveal the parameters th
 
 ## Beacon API Objects
 
-### 1. Beacon
+### <a name="beacon"></a>1. Beacon
 
 (Required properties are marked with *)
 
@@ -85,20 +85,20 @@ logged and then if you use the `POST` instead, you dont reveal the parameters th
 |**id***|Unique identifier of the beacon. Use reverse domain name notation.|string|org.ga4gh.beacon|
 |**name***|Name of the beacon|string|-|
 |**apiVersion***|Version of the API provided by the beacon.|string|v0.3|
-|**organisation***|asd|object|[Organization](#)|
-|**datasets***|Datasets served by the beacon. Any beacon should specify at least one dataset.|array|items --> [BeaconDataset](#)|
+|**organisation***|asd|object|[Organization](#organisation)|
+|**datasets***|Datasets served by the beacon. Any beacon should specify at least one dataset.|array|items --> [BeaconDataset](#beacondataset)|
 |description|Description of the beacon.|string|-|
 |version|Version of the beacon.|string|v0.1|
 |welcomeUrl|URL to the welcome page for this beacon (RFC 3986 format).|string|'http://example.org/wiki/Main_Page'|
 |alternativeUrl|Alternative URL to the API, e.g. a restricted version of this beacon (RFC 3986 format).|string|'http://example.org/wiki/Main_Page'|
 |createDateTime|The time the beacon was created (ISO 8601 format).|string|'2012-07-19 or 2017-01-17T20:33:40Z'|
 |updateDateTime|The time the beacon was updated in (ISO 8601 format).|string|'2012-07-19 or 2017-01-17T20:33:40Z'|
-|sampleAlleleRequests|Examples of interesting queries, e.g. a few queries demonstrating different responses.|array|items --> [BeaconAlleleRequest](#)|
-|info|'Additional structured metadata, key-value pairs.'|array|items --> [KeyValuePair](#)|
+|sampleAlleleRequests|Examples of interesting queries, e.g. a few queries demonstrating different responses.|array|items --> [BeaconAlleleRequest](#beaconallelrequest)|
+|info|'Additional structured metadata, key-value pairs.'|array|items --> [KeyValuePair](#keyvaluepair)|
 
 
           
-### 2. BeaconAlleleRequest
+### <a name="beaconallelrequest"></a>2. BeaconAlleleRequest
 
 >**Allele request as interpreted by the beacon.**
 
@@ -118,11 +118,11 @@ logged and then if you use the `POST` instead, you dont reveal the parameters th
 |endMin|Minimum end coordinate. See `startMin`.|integer|`23500`|
 |endMax|Maximum end coordinate. See `startMin.|integer|`23520`|
 |alternateBases~|The bases that appear instead of the reference bases. Accepted values: [ACGT]* or N.<br /> <br/>Symbolic ALT alleles (DEL, INS, DUP, INV, CNV, DUP:TANDEM, DEL:ME, INS:ME) will be represented in variantType.<br/> <br/> See the ALT field in [VCF 4.2 specification](https://samtools.github.io/hts-specs/VCFv4.2.pdf)<br/> <br/>*Either `alternateBases` OR `varianType` is REQUIRED*|string|`'A'`|
-|variantType~|The `variantType` is used to denote e.g. structural variants. See [variantType gossary](#asd) for more.<br/> <br/>*Either `alternateBases` OR `varianType is REQUIRED*|string|`'INS'`|
+|variantType~|The `variantType` is used to denote e.g. structural variants. See [variantType gossary](#variantType-glossary) for more.<br/> <br/>*Either `alternateBases` OR `varianType is REQUIRED*|string|`'INS'`|
 |datasetIds|Identifiers of datasets, as defined in `BeaconDataset`. If this field is null/not specified, all datasets should be queried.|array|`['dataset1', 'dataset2']`|
 |includeDatasetResponses|Indicator of whether responses for individual datasets (`datasetAlleleResponses`) should be included in the response (`BeaconAlleleResponse) to this request or not. If null (not specified), the default value of NONE is assumed.<br/> <br/>Accepted values : ['ALL', 'HIT', 'MISS', 'NONE']|string|`'ALL'`|
 
-### <a name="asd"></a>VariantType glossary:
+### <a name="variantType-glossary"></a>VariantType glossary:
 
 |Abbreviation|Description|
 |:---:|---|
@@ -137,7 +137,7 @@ logged and then if you use the `POST` instead, you dont reveal the parameters th
 ![](https://www.ebi.ac.uk/training/online/sites/ebi.ac.uk.training.online/files/resize/GenVar_Fig_SNP_2-750x112.png)
 
 
-### 3. BeaconAlleleResponse
+### <a name="beaconallelresponse"></a>3. BeaconAlleleResponse
 >**The response to the given query.**
 
 (Required properties are marked with *)
@@ -147,15 +147,15 @@ logged and then if you use the `POST` instead, you dont reveal the parameters th
 |**beaconId***|Identifier of the beacon, as defined in `Beacon`.|string|-|
 |apiVersion|Version of the API. If specified, the value must match `apiVersion` in Beacon|string|-|
 |exists|Indicator of whether the given allele was observed in any of the datasets queried. This should be non-null, unless there was an error, in which case `error` has to be non-null.|boolean|`TRUE`|
-|alleleRequest|The request that is sent to the Beacon.|object|[BeaconAlleleRequest](#)|
-|datasetAlleleResponses|The response that the user receives from the Beacon|object|[BeaconDatasetAlleleResponse](#)|
-|error|The error message and the appropriate HTTP status code|object|[Error](#)|
+|alleleRequest|The request that is sent to the Beacon.|object|[BeaconAlleleRequest](#beaconallelrequest)|
+|datasetAlleleResponses|The response that the user receives from the Beacon|object|[BeaconDatasetAlleleResponse](#beacondatasetallelresponse)|
+|error|The error message and the appropriate HTTP status code|object|[Error](#error)|
 
 
 
 
 
-### 4. BeaconOrganization
+### <a name="beaconorganisation"></a>4. BeaconOrganization
 
 >**The organization owning the beacon.**
 
@@ -170,10 +170,10 @@ logged and then if you use the `POST` instead, you dont reveal the parameters th
 |welcomeUrl|URL of the website of the organization (RFC 3986 format).|string|-|
 |contactUrl|URL with the contact for the beacon operator/maintainer, e.g. link to a contact form (RFC 3986 format) or an email (RFC 2368 format).|string|-|
 |logoUrl|URL to the logo (PNG/JPG format) of the organization (RFC 3986 format).|string|-|
-|info|Additional structured metadata, key-value pairs.|string|[KeyValuePair](#)|
+|info|Additional structured metadata, key-value pairs.|string|[KeyValuePair](#keyvaluepair)|
 
 
-### 5. BeaconDataset
+### <a name="beacondataset"></a>5. BeaconDataset
 
 >**THe individual datasets that the user can query.**
 
@@ -192,12 +192,12 @@ logged and then if you use the `POST` instead, you dont reveal the parameters th
 |callCount|Total number of calls in the dataset.|integer|`213454`|
 |sampleCount|Total number of samples in the dataset.|integer|`13`|
 |externalUrl|URL to an external system providing more dataset information (RFC 3986 format).|string|-|
-|info|Additional structured metadata, key-value pairs.|array|[KeyValuePair]()|
-|dataUseConditions|Data use conditions ruling this dataset.|object|[DataUseConditions]()|
+|info|Additional structured metadata, key-value pairs.|array|[KeyValuePair](#keyvaluepair)|
+|dataUseConditions|Data use conditions ruling this dataset.|object|[DataUseConditions](#datauseconditions)|
 
 
 
-### 6. BeaconDatasetAlleleResponse
+### <a name="beacondatasetallelresponse"></a>6. BeaconDatasetAlleleResponse
 
 >**The individual responces from the different datasets.**
 
@@ -207,22 +207,22 @@ logged and then if you use the `POST` instead, you dont reveal the parameters th
 |---|---|:---:|---|
 |**datasetId***|Unique identifier of the dataset.|string|-|
 |exists|Indicator of whether the given allele was observed in the dataset. This should be non-null, unless there was an error, in which case `error` has to be non-null.|boolean|`TRUE`|
-|error|The error message and the appropriate HTTP status code|object|[BeaconError]()|
+|error|The error message and the appropriate HTTP status code|object|[BeaconError](beaconerror)|
 |frequency|Frequency of this allele in the dataset. Between 0 and 1, inclusive.|float|`0.07`|
 |variantCount|Number of variants matching the allele request in the dataset.|integer|`2`|
 |callCount|Number of calls matching the allele request in the dataset.|integer|`3`|
 |sampleCount|Number of samples matching the allele request in the dataset|integer|`1`|
 |note|Additional note or description of the response.|string|-|
 |externalUrl|URL to an external system, such as a secured beacon or a system providing more information about a given allele (RFC 3986 format).|string|-|
-|info|Additional structured metadata, key-value pairs.|array|[KeyValuePair]()|
+|info|Additional structured metadata, key-value pairs.|array|[KeyValuePair](keyvaluepair)|
 
 
 
-### 7.  BeaconError
+### <a name="beaconerror"></a>7.  BeaconError
 
 >**Beacon-specific error. This should be non-null in exceptional situations only, in which case `exists` has to be null.**
 >
->**See [Error]() for more information on the Beacon-specific errors.**
+>**See [Error](#error) for more information on the Beacon-specific errors.**
 
 (Required properties are marked with *)
 
@@ -232,7 +232,7 @@ logged and then if you use the `POST` instead, you dont reveal the parameters th
 |errorMessage|The error message explaining why the error occurred|string|`Missing mandatory parameter referenceName`|
 
 
-### 8. KeyValuePair
+### <a name="keyvaluepair"></a>8. KeyValuePair
 
 >**Additional structured metadata**
 
@@ -245,7 +245,7 @@ logged and then if you use the `POST` instead, you dont reveal the parameters th
 |**value***|-|string|-|
 
 
-### 9. DataUseConditions
+### <a name="datausecondition"></a>9. DataUseConditions
 
 >**Data use conditions ruling this dataset.**
 
@@ -258,7 +258,7 @@ logged and then if you use the `POST` instead, you dont reveal the parameters th
 
 
 
-### 10. AdamDataUse
+### <a name="adamdatause"></a>10. AdamDataUse
 
 >**The Automatable Discovery and Access Matrix (ADA-M) provides a standardized way to unambiguously represent the conditions related to data discovery and access.**
 
@@ -272,7 +272,7 @@ logged and then if you use the `POST` instead, you dont reveal the parameters th
 |**metaConditions***|Special conditions.|object|[AdamMtaConditions](https://raw.githubusercontent.com/sdelatorrep/ADA-M/openapi_v2.0/adam.yaml#/definitions/AdamMetaConditions)|
 
 
-## Errors
+## <a name="errors"></a>Errors
 
 The server MUST respond with the appropriate HTTP status code when an error condition is detected. In the case of transient 
 server errors, (e.g., 500 and other 5xx status codes), the client SHOULD implement appropriate retry logic.
@@ -303,7 +303,7 @@ An example of a valid JSON error response is:
 
 
 
-## Beacon API Example
+## <a name="beacon-api-example"></a>Beacon API Example
 #### - /
 Example of how to use the GET method in the "/" path:    
 
