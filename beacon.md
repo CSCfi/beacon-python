@@ -316,7 +316,7 @@ An example `GET` request and response to the info endpoint:
 |datasetAlleleResponses|The response that the user receives from the Beacon|object|[BeaconDatasetAlleleResponse Object](#beacondatasetallelresponse) (see below)|
 |error|The error message and the appropriate HTTP status code|object|See section [Errors](#errors) |
 
-**<a name=”beacondatasetallelresponse”></a>Beacon Dataset Allele Response object**
+<a name=”beacondatasetallelresponse”></a>**Beacon Dataset Allele Response object**
 
 |Properties (* mandatory, ~ one of these is mandatory)|Description|Type|Example|
 |---|---|:---:|---|
