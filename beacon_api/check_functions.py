@@ -74,9 +74,9 @@ def allelFind(chromosome, position, allel=None, variantType=None):
                 'SELECT * FROM genomes WHERE chromosome=? AND start>=? AND start<=? AND end>=? AND end<=? AND alternate=?',
                 (chromosome, position[0], position[1], position[2], position[3], allel))
 
-    print("sql haku: {}".format(time.time()-eka))
     row = c.fetchone()
     conn.close()
+    print("sql haku: {}".format(time.time() - eka))
 
     if row == None:
         return False, row
