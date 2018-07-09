@@ -1,5 +1,6 @@
 from beacon_api.beacon_database import *
 import sqlite3,time
+import logging
 
 
 
@@ -23,6 +24,7 @@ and returns a positon list `pos` that depending on the submitted parameters, eit
 '''
 
 def position(start, end, startMin, startMax, endMin, endMax):
+
     pos = []
     if start != 0:
         if end != 0:
@@ -45,42 +47,51 @@ def position(start, end, startMin, startMax, endMin, endMax):
 '''The `allelFind()` function queries the database with the submitted parameters and checks if it finds the allele in the right place.
 It returns `True` if found and `False`if not. It also returns the object to the row that was queried in the database.'''
 
-def allelFind(chromosome, position, allel=None, variantType=None):
+def allelFind(chromosome, position, allel, variantType):
     # if alternateBases or variantType are not defined they are set to None
-    eka = time.time()
+    logging.info(' * Opening connection to database')
     conn = sqlite3.connect('/Users/kakeinan/beacon-python/beacon_api/beaconDatabase.db')
     c = conn.cursor()
 
-    if variantType != None:
+    if variantType != '0':
         if len(position) == 1:
+            logging.debug(' * Execute SQL query: SELECT * FROM genomes WHERE chromosome={} AND start={} AND  type={}'.format(chromosome, position[0], variantType))
             c.execute('SELECT * FROM genomes WHERE chromosome=? AND start=? AND  type=?',(chromosome, position[0], variantType))
 
         elif len(position) == 2:
+            logging.debug(' * Execute SQL query: SELECT * FROM genomes WHERE chromosome={} AND start={} AND end={} AND type={}'.format(chromosome, position[0], position[1] , variantType))
             c.execute('SELECT * FROM genomes WHERE chromosome=? AND start=? AND end=? AND type=?',(chromosome, position[0], position[1] , variantType))
 
         else:
+            logging.debug(' * Execute SQL query: SELECT * FROM genomes WHERE chromosome={} AND start>={} AND start<={} AND end>={} AND end<={} AND type={}'.format(chromosome, position[0], position[1], position[2], position[3], variantType))
             c.execute('SELECT * FROM genomes WHERE chromosome=? AND start>=? AND start<=? AND end>=? AND end<=? AND type=?',(chromosome, position[0], position[1], position[2], position[3], variantType))
 
-    elif variantType == None:
+    elif variantType == '0':
         if len(position) == 1:
+            logging.debug(' * Execute SQL query: SELECT * FROM genomes WHERE chromosome={} AND start={} AND  alternate={}'.format(chromosome, position[0], allel))
             c.execute('SELECT * FROM genomes WHERE chromosome=? AND start=? AND  alternate=?',
                       (chromosome, position[0], allel))
 
         elif len(position) == 2:
+            logging.debug(' * Execute SQL query: SELECT * FROM genomes WHERE chromosome={} AND start={} AND end={} AND alternate={}'.format(chromosome, position[0], position[1], allel))
             c.execute('SELECT * FROM genomes WHERE chromosome=? AND start=? AND end=? AND alternate=?',
                       (chromosome, position[0], position[1], allel))
         else:
+            logging.debug(' * Execute SQL query: SELECT * FROM genomes WHERE chromosome={} AND start>={} AND start<={} AND end>={} AND end<={}AND alternate={}'.format(chromosome, position[0], position[1], position[2], position[3], allel))
             c.execute(
                 'SELECT * FROM genomes WHERE chromosome=? AND start>=? AND start<=? AND end>=? AND end<=? AND alternate=?',
                 (chromosome, position[0], position[1], position[2], position[3], allel))
 
-    row = c.fetchone()
-    conn.close()
-    print("sql haku: {}".format(time.time() - eka))
 
+    row = c.fetchone()
+    logging.debug(' * First matching row from query: {}'.format(row))
+    logging.info(' * Closing connection to database')
+    conn.close()
     if row == None:
+        logging.debug('Returning FALSE')
         return False, row
     else:
+        logging.debug('Returning TRUE')
         return True, row
 
 #
@@ -126,7 +137,9 @@ def datasetAllelResponseBuilder(datasetId, referencename, pos, alternateBases, v
             break
         j += 1
 
+    logging.info(' * Calling function allelFind()')
     exists, row = allelFind(referencename, pos, alternateBases, variantType)
+    logging.info(' * Returning from function allelFind()')
 
     if exists == False:
         variantCount, sampleCount, callCount, frequency = 0,0,0,0 # does not alter the database only the representation
@@ -148,6 +161,7 @@ def datasetAllelResponseBuilder(datasetId, referencename, pos, alternateBases, v
         'info': BeaconDataset[j]['info'],
         'error': error
     }
+    logging.info(' * Returning datasetAllelResponse')
     return datasetAllelResponse
 
 '''The `checkParameters()` function valiates the submitted parameters values and checks if required parameters are missing.
@@ -158,15 +172,16 @@ def checkParameters(referenceName, start, startMin, startMax, end, endMin, endMa
     datasetAllelResponses = []
 
     pos = position(start, end, startMin, startMax, endMin, endMax)
-
-
+    logging.debug(' * The position() function returned the array: {}'.format(pos))
 
     # check if referenceName parameter is missing
     if referenceName == '0':
+        logging.warning(' * ERROR BAD REQUEST: Missing mandatory parameter referenceName')
         error_.bad_request('Missing mandatory parameter referenceName')
     # check if referenceName is valid
     elif referenceName not in refname:
         #if an error occures the 'exists' must be 'null'
+        logging.warning(' * ERROR BAD REQUEST: referenceName not valid')
         for set in datasetAllelResponses:
             set['exists'] = None
         error_.bad_request('referenceName not valid')
@@ -176,29 +191,38 @@ def checkParameters(referenceName, start, startMin, startMax, end, endMin, endMa
     # check if start/startMin parameter is missing
     if start == 0:
         if startMin == 0:
+            logging.warning(' * ERROR BAD REQUEST: Missing mandatory parameter start or startMin')
             error_.bad_request('Missing mandatory parameter start or startMin')
     # check if the positional arguments are valid
     elif start < 0:
+        logging.warning(' * ERROR BAD REQUEST: start not valid')
         error_.bad_request('start not valid')
     if startMin < 0:
+        logging.warning(' * ERROR BAD REQUEST: startMin not valid')
         error_.bad_request('startMin not valid')
     if startMax < 0:
-        error_.bad_request('startMin not valid')
+        logging.warning(' * ERROR BAD REQUEST: startMax not valid')
+        error_.bad_request('startMax not valid')
     if endMin < 0:
+        logging.warning(' * ERROR BAD REQUEST: endMin not valid')
         error_.bad_request('endMin not valid')
     if endMax < 0:
+        logging.warning(' * ERROR BAD REQUEST: endMax not valid')
         error_.bad_request('endMax not valid')
     if end < 0:
+        logging.warning(' * ERROR BAD REQUEST: end not valid')
         error_.bad_request('end not valid')
 
 
 
     # check if referenceBases parameter is missing
     if referenceBases == '0':
+        logging.warning(' * ERROR BAD REQUEST: Missing mandatory parameter referenceBases')
         error_.bad_request('Missing mandatory parameter referenceBases')
     # check if the string items in the referenceBases are valid
     for nucleotide2 in referenceBases:
         if nucleotide2 not in Bases:
+            logging.warning(' * ERROR BAD REQUEST: referenceBases not valid')
             error_.bad_request('referenceBases not valid')
 
 
@@ -207,21 +231,26 @@ def checkParameters(referenceName, start, startMin, startMax, end, endMin, endMa
     if alternateBases == '0':
         # if alternateBases is missing, check if variantType is missing
         if variantType == '0':
+            logging.warning(' * ERROR BAD REQUEST: Missing mandatory parameter alternateBases or variantType')
             error_.bad_request('Missing mandatory parameter alternateBases or variantType')
         # check if variantType parameter is valid
         elif variantType not in variantTypes:
+            logging.warning(' * ERROR BAD REQUEST: variantType not valid')
             error_.bad_request('variantType not valid')
     # check if the string items in the alternateBases are valid
     for nucleotide1 in alternateBases:
         if nucleotide1 not in Bases:
+            logging.warning(' * ERROR BAD REQUEST: alternateBases not valid')
             error_.bad_request('alternateBases not valid')
 
 
     # check if assemblyId is missing
     if assemblyId == '0':
+        logging.warning(' * ERROR BAD REQUEST: Missing mandatory parameter assemblyId')
         error_.bad_request('Missing mandatory parameter assemblyId')
     # check if assemblyId parameter is valid
     elif assemblyId not in assembliIds:
+        logging.warning(' * ERROR BAD REQUEST: assemblyId not valid')
         error_.bad_request('assemblyId not valid')
 
 
@@ -231,6 +260,7 @@ def checkParameters(referenceName, start, startMin, startMax, end, endMin, endMa
         # if an error occures the 'exists' must be 'null'
         for set in datasetAllelResponses:
             set['exists'] = None
+        logging.warning(' * ERROR BAD REQUEST: includeDatasetResponses not valid')
         error_.bad_request('includeDatasetResponses not valid')
 
 
@@ -239,13 +269,18 @@ def checkParameters(referenceName, start, startMin, startMax, end, endMin, endMa
     if datasetIds:
         for set in datasetIds:
             if set not in datasetIds_list:
+                logging.warning(' * ERROR BAD REQUEST: datasetId not valid')
                 error_.bad_request('datasetId not valid')
+            logging.debug(' * Started building datasetAllelResponse for: {}'.format(set))
             datasetAllelResponses.append(datasetAllelResponseBuilder(set, referenceName, pos, alternateBases, variantType))
+            logging.debug(' * Finnished building datasetAllelResponse for: {}'.format(set))
     # if no datasets where given, it will query all datasets in the database
     else:
         datasetIds = datasetIds_list
         for set in datasetIds:
+            logging.debug(' * Started building datasetAllelResponse for: {}'.format(set))
             datasetAllelResponses.append(datasetAllelResponseBuilder(set, referenceName, pos, alternateBases, variantType))
+            logging.debug(' * Finnished building datasetAllelResponse for: {}'.format(set))
 
 
 

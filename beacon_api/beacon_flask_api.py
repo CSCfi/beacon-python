@@ -6,17 +6,22 @@ from webargs.flaskparser import use_kwargs
 from beacon_api.check_functions import *
 from beacon_api.error_handelers import BeaconError
 from beacon_api.beacon_database import app
+import logging
 
 
+
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s:%(levelname)s:%(message)s')
 
 api = Api(app)
 Beacon = constructor()
 
 class Beacon_get(Resource):
+    logging.info(' * Get request to beacon end poit "/"')
     '''The `get()` method in the Beacon_get class uses the HTTP protocol 'GET' to returns a Json object of all the nessesary info on the beacon and the Api. It
     uses the '/' path and only serves an information giver. The parameters that the method returns and their descriptions
     can be found under the title: Beacon'''''
     def get(self):
+
         return jsonify(Beacon)
 
 api.add_resource(Beacon_get,'/')
@@ -74,7 +79,9 @@ class Beacon_query(Resource):
     `checkParameters()` method.'''
 
     @use_kwargs(args)
-    def get(self, referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, variantType,assemblyId, datasetIds, includeDatasetResponses):
+    def get(self, referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, variantType, assemblyId, datasetIds, includeDatasetResponses):
+        logging.info(' * GET request to beacon endpoit "/query"')
+        logging.debug(' * Parameters recived:\nreferenceName: {}\nstart: {}\nstartMin: {}\nstartMax: {}\nend: {}\nendMin: {}\nendMax: {}\nreferenceBases: {}\nsalternateBasestart: {}\nvariantType: {}\nassemblyId: {}\ndatasetIds: {}\nincludeDatasetResponses: {}\n'.format(referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, variantType, assemblyId, datasetIds, includeDatasetResponses))
 
         error_ = BeaconError(referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, variantType,assemblyId, datasetIds, includeDatasetResponses)
         datasetAllelResponses, true_datasetAllelResponses, false_datasetAllelResponses, includeDatasetResponses = checkParameters(
@@ -82,6 +89,7 @@ class Beacon_query(Resource):
             endMin, endMax, referenceBases, alternateBases, variantType,
             assemblyId, datasetIds,
             includeDatasetResponses, error_)
+        logging.info(' * Recived parameters passed the checkParameters() function')
         allelRequest = {'referenceName': referenceName,
                         'start': start,
                         'startMin': startMin,
@@ -96,7 +104,6 @@ class Beacon_query(Resource):
                         'datasetIds': datasetIds,
                         'includeDatasetResponses': includeDatasetResponses,
                         }
-
         return {'beaconId': Beacon['id'],
                 "apiVersion": Beacon['apiVersion'],
                 'exists': checkifdatasetisTrue(datasetAllelResponses),
@@ -111,7 +118,11 @@ class Beacon_query(Resource):
 
     @use_kwargs(args)
     def post(self, referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, variantType,assemblyId, datasetIds , includeDatasetResponses):
-
+        logging.info(' * POST request to beacon endpoit "/query"')
+        logging.debug(
+            ' * Parameters recived:\nreferenceName: {}\nstart: {}\nstartMin: {}\nstartMax: {}\nend: {}\nendMin: {}\nendMax: {}\nreferenceBases: {}\nsalternateBasestart: {}\nvariantType: {}\nassemblyId: {}\ndatasetIds: {}\nincludeDatasetResponses: {}\n'.format(
+                referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases,
+                variantType, assemblyId, datasetIds, includeDatasetResponses))
 
         error_ = BeaconError(referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases,
                              alternateBases, variantType,assemblyId, datasetIds, includeDatasetResponses)
