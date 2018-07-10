@@ -47,7 +47,7 @@ def position(start, end, startMin, startMax, endMin, endMax):
 '''The `allelFind()` function queries the database with the submitted parameters and checks if it finds the allele in the right place.
 It returns `True` if found and `False`if not. It also returns the object to the row that was queried in the database.'''
 
-def allelFind(chromosome, position, allel, variantType):
+def allelFind(datasetId, chromosome, position, allel, variantType):
     # if alternateBases or variantType are not defined they are set to None
     logging.info(' * Opening connection to database')
     conn = sqlite3.connect('/Users/kakeinan/beacon-python/beacon_api/beaconDatabase.db')
@@ -55,32 +55,32 @@ def allelFind(chromosome, position, allel, variantType):
 
     if variantType != '0':
         if len(position) == 1:
-            logging.debug(' * Execute SQL query: SELECT * FROM genomes WHERE chromosome={} AND start={} AND  type={}'.format(chromosome, position[0], variantType))
-            c.execute('SELECT * FROM genomes WHERE chromosome=? AND start=? AND  type=?',(chromosome, position[0], variantType))
+            logging.debug(' * Execute SQL query: SELECT * FROM genomes WHERE dataset_id=? AND chromosome={} AND start={} AND  type={}'.format(datasetId, chromosome, position[0], variantType))
+            c.execute('SELECT * FROM genomes WHERE dataset_id=? AND chromosome=? AND start=? AND  type=?',(datasetId, chromosome, position[0], variantType))
 
         elif len(position) == 2:
-            logging.debug(' * Execute SQL query: SELECT * FROM genomes WHERE chromosome={} AND start={} AND end={} AND type={}'.format(chromosome, position[0], position[1] , variantType))
-            c.execute('SELECT * FROM genomes WHERE chromosome=? AND start=? AND end=? AND type=?',(chromosome, position[0], position[1] , variantType))
+            logging.debug(' * Execute SQL query: SELECT * FROM genomes WHERE dataset_id=? AND chromosome={} AND start={} AND end={} AND type={}'.format(datasetId, chromosome, position[0], position[1] , variantType))
+            c.execute('SELECT * FROM genomes WHERE dataset_id=? AND chromosome=? AND start=? AND end=? AND type=?',(datasetId, chromosome, position[0], position[1] , variantType))
 
         else:
-            logging.debug(' * Execute SQL query: SELECT * FROM genomes WHERE chromosome={} AND start>={} AND start<={} AND end>={} AND end<={} AND type={}'.format(chromosome, position[0], position[1], position[2], position[3], variantType))
-            c.execute('SELECT * FROM genomes WHERE chromosome=? AND start>=? AND start<=? AND end>=? AND end<=? AND type=?',(chromosome, position[0], position[1], position[2], position[3], variantType))
+            logging.debug(' * Execute SQL query: SELECT * FROM genomes WHERE dataset_id=? AND chromosome={} AND start>={} AND start<={} AND end>={} AND end<={} AND type={}'.format(datasetId, chromosome, position[0], position[1], position[2], position[3], variantType))
+            c.execute('SELECT * FROM genomes WHERE dataset_id=? AND chromosome=? AND start>=? AND start<=? AND end>=? AND end<=? AND type=?',(datasetId, chromosome, position[0], position[1], position[2], position[3], variantType))
 
     elif variantType == '0':
         if len(position) == 1:
-            logging.debug(' * Execute SQL query: SELECT * FROM genomes WHERE chromosome={} AND start={} AND  alternate={}'.format(chromosome, position[0], allel))
-            c.execute('SELECT * FROM genomes WHERE chromosome=? AND start=? AND  alternate=?',
-                      (chromosome, position[0], allel))
+            logging.debug(' * Execute SQL query: SELECT * FROM genomes WHERE dataset_id=? AND chromosome={} AND start={} AND  alternate={}'.format(datasetId, chromosome, position[0], allel))
+            c.execute('SELECT * FROM genomes WHERE dataset_id=? AND chromosome=? AND start=? AND  alternate=?',
+                      (datasetId, chromosome, position[0], allel))
 
         elif len(position) == 2:
-            logging.debug(' * Execute SQL query: SELECT * FROM genomes WHERE chromosome={} AND start={} AND end={} AND alternate={}'.format(chromosome, position[0], position[1], allel))
-            c.execute('SELECT * FROM genomes WHERE chromosome=? AND start=? AND end=? AND alternate=?',
-                      (chromosome, position[0], position[1], allel))
+            logging.debug(' * Execute SQL query: SELECT * FROM genomes WHERE dataset_id=? AND chromosome={} AND start={} AND end={} AND alternate={}'.format(datasetId, chromosome, position[0], position[1], allel))
+            c.execute('SELECT * FROM genomes WHERE dataset_id=? AND chromosome=? AND start=? AND end=? AND alternate=?',
+                      (datasetId, chromosome, position[0], position[1], allel))
         else:
-            logging.debug(' * Execute SQL query: SELECT * FROM genomes WHERE chromosome={} AND start>={} AND start<={} AND end>={} AND end<={}AND alternate={}'.format(chromosome, position[0], position[1], position[2], position[3], allel))
+            logging.debug(' * Execute SQL query: SELECT * FROM genomes WHERE dataset_id=? AND chromosome={} AND start>={} AND start<={} AND end>={} AND end<={}AND alternate={}'.format(datasetId, chromosome, position[0], position[1], position[2], position[3], allel))
             c.execute(
-                'SELECT * FROM genomes WHERE chromosome=? AND start>=? AND start<=? AND end>=? AND end<=? AND alternate=?',
-                (chromosome, position[0], position[1], position[2], position[3], allel))
+                'SELECT * FROM genomes WHERE dataset_id=? AND chromosome=? AND start>=? AND start<=? AND end>=? AND end<=? AND alternate=?',
+                (datasetId, chromosome, position[0], position[1], position[2], position[3], allel))
 
 
     row = c.fetchone()
@@ -88,10 +88,10 @@ def allelFind(chromosome, position, allel, variantType):
     logging.info(' * Closing connection to database')
     conn.close()
     if row == None:
-        logging.debug('Returning FALSE')
+        logging.debug(' * Returning FALSE')
         return False, row
     else:
-        logging.debug('Returning TRUE')
+        logging.debug(' * Returning TRUE')
         return True, row
 
 #
@@ -138,7 +138,7 @@ def datasetAllelResponseBuilder(datasetId, referencename, pos, alternateBases, v
         j += 1
 
     logging.info(' * Calling function allelFind()')
-    exists, row = allelFind(referencename, pos, alternateBases, variantType)
+    exists, row = allelFind(datasetId, referencename, pos, alternateBases, variantType)
     logging.info(' * Returning from function allelFind()')
 
     if exists == False:
