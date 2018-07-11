@@ -1,5 +1,5 @@
 from beacon_api.beacon_database import *
-import sqlite3,time
+import sqlite3
 import logging
 
 
