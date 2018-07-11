@@ -13,7 +13,7 @@ $ awk '{printf "%s;%s\n", NR+161,$0}' dataset3.csv > dataset3_.csv
 In the python shell we create the tables with SQLAlchemy. (If you create them separately some of the functions won't work.)
 
 ```python
->>>from beacon_api.beacon_database import db
+>>>from beacon_api.beacon_database import db, load_dataset_table
 >>>db.create_all()
 ```
 
