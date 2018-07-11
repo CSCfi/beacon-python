@@ -3,7 +3,7 @@ from flask import abort
 apiVersion = "0.4"
 beaconId = "ega-beacon"
 class BeaconError():
-    def __init__(self, referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, assemblyId, datasetIds, includeDatasetResponses):
+    def __init__(self, referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, variantType, assemblyId, datasetIds, includeDatasetResponses):
         self.referenceName = referenceName
         self.start = start
         self.startMin = startMin
@@ -13,6 +13,7 @@ class BeaconError():
         self.endMax = endMax
         self.referenceBases = referenceBases
         self.alternateBases = alternateBases
+        self.variantTYpe = variantType
         self.assemblyId = assemblyId
         self.datasetIds = datasetIds
         self.includeDatasetResponses = includeDatasetResponses
@@ -37,6 +38,7 @@ class BeaconError():
                                      'endMax': self.endMax,
                                      'referenceBases': self.referenceBases,
                                      'alternateBases': self.alternateBases,
+                                     'variantType': self.variantTYpe,
                                      'assemblyId': self.assemblyId,
                                      'datasetIds': self.datasetIds,
                                      'includeDatasetResponses': self.includeDatasetResponses,
@@ -65,6 +67,7 @@ class BeaconError():
                                      'endMax': self.endMax,
                                      'referenceBases': self.referenceBases,
                                      'alternateBases': self.alternateBases,
+                                     'variantType': self.variantTYpe,
                                      'assemblyId': self.assemblyId,
                                      'datasetIds': self.datasetIds,
                                      'includeDatasetResponses': self.includeDatasetResponses,
@@ -94,6 +97,7 @@ class BeaconError():
                                      'endMax': self.endMax,
                                      'referenceBases': self.referenceBases,
                                      'alternateBases': self.alternateBases,
+                                     'variantType': self.variantTYpe,
                                      'assemblyId': self.assemblyId,
                                      'datasetIds': self.datasetIds,
                                      'includeDatasetResponses': self.includeDatasetResponses,

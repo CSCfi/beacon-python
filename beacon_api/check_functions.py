@@ -1,4 +1,8 @@
 from beacon_api.beacon_database import *
+import sqlite3
+import logging
+
+
 
 
 #Some hard coded data for the querys, some are taken from the beacon_dicts.py
@@ -6,8 +10,8 @@ from beacon_api.beacon_database import *
 refname = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11','12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', 'X', 'Y']
 datasetresponses = ['ALL', 'HIT', 'MISS', 'NONE']
 assembliIds = ['GRCh37', 'GRCh38', 'grch37', 'grch38']
-Bases = ['A', 'C', 'G', 'T', 'N']
-variantTypes = ['DEL', 'INS', 'DUP', 'INV', 'CNV', 'DUP:TANDEM', 'DEL:ME', 'INS:ME']
+Bases = ['A', 'C', 'G', 'T', 'N', '0'] # The Zero is there to validate thet it is missing
+variantTypes = ['DEL', 'INS', 'DUP', 'INV', 'CNV', 'SNP', 'DUP:TANDEM', 'DEL:ME', 'INS:ME']
 Beacon = constructor()
 BeaconDataset = Beacon['dataset']
 datasetIds_list = []
@@ -20,6 +24,7 @@ and returns a positon list `pos` that depending on the submitted parameters, eit
 '''
 
 def position(start, end, startMin, startMax, endMin, endMax):
+
     pos = []
     if start != 0:
         if end != 0:
@@ -42,66 +47,121 @@ def position(start, end, startMin, startMax, endMin, endMax):
 '''The `allelFind()` function queries the database with the submitted parameters and checks if it finds the allele in the right place.
 It returns `True` if found and `False`if not. It also returns the object to the row that was queried in the database.'''
 
-def allelFind(chromosome, position, allel):
-    q_obj = Beacon_data_table
-    print(1)
-    q_obj_chrm = q_obj.query.filter_by(chromosome=chromosome).all()#list
-    print(2)
-    if not q_obj_chrm:
-        return None, q_obj.query.filter_by(chromosome=1).all()[0] # expecting that there will allways be chromosome 1 and just returns it as dummy
+def allelFind(datasetId, chromosome, position, allel, variantType):
+    # if alternateBases or variantType are not defined they are set to None
+    logging.info(' * Opening connection to database')
+    conn = sqlite3.connect('/Users/kakeinan/beacon-python/beacon_api/beaconDatabase.db')
+    c = conn.cursor()
 
-    for q_chrom in q_obj_chrm:
-        # only start
+    if variantType != '0':
         if len(position) == 1:
-            if q_chrom.start == position[0]:
-                if q_chrom.alternate == allel:
-                    return True, q_chrom
-        # start --> end
+            logging.debug(' * Execute SQL query: SELECT * FROM genomes WHERE dataset_id=? AND chromosome={} AND start={} AND  type={}'.format(datasetId, chromosome, position[0], variantType))
+            c.execute('SELECT * FROM genomes WHERE dataset_id=? AND chromosome=? AND start=? AND  type=?',(datasetId, chromosome, position[0], variantType))
+
         elif len(position) == 2:
-            if q_chrom.start == position[0] and q_chrom.end == position[1]:
-                if q_chrom.alternate == allel:
-                    return True, q_chrom
-        # startMin ... startMax --> endMin .. endMax
-        elif len(position) == 4:
-            startRange = range(position[0], position[1]+1)
-            endRange = range(position[2], position[3]+1)
-            if q_chrom.start in startRange and q_chrom.end in endRange:
-                if q_chrom.alternate == allel:
-                    return True, q_chrom
+            logging.debug(' * Execute SQL query: SELECT * FROM genomes WHERE dataset_id=? AND chromosome={} AND start={} AND end={} AND type={}'.format(datasetId, chromosome, position[0], position[1] , variantType))
+            c.execute('SELECT * FROM genomes WHERE dataset_id=? AND chromosome=? AND start=? AND end=? AND type=?',(datasetId, chromosome, position[0], position[1] , variantType))
+
+        else:
+            logging.debug(' * Execute SQL query: SELECT * FROM genomes WHERE dataset_id=? AND chromosome={} AND start>={} AND start<={} AND end>={} AND end<={} AND type={}'.format(datasetId, chromosome, position[0], position[1], position[2], position[3], variantType))
+            c.execute('SELECT * FROM genomes WHERE dataset_id=? AND chromosome=? AND start>=? AND start<=? AND end>=? AND end<=? AND type=?',(datasetId, chromosome, position[0], position[1], position[2], position[3], variantType))
+
+    elif variantType == '0':
+        if len(position) == 1:
+            logging.debug(' * Execute SQL query: SELECT * FROM genomes WHERE dataset_id=? AND chromosome={} AND start={} AND  alternate={}'.format(datasetId, chromosome, position[0], allel))
+            c.execute('SELECT * FROM genomes WHERE dataset_id=? AND chromosome=? AND start=? AND  alternate=?',
+                      (datasetId, chromosome, position[0], allel))
+
+        elif len(position) == 2:
+            logging.debug(' * Execute SQL query: SELECT * FROM genomes WHERE dataset_id=? AND chromosome={} AND start={} AND end={} AND alternate={}'.format(datasetId, chromosome, position[0], position[1], allel))
+            c.execute('SELECT * FROM genomes WHERE dataset_id=? AND chromosome=? AND start=? AND end=? AND alternate=?',
+                      (datasetId, chromosome, position[0], position[1], allel))
+        else:
+            logging.debug(' * Execute SQL query: SELECT * FROM genomes WHERE dataset_id=? AND chromosome={} AND start>={} AND start<={} AND end>={} AND end<={}AND alternate={}'.format(datasetId, chromosome, position[0], position[1], position[2], position[3], allel))
+            c.execute(
+                'SELECT * FROM genomes WHERE dataset_id=? AND chromosome=? AND start>=? AND start<=? AND end>=? AND end<=? AND alternate=?',
+                (datasetId, chromosome, position[0], position[1], position[2], position[3], allel))
 
 
-    return False, q_chrom
+    row = c.fetchone()
+    logging.debug(' * First matching row from query: {}'.format(row))
+    logging.info(' * Closing connection to database')
+    conn.close()
+    if row == None:
+        logging.debug(' * Returning FALSE')
+        return False, row
+    else:
+        logging.debug(' * Returning TRUE')
+        return True, row
+
+#
+#    q_obj = Beacon_data_table
+#    q_obj_chrm = q_obj.query.filter_by(chromosome=chromosome).all()#list
+#
+#    if not q_obj_chrm:
+#        return None, q_obj.query.filter_by(chromosome=1).all()[0] # expecting that there will allways be chromosome 1 and just returns it as dummy
+#
+#    for q_chrom in q_obj_chrm:
+#        # only start
+#        if len(position) == 1:
+#            if q_chrom.start == position[0]:
+#                if q_chrom.alternate == allel:
+#                    print("SQLAlchemy haku: {}".format(time.time() - toka))
+#
+#                    return True, q_chrom
+#        # start --> end
+#        elif len(position) == 2:
+#            if q_chrom.start == position[0] and q_chrom.end == position[1]:
+#                if q_chrom.alternate == allel:
+#                    return True, q_chrom
+#        # startMin ... startMax --> endMin .. endMax
+#        elif len(position) == 4:
+#            startRange = range(position[0], position[1]+1)
+#            endRange = range(position[2], position[3]+1)
+#            if q_chrom.start in startRange and q_chrom.end in endRange:
+#                if q_chrom.alternate == allel:
+#                    return True, q_chrom
+#
+#
+#    return False, q_chrom
 
 '''The `datasetAllelResponseBuilder()` function calls the `allelFind()` function and receives the answer to the exist parameter
 and the database object to the row in the database. If `exists == False` the function sets the variant_cnt, sample_cnt,
 call_cnt and frequensy to 0. And if `exists == True` the function gets the parameter values from the database.'''
 
-def datasetAllelResponseBuilder(datasetId, referencename, pos, alternateBases):
+def datasetAllelResponseBuilder(datasetId, referencename, pos, alternateBases, variantType):
     error = None
     j = 0
     for i in BeaconDataset:
         if datasetId in i['name']:
             break
         j += 1
-    exists, queryRow = allelFind(referencename, pos, alternateBases)
+
+    logging.info(' * Calling function allelFind()')
+    exists, row = allelFind(datasetId, referencename, pos, alternateBases, variantType)
+    logging.info(' * Returning from function allelFind()')
 
     if exists == False:
-        queryRow.variant_cnt, queryRow.sample_cnt, queryRow.call_cnt, queryRow.frequency = 0,0,0,0 # does not alter the database only the representation
-    elif exists == None:
-        queryRow.variant_cnt, queryRow.sample_cnt, queryRow.call_cnt, queryRow.frequency = 0,0,0,0 # does not alter the database only the representation
-        error = 'Chromosome maching referenceName={}, not found in dataset'.format(referencename)
+        variantCount, sampleCount, callCount, frequency = 0,0,0,0 # does not alter the database only the representation
+    else:
+        frequency = row[12]
+        sampleCount = row[11]
+        callCount = row[10]
+        variantCount = row[9]
+
     datasetAllelResponse = {
         'datasetId': datasetId,
         'exists': exists,
-        'frequency': queryRow.frequency,
-        'variantCount': queryRow.variant_cnt,
-        'callCount': queryRow.call_cnt,
-        'sampleCount': queryRow.sample_cnt,
+        'frequency': frequency,
+        'variantCount': variantCount,
+        'callCount': callCount,
+        'sampleCount': sampleCount,
         'note': BeaconDataset[j]['description'],
         'externalUrl': BeaconDataset[j]['externalUrl'],
         'info': BeaconDataset[j]['info'],
         'error': error
     }
+    logging.info(' * Returning datasetAllelResponse')
     return datasetAllelResponse
 
 '''The `checkParameters()` function valiates the submitted parameters values and checks if required parameters are missing.
@@ -112,15 +172,16 @@ def checkParameters(referenceName, start, startMin, startMax, end, endMin, endMa
     datasetAllelResponses = []
 
     pos = position(start, end, startMin, startMax, endMin, endMax)
-
-
+    logging.debug(' * The position() function returned the array: {}'.format(pos))
 
     # check if referenceName parameter is missing
     if referenceName == '0':
+        logging.warning(' * ERROR BAD REQUEST: Missing mandatory parameter referenceName')
         error_.bad_request('Missing mandatory parameter referenceName')
     # check if referenceName is valid
     elif referenceName not in refname:
         #if an error occures the 'exists' must be 'null'
+        logging.warning(' * ERROR BAD REQUEST: referenceName not valid')
         for set in datasetAllelResponses:
             set['exists'] = None
         error_.bad_request('referenceName not valid')
@@ -130,29 +191,38 @@ def checkParameters(referenceName, start, startMin, startMax, end, endMin, endMa
     # check if start/startMin parameter is missing
     if start == 0:
         if startMin == 0:
+            logging.warning(' * ERROR BAD REQUEST: Missing mandatory parameter start or startMin')
             error_.bad_request('Missing mandatory parameter start or startMin')
     # check if the positional arguments are valid
     elif start < 0:
+        logging.warning(' * ERROR BAD REQUEST: start not valid')
         error_.bad_request('start not valid')
     if startMin < 0:
+        logging.warning(' * ERROR BAD REQUEST: startMin not valid')
         error_.bad_request('startMin not valid')
     if startMax < 0:
-        error_.bad_request('startMin not valid')
+        logging.warning(' * ERROR BAD REQUEST: startMax not valid')
+        error_.bad_request('startMax not valid')
     if endMin < 0:
+        logging.warning(' * ERROR BAD REQUEST: endMin not valid')
         error_.bad_request('endMin not valid')
     if endMax < 0:
+        logging.warning(' * ERROR BAD REQUEST: endMax not valid')
         error_.bad_request('endMax not valid')
     if end < 0:
+        logging.warning(' * ERROR BAD REQUEST: end not valid')
         error_.bad_request('end not valid')
 
 
 
     # check if referenceBases parameter is missing
     if referenceBases == '0':
+        logging.warning(' * ERROR BAD REQUEST: Missing mandatory parameter referenceBases')
         error_.bad_request('Missing mandatory parameter referenceBases')
     # check if the string items in the referenceBases are valid
     for nucleotide2 in referenceBases:
         if nucleotide2 not in Bases:
+            logging.warning(' * ERROR BAD REQUEST: referenceBases not valid')
             error_.bad_request('referenceBases not valid')
 
 
@@ -161,21 +231,26 @@ def checkParameters(referenceName, start, startMin, startMax, end, endMin, endMa
     if alternateBases == '0':
         # if alternateBases is missing, check if variantType is missing
         if variantType == '0':
+            logging.warning(' * ERROR BAD REQUEST: Missing mandatory parameter alternateBases or variantType')
             error_.bad_request('Missing mandatory parameter alternateBases or variantType')
         # check if variantType parameter is valid
         elif variantType not in variantTypes:
+            logging.warning(' * ERROR BAD REQUEST: variantType not valid')
             error_.bad_request('variantType not valid')
     # check if the string items in the alternateBases are valid
     for nucleotide1 in alternateBases:
         if nucleotide1 not in Bases:
+            logging.warning(' * ERROR BAD REQUEST: alternateBases not valid')
             error_.bad_request('alternateBases not valid')
 
 
     # check if assemblyId is missing
     if assemblyId == '0':
+        logging.warning(' * ERROR BAD REQUEST: Missing mandatory parameter assemblyId')
         error_.bad_request('Missing mandatory parameter assemblyId')
     # check if assemblyId parameter is valid
     elif assemblyId not in assembliIds:
+        logging.warning(' * ERROR BAD REQUEST: assemblyId not valid')
         error_.bad_request('assemblyId not valid')
 
 
@@ -185,6 +260,7 @@ def checkParameters(referenceName, start, startMin, startMax, end, endMin, endMa
         # if an error occures the 'exists' must be 'null'
         for set in datasetAllelResponses:
             set['exists'] = None
+        logging.warning(' * ERROR BAD REQUEST: includeDatasetResponses not valid')
         error_.bad_request('includeDatasetResponses not valid')
 
 
@@ -193,14 +269,18 @@ def checkParameters(referenceName, start, startMin, startMax, end, endMin, endMa
     if datasetIds:
         for set in datasetIds:
             if set not in datasetIds_list:
+                logging.warning(' * ERROR BAD REQUEST: datasetId not valid')
                 error_.bad_request('datasetId not valid')
-            datasetAllelResponses.append(datasetAllelResponseBuilder(set, referenceName, pos, alternateBases))
+            logging.debug(' * Started building datasetAllelResponse for: {}'.format(set))
+            datasetAllelResponses.append(datasetAllelResponseBuilder(set, referenceName, pos, alternateBases, variantType))
+            logging.debug(' * Finnished building datasetAllelResponse for: {}'.format(set))
     # if no datasets where given, it will query all datasets in the database
     else:
         datasetIds = datasetIds_list
-        print(datasetIds)
         for set in datasetIds:
-            datasetAllelResponses.append(datasetAllelResponseBuilder(set, referenceName, pos, alternateBases))
+            logging.debug(' * Started building datasetAllelResponse for: {}'.format(set))
+            datasetAllelResponses.append(datasetAllelResponseBuilder(set, referenceName, pos, alternateBases, variantType))
+            logging.debug(' * Finnished building datasetAllelResponse for: {}'.format(set))
 
 
 

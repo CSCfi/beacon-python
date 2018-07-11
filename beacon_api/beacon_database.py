@@ -8,7 +8,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://///Users/kakeinan/beacon-pytho
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
-# NOTE: if beacon_dataset_table is not filled the query wont know about tthe right datasets.
+# NOTE: if beacon_dataset_table is not filled the query wont know about the right datasets.
 
 class Beacon_dataset_table(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -25,12 +25,10 @@ class Beacon_dataset_table(db.Model):
     accessType = db.Column(db.String(10))
     authorized = db.Column(db.String(10))
 
-    dataset_rows = db.relationship('Beacon_data_table', backref='dataset') # list with all the rows from the dataset
-
 class Beacon_data_table(db.Model):
     __tablename__ = 'genomes'
     id = db.Column(db.Integer, primary_key=True)
-    dataset_id = db.Column(db.Integer, db.ForeignKey('beacon_dataset_table.id'))
+    dataset_id = db.Column(db.String(50))
     start = db.Column(db.Integer)
     chromosome = db.Column(db.String(50))
     reference = db.Column(db.String(50))
