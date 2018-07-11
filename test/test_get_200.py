@@ -17,7 +17,7 @@ def test_get_200():
                'referenceBases': 'G',
                'alternateBases': 'A',
                'assemblyId': 'GRCh37',
-               'datasetIds': 'genomes',
+               'datasetIds': 'DATASET2',
                'includeDatasetResponses': 'ALL',
                }
     r = requests.get('http://localhost:5000/query', params=payload)

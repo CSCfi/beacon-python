@@ -12,7 +12,7 @@ def test_false():
                'referenceBases': 'A',
                'alternateBases': 'C',
                'assemblyId': 'GRCh37',
-               'datasetIds': 'EGAD00000000028',
+               'datasetIds': 'DATASET1',
                'includeDatasetResponses': 'ALL',
                }
     r = requests.get('http://localhost:5000/query', params=payload)
@@ -22,16 +22,16 @@ def test_false():
 
 def test_true1():
     payload = {'referenceName': '1',
-               'start': 14929,
+               'start': 2947942,
                'startMin': 0,
                'startMax': 0,
                'end': 0,
                'endMin': 0,
                'endMax': 0,
                'referenceBases': 'A',
-               'alternateBases': 'G',
+               'alternateBases': 'C',
                'assemblyId': 'GRCh37',
-               'datasetIds': 'EGAD00000000028',
+               'datasetIds': 'DATASET1',
                'includeDatasetResponses': 'ALL',
                }
     r = requests.get('http://localhost:5000/query', params=payload)
@@ -40,16 +40,16 @@ def test_true1():
 
 def test_true2():
     payload = {'referenceName': '1',
-               'start': 0,
-               'startMin': 28000000,
-               'startMax': 29000000,
+               'start': 3055827,
+               'startMin': 0,
+               'startMax': 0,
                'end': 0,
-               'endMin': 28000000,
-               'endMax': 29000000,
+               'endMin': 0,
+               'endMax': 0,
                'referenceBases': 'A',
-               'alternateBases': 'G',
+               'alternateBases': 'T',
                'assemblyId': 'GRCh37',
-               'datasetIds': 'EGAD00000000028',
+               'datasetIds': 'DATASET2',
                'includeDatasetResponses': 'ALL',
                }
     r = requests.get('http://localhost:5000/query', params=payload)
@@ -58,16 +58,16 @@ def test_true2():
 
 def test_true3():
     payload = {'referenceName': '1',
-               'start': 22332113,
+               'start': 2985619,
                'startMin': 0,
                'startMax': 0,
-               'end': 16913869,
+               'end': 0,
                'endMin': 0,
                'endMax': 0,
                'referenceBases': 'TG',
-               'alternateBases': 'T',
+               'alternateBases': 'AGGCGGC',
                'assemblyId': 'GRCh37',
-               'datasetIds': 'EGAD00000000028',
+               'datasetIds': 'DATASET3',
                'includeDatasetResponses': 'ALL',
                }
     r = requests.get('http://localhost:5000/query', params=payload)
