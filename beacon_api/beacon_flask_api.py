@@ -1,11 +1,11 @@
-from flask import jsonify
+from flask import jsonify, request
 from flask_restful import Api, Resource
 from webargs import fields
 from webargs.flaskparser import use_kwargs
-
+import jwt
 from beacon_api.check_functions import *
 from beacon_api.error_handelers import BeaconError
-from beacon_api.beacon_database import app
+from beacon_api.api_core import app
 import logging
 
 
@@ -82,13 +82,51 @@ class Beacon_query(Resource):
     def get(self, referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, variantType, assemblyId, datasetIds, includeDatasetResponses):
         logging.info(' * GET request to beacon endpoit "/query"')
         logging.debug(' * Parameters recived:\nreferenceName: {}\nstart: {}\nstartMin: {}\nstartMax: {}\nend: {}\nendMin: {}\nendMax: {}\nreferenceBases: {}\nsalternateBasestart: {}\nvariantType: {}\nassemblyId: {}\ndatasetIds: {}\nincludeDatasetResponses: {}\n'.format(referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, variantType, assemblyId, datasetIds, includeDatasetResponses))
-
         error_ = BeaconError(referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, variantType,assemblyId, datasetIds, includeDatasetResponses)
+        empty = False   # Variable to show if the datasetIds is emty. Changed if dataset = [] and checked befor printing the response so that the response is emty.
+        autenticated = False    # Variable to declare if the user is authenticated. Changed to true if the token sent in the request is valid.
+
+        auth_header = request.headers.get('Authorization')  # gets the token from the request header
+        if auth_header:     # If the user has tried to authenticate. if no 'Authorization' in the header, this section is skipped
+            try:
+                split = auth_header.split(' ')  # The second item is the token
+                #decode_data = jwt.decode(split[1], app.config.get('PUBLIC_KEY'), algorithms=['RS256'])
+                #if expired(testing)
+                decode_data = jwt.decode(split[1], app.config.get('PUBLIC_KEY'), algorithms=['RS256'], options={'verify_exp': False})
+                autenticated = True
+                logging.debug(' * {}'.format(decode_data))
+            except Exception as error:
+                error_.unauthorised('Authorization failed, token invalid.')
+
+        logging.debug(' * {}'.format(autenticated))
+        if autenticated == False:
+        #if the user is not authenticatde.
+            if datasetIds == []:
+            # if the user is not authenticatde and the user didnt specify the datasets. Then the datasetIds will contain datasets with PUBLIC access.
+                empty = True    # The emty varable is set to true so that the response will be correct, (datasetIds = []) beacuse the user didnt spesify these
+                rows = Beacon_dataset_table.query.all()
+                for row in rows:
+                    if row.accessType == 'PUBLIC':
+                        datasetIds.append(row.name)     # append if the accessType is PUBLIC
+                logging.debug(' * {}'.format(datasetIds))
+
+            dataset_obj = Beacon_dataset_table.query.all()
+            for set in dataset_obj:
+                logging.debug(' * {}: {}'.format(set.name, set.accessType))
+                if set.accessType != 'PUBLIC' and set.name in datasetIds:   # if the user whants to access a protected dataset and has not been authorized.
+                    error_.unauthorised('User not authorized to access dataset: {}'.format(set.name))
+        logging.debug(' * The datasetIds list has now the following items : {}'.format(datasetIds))
+
+
         datasetAllelResponses, true_datasetAllelResponses, false_datasetAllelResponses, includeDatasetResponses = checkParameters(
             referenceName, start, startMin, startMax, end,
             endMin, endMax, referenceBases, alternateBases, variantType,
             assemblyId, datasetIds,
             includeDatasetResponses, error_)
+
+        if empty:      # If the user didnt specify any datasets.
+            datasetIds = []
+
         logging.info(' * Recived parameters passed the checkParameters() function')
         allelRequest = {'referenceName': referenceName,
                         'start': start,
@@ -123,16 +161,53 @@ class Beacon_query(Resource):
             ' * Parameters recived:\nreferenceName: {}\nstart: {}\nstartMin: {}\nstartMax: {}\nend: {}\nendMin: {}\nendMax: {}\nreferenceBases: {}\nsalternateBasestart: {}\nvariantType: {}\nassemblyId: {}\ndatasetIds: {}\nincludeDatasetResponses: {}\n'.format(
                 referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases,
                 variantType, assemblyId, datasetIds, includeDatasetResponses))
-
         error_ = BeaconError(referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases,
-                             alternateBases, variantType,assemblyId, datasetIds, includeDatasetResponses)
+                             alternateBases, variantType, assemblyId, datasetIds, includeDatasetResponses)
+        empty = False  # Variable to show if the datasetIds is emty. Changed if dataset = [] and checked befor printing the response so that the response is emty.
+        autenticated = False  # Variable to declare if the user is authenticated. Changed to true if the token sent in the request is valid.
 
-        datasetAllelResponses, true_datasetAllelResponses, false_datasetAllelResponses, includeDatasetResponses = checkParameters(referenceName, start, startMin, startMax, end,
-                                                                         endMin, endMax, referenceBases, alternateBases, variantType,
-                                                                         assemblyId, datasetIds,
-                                                                         includeDatasetResponses, error_)
+        auth_header = request.headers.get('Authorization')  # gets the token from the request header
+        if auth_header:  # If the user has tried to authenticate. if no 'Authorization' in the header, this section is skipped
+            try:
+                split = auth_header.split(' ')  # The second item is the token
+                # decode_data = jwt.decode(split[1], app.config.get('PUBLIC_KEY'), algorithms=['RS256'])
+                # if expired(testing)
+                decode_data = jwt.decode(split[1], app.config.get('PUBLIC_KEY'), algorithms=['RS256'],
+                                         options={'verify_exp': False})
+                autenticated = True
+                logging.debug(' * {}'.format(decode_data))
+            except Exception as error:
+                error_.unauthorised('Authorization failed, token invalid.')
 
+        logging.debug(' * {}'.format(autenticated))
+        if autenticated == False:
+            # if the user is not authenticatde.
+            if datasetIds == []:
+                # if the user is not authenticatde and the user didnt specify the datasets. Then the datasetIds will contain datasets with PUBLIC access.
+                empty = True  # The emty varable is set to true so that the response will be correct, (datasetIds = []) beacuse the user didnt spesify these
+                rows = Beacon_dataset_table.query.all()
+                for row in rows:
+                    if row.accessType == 'PUBLIC':
+                        datasetIds.append(row.name)  # append if the accessType is PUBLIC
+                logging.debug(' * {}'.format(datasetIds))
 
+            dataset_obj = Beacon_dataset_table.query.all()
+            for set in dataset_obj:
+                logging.debug(' * {}: {}'.format(set.name, set.accessType))
+                if set.accessType != 'PUBLIC' and set.name in datasetIds:  # if the user whants to access a protected dataset and has not been authorized.
+                    error_.unauthorised('User not authorized to access dataset: {}'.format(set.name))
+        logging.debug(' * The datasetIds list has now the following items : {}'.format(datasetIds))
+
+        datasetAllelResponses, true_datasetAllelResponses, false_datasetAllelResponses, includeDatasetResponses = checkParameters(
+            referenceName, start, startMin, startMax, end,
+            endMin, endMax, referenceBases, alternateBases, variantType,
+            assemblyId, datasetIds,
+            includeDatasetResponses, error_)
+
+        if empty:  # If the user didnt specify any datasets.
+            datasetIds = []
+
+        logging.info(' * Recived parameters passed the checkParameters() function')
         allelRequest = {'referenceName': referenceName,
                         'start': start,
                         'startMin': startMin,
@@ -147,13 +222,13 @@ class Beacon_query(Resource):
                         'datasetIds': datasetIds,
                         'includeDatasetResponses': includeDatasetResponses,
                         }
-
-        return {"beaconId": Beacon['id'],
+        return {'beaconId': Beacon['id'],
                 "apiVersion": Beacon['apiVersion'],
-                "exists": checkifdatasetisTrue(datasetAllelResponses),
-                "error": None,
-                "alleleRequest": allelRequest,
-                "datasetAlleleResponses": checkInclude(includeDatasetResponses, datasetAllelResponses, true_datasetAllelResponses, false_datasetAllelResponses)
+                'exists': checkifdatasetisTrue(datasetAllelResponses),
+                'error': None,
+                'allelRequest': allelRequest,
+                'datasetAllelResponses': checkInclude(includeDatasetResponses, datasetAllelResponses,
+                                                      true_datasetAllelResponses, false_datasetAllelResponses)
                 }
 
 api.add_resource(Beacon_query,'/query')

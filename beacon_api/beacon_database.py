@@ -1,12 +1,6 @@
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
 import csv, datetime
+from beacon_api.api_core import db
 
-
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://///Users/kakeinan/beacon-python/beacon_api/beaconDatabase.db' 
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db = SQLAlchemy(app)
 
 # NOTE: if beacon_dataset_table is not filled the query wont know about the right datasets.
 
