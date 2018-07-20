@@ -1,30 +1,38 @@
-from flask import jsonify, request
+from flask import request, Flask
+import os
+from flask_sqlalchemy import SQLAlchemy
 from flask_restful import Api, Resource
 from webargs import fields
 from webargs.flaskparser import use_kwargs
 import jwt
-from beacon_api.check_functions import *
-from beacon_api.error_handelers import BeaconError
-from beacon_api.api_core import app
 import logging
 
-
+app = Flask(__name__)
+app.config.from_object(os.environ['APP_SETTINGS'])
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
+api = Api(app)
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s:%(levelname)s:%(message)s')
 
-api = Api(app)
-Beacon = constructor()
+from beacon_api.check_functions import *
+from beacon_api.error_handelers import BeaconError
+import beacon_api.beacon_info
+import beacon_api.models
+
 
 class Beacon_get(Resource):
-    logging.info(' * Get request to beacon end poit "/"')
     '''The `get()` method in the Beacon_get class uses the HTTP protocol 'GET' to returns a Json object of all the nessesary info on the beacon and the Api. It
     uses the '/' path and only serves an information giver. The parameters that the method returns and their descriptions
     can be found under the title: Beacon'''''
-    def get(self):
 
-        return jsonify(Beacon)
+    logging.info(' * Get request to beacon end poit "/"')
+    def get(self):
+        Beacon = beacon_api.beacon_info.constructor()
+        return Beacon
 
 api.add_resource(Beacon_get,'/')
+
 
 class Beacon_query(Resource):
     args = {
@@ -61,8 +69,7 @@ class Beacon_query(Resource):
         'assemblyId': fields.Str(
             missing='0'
         ),
-        'datasetIds': fields.List(
-            fields.Str(),
+        'datasetIds': fields.List(fields.Str(),
             missing=[]),
         'includeDatasetResponses': fields.Str(
             missing='ALL',
@@ -104,17 +111,18 @@ class Beacon_query(Resource):
             if datasetIds == []:
             # if the user is not authenticatde and the user didnt specify the datasets. Then the datasetIds will contain datasets with PUBLIC access.
                 empty = True    # The emty varable is set to true so that the response will be correct, (datasetIds = []) beacuse the user didnt spesify these
-                rows = Beacon_dataset_table.query.all()
+                rows = beacon_api.models.Beacon_dataset_table.query.all()
                 for row in rows:
                     if row.accessType == 'PUBLIC':
                         datasetIds.append(row.name)     # append if the accessType is PUBLIC
                 logging.debug(' * {}'.format(datasetIds))
 
-            dataset_obj = Beacon_dataset_table.query.all()
+            dataset_obj = beacon_api.models.Beacon_dataset_table.query.all()
             for set in dataset_obj:
                 logging.debug(' * {}: {}'.format(set.name, set.accessType))
                 if set.accessType != 'PUBLIC' and set.name in datasetIds:   # if the user whants to access a protected dataset and has not been authorized.
                     error_.unauthorised('User not authorized to access dataset: {}'.format(set.name))
+
         logging.debug(' * The datasetIds list has now the following items : {}'.format(datasetIds))
 
 
@@ -126,6 +134,8 @@ class Beacon_query(Resource):
 
         if empty:      # If the user didnt specify any datasets.
             datasetIds = []
+
+        Beacon = beacon_api.beacon_info.constructor()
 
         logging.info(' * Recived parameters passed the checkParameters() function')
         allelRequest = {'referenceName': referenceName,
@@ -185,13 +195,13 @@ class Beacon_query(Resource):
             if datasetIds == []:
                 # if the user is not authenticatde and the user didnt specify the datasets. Then the datasetIds will contain datasets with PUBLIC access.
                 empty = True  # The emty varable is set to true so that the response will be correct, (datasetIds = []) beacuse the user didnt spesify these
-                rows = Beacon_dataset_table.query.all()
+                rows = beacon_api.models.Beacon_dataset_table.query.all()
                 for row in rows:
                     if row.accessType == 'PUBLIC':
                         datasetIds.append(row.name)  # append if the accessType is PUBLIC
                 logging.debug(' * {}'.format(datasetIds))
 
-            dataset_obj = Beacon_dataset_table.query.all()
+            dataset_obj = beacon_api.models.Beacon_dataset_table.query.all()
             for set in dataset_obj:
                 logging.debug(' * {}: {}'.format(set.name, set.accessType))
                 if set.accessType != 'PUBLIC' and set.name in datasetIds:  # if the user whants to access a protected dataset and has not been authorized.
@@ -206,6 +216,8 @@ class Beacon_query(Resource):
 
         if empty:  # If the user didnt specify any datasets.
             datasetIds = []
+
+        Beacon = beacon_api.beacon_info.constructor()
 
         logging.info(' * Recived parameters passed the checkParameters() function')
         allelRequest = {'referenceName': referenceName,
@@ -234,4 +246,4 @@ class Beacon_query(Resource):
 api.add_resource(Beacon_query,'/query')
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
