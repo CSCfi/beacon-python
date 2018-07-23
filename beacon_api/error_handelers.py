@@ -50,13 +50,13 @@ class BeaconError():
     `'Unauthenticated user trying to access protected resource.'`. The method is called if the user does'nt have access 
     '''
 
-    def unauthorised(self, datasetAllelResponses):
+    def unauthorised(self, message):
         abort(401, {'beaconId': beaconId,
                     "apiVersion": apiVersion,
                     'exists': None,
                     'error': {
                         'errorCode': 401,
-                        'errorMessage': 'Unauthenticated user trying to access protected resource.'
+                        'errorMessage': message
                     },
                     'allelRequest': {'referenceName': self.referenceName,
                                      'start': self.start,
@@ -72,7 +72,7 @@ class BeaconError():
                                      'datasetIds': self.datasetIds,
                                      'includeDatasetResponses': self.includeDatasetResponses,
                                      },
-                    'datasetAllelResponses': datasetAllelResponses}
+                    'datasetAllelResponses': []}
               )
 
     '''The `forbidden()` method method aborts the actions of the api and returns a 403 error code with the error message 
@@ -80,7 +80,7 @@ class BeaconError():
     is protected or if the user is authenticated but not granted the resource.
     '''
 
-    def forbidden(self, datasetAllelResponses):
+    def forbidden(self):
         abort(403, {'beaconId': beaconId,
                     "apiVersion": apiVersion,
                     'exists': None,
@@ -102,5 +102,5 @@ class BeaconError():
                                      'datasetIds': self.datasetIds,
                                      'includeDatasetResponses': self.includeDatasetResponses,
                                      },
-                    'datasetAllelResponses': datasetAllelResponses}
+                    'datasetAllelResponses': []}
               )
