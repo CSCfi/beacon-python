@@ -1,6 +1,6 @@
 import sqlite3
 import logging
-import beacon_api.beacon_info
+import beacon_info
 
 
 
@@ -12,7 +12,7 @@ datasetresponses = ['ALL', 'HIT', 'MISS', 'NONE']
 assembliIds = ['GRCh37', 'GRCh38', 'grch37', 'grch38']
 Bases = ['A', 'C', 'G', 'T', 'N', '0'] # The Zero is there to validate thet it is missing
 variantTypes = ['DEL', 'INS', 'DUP', 'INV', 'CNV', 'SNP', 'DUP:TANDEM', 'DEL:ME', 'INS:ME']
-Beacon = beacon_api.beacon_info.constructor()
+Beacon = beacon_info.constructor()
 BeaconDataset = Beacon['dataset']
 datasetIds_list = []
 for dset in BeaconDataset:
