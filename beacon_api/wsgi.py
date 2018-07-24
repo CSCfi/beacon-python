@@ -7,8 +7,22 @@ from webargs.flaskparser import use_kwargs
 import jwt
 import logging
 
+url = os.environ['DATABASE_URL'].split('/')
+
+
+POSTGRES = {
+    'user': os.environ['DATABASE_USER'],
+    'password': os.environ['DATABASE_PASSWORD'],
+    'database': os.environ['DATABASE_NAME'],
+    'host': url[2],
+}
+
+DB_URL = 'postgresql://{user}:{pw}@{url}/{db}'.format(user=POSTGRES['user'],pw=POSTGRES['password'],url=POSTGRES['host'],db=POSTGRES['database'])
+
+
 app = Flask(__name__)
 app.config.from_object(os.environ['APP_SETTINGS'])
+app.config['SQLALCHEMY_DATABASE_URI'] = DB_URL
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 api = Api(app)
