@@ -25,6 +25,7 @@ app.config.from_object(os.environ['APP_SETTINGS'])
 app.config['SQLALCHEMY_DATABASE_URI'] = DB_URL
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
+db.create_all()
 api = Api(app)
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s:%(levelname)s:%(message)s')
