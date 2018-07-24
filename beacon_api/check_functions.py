@@ -1,9 +1,7 @@
 import logging
 import beacon_info
-import os
 import psycopg2
-from flask import abort
-
+import config
 
 
 
@@ -52,7 +50,7 @@ It returns `True` if found and `False`if not. It also returns the object to the 
 def allelFind(datasetId, chromosome, position, allel, variantType, error_):
     # if alternateBases or variantType are not defined they are set to None
     logging.info(' * Opening connection to database')
-    conn = psycopg2.connect(os.environ['DATABASE_URL'])
+    conn = psycopg2.connect(config.Config.SQLALCHEMY_DATABASE_URI)
     c = conn.cursor()
 
     if allel == '0':
