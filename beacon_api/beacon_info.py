@@ -41,6 +41,7 @@ def constructor():
     BeaconDataset = []
     db_object = models.Beacon_dataset_table
     db_table = db_object.query.all() # List of all the rows in the beacon_dataset_table
+
     for row_obj in db_table:
         asd = {
             "id": row_obj.id,

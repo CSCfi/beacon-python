@@ -1,6 +1,8 @@
-import sqlite3
 import logging
 import beacon_info
+import os
+import psycopg2
+from flask import abort
 
 
 
@@ -47,46 +49,42 @@ def position(start, end, startMin, startMax, endMin, endMax):
 '''The `allelFind()` function queries the database with the submitted parameters and checks if it finds the allele in the right place.
 It returns `True` if found and `False`if not. It also returns the object to the row that was queried in the database.'''
 
-def allelFind(datasetId, chromosome, position, allel, variantType):
+def allelFind(datasetId, chromosome, position, allel, variantType, error_):
     # if alternateBases or variantType are not defined they are set to None
     logging.info(' * Opening connection to database')
-    conn = sqlite3.connect('/Users/kakeinan/beacon-python/beacon_api/beaconDatabase.db')
+    conn = psycopg2.connect(os.environ['DATABASE_URL'])
     c = conn.cursor()
 
-    if variantType != '0':
+    if allel == '0':
         if len(position) == 1:
-            logging.debug(' * Execute SQL query: SELECT * FROM genomes WHERE dataset_id=? AND chromosome={} AND start={} AND  type={}'.format(datasetId, chromosome, position[0], variantType))
-            c.execute('SELECT * FROM genomes WHERE dataset_id=? AND chromosome=? AND start=? AND  type=?',(datasetId, chromosome, position[0], variantType))
-
+            logging.debug(' * Execute SQL query: SELECT * FROM genomes WHERE dataset_id={} AND chromosome={} AND start={} AND  type={}'.format(datasetId, chromosome, position[0], variantType))
+            c.execute('SELECT * FROM genomes WHERE dataset_id=%s AND chromosome=%s AND start=%s AND  type=%s',(datasetId, chromosome, position[0], variantType))
         elif len(position) == 2:
-            logging.debug(' * Execute SQL query: SELECT * FROM genomes WHERE dataset_id=? AND chromosome={} AND start={} AND end={} AND type={}'.format(datasetId, chromosome, position[0], position[1] , variantType))
-            c.execute('SELECT * FROM genomes WHERE dataset_id=? AND chromosome=? AND start=? AND end=? AND type=?',(datasetId, chromosome, position[0], position[1] , variantType))
-
+            logging.debug(' * Execute SQL query: SELECT * FROM genomes WHERE dataset_id={} AND chromosome={} AND start={} AND end={} AND type={}'.format(datasetId, chromosome, position[0], position[1] , variantType))
+            c.execute('SELECT * FROM genomes WHERE dataset_id=%s AND chromosome=%s AND start=%s AND end=%s AND type=%s',(datasetId, chromosome, position[0], position[1] , variantType))
         else:
-            logging.debug(' * Execute SQL query: SELECT * FROM genomes WHERE dataset_id=? AND chromosome={} AND start>={} AND start<={} AND end>={} AND end<={} AND type={}'.format(datasetId, chromosome, position[0], position[1], position[2], position[3], variantType))
-            c.execute('SELECT * FROM genomes WHERE dataset_id=? AND chromosome=? AND start>=? AND start<=? AND end>=? AND end<=? AND type=?',(datasetId, chromosome, position[0], position[1], position[2], position[3], variantType))
-
-    elif variantType == '0':
+            logging.debug(' * Execute SQL query: SELECT * FROM genomes WHERE dataset_id={} AND chromosome={} AND start>={} AND start<={} AND end>={} AND end<={} AND type={}'.format(datasetId, chromosome, position[0], position[1], position[2], position[3], variantType))
+            c.execute('SELECT * FROM genomes WHERE dataset_id=%s AND chromosome=%s AND start>=%s AND start<=%s AND end>=%s AND end<=%s AND type=%s',(datasetId, chromosome, position[0], position[1], position[2], position[3], variantType))
+    elif allel != '0':
         if len(position) == 1:
-            logging.debug(' * Execute SQL query: SELECT * FROM genomes WHERE dataset_id=? AND chromosome={} AND start={} AND  alternate={}'.format(datasetId, chromosome, position[0], allel))
-            c.execute('SELECT * FROM genomes WHERE dataset_id=? AND chromosome=? AND start=? AND  alternate=?',
+            logging.debug(' * Execute SQL query: SELECT * FROM genomes WHERE dataset_id={} AND chromosome={} AND start={} AND  alternate={}'.format(datasetId, chromosome, position[0], allel))
+            c.execute('SELECT * FROM genomes WHERE dataset_id=%s AND chromosome=%s AND start=%s AND  alternate=%s',
                       (datasetId, chromosome, position[0], allel))
-
         elif len(position) == 2:
-            logging.debug(' * Execute SQL query: SELECT * FROM genomes WHERE dataset_id=? AND chromosome={} AND start={} AND end={} AND alternate={}'.format(datasetId, chromosome, position[0], position[1], allel))
-            c.execute('SELECT * FROM genomes WHERE dataset_id=? AND chromosome=? AND start=? AND end=? AND alternate=?',
+            logging.debug(' * Execute SQL query: SELECT * FROM genomes WHERE dataset_id={} AND chromosome={} AND start={} AND end={} AND alternate={}'.format(datasetId, chromosome, position[0], position[1], allel))
+            c.execute('SELECT * FROM genomes WHERE dataset_id=%s AND chromosome=%s AND start=%s AND end=%s AND alternate=%s',
                       (datasetId, chromosome, position[0], position[1], allel))
         else:
-            logging.debug(' * Execute SQL query: SELECT * FROM genomes WHERE dataset_id=? AND chromosome={} AND start>={} AND start<={} AND end>={} AND end<={}AND alternate={}'.format(datasetId, chromosome, position[0], position[1], position[2], position[3], allel))
+            logging.debug(' * Execute SQL query: SELECT * FROM genomes WHERE dataset_id={} AND chromosome={} AND start>={} AND start<={} AND end>={} AND end<={}AND alternate={}'.format(datasetId, chromosome, position[0], position[1], position[2], position[3], allel))
             c.execute(
-                'SELECT * FROM genomes WHERE dataset_id=? AND chromosome=? AND start>=? AND start<=? AND end>=? AND end<=? AND alternate=?',
+                'SELECT * FROM genomes WHERE dataset_id=%s AND chromosome=%s AND start>=%s AND start<=%s AND end>=%s AND end<=%s AND alternate=%s',
                 (datasetId, chromosome, position[0], position[1], position[2], position[3], allel))
-
 
     row = c.fetchone()
     logging.debug(' * First matching row from query: {}'.format(row))
     logging.info(' * Closing connection to database')
     conn.close()
+
     if row == None:
         logging.debug(' * Returning FALSE')
         return False, row
@@ -129,7 +127,7 @@ def allelFind(datasetId, chromosome, position, allel, variantType):
 and the database object to the row in the database. If `exists == False` the function sets the variant_cnt, sample_cnt,
 call_cnt and frequensy to 0. And if `exists == True` the function gets the parameter values from the database.'''
 
-def datasetAllelResponseBuilder(datasetId, referencename, pos, alternateBases, variantType):
+def datasetAllelResponseBuilder(datasetId, referencename, pos, alternateBases, variantType, error_):
     error = None
     j = 0
     for i in BeaconDataset:
@@ -138,7 +136,7 @@ def datasetAllelResponseBuilder(datasetId, referencename, pos, alternateBases, v
         j += 1
 
     logging.info(' * Calling function allelFind()')
-    exists, row = allelFind(datasetId, referencename, pos, alternateBases, variantType)
+    exists, row = allelFind(datasetId, referencename, pos, alternateBases, variantType, error_)
     logging.info(' * Returning from function allelFind()')
 
     if exists == False:
@@ -272,14 +270,14 @@ def checkParameters(referenceName, start, startMin, startMax, end, endMin, endMa
                 logging.warning(' * ERROR BAD REQUEST: datasetId not valid')
                 error_.bad_request('datasetId not valid')
             logging.debug(' * Started building datasetAllelResponse for: {}'.format(set))
-            datasetAllelResponses.append(datasetAllelResponseBuilder(set, referenceName, pos, alternateBases, variantType))
+            datasetAllelResponses.append(datasetAllelResponseBuilder(set, referenceName, pos, alternateBases, variantType, error_))
             logging.debug(' * Finnished building datasetAllelResponse for: {}'.format(set))
     # if no datasets where given, it will query all datasets in the database
     else:
         datasetIds = datasetIds_list
         for set in datasetIds:
             logging.debug(' * Started building datasetAllelResponse for: {}'.format(set))
-            datasetAllelResponses.append(datasetAllelResponseBuilder(set, referenceName, pos, alternateBases, variantType))
+            datasetAllelResponses.append(datasetAllelResponseBuilder(set, referenceName, pos, alternateBases, variantType. error_))
             logging.debug(' * Finnished building datasetAllelResponse for: {}'.format(set))
 
 

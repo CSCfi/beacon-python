@@ -1,5 +1,5 @@
 import csv, datetime
-from beacon_api.wsgi import db
+from wsgi import db
 
 
 # NOTE: if beacon_dataset_table is not filled the query wont know about the right datasets.

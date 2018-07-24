@@ -104,3 +104,4 @@ class BeaconError():
                                      },
                     'datasetAllelResponses': []}
               )
+

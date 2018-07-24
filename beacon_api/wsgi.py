@@ -21,6 +21,7 @@ import beacon_info
 import models
 
 
+
 class Beacon_get(Resource):
     '''The `get()` method in the Beacon_get class uses the HTTP protocol 'GET' to returns a Json object of all the nessesary info on the beacon and the Api. It
     uses the '/' path and only serves an information giver. The parameters that the method returns and their descriptions
