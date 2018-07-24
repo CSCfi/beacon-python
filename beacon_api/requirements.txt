@@ -1,4 +1,5 @@
 gunicorn
+psycopg2
 aniso8601==3.0.0
 asn1crypto==0.24.0
 atomicwrites==1.1.5
