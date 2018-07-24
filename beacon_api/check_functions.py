@@ -1,22 +1,11 @@
 import logging
 import beacon_info
 import psycopg2
-import config
+import os
 
 
 
-#Some hard coded data for the querys, some are taken from the beacon_dicts.py
-#These will be implemented later to thake the data from a database
-refname = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11','12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', 'X', 'Y']
-datasetresponses = ['ALL', 'HIT', 'MISS', 'NONE']
-assembliIds = ['GRCh37', 'GRCh38', 'grch37', 'grch38']
-Bases = ['A', 'C', 'G', 'T', 'N', '0'] # The Zero is there to validate thet it is missing
-variantTypes = ['DEL', 'INS', 'DUP', 'INV', 'CNV', 'SNP', 'DUP:TANDEM', 'DEL:ME', 'INS:ME']
-Beacon = beacon_info.constructor()
-BeaconDataset = Beacon['dataset']
-datasetIds_list = []
-for dset in BeaconDataset:
-    datasetIds_list.append(dset['name'])
+
 
 
 '''The `position()` function checks the values of the position parameters (start, startMin, startMax, end, endMain, endMax)
@@ -47,10 +36,19 @@ def position(start, end, startMin, startMax, endMin, endMax):
 '''The `allelFind()` function queries the database with the submitted parameters and checks if it finds the allele in the right place.
 It returns `True` if found and `False`if not. It also returns the object to the row that was queried in the database.'''
 
-def allelFind(datasetId, chromosome, position, allel, variantType, error_):
+def allelFind(datasetId, chromosome, position, allel, variantType):
+    url = os.environ['DATABASE_URL'].split('/')
+    POSTGRES = {
+        'user': os.environ['DATABASE_USER'],
+        'password': os.environ['DATABASE_PASSWORD'],
+        'database': os.environ['DATABASE_NAME'],
+        'host': url[2],
+    }
+    DB_URL = 'postgresql://{user}:{pw}@{url}/{db}'.format(user=POSTGRES['user'], pw=POSTGRES['password'],
+                                                          url=POSTGRES['host'], db=POSTGRES['database'])
     # if alternateBases or variantType are not defined they are set to None
     logging.info(' * Opening connection to database')
-    conn = psycopg2.connect(config.Config.SQLALCHEMY_DATABASE_URI)
+    conn = psycopg2.connect(DB_URL)
     c = conn.cursor()
 
     if allel == '0':
@@ -125,7 +123,7 @@ def allelFind(datasetId, chromosome, position, allel, variantType, error_):
 and the database object to the row in the database. If `exists == False` the function sets the variant_cnt, sample_cnt,
 call_cnt and frequensy to 0. And if `exists == True` the function gets the parameter values from the database.'''
 
-def datasetAllelResponseBuilder(datasetId, referencename, pos, alternateBases, variantType, error_):
+def datasetAllelResponseBuilder(datasetId, referencename, pos, alternateBases, variantType, BeaconDataset):
     error = None
     j = 0
     for i in BeaconDataset:
@@ -134,7 +132,7 @@ def datasetAllelResponseBuilder(datasetId, referencename, pos, alternateBases, v
         j += 1
 
     logging.info(' * Calling function allelFind()')
-    exists, row = allelFind(datasetId, referencename, pos, alternateBases, variantType, error_)
+    exists, row = allelFind(datasetId, referencename, pos, alternateBases, variantType)
     logging.info(' * Returning from function allelFind()')
 
     if exists == False:
@@ -165,7 +163,20 @@ It calls the appropriate BeaconError method if something is wrong.'''
 
 def checkParameters(referenceName, start, startMin, startMax, end, endMin, endMax, \
                     referenceBases, alternateBases, variantType,assemblyId, datasetIds, includeDatasetResponses, error_):
+
+    # Some hard coded data for the querys, some are taken from the beacon_dicts.py
+    # These will be implemented later to thake the data from a database
+    refname = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', 'X', 'Y']
+    datasetresponses = ['ALL', 'HIT', 'MISS', 'NONE']
+    assembliIds = ['GRCh37', 'GRCh38', 'grch37', 'grch38']
+    Bases = ['A', 'C', 'G', 'T', 'N', '0']  # The Zero is there to validate that it is missing
+    variantTypes = ['DEL', 'INS', 'DUP', 'INV', 'CNV', 'SNP', 'DUP:TANDEM', 'DEL:ME', 'INS:ME']
     datasetAllelResponses = []
+    datasetIds_list = []
+    Beacon = beacon_info.constructor()
+    BeaconDataset = Beacon['dataset']
+    for dset in BeaconDataset:
+        datasetIds_list.append(dset['name'])
 
     pos = position(start, end, startMin, startMax, endMin, endMax)
     logging.debug(' * The position() function returned the array: {}'.format(pos))
@@ -268,14 +279,14 @@ def checkParameters(referenceName, start, startMin, startMax, end, endMin, endMa
                 logging.warning(' * ERROR BAD REQUEST: datasetId not valid')
                 error_.bad_request('datasetId not valid')
             logging.debug(' * Started building datasetAllelResponse for: {}'.format(set))
-            datasetAllelResponses.append(datasetAllelResponseBuilder(set, referenceName, pos, alternateBases, variantType, error_))
+            datasetAllelResponses.append(datasetAllelResponseBuilder(set, referenceName, pos, alternateBases, variantType, BeaconDataset))
             logging.debug(' * Finnished building datasetAllelResponse for: {}'.format(set))
     # if no datasets where given, it will query all datasets in the database
     else:
         datasetIds = datasetIds_list
         for set in datasetIds:
             logging.debug(' * Started building datasetAllelResponse for: {}'.format(set))
-            datasetAllelResponses.append(datasetAllelResponseBuilder(set, referenceName, pos, alternateBases, variantType. error_))
+            datasetAllelResponses.append(datasetAllelResponseBuilder(set, referenceName, pos, alternateBases, variantType, BeaconDataset))
             logging.debug(' * Finnished building datasetAllelResponse for: {}'.format(set))
 
 

@@ -8,15 +8,12 @@ import jwt
 import logging
 
 url = os.environ['DATABASE_URL'].split('/')
-
-
 POSTGRES = {
     'user': os.environ['DATABASE_USER'],
     'password': os.environ['DATABASE_PASSWORD'],
     'database': os.environ['DATABASE_NAME'],
     'host': url[2],
 }
-
 DB_URL = 'postgresql://{user}:{pw}@{url}/{db}'.format(user=POSTGRES['user'],pw=POSTGRES['password'],url=POSTGRES['host'],db=POSTGRES['database'])
 
 
@@ -25,7 +22,7 @@ app.config.from_object(os.environ['APP_SETTINGS'])
 app.config['SQLALCHEMY_DATABASE_URI'] = DB_URL
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
-db.create_all()
+
 api = Api(app)
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s:%(levelname)s:%(message)s')
@@ -33,9 +30,8 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s:%(levelname)s:%(mes
 from check_functions import *
 from error_handelers import BeaconError
 import beacon_info
-import models
-
-
+from models import *
+db.create_all()
 
 class Beacon_get(Resource):
     '''The `get()` method in the Beacon_get class uses the HTTP protocol 'GET' to returns a Json object of all the nessesary info on the beacon and the Api. It
