@@ -60,7 +60,7 @@ def chunks(data, n=10000):
 # This is because it takes significantly less time to commit them as 10000 row chunks than row by row.
 def load_data_table(filename):
     rows = 0
-    csvData = csv.reader(open('./beacon_api/{}'.format(filename), "r"), delimiter=";")
+    csvData = csv.reader(open('{}'.format(filename), "r"), delimiter=";")
     dataset = Beacon_dataset_table.query.filter_by(id=1).first()
     divData = chunks(csvData)  # divide into 10000 rows each
 
