@@ -7,18 +7,17 @@ from webargs.flaskparser import use_kwargs
 import jwt
 import logging
 
-url = os.environ['DATABASE_URL'].split('/')
+url = os.environ.get('DATABASE_URL').split('/')
 POSTGRES = {
-    'user': os.environ['DATABASE_USER'],
-    'password': os.environ['DATABASE_PASSWORD'],
-    'database': os.environ['DATABASE_NAME'],
+    'user': os.environ.get('DATABASE_USER'),
+    'password': os.environ.get('DATABASE_PASSWORD'),
+    'database': os.environ.get('DATABASE_NAME'),
     'host': url[2],
 }
 DB_URL = 'postgresql://{user}:{pw}@{url}/{db}'.format(user=POSTGRES['user'],pw=POSTGRES['password'],url=POSTGRES['host'],db=POSTGRES['database'])
 
 
 application = Flask(__name__)
-application.config.from_object(os.environ['APP_SETTINGS'])
 application.config['SQLALCHEMY_DATABASE_URI'] = DB_URL
 application.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(application)
@@ -109,7 +108,7 @@ class Beacon_query(Resource):
         if auth_header:     # If the user has tried to authenticate. if no 'Authorization' in the header, this section is skipped
             try:
                 split = auth_header.split(' ')  # The second item is the token
-                decode_data = jwt.decode(split[1], os.environ('PUBLIC_KEY'), algorithms=['RS256'])
+                decode_data = jwt.decode(split[1], os.environ.get('PUBLIC_KEY'), algorithms=['RS256'])
                 #if expired(testing)
                 #decode_data = jwt.decode(split[1], application.config.get('PUBLIC_KEY'), algorithms=['RS256'], options={'verify_exp': False})
                 autenticated = True
@@ -258,4 +257,4 @@ class Beacon_query(Resource):
 api.add_resource(Beacon_query,'/query')
 
 if __name__ == '__main__':
-    application.run(host='0.0.0.0')
+    application.run(host=os.environ.get('HOST'), port=os.environ.get('PORT'), debug=os.environ.get('DEBUG'))
