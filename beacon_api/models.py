@@ -21,13 +21,13 @@ class Beacon_dataset_table(db.Model):
 class Beacon_data_table(db.Model):
     __tablename__ = 'genomes'
     id = db.Column(db.Integer, primary_key=True)
-    dataset_id = db.Column(db.String(50))
+    dataset_id = db.Column(db.String(200))
     start = db.Column(db.Integer)
-    chromosome = db.Column(db.String(50))
-    reference = db.Column(db.String(50))
-    alternate = db.Column(db.String(50))
+    chromosome = db.Column(db.String(100))
+    reference = db.Column(db.String(200))
+    alternate = db.Column(db.String(200))
     end = db.Column(db.Integer)
-    type = db.Column(db.String(50))
+    type = db.Column(db.String(100))
     sv_length = db.Column(db.Integer)
     variantCount = db.Column(db.Integer)
     callCount = db.Column(db.Integer)
