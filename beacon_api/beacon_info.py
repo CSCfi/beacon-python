@@ -75,18 +75,18 @@ def constructor():
     Beacon = {
         'id': 'ega-beacon',
         'name': 'EGA Beacon',
-        'apiVersion': '0.4',
+        'apiVersion': '1.0.0',
         'organization': Organization,
         'description': 'This <a href=\"http://ga4gh.org/#/beacon\">Beacon</a> is based on the GA4GH Beacon <a href=\"https://github.com/ga4gh/beacon-team/blob/develop/src/main/resources/avro/beacon.avdl\">API 0.4</a>',
-        'version': 'v04',
+        'version': 'v1',
         'welcomeUrl': 'https://ega-archive.org/beacon_web/',
         'alternativeUrl': 'https://ega-archive.org/beacon_web/',
-        'createDateTime': '2015-06-15T00:00.000Z',
+        'createDateTime': '2018-07-25T00:00.000Z',
         'updateDateTime': None,
         'dataset': BeaconDataset,
         'sampleAlleleRequests': BeaconAllelRequest,
         'info': {
-            "size": "60270153"
+            "size": ""
              }
     }
     return Beacon
