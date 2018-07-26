@@ -49,34 +49,34 @@ def allelFind(datasetId, chromosome, position, allel, variantType):
     # if alternateBases or variantType are not defined they are set to None
     logging.info(' * Opening connection to database')
     conn = psycopg2.connect(DB_URL)
-    c = conn.cursor()
+    cur = conn.cursor()
 
     if allel == '0':
         if len(position) == 1:
             logging.debug(' * Execute SQL query: SELECT * FROM genomes WHERE dataset_id={} AND chromosome={} AND start={} AND  type={}'.format(datasetId, chromosome, position[0], variantType))
-            c.execute("""SELECT * FROM genomes WHERE dataset_id=%s AND chromosome=%s AND start=%s AND  type=%s""",(datasetId, chromosome, position[0], variantType))
+            cur.execute('SELECT * FROM genomes WHERE dataset_id=%s AND chromosome=%s AND start=%s AND  type=%s',(datasetId, chromosome, position[0], variantType))
         elif len(position) == 2:
             logging.debug(' * Execute SQL query: SELECT * FROM genomes WHERE dataset_id={} AND chromosome={} AND start={} AND end={} AND type={}'.format(datasetId, chromosome, position[0], position[1] , variantType))
-            c.execute("""SELECT * FROM genomes WHERE dataset_id=%s AND chromosome=%s AND start=%s AND end=%s AND type=%s""",(datasetId, chromosome, position[0], position[1] , variantType))
+            cur.execute('SELECT * FROM genomes WHERE dataset_id=%s AND chromosome=%s AND start=%s AND end=%s AND type=%s',[datasetId, chromosome, position[0], position[1] , variantType])
         else:
             logging.debug(' * Execute SQL query: SELECT * FROM genomes WHERE dataset_id={} AND chromosome={} AND start>={} AND start<={} AND end>={} AND end<={} AND type={}'.format(datasetId, chromosome, position[0], position[1], position[2], position[3], variantType))
-            c.execute("""SELECT * FROM genomes WHERE dataset_id=%s AND chromosome=%s AND start>=%s AND start<=%s AND end>=%s AND end<=%s AND type=%s""",(datasetId, chromosome, position[0], position[1], position[2], position[3], variantType))
+            cur.execute('SELECT * FROM genomes WHERE dataset_id=%s AND chromosome=%s AND start>=%s AND start<=%s AND end>=%s AND end<=%s AND type=%s',(datasetId, chromosome, position[0], position[1], position[2], position[3], variantType))
     elif allel != '0':
         if len(position) == 1:
             logging.debug(' * Execute SQL query: SELECT * FROM genomes WHERE dataset_id={} AND chromosome={} AND start={} AND  alternate={}'.format(datasetId, chromosome, position[0], allel))
-            c.execute("""SELECT * FROM genomes WHERE dataset_id=%s AND chromosome=%s AND start=%s AND  alternate=%s""",
+            cur.execute('SELECT * FROM genomes WHERE dataset_id=%s AND chromosome=%s AND start=%s AND  alternate=%s',
                       (datasetId, chromosome, position[0], allel))
         elif len(position) == 2:
             logging.debug(' * Execute SQL query: SELECT * FROM genomes WHERE dataset_id={} AND chromosome={} AND start={} AND end={} AND alternate={}'.format(datasetId, chromosome, position[0], position[1], allel))
-            c.executete("""SELECT * FROM genomes WHERE dataset_id=%s AND chromosome=%s AND start=%s AND end=%s AND alternate=%s""",
-                      (datasetId, chromosome, position[0], position[1], allel))
+            cur.executete('SELECT * FROM genomes WHERE dataset_id=%s AND chromosome=%s AND start=%s AND end=%s AND alternate=%s',
+                      [datasetId, chromosome, position[0], position[1], allel])
         else:
             logging.debug(' * Execute SQL query: SELECT * FROM genomes WHERE dataset_id={} AND chromosome={} AND start>={} AND start<={} AND end>={} AND end<={}AND alternate={}'.format(datasetId, chromosome, position[0], position[1], position[2], position[3], allel))
-            c.execute(
-                """SELECT * FROM genomes WHERE dataset_id=%s AND chromosome=%s AND start>=%s AND start<=%s AND end>=%s AND end<=%s AND alternate=%s""",
+            cur.execute(
+                'SELECT * FROM genomes WHERE dataset_id=%s AND chromosome=%s AND start>=%s AND start<=%s AND end>=%s AND end<=%s AND alternate=%s',
                 (datasetId, chromosome, position[0], position[1], position[2], position[3], allel))
 
-    row = c.fetchone()
+    row = cur.fetchone()
     logging.debug(' * First matching row from query: {}'.format(row))
     logging.info(' * Closing connection to database')
     conn.close()
