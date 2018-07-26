@@ -1,6 +1,6 @@
 from flask import abort
 
-apiVersion = "0.4"
+apiVersion = "1.0.0"
 beaconId = "ega-beacon"
 class BeaconError():
     def __init__(self, referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, variantType, assemblyId, datasetIds, includeDatasetResponses):
