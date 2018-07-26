@@ -1,9 +1,10 @@
 import requests
 
-
+URL = 'http://beaconapi-elixirbeacon.rahtiapp.fi/'
+URL_query = 'http://beaconapi-elixirbeacon.rahtiapp.fi/query'
 
 def test_get_response_code():
-    r = requests.get('http://localhost:5000/')
+    r = requests.get(URL)
     assert r.status_code == 200
 
 def test_get_200():
@@ -17,8 +18,8 @@ def test_get_200():
                'referenceBases': 'G',
                'alternateBases': 'A',
                'assemblyId': 'GRCh37',
-               'datasetIds': 'DATASET2',
+               'datasetIds': 'DATASET1',
                'includeDatasetResponses': 'ALL',
                }
-    r = requests.get('http://localhost:5000/query', params=payload)
+    r = requests.get(URL_query, params=payload)
     assert r.status_code == 200

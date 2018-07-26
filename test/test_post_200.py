@@ -1,5 +1,7 @@
 import requests
 
+URL = 'http://beaconapi-elixirbeacon.rahtiapp.fi/'
+URL_query = 'http://beaconapi-elixirbeacon.rahtiapp.fi/query'
 
 def test_post_200():
     payload = {'referenceName': '1',
@@ -15,5 +17,5 @@ def test_post_200():
                'datasetIds': 'DATASET3',
                'includeDatasetResponses': 'ALL',
                }
-    r = requests.post('http://localhost:5000/query', params=payload)
+    r = requests.post(URL_query, params=payload)
     assert r.status_code == 200

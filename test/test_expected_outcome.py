@@ -1,7 +1,9 @@
 import requests
 
+URL = 'http://beaconapi-elixirbeacon.rahtiapp.fi/'
+URL_query = 'http://beaconapi-elixirbeacon.rahtiapp.fi/query'
 
-def test_false():
+def test_false_get():
     payload = {'referenceName': '1',
                'start': 123,
                'startMin': 0,
@@ -15,12 +17,12 @@ def test_false():
                'datasetIds': 'DATASET1',
                'includeDatasetResponses': 'ALL',
                }
-    r = requests.get('http://localhost:5000/query', params=payload)
+    r = requests.get(URL_query, params=payload)
     assert r.status_code == 200
     assert r.json()['exists'] == False
 
 
-def test_true1():
+def test_true1_get():
     payload = {'referenceName': '1',
                'start': 2947942,
                'startMin': 0,
@@ -34,29 +36,29 @@ def test_true1():
                'datasetIds': 'DATASET1',
                'includeDatasetResponses': 'ALL',
                }
-    r = requests.get('http://localhost:5000/query', params=payload)
+    r = requests.get(URL_query, params=payload)
     assert r.status_code == 200
     assert r.json()['exists'] == True
 
-def test_true2():
+def test_true2_get():
     payload = {'referenceName': '1',
-               'start': 3055827,
+               'start': 2985390,
                'startMin': 0,
                'startMax': 0,
                'end': 0,
                'endMin': 0,
                'endMax': 0,
-               'referenceBases': 'A',
-               'alternateBases': 'T',
+               'referenceBases': 'C',
+               'alternateBases': 'C',
                'assemblyId': 'GRCh37',
-               'datasetIds': 'DATASET2',
+               'datasetIds': 'DATASET3',
                'includeDatasetResponses': 'ALL',
                }
-    r = requests.get('http://localhost:5000/query', params=payload)
+    r = requests.get(URL_query, params=payload)
     assert r.status_code == 200
     assert r.json()['exists'] == True
 
-def test_true3():
+def test_true3_get():
     payload = {'referenceName': '1',
                'start': 2985619,
                'startMin': 0,
@@ -70,7 +72,121 @@ def test_true3():
                'datasetIds': 'DATASET3',
                'includeDatasetResponses': 'ALL',
                }
-    r = requests.get('http://localhost:5000/query', params=payload)
+    r = requests.get(URL_query, params=payload)
+    assert r.status_code == 200
+    assert r.json()['exists'] == True
+
+
+def test_true4_get():
+    payload = {'referenceName': '1',
+               'start': 2986862,
+               'startMin': 0,
+               'startMax': 0,
+               'end': 0,
+               'endMin': 0,
+               'endMax': 0,
+               'referenceBases': 'TG',
+               'alternateBases': 'A',
+               'assemblyId': 'GRCh37',
+               'datasetIds': 'DATASET3',
+               'includeDatasetResponses': 'ALL',
+               }
+    r = requests.get(URL_query, params=payload)
+    assert r.status_code == 200
+    assert r.json()['exists'] == True
+
+#########################################  POST  ######################################################################
+
+
+def test_false_post():
+    payload = {'referenceName': '1',
+               'start': 123,
+               'startMin': 0,
+               'startMax': 0,
+               'end': 0,
+               'endMin': 0,
+               'endMax': 0,
+               'referenceBases': 'A',
+               'alternateBases': 'C',
+               'assemblyId': 'GRCh37',
+               'datasetIds': 'DATASET1',
+               'includeDatasetResponses': 'ALL',
+               }
+    r = requests.post(URL_query, params=payload)
+    assert r.status_code == 200
+    assert r.json()['exists'] == False
+
+
+def test_true1_post():
+    payload = {'referenceName': '1',
+               'start': 2947942,
+               'startMin': 0,
+               'startMax': 0,
+               'end': 0,
+               'endMin': 0,
+               'endMax': 0,
+               'referenceBases': 'A',
+               'alternateBases': 'C',
+               'assemblyId': 'GRCh37',
+               'datasetIds': 'DATASET1',
+               'includeDatasetResponses': 'ALL',
+               }
+    r = requests.post(URL_query, params=payload)
+    assert r.status_code == 200
+    assert r.json()['exists'] == True
+
+def test_true2_post():
+    payload = {'referenceName': '1',
+               'start': 2985390,
+               'startMin': 0,
+               'startMax': 0,
+               'end': 0,
+               'endMin': 0,
+               'endMax': 0,
+               'referenceBases': 'C',
+               'alternateBases': 'C',
+               'assemblyId': 'GRCh37',
+               'datasetIds': 'DATASET3',
+               'includeDatasetResponses': 'ALL',
+               }
+    r = requests.post(URL_query, params=payload)
+    assert r.status_code == 200
+    assert r.json()['exists'] == True
+
+def test_true3_post():
+    payload = {'referenceName': '1',
+               'start': 2985619,
+               'startMin': 0,
+               'startMax': 0,
+               'end': 0,
+               'endMin': 0,
+               'endMax': 0,
+               'referenceBases': 'TG',
+               'alternateBases': 'AGGCGGC',
+               'assemblyId': 'GRCh37',
+               'datasetIds': 'DATASET3',
+               'includeDatasetResponses': 'ALL',
+               }
+    r = requests.post(URL_query, params=payload)
+    assert r.status_code == 200
+    assert r.json()['exists'] == True
+
+
+def test_true4_post():
+    payload = {'referenceName': '1',
+               'start': 2986862,
+               'startMin': 0,
+               'startMax': 0,
+               'end': 0,
+               'endMin': 0,
+               'endMax': 0,
+               'referenceBases': 'TG',
+               'alternateBases': 'A',
+               'assemblyId': 'GRCh37',
+               'datasetIds': 'DATASET3',
+               'includeDatasetResponses': 'ALL',
+               }
+    r = requests.post(URL_query, params=payload)
     assert r.status_code == 200
     assert r.json()['exists'] == True
 
