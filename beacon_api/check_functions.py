@@ -68,7 +68,7 @@ def allelFind(datasetId, chromosome, position, allel, variantType):
                       [datasetId, chromosome, position[0], allel])
         elif len(position) == 2:
             logging.debug(' * Execute SQL query: SELECT * FROM genomes WHERE dataset_id={} AND chromosome={} AND start={} AND end={} AND alternate={}'.format(datasetId, chromosome, position[0], position[1], allel))
-            cur.execute("SELECT * FROM genomes WHERE dataset_id=%s AND chromosome=%s AND start=%s AND end=%s AND alternate=%s", 
+            cur.execute('SELECT * FROM genomes WHERE dataset_id=%s AND chromosome=%s AND start=%s AND "end"=%s AND alternate=%s',
                       [datasetId, chromosome, position[0], position[1], allel])
         else:
             logging.debug(' * Execute SQL query: SELECT * FROM genomes WHERE dataset_id={} AND chromosome={} AND start>={} AND start<={} AND end>={} AND end<={}AND alternate={}'.format(datasetId, chromosome, position[0], position[1], position[2], position[3], allel))
