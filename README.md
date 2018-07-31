@@ -3,10 +3,9 @@
 
 
 ## Quick start
-...
+
 
 ## Configure database
-...
 
 ### Create database
 
@@ -18,7 +17,7 @@ use the Python shell in the command line.
 
 
 Open the Python shell in the command line:
-```commandline
+```Shell
 $ python3
 ```
 Create the tables:
@@ -37,7 +36,7 @@ because the tables does not have any direct relations. In the example we load th
 The table needs in the first column the `id`, witch is a number starting from one and iterates with +1 for every row.
 If the datasets you are loading dont have this `id` in the first row you can add it the following way.
 
-```commandline
+```Shell
 $ awk '{printf "%s;%s\n", NR,$0}' dataset1.csv > dataset1_.csv
 $ awk '{printf "%s;%s\n", NR+72,$0}' dataset2.csv > dataset2_.csv
 $ awk '{printf "%s;%s\n", NR+161,$0}' dataset3.csv > dataset3_.csv
@@ -46,7 +45,7 @@ $ awk '{printf "%s;%s\n", NR+161,$0}' dataset3.csv > dataset3_.csv
 The table column `dataset_id` is the name of the table. If the file that you are loading doesent have the right name in 
 that column you can change it using:
 
-```commandline
+```Shell
 $ awk -F';' 'BEGIN{OFS=";"}{$2="DATASET1”;print $0}' dataset1_.csv > set1.csv
 $ awk -F';' 'BEGIN{OFS=";"}{$2="DATASET2”;print $0}' dataset2_.csv > set2.csv
 $ awk -F';' 'BEGIN{OFS=";"}{$2="DATASET3”;print $0}' dataset3_.csv > set3.csv
@@ -54,12 +53,12 @@ $ awk -F';' 'BEGIN{OFS=";"}{$2="DATASET3”;print $0}' dataset3_.csv > set3.csv
 
 Then we load the `genomes` table with the files. Open `psql` in the command line:
 
-```commandline
+```Shell
 $ psql beacondb
 ```
 Copy the files into the table:
 
-```sql
+```SQL
 beacondb=# COPY genomes FROM '/opt/app-root/files/set1.csv' DELIMITER ';' CSV;
 beacondb=# COPY genomes FROM '/opt/app-root/files/set2.csv' DELIMITER ';' CSV;
 beacondb=# COPY genomes FROM '/opt/app-root/files/set3.csv' DELIMITER ';' CSV;
@@ -67,17 +66,17 @@ beacondb=# COPY genomes FROM '/opt/app-root/files/set3.csv' DELIMITER ';' CSV;
 
 Then we check for the right values to fill in the beacon_dataset_table in the variantCount and callCount:
 
-````commandline
+````Shell
 $ awk -F ';' '{SUM+=$10}END{print SUM}' set1.csv			#variantCount
 $ awk -F ';' '{SUM+=$11}END{print SUM}' set1.csv			#callCount
 ````
 variantCount = 6966, callCount = 360576 for set1.csv
-```commandline
+```Shell
 $ awk -F ';' '{SUM+=$10}END{print SUM}' set2.csv			#variantCount
 $ awk -F ';' '{SUM+=$11}END{print SUM}' set2.csv			#callCount
 ```
 variantCount = 16023, callCount = 445712 for set2.csv
-```commandline
+```Shell
 $ awk -F ';' '{SUM+=$10}END{print SUM}' set3.csv			#variantCount
 $ awk -F ';' '{SUM+=$11}END{print SUM}' set3.csv			#callCount
 ```
@@ -98,7 +97,7 @@ load_dataset_table('DATASET3', 'example dataset number 3', 'GRCh38', 'v1', 20952
 ```
 
 Using `psql` in command line:
-```sql
+```SQL
 INSERT INTO beacon_dataset_table (name, description, assemblyId, createDateTime, updateDateTime, version, variantCount, callCount, sampleCount, externalUrl, accessType) VALUES ('DATASET1', 'example dataset number 1', 'GRCh38', 'v1', 6966, 360576, 1, 'externalUrl', 'PUBLIC');
 
 INSERT INTO beacon_dataset_table (name, description, assemblyId, createDateTime, updateDateTime, version, variantCount, callCount, sampleCount, externalUrl, accessType) VALUES ('DATASET2', 'example dataset number 2', 'GRCh38', 'v1', 16023, 445712, 1, 'externalUrl', 'PUBLIC');
@@ -135,87 +134,139 @@ gives the user general info about the Beacon and it's datasets, while the query 
 ###### Payload: `Beacon object`
 
 #### Examples 
-An example `GET` request and response to the info endpoint:    
-    
-    > GET / HTTP/1.1
-    > Host: localhost:5000
-    > User-Agent: curl/7.54.0
-    > Accept: */*
-    > 
-    * HTTP 1.0, assume close after body
-    < HTTP/1.0 200 OK
-    < Content-Type: application/json
-    < Content-Length: 2391
-    < Server: Werkzeug/0.14.1 Python/3.6.5
-    < Date: Fri, 08 Jun 2018 12:07:36 GMT
-    < 
-    {
-      "alternativeUrl": "https://ega-archive.org/beacon_web/", 
-      "apiVersion": "0.4", 
-      "createDateTime": "2015-06-15T00:00.000Z", 
-      "dataset": [
+An example `GET` request and response to the info endpoint:
+
+```Shell
+$ curl -v 'http://beaconapi-elixirbeacon.rahtiapp.fi/'
+```
+
+```Shell
+*   Trying 193.167.189.101...
+* TCP_NODELAY set
+* Connected to beaconapi-elixirbeacon.rahtiapp.fi (193.167.189.101) port 80 (#0)
+> GET / HTTP/1.1
+> Host: beaconapi-elixirbeacon.rahtiapp.fi
+> User-Agent: curl/7.54.0
+> Accept: */*
+> 
+< HTTP/1.1 200 OK
+< Server: gunicorn/19.9.0
+< Date: Tue, 31 Jul 2018 12:10:53 GMT
+< Content-Type: application/json
+< Content-Length: 2391
+< Set-Cookie: eeadd1720fcd75b91205443a24cfbacf=97f5c3f4c5d9d73de00e92277c49a74f; path=/; HttpOnly
+< Cache-control: private
+< 
+{
+    "id": "ega-beacon",
+    "name": "EGA Beacon",
+    "apiVersion": "1.0.0",
+    "organization": {
+        "id": "EGA",
+        "name": "European Genome-Phenome Archive (EGA)",
+        "description": "The European Genome-phenome Archive (EGA) is a service for permanent archiving and sharing of all types of personally identifiable genetic and phenotypic data resulting from biomedical research projects.",
+        "address": "",
+        "welcomeUrl": "https://ega-archive.org/",
+        "contactUrl": "mailto:beacon.ega@crg.eu",
+        "logoUrl": "https://ega-archive.org/images/logo.png",
+        "info": null
+    },
+    "description": "This <a href=\"http://ga4gh.org/#/beacon\">Beacon</a> is based on the GA4GH Beacon <a href=\"https://github.com/ga4gh/beacon-team/blob/develop/src/main/resources/avro/beacon.avdl\">API 0.4</a>",
+    "version": "v1",
+    "welcomeUrl": "https://ega-archive.org/beacon_web/",
+    "alternativeUrl": "https://ega-archive.org/beacon_web/",
+    "createDateTime": "2018-07-25T00:00.000Z",
+    "updateDateTime": null,
+    "dataset": [
         {
-          "assemblyId": "grch37", 
-          "callCount": 74, 
-          "description": "This sample set comprises cases of schizophrenia with additional cognitive measurements, collected in Aberdeen, Scotland.", 
-          "id": "EGAD00000000028", 
-          "info": {}, 
-          "sampleCount": 1, 
-          "variantCount": 74, 
+            "id": 1,
+            "name": "DATASET1",
+            "description": "example dataset number 1",
+            "assemblyId": "GRCh38",
+            "createDateTime": null,
+            "updateDateTime": null,
+            "version": null,
+            "variantCount": 6966,
+            "callCount": 360576,
+            "sampleCount": 1,
+            "externalUrl": null,
+            "info": {
+                "accessType": "PUBLIC"
+            }
+        },
+        {
+            "id": 3,
+            "name": "DATASET3",
+            "description": "example dataset number 3",
+            "assemblyId": "GRCh38",
+            "createDateTime": null,
+            "updateDateTime": null,
+            "version": null,
+            "variantCount": 20952,
+            "callCount": 1206928,
+            "sampleCount": 1,
+            "externalUrl": null,
+            "info": {
+                "accessType": "PUBLIC"
+            }
+        },
+        {
+            "id": 2,
+            "name": "DATASET2",
+            "description": "example dataset number 2",
+            "assemblyId": "GRCh38",
+            "createDateTime": null,
+            "updateDateTime": null,
+            "version": null,
+            "variantCount": 16023,
+            "callCount": 445712,
+            "sampleCount": 1,
+            "externalUrl": null,
+            "info": {
+                "accessType": "REGISTERED"
+            }
         }
-      ], 
-      "description": "This <a href=\"http://ga4gh.org/#/beacon\">Beacon</a> is based on the GA4GH Beacon <a href=\"https://github.com/ga4gh/beacon-team/blob/develop/src/main/resources/avro/beacon.avdl\">API 0.4</a>", 
-      "id": "ega-beacon", 
-      "info": {
-        "size": "60270153"
-      }, 
-      "name": "EGA Beacon", 
-      "organization": {
-        "address": "", 
-        "contactUrl": "mailto:beacon.ega@crg.eu", 
-        "description": "The European Genome-phenome Archive (EGA) is a service for permanent archiving and sharing of all types of personally identifiable genetic and phenotypic data resulting from biomedical research projects.", 
-        "id": "EGA", 
-        "logoUrl": "https://ega-archive.org/images/logo.png", 
-        "name": "European Genome-Phenome Archive (EGA)", 
-        "welcomeUrl": "https://ega-archive.org/"
-      }, 
-      "sampleAlleleRequests": [
+    ],
+    "sampleAlleleRequests": [
         {
-          "alternateBases": "A", 
-          "assemblyId": "GRCh37", 
-          "includeDatasetResponses": false, 
-          "referenceBases": "C", 
-          "referenceName": "17", 
-          "start": 6689
-        }, 
+            "alternateBases": "A",
+            "referenceBases": "C",
+            "referenceName": "17",
+            "start": 6689,
+            "assemblyId": "GRCh37",
+            "datasetIds": null,
+            "includeDatasetResponses": false
+        },
         {
-          "alternateBases": "G", 
-          "assemblyId": "GRCh37", 
-          "datasetIds": [
-            "EGAD00000000028"
-          ], 
-          "includeDatasetResponses": "ALL", 
-          "referenceBases": "A", 
-          "referenceName": "1", 
-          "start": 14929
-        }, 
+            "alternateBases": "G",
+            "referenceBases": "A",
+            "referenceName": "1",
+            "start": 14929,
+            "assemblyId": "GRCh37",
+            "datasetIds": [
+                "EGAD00000000028"
+            ],
+            "includeDatasetResponses": "ALL"
+        },
         {
-          "alternateBases": "CCCCT", 
-          "assemblyId": "GRCh37", 
-          "datasetIds": [
-            "EGAD00001000740", 
-            "EGAD00001000741"
-          ], 
-          "includeDatasetResponses": "HIT", 
-          "referenceBases": "C", 
-          "referenceName": "1", 
-          "start": 866510
+            "alternateBases": "CCCCT",
+            "referenceBases": "C",
+            "referenceName": "1",
+            "start": 866510,
+            "assemblyId": "GRCh37",
+            "datasetIds": [
+                "EGAD00001000740",
+                "EGAD00001000741"
+            ],
+            "includeDatasetResponses": "HIT"
         }
-      ], 
-      "version": "v04", 
-      "welcomeUrl": "https://ega-archive.org/beacon_web/"
+    ],
+    "info": {
+        "size": ""
     }
-    * Closing connection 0
+}
+* Connection #0 to host beaconapi-elixirbeacon.rahtiapp.fi left intact
+```
 
 ### Query endpoint
 
@@ -234,96 +285,36 @@ An example `GET` request and response to the info endpoint:
 
 Example of how to use the GET method in the `/query` endpoint:
 
-```commandline
-$ curl -v 'http://localhost:5000/query?referenceName=1&start=0&end=0&startMin=28000000&startMax=29000000&endMin=28000000&endMax=29000000&referenceBases=A&alternateBases=T&assemblyId=GRCh37&datasetIds=EGAD00000000028&includeDatasetResponses=ALL'
+```Shell
+$ curl -v 'http://beaconapi-elixirbeacon.rahtiapp.fi/query?referenceName=1&start=2947892&referenceBases=A&alternateBases=G&variantType=SNP&assemblyId=GRCh37&includeDatasetResponses=ALL'
 ```
     
-######
     
-```commandline
-> GET /query?referenceName=1&start=0&end=0&startMin=28000000&startMax=29000000&endMin=28000000&endMax=29000000&referenceBases=A&alternateBases=T&assemblyId=GRCh37&datasetIds=EGAD00000000028&includeDatasetResponses=ALL HTTP/1.1
-> Host: localhost:5000
+```Shell
+*   Trying 193.167.189.101...
+* TCP_NODELAY set
+* Connected to beaconapi-elixirbeacon.rahtiapp.fi (193.167.189.101) port 80 (#0)
+> GET /query?referenceName=1&start=2947892&referenceBases=A&alternateBases=G&variantType=SNP&assemblyId=GRCh37&includeDatasetResponses=ALL HTTP/1.1
+> Host: beaconapi-elixirbeacon.rahtiapp.fi
 > User-Agent: curl/7.54.0
 > Accept: */*
 > 
-* HTTP 1.0, assume close after body
-< HTTP/1.0 200 OK
+< HTTP/1.1 200 OK
+< Server: gunicorn/19.9.0
+< Date: Tue, 31 Jul 2018 12:14:49 GMT
 < Content-Type: application/json
-< Content-Length: 1078
-< Server: Werkzeug/0.14.1 Python/3.6.5
-< Date: Mon, 11 Jun 2018 07:29:26 GMT
+< Content-Length: 828
+< Set-Cookie: eeadd1720fcd75b91205443a24cfbacf=97f5c3f4c5d9d73de00e92277c49a74f; path=/; HttpOnly
+< Cache-control: private
 < 
 {
     "beaconId": "ega-beacon",
-    "apiVersion": "0.4",
+    "apiVersion": "1.0.0",
     "exists": true,
     "error": null,
-    "alleleRequest": {
+    "allelRequest": {
         "referenceName": "1",
-        "start": 0,
-        "startMin": 28000000,
-        "startMax": 29000000,
-        "end": 0,
-        "endMin": 28000000,
-        "endMax": 29000000,
-        "referenceBases": "A",
-        "alternateBases": "T",
-        "assemblyId": "GRCh37",
-        "datasetIds": [
-            "EGAD00000000028"
-        ],
-        "includeDatasetResponses": "ALL"
-    },
-    "datasetAlleleResponses": [
-        {
-            "datasetId": "EGAD00000000028",
-            "exists": true,
-            "frequency": 0.5,
-            "variantCount": 1,
-            "callCount": 1,
-            "sampleCount": 1,
-            "note": "This sample set comprises cases of schizophrenia with additional cognitive measurements, collected in Aberdeen, Scotland.",
-            "externalUrl": null,
-            "info": {},
-            "error": null
-        }
-    ]
-}
-* Closing connection 0    
-```
-    
-######
-Example of how to use the POST method in the "/query" path:
-   
-```commandline
-$ curl -v -d "referenceName=1&start=14929&referenceBases=A&alternateBases=G&assemblyId=GRCh37&datasetIds=EGAD00000000028&includeDatsetResponses=ALL" http://localhost:5000/query
-```
-    
-    
-```commandline
-> POST /query HTTP/1.1
-> Host: localhost:5000
-> User-Agent: curl/7.54.0
-> Accept: */*
-> Content-Length: 133
-> Content-Type: application/x-www-form-urlencoded
-> 
-* upload completely sent off: 133 out of 133 bytes
-* HTTP 1.0, assume close after body
-< HTTP/1.0 200 OK
-< Content-Type: application/json
-< Content-Length: 1056
-< Server: Werkzeug/0.14.1 Python/3.6.5
-< Date: Mon, 11 Jun 2018 07:15:48 GMT
-< 
-{
-    "beaconId": "ega-beacon",
-    "apiVersion": "0.4",
-    "exists": true,
-    "error": null,
-    "alleleRequest": {
-        "referenceName": "1",
-        "start": 14929,
+        "start": 2947892,
         "startMin": 0,
         "startMax": 0,
         "end": 0,
@@ -331,89 +322,52 @@ $ curl -v -d "referenceName=1&start=14929&referenceBases=A&alternateBases=G&asse
         "endMax": 0,
         "referenceBases": "A",
         "alternateBases": "G",
+        "variantType": "SNP",
         "assemblyId": "GRCh37",
-        "datasetIds": [
-            "EGAD00000000028"
-        ],
+        "datasetIds": [],
         "includeDatasetResponses": "ALL"
     },
-    "datasetAlleleResponses": [
+    "datasetAllelResponses": [
         {
-            "datasetId": "EGAD00000000028",
+            "datasetId": "DATASET1",
             "exists": true,
-            "frequency": 0.5,
-            "variantCount": 1,
-            "callCount": 1,
-            "sampleCount": 1,
-            "note": "This sample set comprises cases of schizophrenia with additional cognitive measurements, collected in Aberdeen, Scotland.",
+            "frequency": 0.0081869,
+            "variantCount": 41,
+            "callCount": 5008,
+            "sampleCount": 2504,
+            "note": "example dataset number 1",
             "externalUrl": null,
-            "info": {},
+            "info": {
+                "accessType": "PUBLIC"
+            },
+            "error": null
+        },
+        {
+            "datasetId": "DATASET3",
+            "exists": false,
+            "frequency": 0,
+            "variantCount": 0,
+            "callCount": 0,
+            "sampleCount": 0,
+            "note": "example dataset number 3",
+            "externalUrl": null,
+            "info": {
+                "accessType": "PUBLIC"
+            },
             "error": null
         }
     ]
 }
-* Closing connection 0
+* Connection #0 to host beaconapi-elixirbeacon.rahtiapp.fi left intact
 ```
 
-```commandline
-$ curl -v 'http://localhost:5000/query?&start=0&end=0&startMin=28000000&startMax=29000000&endMin=28000000&endMax=29000000&referenceBases=A&alternateBases=T&assemblyId=GRCh37&datasetIds=EGAD00000000028&includeDatasetResponses=ALL'`
-```
-
-
-```commandline
-*   Trying 127.0.0.1...
-* TCP_NODELAY set
-* Connected to localhost (127.0.0.1) port 5000 (#0)
-> GET /query?&start=0&end=0&startMin=28000000&startMax=29000000&endMin=28000000&endMax=29000000&referenceBases=A&alternateBases=T&assemblyId=GRCh37&datasetIds=EGAD00000000028&includeDatasetResponses=ALL HTTP/1.1
-> Host: localhost:5000
-> User-Agent: curl/7.54.0
-> Accept: */*
-> 
-* HTTP 1.0, assume close after body
-< HTTP/1.0 400 BAD REQUEST
-< Content-Type: application/json
-< Content-Length: 791
-< Server: Werkzeug/0.14.1 Python/3.6.5
-< Date: Fri, 06 Jul 2018 09:15:39 GMT
-< 
-{
-    "message": {
-        "beaconId": "ega-beacon",
-        "apiVersion": "0.4",
-        "exists": null,
-        "error": {
-            "errorCode": 400,
-            "errorMessage": "Missing mandatory parameter referenceName"
-        },
-        "allelRequest": {
-            "referenceName": "0",
-            "start": 0,
-            "startMin": 28000000,
-            "startMax": 29000000,
-            "end": 0,
-            "endMin": 28000000,
-            "endMax": 29000000,
-            "referenceBases": "A",
-            "alternateBases": "T",
-            "variantType": "0",
-            "assemblyId": "GRCh37",
-            "datasetIds": [
-                "EGAD00000000028"
-            ],
-            "includeDatasetResponses": "ALL"
-        },
-        "datasetAlleleResponses": []
-    }
-}
-* Closing connection 0
-```
 
 ## Further information
 
 
 ### Project structure
 
-```
+```text
 beacon-python
 ├─beacon_api
 |   ├─beacon_info.py
