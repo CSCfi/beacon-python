@@ -1,4 +1,4 @@
-from flask import request, Flask, jsonify
+from flask import request, Flask
 import os
 from flask_sqlalchemy import SQLAlchemy
 from flask_restful import Api, Resource
@@ -40,7 +40,7 @@ class Beacon_get(Resource):
     logging.info(' * Get request to beacon end poit "/"')
     def get(self):
         Beacon = beacon_info.constructor()
-        return jsonify(Beacon)
+        return Beacon
 
 api.add_resource(Beacon_get,'/')
 
