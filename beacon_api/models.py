@@ -55,19 +55,17 @@ def chunks(data, n=10000):
     if idx > 0:
         yield buffer[:idx] # if there is less than 10000 rows left it yields the rest
 
-# The load_data_table() function loads all the data from the given file into the database. Because of the big amount of
+# The load_data_table() function loads all the data from the given file into the table. Because of the big amount of
 # rows in the files the function uses the chunk() funktion to divede the rows into 10000 row chunks witch it commits in chunks.
 # This is because it takes significantly less time to commit them as 10000 row chunks than row by row.
 def load_data_table(filename):
     rows = 0
     csvData = csv.reader(open('{}'.format(filename), "r"), delimiter=";")
-    dataset = Beacon_dataset_table.query.filter_by(id=1).first()
     divData = chunks(csvData)  # divide into 10000 rows each
 
     for chunk in divData:
         for dataset_id, start, chromosome, reference, alternate, end, type, sv_length, variantCount, callCount, sampleCount, frequency in chunk:
-            add_new = Beacon_data_table(dataset=dataset, start=start, chromosome=chromosome, reference=reference,
-                                        alternate=alternate, \
+            add_new = Beacon_data_table(dataset_id=dataset_id, start=start, chromosome=chromosome, reference=reference, alternate=alternate, \
                                         end=end, type=type, sv_length=sv_length, variantCount=variantCount, callCount=callCount, sampleCount=sampleCount, frequency=frequency)
             db.session.add(add_new)
         db.session.commit()
