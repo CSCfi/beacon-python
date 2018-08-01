@@ -107,8 +107,11 @@ class Beacon_query(Resource):
         auth_header = request.headers.get('Authorization')  # gets the token from the request header
         if auth_header:     # If the user has tried to authenticate. if no 'Authorization' in the header, this section is skipped
             try:
-                split = auth_header.split(' ')  # The second item is the token
-                decode_data = jwt.decode(split[1], os.environ.get('PUBLIC_KEY'), algorithms=['RS256'])
+                token = auth_header.split(' ')[1]  # The second item is the token
+                key = os.environ.get('PUBLIC_KEY').replace(r'\n', '\n')
+                logging.debug(' * TOKEN: {}'.format(token))
+                logging.debug(' * KEY: {}'.format(key))
+                decode_data = jwt.decode(token, key, algorithms=['RS256'])
                 #if expired(testing)
                 #decode_data = jwt.decode(split[1], application.config.get('PUBLIC_KEY'), algorithms=['RS256'], options={'verify_exp': False})
                 autenticated = True
