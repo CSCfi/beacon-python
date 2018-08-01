@@ -31,10 +31,10 @@ This will create the database tables according to the schema specified in `model
 ### Load data
 
 In this example we will fill the `genomes` table first, the order you fill the tables in does not matter
-because the tables does not have any direct relations. In the example we load three datasets to the database.
+because the tables does not have any direct relations. In the example we load three data sets to the database.
 
 The table needs in the first column the `id`, witch is a number starting from one and iterates with +1 for every row.
-If the datasets you are loading dont have this `id` in the first row you can add it the following way.
+If the data sets you are loading don't have this `id` in the first row you can add it the following way.
 
 ```Shell
 $ awk '{printf "%s;%s\n", NR,$0}' dataset1.csv > dataset1_.csv
@@ -42,7 +42,7 @@ $ awk '{printf "%s;%s\n", NR+72,$0}' dataset2.csv > dataset2_.csv
 $ awk '{printf "%s;%s\n", NR+161,$0}' dataset3.csv > dataset3_.csv
 ```
 
-The table column `dataset_id` is the name of the table. If the file that you are loading doesent have the right name in 
+The table column `dataset_id` is the name of the table. If the file that you are loading doesnt have the right name in 
 that column you can change it using:
 
 ```Shell
