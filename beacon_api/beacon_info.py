@@ -1,10 +1,13 @@
 import models
 
+'''
 
+return: Beacon
+'''
 
 def constructor():
-
-    BeaconAllelRequest = [{
+    # Here are some example requests.
+    BeaconAlleleRequest = [{
         "alternateBases": "A",
         "referenceBases": "C",
         "referenceName": "17",
@@ -39,24 +42,25 @@ def constructor():
     ]
 
     BeaconDataset = []
-    db_object = models.Beacon_dataset_table
-    db_table = db_object.query.all() # List of all the rows in the beacon_dataset_table
+    dbObject = models.Beacon_dataset_table
+    # List of all the rows in the beacon_dataset_table
+    dbTable = dbObject.query.all()
 
-    for row_obj in db_table:
+    for row in dbTable:
         asd = {
-            "id": row_obj.id,
-            "name": row_obj.name,
-            "description": row_obj.description,
-            "assemblyId": row_obj.assemblyId,
+            "id": row.id,
+            "name": row.name,
+            "description": row.description,
+            "assemblyId": row.assemblyId,
             "createDateTime": None,
             "updateDateTime": None,
             "version": None,
-            "variantCount": row_obj.variantCount,
-            "callCount": row_obj.callCount,
-            "sampleCount": row_obj.sampleCount,
+            "variantCount": row.variantCount,
+            "callCount": row.callCount,
+            "sampleCount": row.sampleCount,
             "externalUrl": None,
             "info": {
-                "accessType": row_obj.accessType,
+                "accessType": row.accessType,
             }
         }
         BeaconDataset.append(asd)
@@ -84,7 +88,7 @@ def constructor():
         'createDateTime': '2018-07-25T00:00.000Z',
         'updateDateTime': None,
         'dataset': BeaconDataset,
-        'sampleAlleleRequests': BeaconAllelRequest,
+        'sampleAlleleRequests': BeaconAlleleRequest,
         'info': {
             "size": ""
              }
