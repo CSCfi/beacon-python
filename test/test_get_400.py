@@ -1,7 +1,10 @@
 import requests
 
-URL = 'http://beaconapi-elixirbeacon.rahtiapp.fi/'
-URL_query = 'http://beaconapi-elixirbeacon.rahtiapp.fi/query'
+#URL = 'http://localhost:8080/'
+#URL_query = 'http://localhost:8080/query'
+
+URL = 'https://beaconapi-elixirbeacon.rahtiapp.fi/'
+URL_query = 'https://beaconapi-elixirbeacon.rahtiapp.fi/query'
 
 
 ########################################## Missing parameter check #####################################################
@@ -19,7 +22,7 @@ def test_missing_refName():
                'datasetIds': 'EGAD00001000740',
                'includeDatasetResponses': 'ALL',
                }
-    r = requests.get(URL_query, params=payload)
+    r = requests.get(URL_query, params=payload, verify=False)
     assert r.status_code == 400
     assert r.json()['message']['error']['errorMessage'] == 'Missing mandatory parameter referenceName'
 
@@ -37,7 +40,7 @@ def test_missing_start_and_startMin():
                'datasetIds': 'EGAD00001000740',
                'includeDatasetResponses': 'ALL',
                }
-    r = requests.get(URL_query, params=payload)
+    r = requests.get(URL_query, params=payload, verify=False)
     assert r.status_code == 400
     assert r.json()['message']['error']['errorMessage'] == 'Missing mandatory parameter start or startMin'
 
@@ -55,7 +58,7 @@ def test_missing_refBases():
                'datasetIds': 'EGAD00001000740',
                'includeDatasetResponses': 'ALL',
                }
-    r = requests.get(URL_query, params=payload)
+    r = requests.get(URL_query, params=payload, verify=False)
     assert r.status_code == 400
     assert r.json()['message']['error']['errorMessage'] == 'Missing mandatory parameter referenceBases'
 
@@ -74,7 +77,7 @@ def test_missing_altBases():
                'datasetIds': 'EGAD00001000740',
                'includeDatasetResponses': 'ALL',
                }
-    r = requests.get(URL_query, params=payload)
+    r = requests.get(URL_query, params=payload, verify=False)
     assert r.status_code == 400
     assert r.json()['message']['error']['errorMessage'] == 'Missing mandatory parameter alternateBases or variantType'
 
@@ -94,7 +97,7 @@ def test_missing_assemblyId():
                'datasetIds': 'EGAD00001000740',
                'includeDatasetResponses': 'ALL',
                }
-    r = requests.get(URL_query, params=payload)
+    r = requests.get(URL_query, params=payload, verify=False)
     assert r.status_code == 400
     assert r.json()['message']['error']['errorMessage'] == 'Missing mandatory parameter assemblyId'
 
@@ -115,7 +118,7 @@ def test_invalid_refName1():
                'datasetIds': 'EGAD00000000028',
                'includeDatasetResponses': 'ALL',
                }
-    r = requests.get(URL_query, params=payload)
+    r = requests.get(URL_query, params=payload, verify=False)
     assert r.status_code == 400
     assert r.json()['message']['error']['errorMessage'] == 'referenceName not valid'
 
@@ -133,7 +136,7 @@ def test_invalid_refName2():
                'datasetIds': 'EGAD00000000028',
                'includeDatasetResponses': 'ALL',
                }
-    r = requests.get(URL_query, params=payload)
+    r = requests.get(URL_query, params=payload, verify=False)
     assert r.status_code == 400
     assert r.json()['message']['error']['errorMessage'] == 'referenceName not valid'
 
@@ -152,7 +155,7 @@ def test_invalid_refName3():
                'datasetIds': 'EGAD00000000028',
                'includeDatasetResponses': 'ALL',
                }
-    r = requests.get(URL_query, params=payload)
+    r = requests.get(URL_query, params=payload, verify=False)
     assert r.status_code == 400
     assert r.json()['message']['error']['errorMessage'] == 'Missing mandatory parameter referenceName'
 
@@ -171,7 +174,7 @@ def test_invalid_start1():
                'datasetIds': 'EGAD00000000028',
                'includeDatasetResponses': 'ALL',
                }
-    r = requests.get(URL_query, params=payload)
+    r = requests.get(URL_query, params=payload, verify=False)
     assert r.status_code == 400
     assert r.json()['message']['error']['errorMessage'] == 'Missing mandatory parameter start or startMin'
 
@@ -190,7 +193,7 @@ def test_invalid_start2():
                'datasetIds': 'EGAD00000000028',
                'includeDatasetResponses': 'ALL',
                }
-    r = requests.get(URL_query, params=payload)
+    r = requests.get(URL_query, params=payload, verify=False)
     assert r.status_code == 400
     assert r.json()['message']['error']['errorMessage'] == 'start not valid'
 
@@ -209,7 +212,7 @@ def test_invalid_refBases():
                'datasetIds': 'EGAD00000000028',
                'includeDatasetResponses': 'ALL',
                }
-    r = requests.get(URL_query, params=payload)
+    r = requests.get(URL_query, params=payload, verify=False)
     assert r.status_code == 400
     assert r.json()['message']['error']['errorMessage'] == 'referenceBases not valid'
 
@@ -228,7 +231,7 @@ def test_invalid_altBases():
                'datasetIds': 'EGAD00000000028',
                'includeDatasetResponses': 'ALL',
                }
-    r = requests.get(URL_query, params=payload)
+    r = requests.get(URL_query, params=payload, verify=False)
     assert r.status_code == 400
     assert r.json()['message']['error']['errorMessage'] == 'alternateBases not valid'
 
@@ -247,7 +250,7 @@ def test_invalid_assemblyId():
                'datasetIds': 'EGAD00000000028',
                'includeDatasetResponses': 'ALL',
                }
-    r = requests.get(URL_query, params=payload)
+    r = requests.get(URL_query, params=payload, verify=False)
     assert r.status_code == 400
     assert r.json()['message']['error']['errorMessage'] == 'assemblyId not valid'
 
@@ -266,7 +269,7 @@ def test_invalid_includeDatasetResponses():
                'datasetIds': 'EGAD00000000028',
                'includeDatasetResponses': 'asd',
                }
-    r = requests.get(URL_query, params=payload)
+    r = requests.get(URL_query, params=payload, verify=False)
     assert r.status_code == 400
     assert r.json()['message']['error']['errorMessage'] == 'includeDatasetResponses not valid'
 

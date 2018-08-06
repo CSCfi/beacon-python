@@ -1,7 +1,10 @@
 import requests
 
-URL = 'http://beaconapi-elixirbeacon.rahtiapp.fi/'
-URL_query = 'http://beaconapi-elixirbeacon.rahtiapp.fi/query'
+#URL = 'http://localhost:8080/'
+#URL_query = 'http://localhost:8080/query'
+
+URL = 'https://beaconapi-elixirbeacon.rahtiapp.fi/'
+URL_query = 'https://beaconapi-elixirbeacon.rahtiapp.fi/query'
 
 def test_false_get():
     payload = {'referenceName': '1',
@@ -17,7 +20,7 @@ def test_false_get():
                'datasetIds': 'DATASET1',
                'includeDatasetResponses': 'ALL',
                }
-    r = requests.get(URL_query, params=payload)
+    r = requests.get(URL_query, params=payload, verify=False)
     assert r.status_code == 200
     assert r.json()['exists'] == False
 
@@ -36,7 +39,7 @@ def test_true1_get():
                'datasetIds': 'DATASET1',
                'includeDatasetResponses': 'ALL',
                }
-    r = requests.get(URL_query, params=payload)
+    r = requests.get(URL_query, params=payload, verify=False)
     assert r.status_code == 200
     assert r.json()['exists'] == True
 
@@ -54,7 +57,7 @@ def test_true2_get():
                'datasetIds': 'DATASET3',
                'includeDatasetResponses': 'ALL',
                }
-    r = requests.get(URL_query, params=payload)
+    r = requests.get(URL_query, params=payload, verify=False)
     assert r.status_code == 200
     assert r.json()['exists'] == True
 
@@ -72,7 +75,7 @@ def test_true3_get():
                'datasetIds': 'DATASET3',
                'includeDatasetResponses': 'ALL',
                }
-    r = requests.get(URL_query, params=payload)
+    r = requests.get(URL_query, params=payload, verify=False)
     assert r.status_code == 200
     assert r.json()['exists'] == True
 
@@ -91,7 +94,7 @@ def test_true4_get():
                'datasetIds': 'DATASET3',
                'includeDatasetResponses': 'ALL',
                }
-    r = requests.get(URL_query, params=payload)
+    r = requests.get(URL_query, params=payload, verify=False)
     assert r.status_code == 200
     assert r.json()['exists'] == True
 
@@ -112,7 +115,7 @@ def test_false_post():
                'datasetIds': 'DATASET1',
                'includeDatasetResponses': 'ALL',
                }
-    r = requests.post(URL_query, params=payload)
+    r = requests.post(URL_query, params=payload, verify=False)
     assert r.status_code == 200
     assert r.json()['exists'] == False
 
@@ -131,7 +134,7 @@ def test_true1_post():
                'datasetIds': 'DATASET1',
                'includeDatasetResponses': 'ALL',
                }
-    r = requests.post(URL_query, params=payload)
+    r = requests.post(URL_query, params=payload, verify=False)
     assert r.status_code == 200
     assert r.json()['exists'] == True
 
@@ -149,7 +152,7 @@ def test_true2_post():
                'datasetIds': 'DATASET3',
                'includeDatasetResponses': 'ALL',
                }
-    r = requests.post(URL_query, params=payload)
+    r = requests.post(URL_query, params=payload, verify=False)
     assert r.status_code == 200
     assert r.json()['exists'] == True
 
@@ -167,7 +170,7 @@ def test_true3_post():
                'datasetIds': 'DATASET3',
                'includeDatasetResponses': 'ALL',
                }
-    r = requests.post(URL_query, params=payload)
+    r = requests.post(URL_query, params=payload, verify=False)
     assert r.status_code == 200
     assert r.json()['exists'] == True
 
@@ -186,7 +189,7 @@ def test_true4_post():
                'datasetIds': 'DATASET3',
                'includeDatasetResponses': 'ALL',
                }
-    r = requests.post(URL_query, params=payload)
+    r = requests.post(URL_query, params=payload, verify=False)
     assert r.status_code == 200
     assert r.json()['exists'] == True
 
