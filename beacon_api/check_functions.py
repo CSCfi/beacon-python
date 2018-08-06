@@ -1,7 +1,7 @@
-#import logging
-#import beacon_info
-#import psycopg2
-#import os
+import logging
+import beacon_info
+import psycopg2
+import os
 
 
 def position(start, end, startMin, startMax, endMin, endMax):

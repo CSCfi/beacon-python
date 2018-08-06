@@ -13,42 +13,42 @@ import logging
 # Takes the url and the necessary info for the postgres server from the environmental variables and packs it into one
 # variable called DB_URL. The variable is then used to configure the application to connect to that database using
 # SQLAlchemy.
-#URL = os.environ.get('DATABASE_URL').split('/')[2]
-#POSTGRES = {
-#    'user': os.environ.get('DATABASE_USER'),
-#    'password': os.environ.get('DATABASE_PASSWORD'),
-#    'database': os.environ.get('DATABASE_NAME'),
-#    'host': URL,
-#}
-#DB_URL = 'postgresql://{user}:{pw}@{url}/{db}'.format(user=POSTGRES['user'],pw=POSTGRES['password'],url=POSTGRES['host'],db=POSTGRES['database'])
-#
-#
+URL = os.environ.get('DATABASE_URL').split('/')[2]
+POSTGRES = {
+    'user': os.environ.get('DATABASE_USER'),
+    'password': os.environ.get('DATABASE_PASSWORD'),
+    'database': os.environ.get('DATABASE_NAME'),
+    'host': URL,
+}
+DB_URL = 'postgresql://{user}:{pw}@{url}/{db}'.format(user=POSTGRES['user'],pw=POSTGRES['password'],url=POSTGRES['host'],db=POSTGRES['database'])
+
+
 application = Flask(__name__)
-#application.config['SQLALCHEMY_DATABASE_URI'] = DB_URL
-#application.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+application.config['SQLALCHEMY_DATABASE_URI'] = DB_URL
+application.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(application)
 api = Api(application)
-#
-## Sets the logging level from environmental variable.
-#LOGGING_LVL = os.environ.get('LOGGING_LVL')
-#if LOGGING_LVL == 'DEBUG':
-#    logging.basicConfig(level=logging.DEBUG, format='%(asctime)s:%(levelname)s:%(message)s')
-#elif LOGGING_LVL == 'INFO':
-#    logging.basicConfig(level=logging.INFO, format='%(asctime)s:%(levelname)s:%(message)s')
-#elif LOGGING_LVL == 'WARNING':
-#    logging.basicConfig(level=logging.WARNING, format='%(asctime)s:%(levelname)s:%(message)s')
-#elif LOGGING_LVL == 'CRITICAL':
-#    logging.basicConfig(level=logging.CRITICAL, format='%(asctime)s:%(levelname)s:%(message)s')
-#
-#
-#from check_functions import *
-#from error_handelers import BeaconError
-#import beacon_info
-#from models import *
-#
-## Creates the emptyDatasetIds database tables if they are not all ready created. The application doesen't need pre filled tables to
-## work , but it does need the tables to exist.
-#db.create_all()
+
+# Sets the logging level from environmental variable.
+LOGGING_LVL = os.environ.get('LOGGING_LVL')
+if LOGGING_LVL == 'DEBUG':
+    logging.basicConfig(level=logging.DEBUG, format='%(asctime)s:%(levelname)s:%(message)s')
+elif LOGGING_LVL == 'INFO':
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s:%(levelname)s:%(message)s')
+elif LOGGING_LVL == 'WARNING':
+    logging.basicConfig(level=logging.WARNING, format='%(asctime)s:%(levelname)s:%(message)s')
+elif LOGGING_LVL == 'CRITICAL':
+    logging.basicConfig(level=logging.CRITICAL, format='%(asctime)s:%(levelname)s:%(message)s')
+
+
+from check_functions import *
+from error_handelers import BeaconError
+import beacon_info
+from models import *
+
+# Creates the emptyDatasetIds database tables if they are not all ready created. The application doesen't need pre filled tables to
+# work , but it does need the tables to exist.
+db.create_all()
 #
 #-----------------------------------------------------------------------------------------------------------------------
 #                                         INFO END POINT OPERATIONS
