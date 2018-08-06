@@ -1,11 +1,13 @@
-import models
+#import models
 
-'''
-
-return: Beacon
-'''
 
 def constructor():
+    '''
+    The `constructor()` function constructs the `Beacon` dict that the info end point will return.
+
+    :type Beacon: Dict
+    :return Beacon: A dict that contain all the information about the `Beacon`.
+    '''
     # Here are some example requests.
     BeaconAlleleRequest = [{
         "alternateBases": "A",
