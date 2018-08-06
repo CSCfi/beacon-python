@@ -14,17 +14,17 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('beacon-python/docs/'))
+sys.path.insert(0, os.path.abspath('.'))
 
 
 # -- Project information -----------------------------------------------------
 
 project = 'Beacon API'
-copyright = '2018, Kasper Keinänen'
-author = 'Kasper Keinänen'
+copyright = '2018, Kasper Keinanen'
+author = 'Kasper Keinanen'
 
 # The short X.Y version
-version = '1.0'
+version = ''
 # The full version, including alpha/beta/rc tags
 release = '1.0'
 
@@ -77,16 +77,9 @@ pygments_style = 'sphinx'
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
+html_theme = 'sphinx_rtd_theme'
 
-# At the top.
-
-
-# ...
-
-# Activate the theme.
-html_theme = "sphinx_rtd_theme"
-html_theme_path = ["_themes", ]
-
+html_theme_path = ["sphinx_rtd_theme", ]
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -141,7 +134,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
     (master_doc, 'BeaconAPI.tex', 'Beacon API Documentation',
-     'Kasper Keinänen', 'manual'),
+     'Kasper Keinanen', 'manual'),
 ]
 
 
