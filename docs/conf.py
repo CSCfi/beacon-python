@@ -14,7 +14,7 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('/Users/kakeinan/beacon-python/beacon_api'))
+sys.path.insert(0, os.path.abspath('beacon-python/docs/'))
 
 
 # -- Project information -----------------------------------------------------
