@@ -1,13 +1,82 @@
 # beacon-python
 [Beacon API specifications](https://github.com/ga4gh-beacon/specification/blob/release-1.0.0/beacon.md)
 
+## What is a Beacon?
+The Beacon project was launched in 2014 to show the willingness of researchers to enable the secure sharing of genomic data from participants of genomic studies. Beacons are web-servers that answer questions such as Does your dataset include a genome that has a specific nucleotide (e.g. G) at a specific genomic coordinate (e.g. Chr.1 position 111,111)? to which the Beacon must respond with yes or no, without referring to a specific individual.
+
+
+## Requirements
+* Python 3.6
+* PostgreSQL Server 9.0+
+
+
+## License
 
 ## Quick start
 
+### Run the application
 
+Create a virtual environment for the application:
+```
+$ virtualenv env
+```
+`cd` into the new `env` directory and activate the virtual environment:
+```
+$ cd env
+```
+```
+$ . bin/activate
+```
+Clone the code into the directory:
+```
+git clone https://github.com/CSCfi/beacon-python.git
+``` 
+
+
+Install all the necessary dependencies to the virtual env from the `requirenments.txt` file using pip:
+
+```
+cd beacon-python/beacon_api
+pip3 install -r requirements.txt
+```
+
+Set the necessary environment varables. I you havent configured a user and a password for the database you should set them as 
+empty:
+```
+$ export DATABASE_URL=postgresql://localhost:5432
+$ export DATABASE_NAME=beacondb
+$ export DATABASE_USER=
+$ export DATABASE_PASSWORD=
+$ export HOST=0.0.0.0
+$ export PORT=8080
+$ export DEBUG=True
+$ export LOGGING_LVL=DEBUG
+```
+
+To run the application:
+
+```
+$ python3 wsgi.py
+``` 
+
+To test the application you can either use `curl` in the command line like in examples or just by typing the addres into
+ your browser.
+ 
+[http://localhost:8080/](http://localhost:8080/)
+
+[http://localhost:8080/query?referenceName=1&start=2947950&referenceBases=A&alternateBases=G&assemblyId=GRCh37&includeDatasetResponses=ALL](http://localhost:8080/query?referenceName=1&start=2947950&referenceBases=A&alternateBases=G&assemblyId=GRCh37&includeDatasetResponses=ALL)
+
+Deactivate the virtual environment with the command:
+```
+$ deactivate
+```
 ## Configure database
 
 ### Create database
+
+In the application we use PostgreSQL but other databases will work aswell. 
+
+### Create tables
 
 The application is using the object relational mapper (ORM) SQLAlchemy to handle much of the communication 
 between the application and the database, and that is why the database tables are created using SQLAlchemy.
