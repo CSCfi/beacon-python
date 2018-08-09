@@ -22,4 +22,4 @@ def test_unauthorized():
                }
     r = requests.get(URL_query, params=payload, verify=False)
     assert r.status_code == 401
-    assert r.json()['message']['error']['errorMessage'] == 'User not authorized to access dataset: DATASET2'
+    assert r.json()['message']['error']['errorMessage'] == 'User not authorized to access data set: DATASET2'
