@@ -14,6 +14,26 @@ The Beacon project was launched in 2014 to show the willingness of researchers t
 
 ## Quick start
 
+### Create database
+
+In the application we use PostgreSQL but other databases will work aswell. Install a PostgreSQL version 
+higher than 9 and use the `psql`command line tool. For this example we will create a simple database without 
+a specified user or password. The database name will be set to `beacondb`.
+
+First make shure that your PostgreSQL server is running. Then open the the `psql` command line tool
+with the default `postgres`.
+```
+$ psql postgres
+```
+Use the `CREATE DATABASE` command to create the database called `beacondb`:
+```
+postgres=# CREATE DATABASE beacondb;
+```
+* You can list the available databases with the command `\l` and to exit into the normal terminal view write `\q` or press `CTRL + D`.
+* To view the tables in the database use the command `\dt`
+* To view the columns of a table write `\d table_name`
+
+
 ### Run the application
 
 Create a virtual environment for the application:
@@ -62,20 +82,16 @@ $ python3 wsgi.py
 To test the application you can either use `curl` in the command line like in examples or just by typing the addres into
  your browser.
  
-[http://localhost:8080/](http://localhost:8080/)
+* [http://localhost:8080/](http://localhost:8080/)
 
-[http://localhost:8080/query?referenceName=1&start=2947950&referenceBases=A&alternateBases=G&assemblyId=GRCh37&includeDatasetResponses=ALL](http://localhost:8080/query?referenceName=1&start=2947950&referenceBases=A&alternateBases=G&assemblyId=GRCh37&includeDatasetResponses=ALL)
+* [http://localhost:8080/query?referenceName=1&start=2947950&referenceBases=A&alternateBases=G&assemblyId=GRCh37&includeDatasetResponses=ALL](http://localhost:8080/query?referenceName=1&start=2947950&referenceBases=A&alternateBases=G&assemblyId=GRCh37&includeDatasetResponses=ALL)
 
 Deactivate the virtual environment with the command:
 ```
 $ deactivate
 ```
 ## Configure database
-
-### Create database
-
-In the application we use PostgreSQL but other databases will work aswell. 
-
+ 
 ### Create tables
 
 The application is using the object relational mapper (ORM) SQLAlchemy to handle much of the communication 
