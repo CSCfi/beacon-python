@@ -1,7 +1,35 @@
 # beacon-python
 [Beacon API specifications](https://github.com/ga4gh-beacon/specification/blob/release-1.0.0/beacon.md)
 
-## What is a Beacon?
+
+## Table of content
+- [About](#about)
+  * [What is a Beacon?](#what-is-a-beacon-)
+- [Requirements](#requirements)
+- [License](#license)
+- [Quick start](#quick-start)
+  * [Create database](#create-database)
+  * [Run the application](#run-the-application)
+- [Configure database](#configure-database)
+  * [Create tables](#create-tables)
+  * [Load data](#load-data)
+- [Using the application](#using-the-application)
+  * [Info endpoint](#info-endpoint)
+    + [Request](#request)
+    + [Response](#response)
+    + [Examples](#examples)
+  * [Query endpoint](#query-endpoint)
+    + [Request](#request-1)
+    + [Response](#response-1)
+    + [Examples](#examples-1)
+- [Further information](#further-information)
+  * [Project structure](#project-structure)
+
+
+
+## About
+
+### What is a Beacon?
 The Beacon project was launched in 2014 to show the willingness of researchers to enable the secure sharing of genomic data from participants of genomic studies. Beacons are web-servers that answer questions such as Does your dataset include a genome that has a specific nucleotide (e.g. G) at a specific genomic coordinate (e.g. Chr.1 position 111,111)? to which the Beacon must respond with yes or no, without referring to a specific individual.
 
 
@@ -11,6 +39,7 @@ The Beacon project was launched in 2014 to show the willingness of researchers t
 
 
 ## License
+This project is licensed under the terms of the Apache2.0 license.
 
 ## Quick start
 
