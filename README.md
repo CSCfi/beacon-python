@@ -86,7 +86,7 @@ git clone https://github.com/CSCfi/beacon-python.git
 Install all the necessary dependencies to the virtual env from the `requirenments.txt` file using pip:
 
 ```
-cd beacon-python/beacon_api
+cd beacon-python
 pip3 install -r requirements.txt
 ```
 
