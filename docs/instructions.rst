@@ -40,11 +40,11 @@ An example ``GET`` request and response to the info endpoint:
 
 
 
-   *   Trying 193.167.189.101...
+   *   Trying 127.0.0.1...
    * TCP_NODELAY set
-   * Connected to beaconapi-elixirbeacon.rahtiapp.fi (193.167.189.101) port 80 (#0)
+   * Connected to http://localhost (127.0.0.1) port 5000 (#0)
    > GET / HTTP/1.1
-   > Host: beaconapi-elixirbeacon.rahtiapp.fi
+   > Host: http//localhost
    > User-Agent: curl/7.54.0
    > Accept: */*
    >
@@ -164,7 +164,7 @@ An example ``GET`` request and response to the info endpoint:
            "size": ""
        }
    }
-   * Connection #0 to host beaconapi-elixirbeacon.rahtiapp.fi left intact
+   * Connection #0 to host http://localhost left intact
 
 
 Query endpoint
@@ -201,14 +201,14 @@ Example of how to use the GET method in the ``/query`` endpoint:
 
 .. code:: shell
 
-    $ curl -v 'http://beaconapi-elixirbeacon.rahtiapp.fi/query?referenceName=1&start=2947892&referenceBases=A&alternateBases=G&variantType=SNP&assemblyId=GRCh37&includeDatasetResponses=ALL'
+    $ curl -v 'http://localhost/query?referenceName=1&start=2947892&referenceBases=A&alternateBases=G&variantType=SNP&assemblyId=GRCh37&includeDatasetResponses=ALL'
 
 
-    *   Trying 193.167.189.101...
+    *   Trying 127.0.0.1...
     * TCP_NODELAY set
-    * Connected to beaconapi-elixirbeacon.rahtiapp.fi (193.167.189.101) port 80 (#0)
+    * Connected to http://localhost (127.0.0.1) port 5000 (#0)
     > GET /query?referenceName=1&start=2947892&referenceBases=A&alternateBases=G&variantType=SNP&assemblyId=GRCh37&includeDatasetResponses=ALL HTTP/1.1
-    > Host: beaconapi-elixirbeacon.rahtiapp.fi
+    > Host: http://localhost
     > User-Agent: curl/7.54.0
     > Accept: */*
     >
@@ -271,4 +271,4 @@ Example of how to use the GET method in the ``/query`` endpoint:
             }
         ]
     }
-    * Connection #0 to host beaconapi-elixirbeacon.rahtiapp.fi left intact
+    * Connection #0 to host http://localhost left intact
