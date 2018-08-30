@@ -5,7 +5,7 @@ import os
 
 
 def position(start, end, startMin, startMax, endMin, endMax):
-    '''
+    """
     The `position()` function checks the values of the position parameters (start, startMin, startMax, end, endMain, endMax)
     and returns a position list `pos` that depending on the submitted parameters, either have one, two or four items.
 
@@ -23,7 +23,7 @@ def position(start, end, startMin, startMax, endMin, endMax):
     :param endMax: The parameter `endMax` given in the request.
     :type pos: Array
     :return pos: An array containing the parameters that where given, the length depends on how many parameters where in the request.
-    '''
+    """
     pos = []
     if start != 0:
         if end != 0:
@@ -43,8 +43,9 @@ def position(start, end, startMin, startMax, endMin, endMax):
         pos.append(endMax)
         return pos
 
+
 def alleleFind(datasetId, chromosome, position, allele, variantType):
-    '''
+    """
     The `alleleFind()` function queries the database with the submitted parameters and checks if it finds the allele in the right place.
     It returns True if found and False if not. It also returns the object to the row that was queried in the database.
 
@@ -60,7 +61,7 @@ def alleleFind(datasetId, chromosome, position, allele, variantType):
     :param variantType: The variant type given in the request.
     :return boolean: The True or False answer from the query.
     :return row: The row from the database that has been queried.
-    '''
+    """
     url = os.environ['DATABASE_URL'].split('/')
     POSTGRES = {
         'user': os.environ['DATABASE_USER'],
@@ -76,25 +77,34 @@ def alleleFind(datasetId, chromosome, position, allele, variantType):
 
     if allele == '0':
         if len(position) == 1:
-            logging.debug(' * Execute SQL query: SELECT * FROM genomes WHERE dataset_id={} AND chromosome={} AND start={} AND  type={}'.format(datasetId, chromosome, position[0], variantType))
-            cur.execute('SELECT * FROM genomes WHERE dataset_id=%s AND chromosome=%s AND start=%s AND  type=%s',[datasetId, chromosome, position[0], variantType])
+            logging.debug(' * Execute SQL query: SELECT * FROM genomes WHERE dataset_id={} AND chromosome={} AND start={} AND  type={}'
+                          .format(datasetId, chromosome, position[0], variantType))
+            cur.execute('SELECT * FROM genomes WHERE dataset_id=%s AND chromosome=%s AND start=%s AND  type=%s',
+                        [datasetId, chromosome, position[0], variantType])
         elif len(position) == 2:
-            logging.debug(' * Execute SQL query: SELECT * FROM genomes WHERE dataset_id={} AND chromosome={} AND start={} AND "end"={} AND type={}'.format(datasetId, chromosome, position[0], position[1] , variantType))
-            cur.execute('SELECT * FROM genomes WHERE dataset_id=%s AND chromosome=%s AND start=%s AND "end"=%s AND type=%s',[datasetId, chromosome, position[0], position[1] , variantType])
+            logging.debug(' * Execute SQL query: SELECT * FROM genomes WHERE dataset_id={} AND chromosome={} AND start={} AND "end"={} AND type={}'
+                          .format(datasetId, chromosome, position[0], position[1], variantType))
+            cur.execute('SELECT * FROM genomes WHERE dataset_id=%s AND chromosome=%s AND start=%s AND "end"=%s AND type=%s',
+                        [datasetId, chromosome, position[0], position[1], variantType])
         else:
-            logging.debug(' * Execute SQL query: SELECT * FROM genomes WHERE dataset_id={} AND chromosome={} AND start>={} AND start<={} AND "end">={} AND "end"<={} AND type={}'.format(datasetId, chromosome, position[0], position[1], position[2], position[3], variantType))
-            cur.execute('SELECT * FROM genomes WHERE dataset_id=%s AND chromosome=%s AND start>=%s AND start<=%s AND "end">=%s AND "end"<=%s AND type=%s',[datasetId, chromosome, position[0], position[1], position[2], position[3], variantType])
+            logging.debug(' * Execute SQL query: SELECT * FROM genomes WHERE dataset_id={} AND chromosome={} AND start>={} AND start<={} AND "end">={} AND \
+            "end"<={} AND type={}'.format(datasetId, chromosome, position[0], position[1], position[2], position[3], variantType))
+            cur.execute('SELECT * FROM genomes WHERE dataset_id=%s AND chromosome=%s AND start>=%s AND start<=%s AND "end">=%s AND "end"<=%s AND type=%s',
+                        [datasetId, chromosome, position[0], position[1], position[2], position[3], variantType])
     elif allele != '0':
         if len(position) == 1:
-            logging.debug(' * Execute SQL query: SELECT * FROM genomes WHERE dataset_id={} AND chromosome={} AND start={} AND  alternate={}'.format(datasetId, chromosome, position[0], allele))
+            logging.debug(' * Execute SQL query: SELECT * FROM genomes WHERE dataset_id={} AND chromosome={} AND start={} AND  alternate={}'
+                          .format(datasetId, chromosome, position[0], allele))
             cur.execute('SELECT * FROM genomes WHERE dataset_id=%s AND chromosome=%s AND start=%s AND  alternate=%s',
                         [datasetId, chromosome, position[0], allele])
         elif len(position) == 2:
-            logging.debug(' * Execute SQL query: SELECT * FROM genomes WHERE dataset_id={} AND chromosome={} AND start={} AND "end"={} AND alternate={}'.format(datasetId, chromosome, position[0], position[1], allele))
+            logging.debug(' * Execute SQL query: SELECT * FROM genomes WHERE dataset_id={} AND chromosome={} AND start={} AND "end"={} AND alternate={}'
+                          .format(datasetId, chromosome, position[0], position[1], allele))
             cur.execute('SELECT * FROM genomes WHERE dataset_id=%s AND chromosome=%s AND start=%s AND "end"=%s AND alternate=%s',
                         [datasetId, chromosome, position[0], position[1], allele])
         else:
-            logging.debug(' * Execute SQL query: SELECT * FROM genomes WHERE dataset_id={} AND chromosome={} AND start>={} AND start<={} AND "end">={} AND "end"<={}AND alternate={}'.format(datasetId, chromosome, position[0], position[1], position[2], position[3], allele))
+            logging.debug(' * Execute SQL query: SELECT * FROM genomes WHERE dataset_id={} AND chromosome={} AND start>={} AND start<={} AND "end">={} AND \
+            "end"<={}AND alternate={}'.format(datasetId, chromosome, position[0], position[1], position[2], position[3], allele))
             cur.execute(
                 'SELECT * FROM genomes WHERE dataset_id=%s AND chromosome=%s AND start>=%s AND start<=%s AND "end">=%s AND "end"<=%s AND alternate=%s',
                 [datasetId, chromosome, position[0], position[1], position[2], position[3], allele])
@@ -104,15 +114,16 @@ def alleleFind(datasetId, chromosome, position, allele, variantType):
     logging.info(' * Closing connection to database')
     conn.close()
 
-    if row == None:
+    if row is None:
         logging.debug(' * Returning FALSE')
         return False, row
     else:
         logging.debug(' * Returning TRUE')
         return True, row
 
+
 def datasetAlleleResponseBuilder(datasetId, referenceName, pos, alternateBases, variantType, BeaconDataset):
-    '''
+    """
     The `datasetAlleleResponseBuilder()` function calls the `alleleFind()` function and receives the answer to the exist parameter
     and the database object to the row in the database. If `exists` == False the function sets the `variantCount`, `sampleCount`,
     `callCount` and `frequency` to 0. And if `exists` == True the function gets the parameter values from the database.
@@ -131,7 +142,7 @@ def datasetAlleleResponseBuilder(datasetId, referenceName, pos, alternateBases, 
     :param BeaconDataset: Array of the names of the data sets in the database.
     :type datasetAlleleResponse: Dict
     :return: datasetAlleleResponse: Dict of the response that has been constructed.
-    '''
+    """
     error = None
     j = 0
     for i in BeaconDataset:
@@ -143,8 +154,8 @@ def datasetAlleleResponseBuilder(datasetId, referenceName, pos, alternateBases, 
     exists, row = alleleFind(datasetId, referenceName, pos, alternateBases, variantType)
     logging.info(' * Returning from function alleleFind()')
 
-    if exists == False:
-        variantCount, sampleCount, callCount, frequency = 0,0,0,0 # does not alter the database only the representation
+    if not exists:
+        variantCount, sampleCount, callCount, frequency = 0, 0, 0, 0  # does not alter the database only the representation
     else:
         frequency = row[12]
         sampleCount = row[11]
@@ -166,8 +177,10 @@ def datasetAlleleResponseBuilder(datasetId, referenceName, pos, alternateBases, 
     logging.info(' * Returning datasetAlleleResponse')
     return datasetAlleleResponse
 
-def checkParameters(referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, variantType,assemblyId, datasetIds, includeDatasetResponses, error_):
-    '''
+
+def checkParameters(referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, variantType, assemblyId, datasetIds,
+                    includeDatasetResponses, error_):
+    """
     The `checkParameters()` function validates the submitted parameters values and checks if required parameters are missing.
     It calls the appropriate `BeaconError` method if something is wrong.
 
@@ -186,7 +199,8 @@ def checkParameters(referenceName, start, startMin, startMax, end, endMin, endMa
     :type startMin: Integer
     :param startMin: Minimum start coordinate
             - startMin + startMax + endMin + endMax:
-            - for querying imprecise positions (e.g. identifying all structural variants starting anywhere between `startMin` <-> `startMax`, and ending anywhere between `endMin` <-> `endMax`
+            - for querying imprecise positions (e.g. identifying all structural variants starting anywhere between `startMin` <-> `startMax`,
+            and ending anywhere between `endMin` <-> `endMax`
             - single or double sided precise matches can be achieved by setting `startMin` = `startMax` OR `endMin` = `endMax`
     :type startMax: Integer
     :param startMax: Maximum start coordinate. See `startMin`.
@@ -197,7 +211,9 @@ def checkParameters(referenceName, start, startMin, startMax, end, endMin, endMa
     :type endMax: Integer
     :param endMax: Maximum end coordinate. See `startMin`.
     :type referenceBases: String
-    :param referenceBases: Reference bases for this variant (starting from `start`). Accepted values: [ACGT]* When querying for variants without specific base alterations (e.g. imprecise structural variants with separate variantType as well as startMin & endMin ... parameters), the use of a single "N" value is required. See the REF field in VCF 4.2 specification.
+    :param referenceBases: Reference bases for this variant (starting from `start`). Accepted values: [ACGT]* When querying for variants without specific base
+     alterations (e.g. imprecise structural variants with separate variantType as well as startMin & endMin ... parameters), the use of a single "N" value is
+     required. See the REF field in VCF 4.2 specification.
     :type alternateBases: String
     :param alternateBases: The bases that appear instead of the reference bases. Accepted values: [ACGT]* or N.
             Symbolic ALT alleles (DEL, INS, DUP, INV, CNV, DUP:TANDEM, DEL:ME, INS:ME) will be represented in `variantType`.
@@ -209,9 +225,11 @@ def checkParameters(referenceName, start, startMin, startMax, end, endMin, endMa
     :type assemblyId: String
     :param assemblyId: Assembly identifier
     :type datasetIds: String
-    :param datasetIds: Identifiers of data sets, as defined in `BeaconDataset`. In case assemblyId doesn't match requested dataset(s) error will be raised (400 Bad request). If this field is not specified, all datasets should be queried.
+    :param datasetIds: Identifiers of data sets, as defined in `BeaconDataset`. In case assemblyId doesn't match requested dataset(s) error will be raised
+    (400 Bad request). If this field is not specified, all datasets should be queried.
     :type includeDatasetResponses: String
-    :param includeDatasetResponses: Indicator of whether responses for individual data sets (`datasetAlleleResponses`) should be included in the response (`BeaconAlleleResponse`) to this request or not. If null (not specified), the default value of NONE is assumed.
+    :param includeDatasetResponses: Indicator of whether responses for individual data sets (`datasetAlleleResponses`) should be included in the response
+    (`BeaconAlleleResponse`) to this request or not. If null (not specified), the default value of NONE is assumed.
             Accepted values : ['ALL', 'HIT', 'MISS', 'NONE']
     :type error_: Object
     :param error_: Error object for the error handler.
@@ -223,7 +241,7 @@ def checkParameters(referenceName, start, startMin, startMax, end, endMin, endMa
     :return false_datasetAlleleResponses: Dict of those responses that give `exists` = False.
     :type includeDatasetResponses: String
     :return includeDatasetResponses: The `includeDatasetResponses` from the request.
-    '''
+    """
 
     refname = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', 'X', 'Y']
     datasetresponses = ['ALL', 'HIT', 'MISS', 'NONE']
@@ -246,13 +264,11 @@ def checkParameters(referenceName, start, startMin, startMax, end, endMin, endMa
         error_.bad_request('Missing mandatory parameter referenceName')
     # check if referenceName is valid
     elif referenceName not in refname:
-        #if an error occures the 'exists' must be 'null'
+        # if an error occures the 'exists' must be 'null'
         logging.warning(' * ERROR BAD REQUEST: referenceName not valid')
         for set in datasetAlleleResponses:
             set['exists'] = None
         error_.bad_request('referenceName not valid')
-
-
 
     # check if start/startMin parameter is missing
     if start == 0:
@@ -279,8 +295,6 @@ def checkParameters(referenceName, start, startMin, startMax, end, endMin, endMa
         logging.warning(' * ERROR BAD REQUEST: end not valid')
         error_.bad_request('end not valid')
 
-
-
     # check if referenceBases parameter is missing
     if referenceBases == '0':
         logging.warning(' * ERROR BAD REQUEST: Missing mandatory parameter referenceBases')
@@ -290,8 +304,6 @@ def checkParameters(referenceName, start, startMin, startMax, end, endMin, endMa
         if nucleotide2 not in Bases:
             logging.warning(' * ERROR BAD REQUEST: referenceBases not valid')
             error_.bad_request('referenceBases not valid')
-
-
 
     # check if alternateBases parameter is missing
     if alternateBases == '0':
@@ -309,7 +321,6 @@ def checkParameters(referenceName, start, startMin, startMax, end, endMin, endMa
             logging.warning(' * ERROR BAD REQUEST: alternateBases not valid')
             error_.bad_request('alternateBases not valid')
 
-
     # check if assemblyId is missing
     if assemblyId == '0':
         logging.warning(' * ERROR BAD REQUEST: Missing mandatory parameter assemblyId')
@@ -319,8 +330,6 @@ def checkParameters(referenceName, start, startMin, startMax, end, endMin, endMa
         logging.warning(' * ERROR BAD REQUEST: assemblyId not valid')
         error_.bad_request('assemblyId not valid')
 
-
-
     # check if includeDataserResponses is missing
     if includeDatasetResponses not in datasetresponses:
         # if an error occurs the 'exists' must be 'null'
@@ -328,7 +337,6 @@ def checkParameters(referenceName, start, startMin, startMax, end, endMin, endMa
             set['exists'] = None
         logging.warning(' * ERROR BAD REQUEST: includeDatasetResponses not valid')
         error_.bad_request('includeDatasetResponses not valid')
-
 
     # checks if there are datasetIds given. If there are, then check if the the datasetIds are in the database Table.
     # If not give ERROR. If they are correct, build a response for each data set that is correct.
@@ -348,42 +356,36 @@ def checkParameters(referenceName, start, startMin, startMax, end, endMin, endMa
             datasetAlleleResponses.append(datasetAlleleResponseBuilder(set, referenceName, pos, alternateBases, variantType, BeaconDataset))
             logging.debug(' * Finnished building datasetAlleleResponse for: {}'.format(set))
 
-
-
-
     # creates empty lists for specific datasetResponses
     false_datasetAlleleResponses = []
     true_datasetAlleleResponses = []
     # fills the lists with the responses
     for response in datasetAlleleResponses:
-        if response['exists'] == False:
+        if not response['exists']:
             false_datasetAlleleResponses.append(response)
-        elif response['exists'] == True:
+        elif response['exists']:
             true_datasetAlleleResponses.append(response)
-
-
 
     return datasetAlleleResponses, true_datasetAlleleResponses, false_datasetAlleleResponses, includeDatasetResponses
 
 
 def checkifdatasetisTrue(datasets):
-    '''
-    The `checkifdatasetisTrue()` function checks the individual data sets and returns True if any of the data sets have
-    exists == True.
+    """
+    The `checkifdatasetisTrue()` function checks the individual data sets and returns True if any of the data sets have exists == True.
 
     :type datasets: Dict
     :param datasets: Dict of the response from the data set.
     :return: boolean
-    '''
+    """
     for value in datasets:
-        if value['exists'] == True:
+        if value['exists']:
             return True
     return False
 
 
 def checkInclude(includeDatasetResponses, alldatasets, trurdatasets, falsedatasets):
-    '''
-    The function returns those data set responses that the `includeDatasetResponses` parameter decides
+    """
+    The function returns those data set responses that the `includeDatasetResponses` parameter decides.
 
     :type includeDatasetResponses: String
     :param includeDatasetResponses: The `includeDatasetResponses` from the request.
@@ -399,7 +401,7 @@ def checkInclude(includeDatasetResponses, alldatasets, trurdatasets, falsedatase
     :return trurdatasets: Dicts of all the data sets that have `exists` = True.
     :type falsedatasets: Dict
     :return falsedatasets: Dicts of all the data sets that have `exists` = False.
-    '''
+    """
     if includeDatasetResponses == 'ALL':
         return alldatasets
     elif includeDatasetResponses == 'NONE':

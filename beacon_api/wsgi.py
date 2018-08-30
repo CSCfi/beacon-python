@@ -57,18 +57,18 @@ db.create_all()
 
 
 class Beacon_get(Resource):
-    '''
+    """
     The Beacon_get class contains the operations for the "/" end point. The "/" end point only serves as an info
     endpoint. It inherits properties from flask_restfuls Resource class.
-    '''
+    """
     def get(self):
-        '''
+        """
         The `get()` method in the `Beacon_get class` uses the HTTP protocol 'GET' to return a Json object of all the
         necessary info on the beacon and the Api. It uses the '/' path and only serves an information giver.
 
         :type Beacon: Dict
         :return Beacon: The method returns the dict Beacon that was constructed in the constructor() function in beacon_info.py
-        '''
+        """
 
         logging.info(' * Get request to beacon end poit "/"')
         Beacon = beacon_info.constructor()
@@ -76,18 +76,18 @@ class Beacon_get(Resource):
         return Beacon
 
 
-api.add_resource(Beacon_get,'/')
+api.add_resource(Beacon_get, '/')
 # ----------------------------------------------------------------------------------------------------------------------
 #                                         QUERY END POINT OPERATIONS
 # ----------------------------------------------------------------------------------------------------------------------
 
 
 class Beacon_query(Resource):
-    '''
+    """
     The `Beacon_query class` contains the operations for the `/query` end point. The `/query` end point handles the
     query's to the database and is the end point from which most of the operations are done. It inherits properties
     from flask_restful's Resource class.
-    '''
+    """
     # args takes in the request variables and sets them to the missing value if they are absent.
     args = {
         'referenceName': fields.Str(
@@ -123,16 +123,16 @@ class Beacon_query(Resource):
         'assemblyId': fields.Str(
             missing='0'
         ),
-        'datasetIds': fields.List(fields.Str(),
-            missing=[]),
+        'datasetIds': fields.List(fields.Str(), missing=[]),
         'includeDatasetResponses': fields.Str(
             missing='ALL',
         ),
     }
 
     @use_kwargs(args)
-    def get(self, referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, variantType, assemblyId, datasetIds, includeDatasetResponses):
-        '''
+    def get(self, referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, variantType, assemblyId, datasetIds,
+            includeDatasetResponses):
+        """
         The `get()` method of the `Beacon_query class` gets it's parameters from the `@use_kwargs(args)` decorator and uses the HTTP
         protocol `GET` to return a Json object. The object contains the `alleleRequest` that was submitted, the `datasetAlleleResponse`
         that was received, some general info on the api and the parameter `exists`. The exists parameter is the answer from the
@@ -158,7 +158,8 @@ class Beacon_query(Resource):
 
                 `startMin` + `startMax` + `endMin` + `endMax`:
 
-                - for querying imprecise positions (e.g. identifying all structural variants starting anywhere between `startMin` <-> `startMax`, and ending anywhere between `endMin` <-> `endMax`
+                - for querying imprecise positions (e.g. identifying all structural variants starting anywhere between `startMin` <-> `startMax`,
+                 and ending anywhere between `endMin` <-> `endMax`
                 - single or double sided precise matches can be achieved by setting `startMin` = `startMax` OR `endMin` = `endMax`
         :type startMax: Integer
         :param startMax: Maximum start coordinate. See `startMin`.
@@ -169,7 +170,9 @@ class Beacon_query(Resource):
         :type endMax: Integer
         :param endMax: Maximum end coordinate. See `startMin`.
         :type referenceBases: String
-        :param referenceBases: Reference bases for this variant (starting from `start`). Accepted values: [ACGT]* When querying for variants without specific base alterations (e.g. imprecise structural variants with separate variantType as well as startMin & endMin ... parameters), the use of a single "N" value is required. See the REF field in VCF 4.2 specification.
+        :param referenceBases: Reference bases for this variant (starting from `start`). Accepted values: [ACGT]* When querying for variants without
+         specific base alterations (e.g. imprecise structural variants with separate variantType as well as startMin & endMin ... parameters), the use
+         of a single "N" value is required. See the REF field in VCF 4.2 specification.
         :type alternateBases: String
         :param alternateBases: The bases that appear instead of the reference bases. Accepted values: [ACGT]* or N.
                 Symbolic ALT alleles (DEL, INS, DUP, INV, CNV, DUP:TANDEM, DEL:ME, INS:ME) will be represented in `variantType`.
@@ -181,16 +184,22 @@ class Beacon_query(Resource):
         :type assemblyId: String
         :param assemblyId: Assembly identifier
         :type datasetIds: String
-        :param datasetIds: Identifiers of data sets, as defined in `BeaconDataset`. In case assemblyId doesn't match requested dataset(s) error will be raised (400 Bad request). If this field is not specified, all datasets should be queried.
+        :param datasetIds: Identifiers of data sets, as defined in `BeaconDataset`. In case assemblyId doesn't match requested dataset(s) error will be
+         raised (400 Bad request). If this field is not specified, all datasets should be queried.
         :type includeDatasetResponses: String
-        :param includeDatasetResponses: Indicator of whether responses for individual data sets (`datasetAlleleResponses`) should be included in the response (`BeaconAlleleResponse`) to this request or not. If null (not specified), the default value of NONE is assumed.
+        :param includeDatasetResponses: Indicator of whether responses for individual data sets (`datasetAlleleResponses`) should be included in the
+        response (`BeaconAlleleResponse`) to this request or not. If null (not specified), the default value of NONE is assumed.
                 Accepted values : ['ALL', 'HIT', 'MISS', 'NONE']
         :type beaconAlleleResponse: Dict
         :return beaconAlleleResponse: The response that the user receives from the `Beacon`.
-        '''
+        """
         logging.info(' * GET request to beacon endpoit "/query"')
-        logging.debug(' * Parameters recived:\nreferenceName: {}\nstart: {}\nstartMin: {}\nstartMax: {}\nend: {}\nendMin: {}\nendMax: {}\nreferenceBases: {}\nsalternateBasestart: {}\nvariantType: {}\nassemblyId: {}\ndatasetIds: {}\nincludeDatasetResponses: {}\n'.format(referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, variantType, assemblyId, datasetIds, includeDatasetResponses))
-        error_ = BeaconError(referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, variantType,assemblyId, datasetIds, includeDatasetResponses)
+        logging.debug(' * Parameters recived:\nreferenceName: {}\nstart: {}\nstartMin: {}\nstartMax: {}\nend: {}\nendMin: {}\nendMax: {}\nreferenceBases: \
+        {}\nsalternateBasestart: {}\nvariantType: {}\nassemblyId: {}\ndatasetIds: {}\nincludeDatasetResponses: {}\n'
+                      .format(referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, variantType, assemblyId,
+                              datasetIds, includeDatasetResponses))
+        error_ = BeaconError(referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, variantType, assemblyId,
+                             datasetIds, includeDatasetResponses)
         emptyDatasetIds = False
 # ----------------------------------------------------------------------------------------------------------------------
 #                                           AUTHENTICATION
@@ -217,7 +226,7 @@ class Beacon_query(Resource):
 
         logging.debug(' * Authenticated: {}'.format(authenticated))
 
-        if authenticated == False:
+        if not authenticated:
             # If the user is not authenticated and the user didn't specify the data sets. Then the datasetIds will only
             # contain datasets with PUBLIC as accessType.
             if datasetIds == []:
@@ -244,7 +253,8 @@ class Beacon_query(Resource):
 #                            PARAMETER CHECKING AND RESPONSE CONSTRUCTION
 # ----------------------------------------------------------------------------------------------------------------------
         datasetAlleleResponses, true_datasetAlleleResponses, false_datasetAlleleResponses, includeDatasetResponses = checkParameters(
-            referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, variantType, assemblyId, datasetIds, includeDatasetResponses, error_)
+            referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, variantType, assemblyId, datasetIds,
+            includeDatasetResponses, error_)
 
         # If the user didn't specify any data sets.
         if emptyDatasetIds:
@@ -253,33 +263,24 @@ class Beacon_query(Resource):
         # Fills the Beacon variable with the necessary info from the constructor function in beacon_info.
         Beacon = beacon_info.constructor()
         logging.info(' * Received parameters passed the checkParameters() function')
-        alleleRequest = {'referenceName': referenceName,
-                        'start': start,
-                        'startMin': startMin,
-                        'startMax': startMax,
-                        'end': end,
-                        'endMin': endMin,
-                        'endMax': endMax,
-                        'referenceBases': referenceBases,
-                        'alternateBases': alternateBases,
-                        'variantType': variantType,
-                        'assemblyId': assemblyId,
-                        'datasetIds': datasetIds,
-                        'includeDatasetResponses': includeDatasetResponses,
-                        }
+        alleleRequest = {'referenceName': referenceName, 'start': start, 'startMin': startMin, 'startMax': startMax, 'end': end, 'endMin': endMin,
+                         'endMax': endMax, 'referenceBases': referenceBases, 'alternateBases': alternateBases, 'variantType': variantType,
+                         'assemblyId': assemblyId, 'datasetIds': datasetIds, 'includeDatasetResponses': includeDatasetResponses}
+
         beaconAlleleResponse = {'beaconId': Beacon['id'],
                                 "apiVersion": Beacon['apiVersion'],
                                 'exists': checkifdatasetisTrue(datasetAlleleResponses),
                                 'error': None,
                                 'alleleRequest': alleleRequest,
-                                'datasetAlleleResponses': checkInclude(includeDatasetResponses, datasetAlleleResponses, true_datasetAlleleResponses, false_datasetAlleleResponses)
+                                'datasetAlleleResponses': checkInclude(includeDatasetResponses, datasetAlleleResponses, true_datasetAlleleResponses,
+                                                                       false_datasetAlleleResponses)
                                 }
         return beaconAlleleResponse
 
-
     @use_kwargs(args)
-    def post(self, referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, variantType,assemblyId, datasetIds , includeDatasetResponses):
-        '''
+    def post(self, referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, variantType, assemblyId, datasetIds,
+             includeDatasetResponses):
+        """
         The `post()` method runs the same code as the `get()´ method but uses the HTTP protocol `POST` instead. The main difference
         between the methods is that the parameters are not sent in the URL. This is more secure because the `GET` requests URLs get
         logged and if you use the `POST´ instead, you don't reveal the parameters that you query with.
@@ -300,7 +301,8 @@ class Beacon_query(Resource):
         :param startMin: Minimum start coordinate
 
                 - startMin + startMax + endMin + endMax:
-                - for querying imprecise positions (e.g. identifying all structural variants starting anywhere between `startMin` <-> `startMax`, and ending anywhere between `endMin` <-> `endMax`
+                - for querying imprecise positions (e.g. identifying all structural variants starting anywhere between `startMin` <-> `startMax`, and
+                 ending anywhere between `endMin` <-> `endMax`
                 - single or double sided precise matches can be achieved by setting `startMin` = `startMax` OR `endMin` = `endMax`
         :type startMax: Integer
         :param startMax: Maximum start coordinate. See `startMin`.
@@ -311,7 +313,9 @@ class Beacon_query(Resource):
         :type endMax: Integer
         :param endMax: Maximum end coordinate. See `startMin`.
         :type referenceBases: String
-        :param referenceBases: Reference bases for this variant (starting from `start`). Accepted values: [ACGT]* When querying for variants without specific base alterations (e.g. imprecise structural variants with separate variantType as well as startMin & endMin ... parameters), the use of a single "N" value is required. See the REF field in VCF 4.2 specification.
+        :param referenceBases: Reference bases for this variant (starting from `start`). Accepted values: [ACGT]* When querying for variants without
+         specific base alterations (e.g. imprecise structural variants with separate variantType as well as startMin & endMin ... parameters), the use
+          of a single "N" value is required. See the REF field in VCF 4.2 specification.
         :type alternateBases: String
         :param alternateBases: The bases that appear instead of the reference bases. Accepted values: [ACGT]* or N.
                 Symbolic ALT alleles (DEL, INS, DUP, INV, CNV, DUP:TANDEM, DEL:ME, INS:ME) will be represented in `variantType`.
@@ -323,16 +327,19 @@ class Beacon_query(Resource):
         :type assemblyId: String
         :param assemblyId: Assembly identifier
         :type datasetIds: String
-        :param datasetIds: Identifiers of data sets, as defined in `BeaconDataset`. In case assemblyId doesn't match requested dataset(s) error will be raised (400 Bad request). If this field is not specified, all datasets should be queried.
+        :param datasetIds: Identifiers of data sets, as defined in `BeaconDataset`. In case assemblyId doesn't match requested dataset(s) error will
+         be raised (400 Bad request). If this field is not specified, all datasets should be queried.
         :type includeDatasetResponses: String
-        :param includeDatasetResponses: Indicator of whether responses for individual data sets (`datasetAlleleResponses`) should be included in the response (`BeaconAlleleResponse`) to this request or not. If null (not specified), the default value of NONE is assumed.
+        :param includeDatasetResponses: Indicator of whether responses for individual data sets (`datasetAlleleResponses`) should be included in the
+         response (`BeaconAlleleResponse`) to this request or not. If null (not specified), the default value of NONE is assumed.
                 Accepted values : ['ALL', 'HIT', 'MISS', 'NONE']
         :type beaconAlleleResponse: Dict
         :return beaconAlleleResponse: The response that the user receives from the `Beacon`.
-        '''
+        """
         logging.info(' * POST request to beacon endpoit "/query"')
         logging.debug(
-            ' * Parameters recived:\nreferenceName: {}\nstart: {}\nstartMin: {}\nstartMax: {}\nend: {}\nendMin: {}\nendMax: {}\nreferenceBases: {}\nsalternateBasestart: {}\nvariantType: {}\nassemblyId: {}\ndatasetIds: {}\nincludeDatasetResponses: {}\n'.format(
+            ' * Parameters recived:\nreferenceName: {}\nstart: {}\nstartMin: {}\nstartMax: {}\nend: {}\nendMin: {}\nendMax: {}\nreferenceBases: \
+            {}\nsalternateBasestart: {}\nvariantType: {}\nassemblyId: {}\ndatasetIds: {}\nincludeDatasetResponses: {}\n'.format(
                 referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases,
                 variantType, assemblyId, datasetIds, includeDatasetResponses))
         error_ = BeaconError(referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases,
@@ -363,7 +370,7 @@ class Beacon_query(Resource):
 
         logging.debug(' * Authenticated: {}'.format(authenticated))
 
-        if authenticated == False:
+        if not authenticated:
             # If the user is not authenticated and the user didn't specify the data sets. Then the datasetIds will only
             # contain datasets with PUBLIC as accessType.
             if datasetIds == []:
@@ -401,32 +408,22 @@ class Beacon_query(Resource):
         # Fills the Beacon variable with the necessary info from the constructor function in beacon_info.
         Beacon = beacon_info.constructor()
         logging.info(' * Received parameters passed the checkParameters() function')
-        alleleRequest = {'referenceName': referenceName,
-                        'start': start,
-                        'startMin': startMin,
-                        'startMax': startMax,
-                        'end': end,
-                        'endMin': endMin,
-                        'endMax': endMax,
-                        'referenceBases': referenceBases,
-                        'alternateBases': alternateBases,
-                        'variantType': variantType,
-                        'assemblyId': assemblyId,
-                        'datasetIds': datasetIds,
-                        'includeDatasetResponses': includeDatasetResponses,
-                        }
+        alleleRequest = {'referenceName': referenceName, 'start': start, 'startMin': startMin, 'startMax': startMax, 'end': end, 'endMin': endMin,
+                         'endMax': endMax, 'referenceBases': referenceBases, 'alternateBases': alternateBases, 'variantType': variantType,
+                         'assemblyId': assemblyId, 'datasetIds': datasetIds, 'includeDatasetResponses': includeDatasetResponses}
+
         beaconAlleleResponse = {'beaconId': Beacon['id'],
                                 "apiVersion": Beacon['apiVersion'],
                                 'exists': checkifdatasetisTrue(datasetAlleleResponses),
                                 'error': None,
                                 'alleleRequest': alleleRequest,
-                                'datasetAlleleResponses': checkInclude(includeDatasetResponses, datasetAlleleResponses,
-                                                                      true_datasetAlleleResponses,
-                                                                      false_datasetAlleleResponses)
+                                'datasetAlleleResponses': checkInclude(includeDatasetResponses, datasetAlleleResponses, true_datasetAlleleResponses,
+                                                                       false_datasetAlleleResponses)
                                 }
         return beaconAlleleResponse
 
-api.add_resource(Beacon_query,'/query')
+
+api.add_resource(Beacon_query, '/query')
 
 if __name__ == '__main__':
     application.run(host=os.environ.get('HOST'), port=os.environ.get('PORT'), debug=os.environ.get('DEBUG'))

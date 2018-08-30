@@ -2,12 +2,13 @@ from flask import abort
 
 apiVersion = "1.0.0"
 beaconId = "ega-beacon"
+
+
 class BeaconError():
-    '''
-    Class for aborting the actions of the API if an error occurs.
-    '''
-    def __init__(self, referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, variantType, assemblyId, datasetIds, includeDatasetResponses):
-        '''
+    """Class for aborting the actions of the API if an error occurs."""
+    def __init__(self, referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, variantType, assemblyId, datasetIds,
+                 includeDatasetResponses):
+        """
         Initializes the `Beaconerror` object with the parameters that has been received from the users request.
 
         :type referenceName: String
@@ -26,7 +27,8 @@ class BeaconError():
         :param startMin: Minimum start coordinate
 
                 - startMin + startMax + endMin + endMax:
-                - for querying imprecise positions (e.g. identifying all structural variants starting anywhere between `startMin` <-> `startMax`, and ending anywhere between `endMin` <-> `endMax`
+                - for querying imprecise positions (e.g. identifying all structural variants starting anywhere between `startMin` <-> `startMax`, and ending
+                anywhere between `endMin` <-> `endMax`
                 - single or double sided precise matches can be achieved by setting `startMin` = `startMax` OR `endMin` = `endMax`
         :type startMax: Integer
         :param startMax: Maximum start coordinate. See `startMin`.
@@ -37,7 +39,9 @@ class BeaconError():
         :type endMax: Integer
         :param endMax: Maximum end coordinate. See `startMin`.
         :type referenceBases: String
-        :param referenceBases: Reference bases for this variant (starting from `start`). Accepted values: [ACGT]* When querying for variants without specific base alterations (e.g. imprecise structural variants with separate variantType as well as startMin & endMin ... parameters), the use of a single "N" value is required. See the REF field in VCF 4.2 specification.
+        :param referenceBases: Reference bases for this variant (starting from `start`). Accepted values: [ACGT]* When querying for variants without specific
+         base alterations (e.g. imprecise structural variants with separate variantType as well as startMin & endMin ... parameters), the use of a single
+          "N" value is required. See the REF field in VCF 4.2 specification.
         :type alternateBases: String
         :param alternateBases: The bases that appear instead of the reference bases. Accepted values: [ACGT]* or N.
                 Symbolic ALT alleles (DEL, INS, DUP, INV, CNV, DUP:TANDEM, DEL:ME, INS:ME) will be represented in `variantType`.
@@ -49,11 +53,13 @@ class BeaconError():
         :type assemblyId: String
         :param assemblyId: Assembly identifier
         :type datasetIds: String
-        :param datasetIds: Identifiers of data sets, as defined in `BeaconDataset`. In case assemblyId doesn't match requested dataset(s) error will be raised (400 Bad request). If this field is not specified, all datasets should be queried.
+        :param datasetIds: Identifiers of data sets, as defined in `BeaconDataset`. In case assemblyId doesn't match requested dataset(s) error will be
+        raised (400 Bad request). If this field is not specified, all datasets should be queried.
         :type includeDatasetResponses: String
-        :param includeDatasetResponses: Indicator of whether responses for individual data sets (`datasetAlleleResponses`) should be included in the response (`BeaconAlleleResponse`) to this request or not. If null (not specified), the default value of NONE is assumed.
+        :param includeDatasetResponses: Indicator of whether responses for individual data sets (`datasetAlleleResponses`) should be included in the
+        response (`BeaconAlleleResponse`) to this request or not. If null (not specified), the default value of NONE is assumed.
                 Accepted values : ['ALL', 'HIT', 'MISS', 'NONE']
-        '''
+        """
         self.referenceName = referenceName
         self.start = start
         self.startMin = startMin
@@ -68,21 +74,20 @@ class BeaconError():
         self.datasetIds = datasetIds
         self.includeDatasetResponses = includeDatasetResponses
 
-
     def bad_request(self, message):
-        '''
+        """
         The `bad_request()` method aborts the actions of the api and returns a 400 error code and a customised error message.
         The method is called if one of the required parameters are missing or invalid.
 
         :type message: String
         :param message: The error message.
-        '''
+        """
         abort(400, {'beaconId': beaconId,
                     "apiVersion": apiVersion,
                     'exists': None,
                     'error': {
                         'errorCode': 400,
-                        'errorMessage': message #'Bad request, missing mandatory parameter or the value is not valid!'
+                        'errorMessage': message  # 'Bad request, missing mandatory parameter or the value is not valid!'
                     },
                     'allelRequest': {'referenceName': self.referenceName,
                                      'start': self.start,
@@ -101,15 +106,14 @@ class BeaconError():
                     'datasetAllelResponses': []}
               )
 
-
     def unauthorised(self, message):
-        '''
+        """
         The `unauthorised()` method aborts the actions of the api and returns a 401 error code with a custom error message.
         The method is called if the user isn't registered or if the token from the authentication has expired.
 
         :type message: String
         :param message:
-        '''
+        """
         abort(401, {'beaconId': beaconId,
                     "apiVersion": apiVersion,
                     'exists': None,
@@ -135,14 +139,14 @@ class BeaconError():
               )
 
     def forbidden(self, message):
-        '''
+        """
         The `forbidden()` method aborts the actions of the api and returns a 403 error code with the error message
         `'Resource not granted for authenticated user or resource protected for all users.'`. The method is called if the dataset
         is protected or if the user is authenticated but not granted the resource.
 
         :type message: String
         :param message:
-        '''
+        """
         abort(403, {'beaconId': beaconId,
                     "apiVersion": apiVersion,
                     'exists': None,
@@ -166,4 +170,3 @@ class BeaconError():
                                      },
                     'datasetAllelResponses': []}
               )
-

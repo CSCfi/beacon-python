@@ -2,12 +2,12 @@ import models
 
 
 def constructor():
-    '''
+    """
     The `constructor()` function constructs the `Beacon` dict that the info end point will return.
 
     :type Beacon: Dict
     :return Beacon: A dict that contain all the information about the `Beacon`.
-    '''
+    """
     # Here are some example requests.
     BeaconAlleleRequest = [{
         "alternateBases": "A",
@@ -17,27 +17,25 @@ def constructor():
         "assemblyId": "GRCh37",
         "datasetIds": None,
         "includeDatasetResponses": False
-    },
-    {
+    }, {
         "alternateBases": "G",
         "referenceBases": "A",
         "referenceName": "1",
         "start": 14929,
         "assemblyId": "GRCh37",
         "datasetIds": [
-        "EGAD00000000028"
+            "EGAD00000000028"
         ],
-        "includeDatasetResponses": "ALL"
-    },
-    {
+        "includeDatasetResponses": "ALL"},
+        {
         "alternateBases": "CCCCT",
         "referenceBases": "C",
         "referenceName": "1",
         "start": 866510,
         "assemblyId": "GRCh37",
         "datasetIds": [
-        "EGAD00001000740",
-        "EGAD00001000741"
+            "EGAD00001000740",
+            "EGAD00001000741"
         ],
         "includeDatasetResponses": "HIT"
     }
@@ -70,7 +68,8 @@ def constructor():
     Organization = {
         'id': 'EGA',
         'name': 'European Genome-Phenome Archive (EGA)',
-        'description': 'The European Genome-phenome Archive (EGA) is a service for permanent archiving and sharing of all types of personally identifiable genetic and phenotypic data resulting from biomedical research projects.',
+        'description': 'The European Genome-phenome Archive (EGA) is a service for permanent archiving and sharing of all types of personally identifiable \
+        genetic and phenotypic data resulting from biomedical research projects.',
         'address': '',
         'welcomeUrl': 'https://ega-archive.org/',
         'contactUrl': 'mailto:beacon.ega@crg.eu',
@@ -83,7 +82,8 @@ def constructor():
         'name': 'EGA Beacon',
         'apiVersion': '1.0.0',
         'organization': Organization,
-        'description': 'This <a href=\"http://ga4gh.org/#/beacon\">Beacon</a> is based on the GA4GH Beacon <a href=\"https://github.com/ga4gh/beacon-team/blob/develop/src/main/resources/avro/beacon.avdl\">API 0.4</a>',
+        'description': 'This <a href=\"http://ga4gh.org/#/beacon\">Beacon</a> is based on the GA4GH Beacon\
+         <a href=\"https://github.com/ga4gh/beacon-team/blob/develop/src/main/resources/avro/beacon.avdl\">API 0.4</a>',
         'version': 'v1',
         'welcomeUrl': 'https://ega-archive.org/beacon_web/',
         'alternativeUrl': 'https://ega-archive.org/beacon_web/',
