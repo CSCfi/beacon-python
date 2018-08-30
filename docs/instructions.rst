@@ -36,7 +36,7 @@ An example ``GET`` request and response to the info endpoint:
 
 .. code:: shell
 
-   $ curl -v 'http://beaconapi-elixirbeacon.rahtiapp.fi/'
+   $ curl -v 'http//localhost'
 
 
 
