@@ -39,7 +39,7 @@ elif LOGGING_LVL == 'WARNING':
     logging.basicConfig(level=logging.WARNING, format='%(asctime)s:%(levelname)s:%(message)s')
 elif LOGGING_LVL == 'CRITICAL':
     logging.basicConfig(level=logging.CRITICAL, format='%(asctime)s:%(levelname)s:%(message)s')
- 
+
 
 from check_functions import *
 from error_handelers import BeaconError
