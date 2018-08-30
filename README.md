@@ -4,7 +4,7 @@
 
 ## Table of content
 - [About](#about)
-  * [What is a Beacon?](#what-is-a-beacon?)
+  * [What is a Beacon?](#what-is-a-beacon-)
 - [Requirements](#requirements)
 - [License](#license)
 - [Quick start](#quick-start)

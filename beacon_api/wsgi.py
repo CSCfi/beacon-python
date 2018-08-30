@@ -6,9 +6,9 @@ from webargs import fields
 from webargs.flaskparser import use_kwargs
 import jwt
 import logging
-#-----------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
 #                                   APPLICATION SET UPP AND CONFIGURATION
-#-----------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
 
 # Takes the url and the necessary info for the postgres server from the environmental variables and packs it into one
 # variable called DB_URL. The variable is then used to configure the application to connect to that database using
@@ -20,7 +20,7 @@ POSTGRES = {
     'database': os.environ.get('DATABASE_NAME'),
     'host': URL,
 }
-DB_URL = 'postgresql://{user}:{pw}@{url}/{db}'.format(user=POSTGRES['user'],pw=POSTGRES['password'],url=POSTGRES['host'],db=POSTGRES['database'])
+DB_URL = 'postgresql://{user}:{pw}@{url}/{db}'.format(user=POSTGRES['user'], pw=POSTGRES['password'], url=POSTGRES['host'], db=POSTGRES['database'])
 
 
 application = Flask(__name__)
@@ -46,22 +46,25 @@ from error_handelers import BeaconError
 import beacon_info
 from models import *
 
-# Creates the emptyDatasetIds database tables if they are not all ready created. The application doesen't need pre filled tables to
+# Creates the emptyDatasetIds database tables if they are not all ready created. The application doesen't need pre
+# filled tables to
 # work , but it does need the tables to exist.
 db.create_all()
 #
-#-----------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
 #                                         INFO END POINT OPERATIONS
-#-----------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
+
+
 class Beacon_get(Resource):
     '''
-    The Beacon_get class contains the operations for the "/" end point. The "/" end point only serves as an info endpoint.
-    It inherits properties from flask_restfuls Resource class.
+    The Beacon_get class contains the operations for the "/" end point. The "/" end point only serves as an info
+    endpoint. It inherits properties from flask_restfuls Resource class.
     '''
     def get(self):
         '''
-        The `get()` method in the `Beacon_get class` uses the HTTP protocol 'GET' to return a Json object of all the necessary
-        info on the beacon and the Api. It uses the '/' path and only serves an information giver.
+        The `get()` method in the `Beacon_get class` uses the HTTP protocol 'GET' to return a Json object of all the
+        necessary info on the beacon and the Api. It uses the '/' path and only serves an information giver.
 
         :type Beacon: Dict
         :return Beacon: The method returns the dict Beacon that was constructed in the constructor() function in beacon_info.py
@@ -72,15 +75,18 @@ class Beacon_get(Resource):
         print(type(Beacon))
         return Beacon
 
+
 api.add_resource(Beacon_get,'/')
-#-----------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
 #                                         QUERY END POINT OPERATIONS
-#-----------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
+
+
 class Beacon_query(Resource):
     '''
-    The `Beacon_query class` contains the operations for the `/query` end point. The `/query` end point handles the query's to the
-    database and is the end point from which most of the operations are done.
-    It inherits properties from flask_restful's Resource class.
+    The `Beacon_query class` contains the operations for the `/query` end point. The `/query` end point handles the
+    query's to the database and is the end point from which most of the operations are done. It inherits properties
+    from flask_restful's Resource class.
     '''
     # args takes in the request variables and sets them to the missing value if they are absent.
     args = {
@@ -123,7 +129,6 @@ class Beacon_query(Resource):
             missing='ALL',
         ),
     }
-
 
     @use_kwargs(args)
     def get(self, referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, variantType, assemblyId, datasetIds, includeDatasetResponses):
@@ -187,9 +192,9 @@ class Beacon_query(Resource):
         logging.debug(' * Parameters recived:\nreferenceName: {}\nstart: {}\nstartMin: {}\nstartMax: {}\nend: {}\nendMin: {}\nendMax: {}\nreferenceBases: {}\nsalternateBasestart: {}\nvariantType: {}\nassemblyId: {}\ndatasetIds: {}\nincludeDatasetResponses: {}\n'.format(referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, variantType, assemblyId, datasetIds, includeDatasetResponses))
         error_ = BeaconError(referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, variantType,assemblyId, datasetIds, includeDatasetResponses)
         emptyDatasetIds = False
-#-----------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
 #                                           AUTHENTICATION
-#-----------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
         # Variable to declare if the user is authenticated. Changed to true if the token sent in the request is valid.
         authenticated = False
         # gets the token from the request header.
@@ -235,9 +240,9 @@ class Beacon_query(Resource):
                     error_.unauthorised('User not authorized to access data set: {}'.format(set.name))
 
         logging.debug(' * The datasetIds list has now the following items : {}'.format(datasetIds))
-#-----------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
 #                            PARAMETER CHECKING AND RESPONSE CONSTRUCTION
-#-----------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
         datasetAlleleResponses, true_datasetAlleleResponses, false_datasetAlleleResponses, includeDatasetResponses = checkParameters(
             referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, variantType, assemblyId, datasetIds, includeDatasetResponses, error_)
 
@@ -333,9 +338,9 @@ class Beacon_query(Resource):
         error_ = BeaconError(referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases,
                              alternateBases, variantType, assemblyId, datasetIds, includeDatasetResponses)
         emptyDatasetIds = False
-#-----------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
 #                                           AUTHENTICATION
-#-----------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
         # Variable to declare if the user is authenticated. Changed to true if the token sent in the request is valid.
         authenticated = False
         # gets the token from the request header.
@@ -382,9 +387,9 @@ class Beacon_query(Resource):
                     error_.unauthorised('User not authorized to access data set: {}'.format(set.name))
 
         logging.debug(' * The datasetIds list has now the following items : {}'.format(datasetIds))
-#-----------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
 #                           PARAMETER CHECKING AND RESPONSE CONSTRUCTION
-#-----------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
         datasetAlleleResponses, true_datasetAlleleResponses, false_datasetAlleleResponses, includeDatasetResponses = checkParameters(
             referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, variantType,
             assemblyId, datasetIds, includeDatasetResponses, error_)
