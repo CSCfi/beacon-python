@@ -89,8 +89,19 @@ Install all the necessary dependencies to the virtual env from the `requirenment
 cd beacon-python
 pip3 install -r requirements.txt
 ```
+##### Environment Variables
+| ENV | Default | Description |
+| --- | --- | --- |
+| `DATABASE_URL` | `postgresql://localhost:5432` | The URL for the Postgres server where the database is served. |
+| `DATABASE_NAME` | `beacondb` | Name of the database. |
+| `DATABASE_USER` | `-` | Username configured for the database. |
+| `DATABASE_PASSWORD` | `-` | Password configured for the database. |
+| `HOST` | `0.0.0.0` | Host set for Flask in the wsgi file. |
+| `PORT` | `8080` | The port defined for Flask in wsgi file. |
+| `DEBUG` | `True` | If set to `True`, Flask will print events into the terminal. |
+| `LOGGING_LVL` | `DEBUG` | The logging level that will be set for the application. Can be: [`DEBUG`, `INFO`, `WARNIG`, `CRITICAL`] |
 
-Set the necessary environment varables. I you havent configured a user and a password for the database you should set them as 
+Set the necessary environment varables. If you haven't configured a user and a password for the database you should set them as 
 empty:
 ```
 $ export DATABASE_URL=postgresql://localhost:5432
@@ -137,7 +148,7 @@ $ python3
 ```
 Create the tables:
 ```python
->>> from app import db
+>>> from wsgi import db
 >>> db.create_all()
 ``` 
 
@@ -171,7 +182,7 @@ Then we load the `genomes` table with the files. Open `psql` in the command line
 ```Shell
 $ psql beacondb
 ```
-Copy the files into the table:
+Copy the files into the table(use the correct path):
 
 ```SQL
 beacondb=# COPY genomes FROM '/opt/app-root/files/set1.csv' DELIMITER ';' CSV;
@@ -484,13 +495,21 @@ $ curl -v 'http://localhost:5000/query?referenceName=1&start=2947892&referenceBa
 
 ```text
 beacon-python
+├─requirements.txt
+├─docs
+├─.gitignore
+├─README.md
+├─beacon.md
 ├─beacon_api
 |   ├─beacon_info.py
 |   ├─check_functions.py
 |   ├─error_handelers.py
 |   ├─models.py
-|   ├─requirements.txt
 |   └─wsgi.py
+├─data
+|   ├─dataset1.csv
+|   ├─dataset2.csv
+|   └─dataset3.csv
 └─test
     ├─test-expected_outcome-py
     ├─test_get_200.py
