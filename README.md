@@ -223,13 +223,14 @@ INSERT INTO beacon_dataset_table (name, description, assemblyId, createDateTime,
 
 You can also fill the `genomes` table using the `load_data_table()` function aswell. This function 
 will fill in the `id` automatically so then you shouldn't use a file where you have added the `id` numbers.
+For example `dataset1.csv`.
 
 ```python
 from models import load_data_table
 
-load_data_table('set1.csv')
-load_data_table('set2.csv')
-load_data_table('set3.csv')
+load_data_table('dataset1.csv')
+load_data_table('dataset2.csv')
+load_data_table('dataset3.csv')
 ```
 
 ## Using the application
