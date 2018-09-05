@@ -1,36 +1,19 @@
-from flask import request, Flask
+from flask import request
 import os
-from flask_sqlalchemy import SQLAlchemy
-from flask_restful import Api, Resource
+from flask_restful import Resource
 from webargs import fields
 from webargs.flaskparser import use_kwargs
 import jwt
 import logging
-# ----------------------------------------------------------------------------------------------------------------------
-#                                   APPLICATION SET UPP AND CONFIGURATION
-# ----------------------------------------------------------------------------------------------------------------------
 
-# Takes the url and the necessary info for the postgres server from the environmental variables and packs it into one
-# variable called DB_URL. The variable is then used to configure the application to connect to that database using
-# SQLAlchemy.
-URL = os.environ.get('DATABASE_URL').split('/')[2]
-POSTGRES = {
-    'user': os.environ.get('DATABASE_USER'),
-    'password': os.environ.get('DATABASE_PASSWORD'),
-    'database': os.environ.get('DATABASE_NAME'),
-    'host': URL,
-}
-DB_URL = 'postgresql://{user}:{pw}@{url}/{db}'.format(user=POSTGRES['user'], pw=POSTGRES['password'], url=POSTGRES['host'], db=POSTGRES['database'])
-
-
-application = Flask(__name__)
-application.config['SQLALCHEMY_DATABASE_URI'] = DB_URL
-application.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db = SQLAlchemy(application)
-api = Api(application)
+from conf.config import application, api, db
+from utils.models import Beacon_dataset_table
+from utils.check_functions import checkParameters, checkifdatasetisTrue, checkInclude
+from utils.error_handelers import BeaconError
+from utils.beacon_info import constructor
 
 # Sets the logging level from environmental variable.
-LOGGING_LVL = os.environ.get('LOGGING_LVL')
+LOGGING_LVL = os.environ.get('LOGGING_LVL', 'DEBUG')
 if LOGGING_LVL == 'DEBUG':
     logging.basicConfig(level=logging.DEBUG, format='%(asctime)s:%(levelname)s:%(message)s')
 elif LOGGING_LVL == 'INFO':
@@ -39,12 +22,6 @@ elif LOGGING_LVL == 'WARNING':
     logging.basicConfig(level=logging.WARNING, format='%(asctime)s:%(levelname)s:%(message)s')
 elif LOGGING_LVL == 'CRITICAL':
     logging.basicConfig(level=logging.CRITICAL, format='%(asctime)s:%(levelname)s:%(message)s')
-
-
-from check_functions import *
-from error_handelers import BeaconError
-import beacon_info
-from models import *
 
 # Creates the emptyDatasetIds database tables if they are not all ready created. The application doesen't need pre
 # filled tables to
@@ -58,21 +35,22 @@ db.create_all()
 
 class Beacon_get(Resource):
     """
-    The Beacon_get class contains the operations for the "/" end point. The "/" end point only serves as an info
-    endpoint. It inherits properties from flask_restfuls Resource class.
+    The Beacon_get class contains the operations for the "/" end point. The "/" end point only serves as an info endpoint.
+
+    It inherits properties from flask_restfuls Resource class.
     """
+
     def get(self):
         """
-        The `get()` method in the `Beacon_get class` uses the HTTP protocol 'GET' to return a Json object of all the
-        necessary info on the beacon and the Api. It uses the '/' path and only serves an information giver.
+        Use the HTTP protocol 'GET' to return a Json object of all the necessary info on the beacon and the API.
+
+        It uses the '/' path and only serves an information giver.
 
         :type Beacon: Dict
         :return Beacon: The method returns the dict Beacon that was constructed in the constructor() function in beacon_info.py
         """
-
         logging.info(' * Get request to beacon end poit "/"')
-        Beacon = beacon_info.constructor()
-        print(type(Beacon))
+        Beacon = constructor()
         return Beacon
 
 
@@ -84,10 +62,12 @@ api.add_resource(Beacon_get, '/')
 
 class Beacon_query(Resource):
     """
-    The `Beacon_query class` contains the operations for the `/query` end point. The `/query` end point handles the
-    query's to the database and is the end point from which most of the operations are done. It inherits properties
-    from flask_restful's Resource class.
+    The `Beacon_query class` contains the operations for the `/query` end point.
+
+    The `/query` end point handles the query's to the database and is the end point from which most of the operations are done.
+    It inherits properties from flask_restful's Resource class.
     """
+
     # args takes in the request variables and sets them to the missing value if they are absent.
     args = {
         'referenceName': fields.Str(
@@ -129,12 +109,41 @@ class Beacon_query(Resource):
         ),
     }
 
+    def _token_auth(authHeader, error_):
+        """Check if token if valid and authenticate.
+
+        :type authHeader:
+        :param authHeader:  Value of `request.headers.get('Authorization')`.
+        :type error_:
+        :param error_:  BeaconError object `error_` so it can use it's error handlers.
+
+        :return authenticated: Return a boolean value of `True` or `False` to validate authentication.
+        """
+        authenticated = False
+        try:
+            # The second item is the token.
+            token = authHeader.split(' ')[1]
+            key = os.environ.get('PUBLIC_KEY').replace(r'\n', '\n')
+            logging.debug(' * TOKEN: {}'.format(token))
+            logging.debug(' * KEY: {}'.format(key))
+            decodeData = jwt.decode(token, key, algorithms=['RS256'])
+            authenticated = True
+            logging.debug(' * Token payload: {}'.format(decodeData))
+        except Exception:
+            # If an exception accures when decoding the token --> the token is invalid or expired, then the error
+            # message will be sent in the response.
+            logging.warning(' * * * 401 ERROR MESSAGE: Authorization failed, token invalid.')
+            error_.unauthorised('Authorization failed, token invalid.')
+        finally:
+            return authenticated
+
     @use_kwargs(args)
     def get(self, referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, variantType, assemblyId, datasetIds,
             includeDatasetResponses):
         """
-        The `get()` method of the `Beacon_query class` gets it's parameters from the `@use_kwargs(args)` decorator and uses the HTTP
-        protocol `GET` to return a Json object. The object contains the `alleleRequest` that was submitted, the `datasetAlleleResponse`
+        Retrieve it's parameters from the `@use_kwargs(args)` decorator and uses the HTTP protocol `GET` to return a Json object.
+
+        The object contains the `alleleRequest` that was submitted, the `datasetAlleleResponse`
         that was received, some general info on the api and the parameter `exists`. The exists parameter is the answer from the
         query that tells the user if the allele was found or not.
         But first the methods creates the BeaconError object `error_` so it can use it's error handlers. Then it checks that the
@@ -209,20 +218,7 @@ class Beacon_query(Resource):
         # gets the token from the request header.
         authHeader = request.headers.get('Authorization')
         if authHeader:
-            try:
-                # The second item is the token.
-                token = authHeader.split(' ')[1]
-                key = os.environ.get('PUBLIC_KEY').replace(r'\n', '\n')
-                logging.debug(' * TOKEN: {}'.format(token))
-                logging.debug(' * KEY: {}'.format(key))
-                decodeData = jwt.decode(token, key, algorithms=['RS256'])
-                authenticated = True
-                logging.debug(' * Token payload: {}'.format(decodeData))
-            except Exception as error:
-                # If an exception accures when decoding the token --> the token is invalid or expired, then the error
-                # message will be sent in the response.
-                logging.warning(' * * * 401 ERROR MESSAGE: Authorization failed, token invalid.')
-                error_.unauthorised('Authorization failed, token invalid.')
+            authenticated = self._token_auth(authHeader, error_)
 
         logging.debug(' * Authenticated: {}'.format(authenticated))
 
@@ -261,7 +257,7 @@ class Beacon_query(Resource):
             datasetIds = []
 
         # Fills the Beacon variable with the necessary info from the constructor function in beacon_info.
-        Beacon = beacon_info.constructor()
+        Beacon = constructor()
         logging.info(' * Received parameters passed the checkParameters() function')
         alleleRequest = {'referenceName': referenceName, 'start': start, 'startMin': startMin, 'startMax': startMax, 'end': end, 'endMin': endMin,
                          'endMax': endMax, 'referenceBases': referenceBases, 'alternateBases': alternateBases, 'variantType': variantType,
@@ -281,9 +277,10 @@ class Beacon_query(Resource):
     def post(self, referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, variantType, assemblyId, datasetIds,
              includeDatasetResponses):
         """
-        The `post()` method runs the same code as the `get()´ method but uses the HTTP protocol `POST` instead. The main difference
-        between the methods is that the parameters are not sent in the URL. This is more secure because the `GET` requests URLs get
-        logged and if you use the `POST´ instead, you don't reveal the parameters that you query with.
+        Run the same code as the `get()´ method but uses the HTTP protocol `POST` instead.
+
+        The main difference between the methods is that the parameters are not sent in the URL.
+        This is more secure because the `GET` requests URLs get logged and if you use the `POST´ instead, you don't reveal the parameters that you query with.
 
         :type referenceName: String
         :param referenceName: Reference name (chromosome). Accepting values 1-22, X, Y so follows Ensembl chromosome naming convention.
@@ -353,20 +350,7 @@ class Beacon_query(Resource):
         # gets the token from the request header.
         authHeader = request.headers.get('Authorization')
         if authHeader:
-            try:
-                # The second item is the token.
-                token = authHeader.split(' ')[1]
-                key = os.environ.get('PUBLIC_KEY').replace(r'\n', '\n')
-                logging.debug(' * TOKEN: {}'.format(token))
-                logging.debug(' * KEY: {}'.format(key))
-                decodeData = jwt.decode(token, key, algorithms=['RS256'])
-                authenticated = True
-                logging.debug(' * Token payload: {}'.format(decodeData))
-            except Exception as error:
-                # If an exception accures when decoding the token --> the token is invalid or expired, then the error
-                # message will be sent in the response.
-                logging.warning(' * * * 401 ERROR MESSAGE: Authorization failed, token invalid.')
-                error_.unauthorised('Authorization failed, token invalid.')
+            authenticated = self._token_auth(authHeader, error_)
 
         logging.debug(' * Authenticated: {}'.format(authenticated))
 
@@ -406,7 +390,7 @@ class Beacon_query(Resource):
             datasetIds = []
 
         # Fills the Beacon variable with the necessary info from the constructor function in beacon_info.
-        Beacon = beacon_info.constructor()
+        Beacon = constructor()
         logging.info(' * Received parameters passed the checkParameters() function')
         alleleRequest = {'referenceName': referenceName, 'start': start, 'startMin': startMin, 'startMax': startMax, 'end': end, 'endMin': endMin,
                          'endMax': endMax, 'referenceBases': referenceBases, 'alternateBases': alternateBases, 'variantType': variantType,
@@ -426,4 +410,4 @@ class Beacon_query(Resource):
 api.add_resource(Beacon_query, '/query')
 
 if __name__ == '__main__':
-    application.run(host=os.environ.get('HOST'), port=os.environ.get('PORT'), debug=os.environ.get('DEBUG'))
+    application.run(host=os.environ.get('HOST', '0.0.0.0'), port=os.environ.get('PORT', '8080'), debug=os.environ.get('DEBUG', True))

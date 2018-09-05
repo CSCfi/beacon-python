@@ -1,9 +1,9 @@
-import models
+from utils.models import Beacon_dataset_table
 
 
 def constructor():
     """
-    The `constructor()` function constructs the `Beacon` dict that the info end point will return.
+    Construct the `Beacon` dict that the info end point will return.
 
     :type Beacon: Dict
     :return Beacon: A dict that contain all the information about the `Beacon`.
@@ -42,7 +42,7 @@ def constructor():
     ]
 
     BeaconDataset = []
-    dbObject = models.Beacon_dataset_table
+    dbObject = Beacon_dataset_table
     # List of all the rows in the beacon_dataset_table
     dbTable = dbObject.query.all()
 

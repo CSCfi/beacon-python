@@ -1,13 +1,13 @@
 import logging
-import beacon_info
+from utils.beacon_info import constructor
 import psycopg2
 import os
 
 
 def position(start, end, startMin, startMax, endMin, endMax):
-    """
-    The `position()` function checks the values of the position parameters (start, startMin, startMax, end, endMain, endMax)
-    and returns a position list `pos` that depending on the submitted parameters, either have one, two or four items.
+    """Check the values of the position parameters (start, startMin, startMax, end, endMain, endMax).
+
+    The `position()` function returns a position list `pos` that depending on the submitted parameters, either have one, two or four items.
 
     :type start: Integer
     :param start: The parameter `start` given in the request.
@@ -45,9 +45,9 @@ def position(start, end, startMin, startMax, endMin, endMax):
 
 
 def alleleFind(datasetId, chromosome, position, allele, variantType):
-    """
-    The `alleleFind()` function queries the database with the submitted parameters and checks if it finds the allele in the right place.
-    It returns True if found and False if not. It also returns the object to the row that was queried in the database.
+    """Query the database with the submitted parameters and checks if it finds the allele in the right place.
+
+    The `alleleFind()` function returns True if found and False if not. It also returns the object to the row that was queried in the database.
 
     :type datasetId: String
     :param datasetId: The name of the data set.
@@ -124,8 +124,9 @@ def alleleFind(datasetId, chromosome, position, allele, variantType):
 
 def datasetAlleleResponseBuilder(datasetId, referenceName, pos, alternateBases, variantType, BeaconDataset):
     """
-    The `datasetAlleleResponseBuilder()` function calls the `alleleFind()` function and receives the answer to the exist parameter
-    and the database object to the row in the database. If `exists` == False the function sets the `variantCount`, `sampleCount`,
+    Call the `alleleFind()` function and receives the answer to the exist parameter and the database object to the row in the database.
+
+    If `exists` == False the function sets the `variantCount`, `sampleCount`,
     `callCount` and `frequency` to 0. And if `exists` == True the function gets the parameter values from the database.
 
     :type datasetId: String
@@ -181,7 +182,8 @@ def datasetAlleleResponseBuilder(datasetId, referenceName, pos, alternateBases, 
 def checkParameters(referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, variantType, assemblyId, datasetIds,
                     includeDatasetResponses, error_):
     """
-    The `checkParameters()` function validates the submitted parameters values and checks if required parameters are missing.
+    Validate the submitted parameters values and checks if required parameters are missing.
+
     It calls the appropriate `BeaconError` method if something is wrong.
 
     :type referenceName: String
@@ -242,15 +244,16 @@ def checkParameters(referenceName, start, startMin, startMax, end, endMin, endMa
     :type includeDatasetResponses: String
     :return includeDatasetResponses: The `includeDatasetResponses` from the request.
     """
-
-    refname = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', 'X', 'Y']
+    refname = ['1', '2', '3', '4', '5', '6', '7', '8', '9',
+               '10', '11', '12', '13', '14', '15', '16',
+               '17', '18', '19', '20', '21', '22', 'X', 'Y']
     datasetresponses = ['ALL', 'HIT', 'MISS', 'NONE']
     assembliIds = ['GRCh37', 'GRCh38', 'grch37', 'grch38']
     Bases = ['A', 'C', 'G', 'T', 'N', '0']  # The Zero is there to validate that it is missing
     variantTypes = ['DEL', 'INS', 'DUP', 'INV', 'CNV', 'SNP', 'DUP:TANDEM', 'DEL:ME', 'INS:ME']
     datasetAlleleResponses = []
     datasetIds_list = []
-    Beacon = beacon_info.constructor()
+    Beacon = constructor()
     BeaconDataset = Beacon['dataset']
     for dset in BeaconDataset:
         datasetIds_list.append(dset['name'])
@@ -371,7 +374,7 @@ def checkParameters(referenceName, start, startMin, startMax, end, endMin, endMa
 
 def checkifdatasetisTrue(datasets):
     """
-    The `checkifdatasetisTrue()` function checks the individual data sets and returns True if any of the data sets have exists == True.
+    Check the individual data sets and returns True if any of the data sets have exists == True.
 
     :type datasets: Dict
     :param datasets: Dict of the response from the data set.
@@ -385,7 +388,7 @@ def checkifdatasetisTrue(datasets):
 
 def checkInclude(includeDatasetResponses, alldatasets, trurdatasets, falsedatasets):
     """
-    The function returns those data set responses that the `includeDatasetResponses` parameter decides.
+    Return those data set responses that the `includeDatasetResponses` parameter decides.
 
     :type includeDatasetResponses: String
     :param includeDatasetResponses: The `includeDatasetResponses` from the request.

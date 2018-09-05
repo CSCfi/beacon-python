@@ -1,0 +1,8 @@
+Flask
+SQLAlchemy
+Flask-SQLAlchemy
+Flask-RESTful
+webargs
+PyJWT
+psycopg2
+psycopg2-binary

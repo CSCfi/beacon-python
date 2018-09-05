@@ -1,15 +1,16 @@
 from flask import abort
 
-apiVersion = "1.0.0"
-beaconId = "ega-beacon"
+__apiVersion__ = "1.0.0"
+__beaconId__ = "ega-beacon"
 
 
 class BeaconError():
     """Class for aborting the actions of the API if an error occurs."""
+
     def __init__(self, referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, variantType, assemblyId, datasetIds,
                  includeDatasetResponses):
         """
-        Initializes the `Beaconerror` object with the parameters that has been received from the users request.
+        Initialize the `Beaconerror` object with the parameters that has been received from the users request.
 
         :type referenceName: String
         :param referenceName: Reference name (chromosome). Accepting values 1-22, X, Y so follows Ensembl chromosome naming convention.
@@ -76,14 +77,15 @@ class BeaconError():
 
     def bad_request(self, message):
         """
-        The `bad_request()` method aborts the actions of the api and returns a 400 error code and a customised error message.
+        Stop the actions of the api and returns a 400 error code and a customised error message.
+
         The method is called if one of the required parameters are missing or invalid.
 
         :type message: String
         :param message: The error message.
         """
-        abort(400, {'beaconId': beaconId,
-                    "apiVersion": apiVersion,
+        abort(400, {'beaconId': __beaconId__,
+                    "apiVersion": __apiVersion__,
                     'exists': None,
                     'error': {
                         'errorCode': 400,
@@ -108,14 +110,15 @@ class BeaconError():
 
     def unauthorised(self, message):
         """
-        The `unauthorised()` method aborts the actions of the api and returns a 401 error code with a custom error message.
+        Stop the actions of the api and returns a 401 error code with a custom error message.
+
         The method is called if the user isn't registered or if the token from the authentication has expired.
 
         :type message: String
         :param message:
         """
-        abort(401, {'beaconId': beaconId,
-                    "apiVersion": apiVersion,
+        abort(401, {'beaconId': __beaconId__,
+                    "apiVersion": __apiVersion__,
                     'exists': None,
                     'error': {
                         'errorCode': 401,
@@ -140,15 +143,16 @@ class BeaconError():
 
     def forbidden(self, message):
         """
-        The `forbidden()` method aborts the actions of the api and returns a 403 error code with the error message
+        Stop the actions of the api and returns a 403 error code with the error message.
+
         `'Resource not granted for authenticated user or resource protected for all users.'`. The method is called if the dataset
         is protected or if the user is authenticated but not granted the resource.
 
         :type message: String
         :param message:
         """
-        abort(403, {'beaconId': beaconId,
-                    "apiVersion": apiVersion,
+        abort(403, {'beaconId': __beaconId__,
+                    "apiVersion": __apiVersion__,
                     'exists': None,
                     'error': {
                         'errorCode': 403,
