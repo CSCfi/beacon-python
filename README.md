@@ -24,6 +24,7 @@
     + [Examples](#examples-1)
 - [Further information](#further-information)
   * [Project structure](#project-structure)
+  * [Testing](#testing)
 
 ## About
 
@@ -259,11 +260,11 @@ Response:
 #### Examples
 An example `GET` request and response to the info endpoint:
 
-```Shell
+```
 $ curl -v 'http://localhost:8080'
 ```
 
-```Shell
+```
 * Trying 127.0.0.1...
 * TCP_NODELAY set
 * Connected to http://localhost (127.0.0.1) port 8080 (#0)
@@ -394,11 +395,11 @@ $ curl -v 'http://localhost:8080'
 
 Example of how to use the GET method in the `/query` endpoint:
 
-```Shell
+```
 $ curl -v 'http://localhost:8080/query?referenceName=1&start=2947892&referenceBases=A&alternateBases=G&variantType=SNP&assemblyId=GRCh37&includeDatasetResponses=ALL'
 ```
 
-```Shell
+```
 * Trying 127.0.0.1...
 * TCP_NODELAY set
 * Connected to http://localhost (127.0.0.1) port 8080 (#0)
@@ -503,4 +504,11 @@ beacon-python
 │   ├── requirements.txt
 │   └── test_wsgi.py
 └── tox.ini
+```
+
+### Testing
+
+In order to run the unit tests and [flake8](http://flake8.pycqa.org/en/latest/) we are using [tox](https://tox.readthedocs.io):
+```
+$ tox
 ```
