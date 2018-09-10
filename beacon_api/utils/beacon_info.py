@@ -1,4 +1,4 @@
-from utils.models import Beacon_dataset_table
+from .models import Beacon_dataset_table
 
 
 def constructor():

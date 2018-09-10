@@ -6,11 +6,11 @@ from webargs.flaskparser import use_kwargs
 import jwt
 import logging
 
-from conf.config import application, api, db
-from utils.models import Beacon_dataset_table
-from utils.check_functions import checkParameters, checkifdatasetisTrue, checkInclude
-from utils.error_handelers import BeaconError
-from utils.beacon_info import constructor
+from .conf.config import application, api, db
+from .utils.models import Beacon_dataset_table
+from .utils.check_functions import checkParameters, checkifdatasetisTrue, checkInclude
+from .utils.error_handelers import BeaconError
+from .utils.beacon_info import constructor
 
 # Sets the logging level from environmental variable.
 LOGGING_LVL = os.environ.get('LOGGING_LVL', 'DEBUG')
@@ -409,5 +409,13 @@ class Beacon_query(Resource):
 
 api.add_resource(Beacon_query, '/query')
 
+
+def main():
+    """Run the flask API for beacon."""
+    application.run(host=os.environ.get('HOST', '0.0.0.0'),
+                    port=os.environ.get('PORT', '8080'),
+                    debug=os.environ.get('DEBUG', True))
+
+
 if __name__ == '__main__':
-    application.run(host=os.environ.get('HOST', '0.0.0.0'), port=os.environ.get('PORT', '8080'), debug=os.environ.get('DEBUG', True))
+    main()

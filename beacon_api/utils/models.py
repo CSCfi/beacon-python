@@ -1,6 +1,6 @@
 import csv
 import datetime
-from conf.config import db
+from ..conf.config import db
 
 
 # NOTE: if beacon_dataset_table is not filled the query wont know about the right datasets.

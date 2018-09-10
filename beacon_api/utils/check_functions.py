@@ -1,5 +1,5 @@
 import logging
-from utils.beacon_info import constructor
+from .beacon_info import constructor
 import psycopg2
 import os
 
@@ -179,6 +179,126 @@ def datasetAlleleResponseBuilder(datasetId, referenceName, pos, alternateBases, 
     return datasetAlleleResponse
 
 
+def _check_start_end(start, startMin, startMax, end, endMin, endMax, error_):
+    """Check for start and end, respectivly min and max.
+
+    :type start: Integer
+    :param start:
+            I. START ONLY:
+
+            - for single positions, e.g. the `start` of a specified sequence alteration where the size is given through the specified `alternateBases`
+            - typical use are queries for SNV and small InDels
+            - the use of `start` without an `end` parameter requires the use of `referenceBases`
+            II. START AND END:
+
+            - special use case for exactly determined structural changes
+    :type startMin: Integer
+    :param startMin: Minimum start coordinate
+            - startMin + startMax + endMin + endMax:
+            - for querying imprecise positions (e.g. identifying all structural variants starting anywhere between `startMin` <-> `startMax`,
+            and ending anywhere between `endMin` <-> `endMax`
+            - single or double sided precise matches can be achieved by setting `startMin` = `startMax` OR `endMin` = `endMax`
+    :type startMax: Integer
+    :param startMax: Maximum start coordinate. See `startMin`.
+    :type end: Integer
+    :param end: Precise end coordinate. See `start`.
+    :type endMin: Integer
+    :param endMin: Minimum end coordinate. See `startMin`.
+    :type endMax: Integer
+    :param endMax: Maximum end coordinate. See `startMin`.
+    :type error_: Object
+    :param error_: Error object for the error handler.
+    """
+    if start == 0:
+        if startMin == 0:
+            logging.warning(' * ERROR BAD REQUEST: Missing mandatory parameter start or startMin')
+            error_.bad_request('Missing mandatory parameter start or startMin')
+    # check if the positional arguments are valid
+    elif start < 0:
+        logging.warning(' * ERROR BAD REQUEST: start not valid')
+        error_.bad_request('start not valid')
+    if startMin < 0:
+        logging.warning(' * ERROR BAD REQUEST: startMin not valid')
+        error_.bad_request('startMin not valid')
+    if startMax < 0:
+        logging.warning(' * ERROR BAD REQUEST: startMax not valid')
+        error_.bad_request('startMax not valid')
+    if endMin < 0:
+        logging.warning(' * ERROR BAD REQUEST: endMin not valid')
+        error_.bad_request('endMin not valid')
+    if endMax < 0:
+        logging.warning(' * ERROR BAD REQUEST: endMax not valid')
+        error_.bad_request('endMax not valid')
+    if end < 0:
+        logging.warning(' * ERROR BAD REQUEST: end not valid')
+        error_.bad_request('end not valid')
+
+
+def _check_basses(referenceBases, alternateBases, variantType, error_):
+    """Check for reference and alternate Bases.
+
+    :type referenceBases: String
+    :param referenceBases: Reference bases for this variant (starting from `start`). Accepted values: [ACGT]* When querying for variants without specific base
+     alterations (e.g. imprecise structural variants with separate variantType as well as startMin & endMin ... parameters), the use of a single "N" value is
+     required. See the REF field in VCF 4.2 specification.
+    :type alternateBases: String
+    :param alternateBases: The bases that appear instead of the reference bases. Accepted values: [ACGT]* or N.
+            Symbolic ALT alleles (DEL, INS, DUP, INV, CNV, DUP:TANDEM, DEL:ME, INS:ME) will be represented in `variantType`.
+            See the ALT field in VCF 4.2 specification
+            Either `alternateBases` OR `variantType` is REQUIRED
+    :type variantType: String
+    :param variantType: The `variantType` is used to denote e.g. structural variants.
+            Either `alternateBases´ OR `variantType` is REQUIRED
+    :type error_: Object
+    :param error_: Error object for the error handler.
+    """
+    Bases = ['A', 'C', 'G', 'T', 'N', '0']  # The Zero is there to validate that it is missing
+    variantTypes = ['DEL', 'INS', 'DUP', 'INV', 'CNV', 'SNP', 'DUP:TANDEM', 'DEL:ME', 'INS:ME']
+    # check if referenceBases parameter is missing
+    if referenceBases == '0':
+        logging.warning(' * ERROR BAD REQUEST: Missing mandatory parameter referenceBases')
+        error_.bad_request('Missing mandatory parameter referenceBases')
+    # check if the string items in the referenceBases are valid
+    for nucleotide2 in referenceBases:
+        if nucleotide2 not in Bases:
+            logging.warning(' * ERROR BAD REQUEST: referenceBases not valid')
+            error_.bad_request('referenceBases not valid')
+
+    # check if alternateBases parameter is missing
+    if alternateBases == '0':
+        # if alternateBases is missing, check if variantType is missing
+        if variantType == '0':
+            logging.warning(' * ERROR BAD REQUEST: Missing mandatory parameter alternateBases or variantType')
+            error_.bad_request('Missing mandatory parameter alternateBases or variantType')
+        # check if variantType parameter is valid
+        elif variantType not in variantTypes:
+            logging.warning(' * ERROR BAD REQUEST: variantType not valid')
+            error_.bad_request('variantType not valid')
+    # check if the string items in the alternateBases are valid
+    for nucleotide1 in alternateBases:
+        if nucleotide1 not in Bases:
+            logging.warning(' * ERROR BAD REQUEST: alternateBases not valid')
+            error_.bad_request('alternateBases not valid')
+
+
+def _check_assembly(assemblyId, error_):
+    """Check assembly identifier.
+
+    :type assemblyId: String
+    :param assemblyId: Assembly identifier.
+    :type error_: Object
+    :param error_: Error object for the error handler.
+    """
+    assembliIds = ['GRCh37', 'GRCh38', 'grch37', 'grch38']
+    if assemblyId == '0':
+        logging.warning(' * ERROR BAD REQUEST: Missing mandatory parameter assemblyId')
+        error_.bad_request('Missing mandatory parameter assemblyId')
+    # check if assemblyId parameter is valid
+    elif assemblyId not in assembliIds:
+        logging.warning(' * ERROR BAD REQUEST: assemblyId not valid')
+        error_.bad_request('assemblyId not valid')
+
+
 def checkParameters(referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, variantType, assemblyId, datasetIds,
                     includeDatasetResponses, error_):
     """
@@ -225,7 +345,7 @@ def checkParameters(referenceName, start, startMin, startMax, end, endMin, endMa
     :param variantType: The `variantType` is used to denote e.g. structural variants.
             Either `alternateBases´ OR `variantType` is REQUIRED
     :type assemblyId: String
-    :param assemblyId: Assembly identifier
+    :param assemblyId: Assembly identifier.
     :type datasetIds: String
     :param datasetIds: Identifiers of data sets, as defined in `BeaconDataset`. In case assemblyId doesn't match requested dataset(s) error will be raised
     (400 Bad request). If this field is not specified, all datasets should be queried.
@@ -248,9 +368,6 @@ def checkParameters(referenceName, start, startMin, startMax, end, endMin, endMa
                '10', '11', '12', '13', '14', '15', '16',
                '17', '18', '19', '20', '21', '22', 'X', 'Y']
     datasetresponses = ['ALL', 'HIT', 'MISS', 'NONE']
-    assembliIds = ['GRCh37', 'GRCh38', 'grch37', 'grch38']
-    Bases = ['A', 'C', 'G', 'T', 'N', '0']  # The Zero is there to validate that it is missing
-    variantTypes = ['DEL', 'INS', 'DUP', 'INV', 'CNV', 'SNP', 'DUP:TANDEM', 'DEL:ME', 'INS:ME']
     datasetAlleleResponses = []
     datasetIds_list = []
     Beacon = constructor()
@@ -274,64 +391,13 @@ def checkParameters(referenceName, start, startMin, startMax, end, endMin, endMa
         error_.bad_request('referenceName not valid')
 
     # check if start/startMin parameter is missing
-    if start == 0:
-        if startMin == 0:
-            logging.warning(' * ERROR BAD REQUEST: Missing mandatory parameter start or startMin')
-            error_.bad_request('Missing mandatory parameter start or startMin')
-    # check if the positional arguments are valid
-    elif start < 0:
-        logging.warning(' * ERROR BAD REQUEST: start not valid')
-        error_.bad_request('start not valid')
-    if startMin < 0:
-        logging.warning(' * ERROR BAD REQUEST: startMin not valid')
-        error_.bad_request('startMin not valid')
-    if startMax < 0:
-        logging.warning(' * ERROR BAD REQUEST: startMax not valid')
-        error_.bad_request('startMax not valid')
-    if endMin < 0:
-        logging.warning(' * ERROR BAD REQUEST: endMin not valid')
-        error_.bad_request('endMin not valid')
-    if endMax < 0:
-        logging.warning(' * ERROR BAD REQUEST: endMax not valid')
-        error_.bad_request('endMax not valid')
-    if end < 0:
-        logging.warning(' * ERROR BAD REQUEST: end not valid')
-        error_.bad_request('end not valid')
+    _check_start_end(start, startMin, startMax, end, endMin, endMax, error_)
 
-    # check if referenceBases parameter is missing
-    if referenceBases == '0':
-        logging.warning(' * ERROR BAD REQUEST: Missing mandatory parameter referenceBases')
-        error_.bad_request('Missing mandatory parameter referenceBases')
-    # check if the string items in the referenceBases are valid
-    for nucleotide2 in referenceBases:
-        if nucleotide2 not in Bases:
-            logging.warning(' * ERROR BAD REQUEST: referenceBases not valid')
-            error_.bad_request('referenceBases not valid')
-
-    # check if alternateBases parameter is missing
-    if alternateBases == '0':
-        # if alternateBases is missing, check if variantType is missing
-        if variantType == '0':
-            logging.warning(' * ERROR BAD REQUEST: Missing mandatory parameter alternateBases or variantType')
-            error_.bad_request('Missing mandatory parameter alternateBases or variantType')
-        # check if variantType parameter is valid
-        elif variantType not in variantTypes:
-            logging.warning(' * ERROR BAD REQUEST: variantType not valid')
-            error_.bad_request('variantType not valid')
-    # check if the string items in the alternateBases are valid
-    for nucleotide1 in alternateBases:
-        if nucleotide1 not in Bases:
-            logging.warning(' * ERROR BAD REQUEST: alternateBases not valid')
-            error_.bad_request('alternateBases not valid')
+    # check assembly and reference bases
+    _check_basses(referenceBases, alternateBases, variantType, error_)
 
     # check if assemblyId is missing
-    if assemblyId == '0':
-        logging.warning(' * ERROR BAD REQUEST: Missing mandatory parameter assemblyId')
-        error_.bad_request('Missing mandatory parameter assemblyId')
-    # check if assemblyId parameter is valid
-    elif assemblyId not in assembliIds:
-        logging.warning(' * ERROR BAD REQUEST: assemblyId not valid')
-        error_.bad_request('assemblyId not valid')
+    _check_assembly(assemblyId, error_)
 
     # check if includeDataserResponses is missing
     if includeDatasetResponses not in datasetresponses:
