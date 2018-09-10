@@ -25,8 +25,6 @@
 - [Further information](#further-information)
   * [Project structure](#project-structure)
 
-
-
 ## About
 
 ### What is a Beacon?
@@ -46,12 +44,11 @@ This project is licensed under the terms of the Apache2.0 license.
 
 ### Create database
 
-In the application we use PostgreSQL but other databases will work aswell. Install a PostgreSQL version 
-higher than 9 and use the `psql`command line tool. For this example we will create a simple database without 
+In the application we use PostgreSQL but other databases will work as well. Install a PostgreSQL version
+higher than 9 and use the `psql`command line tool. For this example we will create a simple database without
 a specified user or password. The database name will be set to `beacondb`.
 
-First make shure that your PostgreSQL server is running. Then open the the `psql` command line tool
-with the default `postgres`.
+A prerequisite is that PostgreSQL server is running. Then open the the `psql` command line tool with the default `postgres`.
 ```
 $ psql postgres
 ```
@@ -62,7 +59,6 @@ postgres=# CREATE DATABASE beacondb;
 * You can list the available databases with the command `\l` and to exit into the normal terminal view write `\q` or press `CTRL + D`.
 * To view the tables in the database use the command `\dt`
 * To view the columns of a table write `\d table_name`
-
 
 ### Run the application
 
@@ -80,7 +76,7 @@ $ . bin/activate
 Clone the code into the directory:
 ```
 git clone https://github.com/CSCfi/beacon-python.git
-``` 
+```
 
 
 Install all the necessary dependencies to the virtual env from the `requirenments.txt` file using pip:
@@ -92,16 +88,16 @@ pip3 install -r requirements.txt
 ##### Environment Variables
 | ENV | Default | Description |
 | --- | --- | --- |
-| `DATABASE_URL` | `postgresql://localhost:5432` | The URL for the Postgres server where the database is served. |
+| `DATABASE_URL` | `postgresql://localhost:5432` | The URL for the PostgreSQL server where the database is served. |
 | `DATABASE_NAME` | `beacondb` | Name of the database. |
-| `DATABASE_USER` | `-` | Username configured for the database. |
-| `DATABASE_PASSWORD` | `-` | Password configured for the database. |
+| `DATABASE_USER` | `` | Username configured for the database. |
+| `DATABASE_PASSWORD` | `` | Password configured for the database. |
 | `HOST` | `0.0.0.0` | Host set for Flask in the wsgi file. |
 | `PORT` | `8080` | The port defined for Flask in wsgi file. |
 | `DEBUG` | `True` | If set to `True`, Flask will print events into the terminal. |
 | `LOGGING_LVL` | `DEBUG` | The logging level that will be set for the application. Can be: [`DEBUG`, `INFO`, `WARNIG`, `CRITICAL`] |
 
-Set the necessary environment varables. If you haven't configured a user and a password for the database you should set them as 
+Set the necessary environment variables. If you haven't configured a user and a password for the database you should set them as
 empty:
 ```
 $ export DATABASE_URL=postgresql://localhost:5432
@@ -117,12 +113,11 @@ $ export LOGGING_LVL=DEBUG
 To run the application:
 
 ```
-$ python3 wsgi.py
-``` 
+$ python3 beacon_api/wsgi.py
+```
 
-To test the application you can either use `curl` in the command line like in examples or just by typing the addres into
- your browser.
- 
+To test the application you can either use `curl` in the command line like in examples or just by typing the address into the browser.
+
 * [http://localhost:8080/](http://localhost:8080/)
 
 * [http://localhost:8080/query?referenceName=1&start=2947950&referenceBases=A&alternateBases=G&assemblyId=GRCh37&includeDatasetResponses=ALL](http://localhost:8080/query?referenceName=1&start=2947950&referenceBases=A&alternateBases=G&assemblyId=GRCh37&includeDatasetResponses=ALL)
@@ -132,14 +127,14 @@ Deactivate the virtual environment with the command:
 $ deactivate
 ```
 ## Configure database
- 
+
 ### Create tables
 
-The application is using the object relational mapper (ORM) SQLAlchemy to handle much of the communication 
+The application is using the object relational mapper (ORM) SQLAlchemy to handle much of the communication
 between the application and the database, and that is why the database tables are created using SQLAlchemy.
-So instead of manually creating the Postgresql tables using `psql` in the command line, the tables are 
-created by calling the `db.create_all` method that uses the `db` object from SQLAlchemy. To call the method we 
-use the Python shell in the command line. 
+So instead of manually creating the PostgreSQL tables using `psql` in the command line, the tables are
+created by calling the `db.create_all` method that uses the `db` object from SQLAlchemy. To call the method we
+use the Python shell in the command line.
 
 
 Open the Python shell in the command line:
@@ -148,11 +143,12 @@ $ python3
 ```
 Create the tables:
 ```python
->>> from wsgi import db
+>>> from beacon_api.conf.config import db
 >>> db.create_all()
-``` 
+>>> exit()
+```
 
-This will create the database tables according to the schema specified in `models.py`.
+This will create the database tables according to the schema specified in `utils/models.py`.
 
 ### Load data
 
@@ -168,7 +164,7 @@ $ awk '{printf "%s;%s\n", NR+72,$0}' dataset2.csv > dataset2_.csv
 $ awk '{printf "%s;%s\n", NR+161,$0}' dataset3.csv > dataset3_.csv
 ```
 
-The table column `dataset_id` is the name of the table. If the file that you are loading doesnt have the right name in 
+The table column `dataset_id` is the name of the table. If the file that you are loading does not have the right name in
 that column you can change it using:
 
 ```Shell
@@ -190,7 +186,7 @@ beacondb=# COPY genomes FROM '/opt/app-root/files/set2.csv' DELIMITER ';' CSV;
 beacondb=# COPY genomes FROM '/opt/app-root/files/set3.csv' DELIMITER ';' CSV;
 ```
 
-Then we check for the right values to fill in the beacon_dataset_table in the variantCount and callCount:
+Then we check for the right values to fill in the beacon_dataset_table in the `variantCount` and `callCount`:
 
 ````Shell
 $ awk -F ';' '{SUM+=$10}END{print SUM}' set1.csv			#variantCount
@@ -209,8 +205,8 @@ $ awk -F ';' '{SUM+=$11}END{print SUM}' set3.csv			#callCount
 variantCount = 20952, callCount = 1206928 for set3.csv
 
 
-Lastly we fill the `beacon_dataset_table` with the right info for the different datasets. You can 
-either fill it using the method `load_dataset_table()` in `models.py`, or by using `psql` from the 
+Lastly we fill the `beacon_dataset_table` with the right info for the different datasets. You can
+either fill it using the method `load_dataset_table()` in `models.py`, or by using `psql` from the
 command line.
 
 Using `load_dataset_table()`in python shell:
@@ -232,7 +228,7 @@ INSERT INTO beacon_dataset_table (name, description, assemblyId, createDateTime,
 ```
 
 
-You can also fill the `genomes` table using the `load_data_table()` function aswell. This function 
+One can also fill the `genomes` table using the `load_data_table()` function as well. This function
 will fill in the `id` automatically so then you shouldn't use a file where you have added the `id` numbers.
 For example `dataset1.csv`.
 
@@ -246,36 +242,36 @@ load_data_table('dataset3.csv')
 
 ## Using the application
 
-The API has two endpoints, the info endpoint `/` and the query end point `/query`. The info end point 
-gives the user general info about the Beacon and it's datasets, while the query end point 
+The API has two endpoints, the info endpoint `/` and the query end point `/query`. The info end point
+gives the user general info about the Beacon and it's datasets, while the query end point
 
 ### Info endpoint
 
-#### Request 
-###### - URL: `/`
-###### - HTTP method: `GET`
-###### - Parameters: `None`
+Request:
+- URL: `/`
+- HTTP method: `GET`
+- Parameters: `None`
 
-#### Response
-###### Content-type:`application/json`
-###### Payload: `Beacon object`
+Response:
+- Content-type:`application/json`
+- Payload: `Beacon object`
 
-#### Examples 
+#### Examples
 An example `GET` request and response to the info endpoint:
 
 ```Shell
-$ curl -v 'http://localhost:5000'
+$ curl -v 'http://localhost:8080'
 ```
 
 ```Shell
-*   Trying 127.0.0.1...
+* Trying 127.0.0.1...
 * TCP_NODELAY set
-* Connected to http://localhost (127.0.0.1) port 5000 (#0)
+* Connected to http://localhost (127.0.0.1) port 8080 (#0)
 > GET / HTTP/1.1
 > Host: http://localhost
 > User-Agent: curl/7.54.0
 > Accept: */*
-> 
+>
 < HTTP/1.1 200 OK
 < Server: gunicorn/19.9.0
 < Date: Tue, 31 Jul 2018 12:10:53 GMT
@@ -283,7 +279,7 @@ $ curl -v 'http://localhost:5000'
 < Content-Length: 2391
 < Set-Cookie: eeadd1720fcd75b91205443a24cfbacf=97f5c3f4c5d9d73de00e92277c49a74f; path=/; HttpOnly
 < Cache-control: private
-< 
+<
 {
     "id": "ega-beacon",
     "name": "EGA Beacon",
@@ -395,36 +391,22 @@ $ curl -v 'http://localhost:5000'
 * Connection #0 to host http://localhost left intact
 ```
 
-### Query endpoint
-
-#### Request
-###### - URL: `/query`
-###### - HTTP method: `GET`, `POST`
-###### - Content-Type: `application/x-www-form-urlencoded`(POST)
-###### - Parameters: `BeaconAlleleRequest`
-
-#### Response
-###### Content-type:`application/json`
-###### Payload: `Beacon Allele Response object`
-
-
-#### Examples
 
 Example of how to use the GET method in the `/query` endpoint:
 
 ```Shell
-$ curl -v 'http://localhost:5000/query?referenceName=1&start=2947892&referenceBases=A&alternateBases=G&variantType=SNP&assemblyId=GRCh37&includeDatasetResponses=ALL'
+$ curl -v 'http://localhost:8080/query?referenceName=1&start=2947892&referenceBases=A&alternateBases=G&variantType=SNP&assemblyId=GRCh37&includeDatasetResponses=ALL'
 ```
-    
+
 ```Shell
-*   Trying 127.0.0.1...
+* Trying 127.0.0.1...
 * TCP_NODELAY set
-* Connected to http://localhost (127.0.0.1) port 5000 (#0)
+* Connected to http://localhost (127.0.0.1) port 8080 (#0)
 > GET /query?referenceName=1&start=2947892&referenceBases=A&alternateBases=G&variantType=SNP&assemblyId=GRCh37&includeDatasetResponses=ALL HTTP/1.1
 > Host: http://localhost
 > User-Agent: curl/7.54.0
 > Accept: */*
-> 
+>
 < HTTP/1.1 200 OK
 < Server: gunicorn/19.9.0
 < Date: Tue, 31 Jul 2018 12:14:49 GMT
@@ -432,7 +414,7 @@ $ curl -v 'http://localhost:5000/query?referenceName=1&start=2947892&referenceBa
 < Content-Length: 828
 < Set-Cookie: eeadd1720fcd75b91205443a24cfbacf=97f5c3f4c5d9d73de00e92277c49a74f; path=/; HttpOnly
 < Cache-control: private
-< 
+<
 {
     "beaconId": "ega-beacon",
     "apiVersion": "1.0.0",
@@ -495,27 +477,30 @@ $ curl -v 'http://localhost:5000/query?referenceName=1&start=2947892&referenceBa
 
 ```text
 beacon-python
-├─requirements.txt
-├─docs
-├─.gitignore
-├─README.md
-├─beacon.md
-├─beacon_api
-|   ├─beacon_info.py
-|   ├─check_functions.py
-|   ├─error_handelers.py
-|   ├─models.py
-|   └─wsgi.py
-├─data
-|   ├─dataset1.csv
-|   ├─dataset2.csv
-|   └─dataset3.csv
-└─test
-    ├─test-expected_outcome-py
-    ├─test_get_200.py
-    ├─test_get_400.py
-    ├─test_get_401.py
-    ├─test_post_200.py
-    ├─test_post_400.py
-    └─test_post_401.py
+├── beacon_api
+│   ├── conf
+│   │   ├── config.py
+│   │   └── __init__.py
+│   ├── __init__.py
+│   ├── utils
+│   │   ├── beacon_info.py
+│   │   ├── check_functions.py
+│   │   ├── error_handelers.py
+│   │   ├── __init__.py
+│   │   └── models.py
+│   └── wsgi.py
+├── beacon.md
+├── data
+│   ├── dataset1.csv
+│   ├── dataset2.csv
+│   └── dataset3.csv
+├── docs
+├── LICENSE
+├── README.md
+├── requirements.txt
+├── tests
+│   ├── __init__.py
+│   ├── requirements.txt
+│   └── test_wsgi.py
+└── tox.ini
 ```

@@ -49,7 +49,7 @@ class Beacon_get(Resource):
         :type Beacon: Dict
         :return Beacon: The method returns the dict Beacon that was constructed in the constructor() function in beacon_info.py
         """
-        logging.info(' * Get request to beacon end poit "/"')
+        logging.info(' * Get request to beacon end point "/"')
         Beacon = constructor()
         return Beacon
 
