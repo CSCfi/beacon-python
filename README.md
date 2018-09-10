@@ -97,8 +97,7 @@ pip3 install -r requirements.txt
 | `DEBUG` | `True` | If set to `True`, Flask will print events into the terminal. |
 | `LOGGING_LVL` | `DEBUG` | The logging level that will be set for the application. Can be: [`DEBUG`, `INFO`, `WARNIG`, `CRITICAL`] |
 
-Set the necessary environment variables. If you haven't configured a user and a password for the database you should set them as
-empty:
+Set the necessary environment variables. If you haven't configured a user and a password for the database you should set them as empty:
 ```
 $ export DATABASE_URL=postgresql://localhost:5432
 $ export DATABASE_NAME=beacondb
@@ -113,7 +112,8 @@ $ export LOGGING_LVL=DEBUG
 To run the application:
 
 ```
-$ python3 beacon_api/wsgi.py
+$ pip3 install .
+$ beacon
 ```
 
 To test the application you can either use `curl` in the command line like in examples or just by typing the address into the browser.
@@ -159,18 +159,18 @@ The table needs in the first column the `id`, witch is a number starting from on
 If the data sets you are loading don't have this `id` in the first row you can add it the following way.
 
 ```Shell
-$ awk '{printf "%s;%s\n", NR,$0}' dataset1.csv > dataset1_.csv
-$ awk '{printf "%s;%s\n", NR+72,$0}' dataset2.csv > dataset2_.csv
-$ awk '{printf "%s;%s\n", NR+161,$0}' dataset3.csv > dataset3_.csv
+$ awk '{printf "%s;%s\n", NR,$0}' data/dataset1.csv > dataset1_.csv
+$ awk '{printf "%s;%s\n", NR+72,$0}' data/dataset2.csv > dataset2_.csv
+$ awk '{printf "%s;%s\n", NR+161,$0}' data/dataset3.csv > dataset3_.csv
 ```
 
 The table column `dataset_id` is the name of the table. If the file that you are loading does not have the right name in
 that column you can change it using:
 
 ```Shell
-$ awk -F';' 'BEGIN{OFS=";"}{$2="DATASET1”;print $0}' dataset1_.csv > set1.csv
-$ awk -F';' 'BEGIN{OFS=";"}{$2="DATASET2”;print $0}' dataset2_.csv > set2.csv
-$ awk -F';' 'BEGIN{OFS=";"}{$2="DATASET3”;print $0}' dataset3_.csv > set3.csv
+$ awk -F';' 'BEGIN{OFS=";"}{$2="DATASET1";print $0}' dataset1_.csv > set1.csv
+$ awk -F';' 'BEGIN{OFS=";"}{$2="DATASET2";print $0}' dataset2_.csv > set2.csv
+$ awk -F';' 'BEGIN{OFS=";"}{$2="DATASET3";print $0}' dataset3_.csv > set3.csv
 ```
 
 Then we load the `genomes` table with the files. Open `psql` in the command line:
@@ -211,7 +211,7 @@ command line.
 
 Using `load_dataset_table()`in python shell:
 ```python
-from models import load_dataset_table
+from beacon_api.utils.models import load_dataset_table
 
 load_dataset_table('DATASET1', 'example dataset number 1', 'GRCh38', 'v1', 6966, 360576, 1, 'externalUrl', 'PUBLIC')
 load_dataset_table('DATASET2', 'example dataset number 2', 'GRCh38', 'v1', 16023, 445712, 1, 'externalUrl', 'PUBLIC')
@@ -230,14 +230,14 @@ INSERT INTO beacon_dataset_table (name, description, assemblyId, createDateTime,
 
 One can also fill the `genomes` table using the `load_data_table()` function as well. This function
 will fill in the `id` automatically so then you shouldn't use a file where you have added the `id` numbers.
-For example `dataset1.csv`.
+For example `dataset1.csv`. Import raises error on empty cell.
 
 ```python
-from models import load_data_table
+from beacon_api.utils.models import load_data_table
 
-load_data_table('dataset1.csv')
-load_data_table('dataset2.csv')
-load_data_table('dataset3.csv')
+load_data_table('data/dataset1.csv')
+load_data_table('data/dataset2.csv')
+load_data_table('data/dataset3.csv')
 ```
 
 ## Using the application

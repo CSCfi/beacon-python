@@ -1,7 +1,7 @@
 import logging
 from .beacon_info import constructor
+from ..conf.config import DB_URL
 import psycopg2
-import os
 
 
 def position(start, end, startMin, startMax, endMin, endMax):
@@ -62,14 +62,6 @@ def alleleFind(datasetId, chromosome, position, allele, variantType):
     :return boolean: The True or False answer from the query.
     :return row: The row from the database that has been queried.
     """
-    url = os.environ['DATABASE_URL'].split('/')
-    POSTGRES = {
-        'user': os.environ['DATABASE_USER'],
-        'password': os.environ['DATABASE_PASSWORD'],
-        'database': os.environ['DATABASE_NAME'],
-        'host': url[2],
-    }
-    DB_URL = 'postgresql://{user}:{pw}@{url}/{db}'.format(user=POSTGRES['user'], pw=POSTGRES['password'], url=POSTGRES['host'], db=POSTGRES['database'])
     # if alternateBases or variantType are not defined they are set to None
     logging.info(' * Opening connection to database')
     conn = psycopg2.connect(DB_URL)

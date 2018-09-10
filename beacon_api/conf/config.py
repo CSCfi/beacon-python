@@ -13,8 +13,8 @@ from flask_restful import Api
 # SQLAlchemy.
 URL = os.environ.get('DATABASE_URL', 'postgresql://localhost:5432').split('/')[2]
 POSTGRES = {
-    'user': os.environ.get('DATABASE_USER', 'beacon'),
-    'password': os.environ.get('DATABASE_PASSWORD', 'beacon'),
+    'user': os.environ.get('DATABASE_USER', ''),
+    'password': os.environ.get('DATABASE_PASSWORD', ''),
     'database': os.environ.get('DATABASE_NAME', 'beacondb'),
     'host': URL,
 }
