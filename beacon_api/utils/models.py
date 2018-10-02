@@ -1,133 +1,179 @@
+import os
+import logging
 import csv
-import datetime
+
+import asyncio
+import asyncpg
+
 from ..conf.config import DB_URL
+
+'''--ASYNCHRONOUS POSTGRES OPERATIONS--'''
+
+# CONFIGURE LOGGING
+FORMAT = '[%(asctime)s][%(name)s][%(process)d %(processName)s][%(levelname)-8s] (L:%(lineno)s) %(funcName)s: %(message)s'
+logging.basicConfig(format=FORMAT, datefmt='%Y-%m-%d %H:%M:%S')
+LOG = logging.getLogger(__name__)
+LOG.setLevel(logging.INFO)
 
 
 class BeaconDB:
-    """Beacon DB class checks, inserts and loads dataself.
+    """Database connection and operations."""
 
-    Operations specific to the Beacon database.
-    """
+    def __init__(self, db_url):
+        """Start database routines."""
+        LOG.info('Start database routines')
+        try:
+            LOG.info('Construct DSN for database connection')
+            self._db_url = db_url
+        except Exception as e:
+            LOG.error(f'ERROR CONSTRUCTING DSN: {e}')
+        else:
+            LOG.info(f'DSN has been constructed -> Connections can now be made')
 
-    def __init__(self, url):
-        """Init Beacon DB parameters."""
-        pass
+    async def connection(self):
+        """Connect to the database."""
+        LOG.info('Establish a connection to database')
+        try:
+            self._conn = await asyncpg.connect(self._db_url)
+        except Exception as e:
+            LOG.error(f'AN ERROR OCCURRED WHILE ATTEMPTING TO CONNECT TO DATABASE -> {e}')
+        else:
+            LOG.info(f'Database connection has been established')
 
-    def check_tables(self):
-        """Check if the database schema and tables exist before making any operation."""
+    async def check_tables(self, desired_tables):
+        """Check that correct tables exist in the database."""
+        LOG.info('Request tables from database')
+        found_tables = []
+        tables = await self._conn.fetch('SELECT table_name '
+                                        'FROM information_schema.tables '
+                                        'WHERE table_schema=\'public\' '
+                                        'AND table_type=\'BASE TABLE\';')
+        LOG.info('Tables received -> check that correct tables exist')
+        for table in list(tables):
+            found_tables.append(dict(table)['table_name'])
+        missing_tables = list(set(desired_tables)-set(found_tables))
+        for table in found_tables:
+            LOG.info(f'{table} exists')
+        for table in missing_tables:
+            LOG.error(f'{table} is missing!')
+        return missing_tables
 
-    def _chunks(self, data, n=10000):
-        """
-        Divide the data into chunks with 10000 rows each.
+    async def create_tables(self, sql_file):
+        """Create tables to database according to given schema."""
+        LOG.info(f'Create tables to database according to given schema in file {sql_file}')
+        try:
+            with open(sql_file, 'r') as file:
+                schema = file.read()
+            await self._conn.execute(schema)
+        except Exception as e:
+            LOG.error(f'AN ERROR OCCURRED WHILE ATTEMPTING TO CREATE TABLES -> {e}')
+        else:
+            LOG.info('Tables have been created')
 
-        The `chunk()` function it yieldes the rows as e generator to make the process more efficient.
+    async def load_dataset(self, name, description, assembly_id, version, variant_count, call_count, sample_count, external_url, access_type):
+        """Insert dataset information to the database."""
+        try:
+            LOG.info(f'Attempting to insert {name} metadata to database')
+            await self._conn.execute('INSERT INTO beacon_dataset_table '
+                                    '(name, description, assemblyid, '
+                                    'createdatetime, updatedatetime, '
+                                    'version, variantcount, callcount, '
+                                    'samplecount, externalurl, accesstype) '
+                                    'VALUES '
+                                    '($1, $2, $3, NOW(), NOW(), '
+                                    '$4, $5, $6, $7, $8, $9)',
+                                    name, description, assembly_id, version,
+                                    variant_count, call_count, sample_count,
+                                    external_url, access_type)
+        except Exception as e:
+            LOG.error(f'AN ERROR OCCURRED WHILE ATTEMPTING TO INSERT METADATA INTO THE DATABASE -> {e}')
+        else:
+            LOG.info(f'Metadata for {name} inserted succesffully')
 
-        :type data: File
-        :param data: A file handler to a .csv file containing the data.
-        :type n: Integer
-        :param n: The number of rows.
-        :type buffer: Generator
-        :yield buffer:
-        """
-        buffer = [None] * n
-        idx = 0
-        for record in data:
-            buffer[idx] = record
-            idx += 1
-            if idx == n:
-                yield buffer
-                buffer = [None] * n
-                idx = 0
-        if idx > 0:
-            yield buffer[:idx]  # if there is less than 10000 rows left it yields the rest
+    async def load_variants(self, datafile):
+        """Insert variant data to the database."""
+        LOG.info(f'Load variants from file {datafile}')
+        queue = []
+        with open(datafile, 'r') as file:
+            data = csv.reader(file, delimiter=';')
+            for datum in data:
+                queue.append(datum)
+        # Insert items from queue in one session and commit all cases at once
+        async with self._conn.transaction():
+            LOG.info('Insert variants into the database')
+            for item in queue:
+                await self._conn.execute('INSERT INTO beacon_data_table '
+                                        '(dataset_id, start, chromosome, reference, alternate, '
+                                        '"end", type, sv_length, variantcount, callcount, samplecount, frequency) '
+                                        'VALUES '
+                                        '($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)',
+                                        item[0], int(item[1]), item[2], item[3], item[4], int(0 if item[5] == '' else item[5]),
+                                        item[6], int(0 if item[7] == '' else item[7]), int(item[8]), int(item[9]), int(item[10]),
+                                        float(item[11]))
 
-    def load_data_table(self, filename):
-        """
-        Load all the data from the given file into the table.
-
-        Because of the big amount of rows in the files the function uses the `chunk()` function to divide
-        the rows into 10000 row chunks witch it commits in chunks. This is because it takes significantly
-        less time to commit them as 10000 row chunks than row by row.
-
-        :type filename: String
-        :param filename: The path of the file.
-        """
-        rows = 0
-        csvData = csv.reader(open('{}'.format(filename), "r"), delimiter=";")
-        divData = self._chunks(csvData)  # divide into 10000 rows each
-
-        for chunk in divData:
-            for dataset_id, start, chromosome, reference, alternate, end, type, sv_length, variantCount, callCount, sampleCount, frequency in chunk:
-                addNew = Beacon_data_table(dataset_id=dataset_id, start=start, chromosome=chromosome, reference=reference, alternate=alternate, end=end, type=type,
-                                           sv_length=sv_length, variantCount=variantCount, callCount=callCount, sampleCount=sampleCount, frequency=frequency)
-                db.session.add(addNew)
-            db.session.commit()
-            rows += 10000
-            print(rows)
-
-    def load_dataset_table(name=None, description=None, assemblyId=None, version=None, variantCount=None, callCount=None, sampleCount=None, externalUrl=None,
-                           accessType=None):
-        """
-        Load the data set table to the database.
-
-        This table gives the user meta-data on the data sets.
-
-        :type name: String
-        :param name: Name of the data set that will be loaded into the database.
-        :type description: String
-        :param description: A short description of the data set.
-        :type assemblyId: String
-        :param assemblyId: Assembly identifier used in the data set.
-        :type version: String
-        :param version: Version of the data set.
-        :type variantCount: Integer
-        :param variantCount: The variant count for the whole data set.
-        :type callCount: Integer
-        :param callCount: The call count for the whole data set.
-        :type sampleCount: Integer
-        :param sampleCount: The number of samples in the data set.
-        :type externalUrl: String
-        :param externalUrl: An external Url for the data set.
-        :type accessType: String
-        :param accessType: The access type for the data set. can be "PUBLIC", "REGISTERED" or "CONTROLLED"
-        """
-        addNew = Beacon_dataset_table(name=name, description=description, assemblyId=assemblyId, version=version, variantCount=variantCount, callCount=callCount,
-                                      sampleCount=sampleCount, externalUrl=externalUrl, accessType=accessType)
-        db.session.add(addNew)
-        db.session.commit()
+    async def close(self):
+        """Close the database connection."""
+        try:
+            LOG.info('Mark the database connection to be closed')
+            await self._conn.close()
+        except Exception as e:
+            LOG.error(f'AN ERROR OCCURRED WHILE ATTEMPTING TO CLOSE DATABASE CONNECTION -> {e}')
+        else:
+            LOG.info('The database connection has been closed')
 
 
-# class Beacon_dataset_table(db.Model):
-#     """The `Beacon_dataset_table class` inherits the Model class from SQLAlchemy and creates the schema for the table `beacon_dataset_table`."""
-#
-#     id = db.Column(db.Integer, primary_key=True)
-#     name = db.Column(db.String(50))
-#     description = db.Column(db.String(800))
-#     assemblyId = db.Column(db.String(20))
-#     createDateTime = db.Column(db.DateTime, default=datetime.date.today())
-#     updateDateTime = db.Column(db.DateTime)
-#     version = db.Column(db.String(5))
-#     variantCount = db.Column(db.Integer)
-#     callCount = db.Column(db.Integer)
-#     sampleCount = db.Column(db.Integer)
-#     externalUrl = db.Column(db.String(50))
-#     accessType = db.Column(db.String(10))
-#
-#
-# class Beacon_data_table(db.Model):
-#     """The `Beacon_data_table class` inherits the Model class from SQLAlchemy and creates the schema for the table `genomes`."""
-#
-#     __tablename__ = 'genomes'
-#     id = db.Column(db.Integer, primary_key=True)
-#     dataset_id = db.Column(db.String(200))
-#     start = db.Column(db.Integer)
-#     chromosome = db.Column(db.String(100))
-#     reference = db.Column(db.String(200))
-#     alternate = db.Column(db.String(200))
-#     end = db.Column(db.Integer)
-#     type = db.Column(db.String(100))
-#     sv_length = db.Column(db.Integer)
-#     variantCount = db.Column(db.Integer)
-#     callCount = db.Column(db.Integer)
-#     sampleCount = db.Column(db.Integer)
-#     frequency = db.Column(db.Float)
+async def main():
+    """Run database operations here."""
+    # Initialise the database connection
+    db = BeaconDB(DB_URL)
+
+    # Connect to the database
+    c = await db.connection()
+
+    # Check that desired tables exist (missing tables are returned)
+    tables = await db.check_tables(['beacon_dataset_table', 'beacon_data_table'])
+
+    # If some tables are missing, run init.sql
+    if len(tables) > 0:
+        await db.create_tables(os.environ.get('TABLES_SCHEMA', 'init.sql')
+
+    # Insert dataset metadata into the database, prior to inserting actual variant data
+    await db.load_dataset(name='DATASET1',
+                          description='example dataset number 1',
+                          assembly_id='GRCh38',
+                          version='v1',
+                          variant_count=6966,
+                          call_count=360576,
+                          sample_count=1,
+                          external_url='externalUrl',
+                          access_type='PUBLIC')
+    await db.load_dataset(name='DATASET2',
+                          description='example dataset number 2',
+                          assembly_id='GRCh38',
+                          version='v1',
+                          variant_count=16023,
+                          call_count=445712,
+                          sample_count=1,
+                          external_url='externalUrl',
+                          access_type='PUBLIC')
+    await db.load_dataset(name='DATASET3',
+                          description='example dataset number 3',
+                          assembly_id='GRCh38',
+                          version='v1',
+                          variant_count=20952,
+                          call_count=1206928,
+                          sample_count=1,
+                          external_url='externalUrl',
+                          access_type='PUBLIC')
+
+    # Insert data into the database
+    await db.load_variants('data/dataset1.csv')
+    await db.load_variants('data/dataset2.csv')
+    await db.load_variants('data/dataset3.csv')
+
+    # Close the database connection
+    await db.close()
+
+
+if __name__ == "__main__":
+    asyncio.get_event_loop().run_until_complete(main())
