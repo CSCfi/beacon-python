@@ -1,13 +1,15 @@
 from setuptools import setup
+from beacon_api import __license__, __version__, __author__
+
 
 setup(name='beacon_api',
-      version='0.0.1',
+      version=__version__,
       url='',
       project_urls={
           'Source': 'https://github.com/CSCfi/beacon-python',
       },
-      license='Apache License 2.0',
-      author='',
+      license=__license__,
+      author=__author__,
       author_email='',
       description='Beacon Python API',
       long_description="",
@@ -18,7 +20,7 @@ setup(name='beacon_api',
       },
       entry_points={
           'console_scripts': [
-              'beacon=beacon_api.wsgi:main'
+              'beacon=beacon_api.app:main'
           ]
       },
       platforms='any',)

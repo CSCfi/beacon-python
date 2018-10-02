@@ -20,8 +20,8 @@ sys.path.insert(0, os.path.abspath('.'))
 # -- Project information -----------------------------------------------------
 
 project = 'Beacon API'
-copyright = '2018, Kasper Keinanen'
-author = 'Kasper Keinanen'
+copyright = '2018, CSC IT'
+author = 'CSC developers'
 
 # The short X.Y version
 version = ''
@@ -133,7 +133,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
     (master_doc, 'BeaconAPI.tex', 'Beacon API Documentation',
-     'Kasper Keinanen', 'manual'),
+     author, 'manual'),
 ]
 
 

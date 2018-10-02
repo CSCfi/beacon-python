@@ -5,6 +5,7 @@ from .utils.logging import LOG
 from .conf.config import init_db_pool
 from .schemas import load_schema
 from .utils.validate import validate
+from .utils.token import token_auth
 # from .utils.models import Beacon_dataset_table
 # from .utils.check_functions import checkParameters, checkifdatasetisTrue, checkInclude
 # from .utils.error_handelers import BeaconError
@@ -33,14 +34,7 @@ async def beacon_get(request):
     """
     LOG.info(' * Get request to beacon end point "/"')
     # beacon = {'some': 'data'}
-    pool = request.app['pool']
-    async with pool.acquire() as connection:
-        # Open a transaction.
-        async with connection.transaction():
-            # Run the query passing the request
-            result = await connection.fetchrow('SELECT * FROM user')
-            print(result)
-            return web.Response(text="result")
+    return web.Response(text="result")
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -49,6 +43,13 @@ async def beacon_get(request):
 
 @routes.get('/query')
 async def beacon_get_query(request):
+    pool = request.app['pool']
+    async with pool.acquire() as connection:
+        # Open a transaction.
+        async with connection.transaction():
+            # Run the query passing the request
+            result = await connection.fetchrow('SELECT * FROM user')
+            print(result)
     return web.Response(text="nothing")
 
 
@@ -56,7 +57,7 @@ async def beacon_get_query(request):
 @validate(load_schema("query"))
 async def beacon_post_query(request):
     LOG.info(request.method)
-    # print(dir(request))
+    # print(request["token"])
     return web.Response(text="nothing")
 
 # class Beacon_query(Resource):
@@ -418,9 +419,12 @@ async def close_db_pool(app):
 
 
 def main():
-    """Run the flask API for beacon."""
-    # beacon = web.Application(middlewares=[validate(load_schema("query"))])
-    beacon = web.Application()
+    """Run the beacon API.
+
+    At start also initialize a PostgreSQL connection pool.
+    """
+    key = os.environ.get('PUBLIC_KEY', '')  # .replace(r'\n', '\n')
+    beacon = web.Application(middlewares=[token_auth(key)])
     beacon.router.add_routes(routes)
     # Create a database connection pool
     beacon.on_startup.append(create_db_pool)

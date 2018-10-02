@@ -75,16 +75,16 @@ class BeaconDB:
         try:
             LOG.info(f'Attempting to insert {name} metadata to database')
             await self._conn.execute('INSERT INTO beacon_dataset_table '
-                                    '(name, description, assemblyid, '
-                                    'createdatetime, updatedatetime, '
-                                    'version, variantcount, callcount, '
-                                    'samplecount, externalurl, accesstype) '
-                                    'VALUES '
-                                    '($1, $2, $3, NOW(), NOW(), '
-                                    '$4, $5, $6, $7, $8, $9)',
-                                    name, description, assembly_id, version,
-                                    variant_count, call_count, sample_count,
-                                    external_url, access_type)
+                                     '(name, description, assemblyid, '
+                                     'createdatetime, updatedatetime, '
+                                     'version, variantcount, callcount, '
+                                     'samplecount, externalurl, accesstype) '
+                                     'VALUES '
+                                     '($1, $2, $3, NOW(), NOW(), '
+                                     '$4, $5, $6, $7, $8, $9)',
+                                     name, description, assembly_id, version,
+                                     variant_count, call_count, sample_count,
+                                     external_url, access_type)
         except Exception as e:
             LOG.error(f'AN ERROR OCCURRED WHILE ATTEMPTING TO INSERT METADATA INTO THE DATABASE -> {e}')
         else:
@@ -103,13 +103,13 @@ class BeaconDB:
             LOG.info('Insert variants into the database')
             for item in queue:
                 await self._conn.execute('INSERT INTO beacon_data_table '
-                                        '(dataset_id, start, chromosome, reference, alternate, '
-                                        '"end", type, sv_length, variantcount, callcount, samplecount, frequency) '
-                                        'VALUES '
-                                        '($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)',
-                                        item[0], int(item[1]), item[2], item[3], item[4], int(0 if item[5] == '' else item[5]),
-                                        item[6], int(0 if item[7] == '' else item[7]), int(item[8]), int(item[9]), int(item[10]),
-                                        float(item[11]))
+                                         '(dataset_id, start, chromosome, reference, alternate, '
+                                         '"end", type, sv_length, variantcount, callcount, samplecount, frequency) '
+                                         'VALUES '
+                                         '($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)',
+                                         item[0], int(item[1]), item[2], item[3], item[4], int(0 if item[5] == '' else item[5]),
+                                         item[6], int(0 if item[7] == '' else item[7]), int(item[8]), int(item[9]), int(item[10]),
+                                         float(item[11]))
 
     async def close(self):
         """Close the database connection."""
@@ -128,14 +128,14 @@ async def main():
     db = BeaconDB(DB_URL)
 
     # Connect to the database
-    c = await db.connection()
+    await db.connection()
 
     # Check that desired tables exist (missing tables are returned)
     tables = await db.check_tables(['beacon_dataset_table', 'beacon_data_table'])
 
     # If some tables are missing, run init.sql
     if len(tables) > 0:
-        await db.create_tables(os.environ.get('TABLES_SCHEMA', 'init.sql')
+        await db.create_tables(os.environ.get('TABLES_SCHEMA', 'init.sql'))
 
     # Insert dataset metadata into the database, prior to inserting actual variant data
     await db.load_dataset(name='DATASET1',
@@ -176,4 +176,4 @@ async def main():
 
 
 if __name__ == "__main__":
-    asyncio.get_event_loop().run_until_complete(main())
+    asyncio.run(main())

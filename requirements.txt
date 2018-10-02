@@ -1,9 +1,4 @@
-Flask
-SQLAlchemy
-Flask-SQLAlchemy
-Flask-RESTful
-webargs
+aiohttp
+asyncpg
 PyJWT
-psycopg2
-psycopg2-binary
-testing.postgresql
+jsonschema

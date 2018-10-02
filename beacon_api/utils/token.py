@@ -1,11 +1,11 @@
 from aiohttp import web
-import os
 import jwt
+import json
 from .logging import LOG
 from ..api.exceptions import BeaconUnauthorised
 
 
-def token_auth():
+def token_auth(key):
     """Check if token if valid and authenticate.
 
     :type authHeader:
@@ -17,21 +17,28 @@ def token_auth():
     """
     @web.middleware
     async def token_middleware(request, handler):
-        authenticated = False
-        try:
-            # The second item is the token.
-            token = authHeader.split(' ')[1]
-            key = os.environ.get('PUBLIC_KEY').replace(r'\n', '\n')
-            LOG.debug(' * TOKEN: {}'.format(token))
-            LOG.debug(' * KEY: {}'.format(key))
-            decodeData = jwt.decode(token, key, algorithms=['RS256'])
-            authenticated = True
-            LOG.debug(' * Token payload: {}'.format(decodeData))
-        except Exception as e:
-            # If an exception accures when decoding the token --> the token is invalid or expired, then the error
-            # message will be sent in the response.
-            LOG.warning(' * * * 401 ERROR MESSAGE: Authorization failed, token invalid.')
-            raise BeaconUnauthorised(request, e)
-        finally:
-            return authenticated
+        assert isinstance(request, web.Request)
+        # if request.headers.get('Authorization') is None:
+        #     raw_json = await request.read()
+        #     obj = json.loads(raw_json.decode('utf-8'))
+        #     raise BeaconUnauthorised(obj, "Authorization not set.")
+        if request.path in ['/query'] and 'Authorization' in request.headers:
+            try:
+                # The second item is the token.
+                token = request.headers.get('Authorization').split(' ')[1]
+                LOG.debug(f' * TOKEN: {token}')
+                LOG.debug(f' * KEY: {key}')
+                decodeData = jwt.decode(token, key, algorithms=['RS256'])
+                LOG.debug(' * Token payload: {}'.format(decodeData))
+                request["token"] = decodeData
+                return await handler(request)
+            except Exception as e:
+                # If an exception accures when decoding the token --> the token is invalid or expired, then the error
+                # message will be sent in the response.
+                raw_json = await request.read()
+                obj = json.loads(raw_json.decode('utf-8'))
+                LOG.warning(' * * * 401 ERROR MESSAGE: Authorization failed, token invalid.')
+                raise BeaconUnauthorised(obj, e)
+        else:
+            return await handler(request)
     return token_middleware
