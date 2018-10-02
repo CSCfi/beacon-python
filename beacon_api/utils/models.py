@@ -1,19 +1,13 @@
 import os
-import logging
 import csv
 
 import asyncio
 import asyncpg
 
 from ..conf.config import DB_URL
+from .logging import LOG
 
 '''--ASYNCHRONOUS POSTGRES OPERATIONS--'''
-
-# CONFIGURE LOGGING
-FORMAT = '[%(asctime)s][%(name)s][%(process)d %(processName)s][%(levelname)-8s] (L:%(lineno)s) %(funcName)s: %(message)s'
-logging.basicConfig(format=FORMAT, datefmt='%Y-%m-%d %H:%M:%S')
-LOG = logging.getLogger(__name__)
-LOG.setLevel(logging.INFO)
 
 
 class BeaconDB:
@@ -122,7 +116,7 @@ class BeaconDB:
             LOG.info('The database connection has been closed')
 
 
-async def main():
+async def init_beacon_db():
     """Run database operations here."""
     # Initialise the database connection
     db = BeaconDB(DB_URL)
@@ -175,5 +169,15 @@ async def main():
     await db.close()
 
 
+def main():
+    """Run the magic."""
+    # TO DO add this to setup to run from command line
+    # allow arguments to be passed from command line
+    asyncio.get_event_loop().run_until_complete(init_beacon_db())
+    # TO DO Python3.7 will become that
+    # maybe we should move to 3.7
+    # asyncio.run(main())
+
+
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()

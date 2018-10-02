@@ -23,12 +23,12 @@ def validate(schema):
                     raw_json = await request.read()
                     obj = json.loads(raw_json.decode('utf-8'))
                 except Exception:
-                    # TO DO match response as in OpenAPI
+                    # TO DO verify match response as in OpenAPI
                     raise BeaconBadRequest(obj, "Could not properly parse the provided data as JSON.")
                 try:
                     jsonschema.validate(obj, schema)
                 except jsonschema.ValidationError as e:
-                    # TO DO match response as in OpenAPI
+                    # TO DO verify match response as in OpenAPI
                     raise BeaconBadRequest(obj, e.message)
             else:
                 # response = await handler(request)

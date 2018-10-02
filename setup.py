@@ -20,7 +20,8 @@ setup(name='beacon_api',
       },
       entry_points={
           'console_scripts': [
-              'beacon=beacon_api.app:main'
+              'beacon=beacon_api.app:main',
+              'beacon_init=beacon_api.utils.models:main'
           ]
       },
       platforms='any',)

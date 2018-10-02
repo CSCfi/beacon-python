@@ -362,7 +362,7 @@ def checkParameters(referenceName, start, startMin, startMax, end, endMin, endMa
     datasetresponses = ['ALL', 'HIT', 'MISS', 'NONE']
     datasetAlleleResponses = []
     datasetIds_list = []
-    Beacon = constructor()
+    Beacon = constructor() # WHY ? FIX this
     BeaconDataset = Beacon['dataset']
     for dset in BeaconDataset:
         datasetIds_list.append(dset['name'])

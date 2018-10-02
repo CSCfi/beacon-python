@@ -1,14 +1,253 @@
-from .models import Beacon_dataset_table
+from .. import __apiVersion__, __title__, __version__
+
+example_dataset = [{"id": "string",
+                    "name": "string",
+                    "description": "string",
+                    "assemblyId": "GRCh38",
+                    "createDateTime": "2012-07-29 or 2017-01-17T20:33:40Z",
+                    "updateDateTime": "2012-07-19 or 2017-01-17T20:33:40Z",
+                    "version": "string",
+                    "variantCount": 0,
+                    "callCount": 0,
+                    "sampleCount": 0,
+                    "externalUrl": "http://example.org/wiki/Main_Page",
+                    "info": [
+                        {
+                            "key": "string",
+                            "value": "string"
+                        }
+                    ],
+
+                    "dataUseConditions": {
+                        "consentCodeDataUse": {
+                            "primaryCategory": {
+                                "code": "NRES",
+                                "description": "string"
+                            },
+                            "secondaryCategories": [
+                                {
+                                    "code": "NRES",
+                                    "description": "string"
+                                }
+                            ],
+                            "requirements": [
+                                {
+                                    "code": "NRES",
+                                    "description": "string"
+                                }
+                            ],
+                            "version": 0.1
+                        },
+                        "adamDataUse": {
+                            "header": {
+                                "matrixName": "string",
+                                "matrixVersion": "string",
+                                "matrixReferences": [
+                                    "string"
+                                ],
+                                "matrixProfileCreateDate": "2017-01-17T20:33:40Z",
+                                "matrixProfileUpdates": [
+                                    {
+                                        "date": "2012-07-19 or 2017-01-17T20:33:40Z",
+                                        "description": "string"
+                                    }
+                                ],
+                                "resourceName": "string",
+                                "resourceReferences": [
+                                    "string"
+                                ],
+                                "resourceDescription": "string",
+                                "resourceDataLevel": "UNKNOWN",
+                                "resourceContactNames": [
+                                    {
+                                        "name": "string",
+                                        "email": "string"
+                                    }
+                                ],
+                                "resourceContactOrganisations": [
+                                    "string"
+                                ]
+                            },
+                            "profile": {
+                                "country": "UNRESTRICTED",
+                                "allowedCountries": [
+                                    {
+                                        "description": "string",
+                                        "obligatory": True
+                                    }
+                                ],
+                                "organisation": "UNRESTRICTED",
+                                "allowedOrganisations": [
+                                    {
+                                        "description": "string",
+                                        "obligatory": True
+                                    }
+                                ],
+                                "nonProfitOrganisation": "UNRESTRICTED",
+                                "allowedNonProfitOrganisations": [
+                                    {
+                                        "description": "string",
+                                        "obligatory": True
+                                    }
+                                ],
+                                "profitOrganisation": "UNRESTRICTED",
+                                "allowedProfitOrganisations": [
+                                    {
+                                        "description": "string",
+                                        "obligatory": True
+                                    }
+                                ],
+                                "person": "UNRESTRICTED",
+                                "allowedPersons": [
+                                    {
+                                        "description": "string",
+                                        "obligatory": True
+                                    }
+                                ],
+                                "academicProfessional": "UNRESTRICTED",
+                                "allowedAcademicProfessionals": [
+                                    {
+                                        "description": "string",
+                                        "obligatory": True
+                                    }
+                                ],
+                                "clinicalProfessional": "UNRESTRICTED",
+                                "allowedClinicalProfessionals": [
+                                    {
+                                        "description": "string",
+                                        "obligatory": True
+                                    }
+                                ],
+                                "profitProfessional": "UNRESTRICTED",
+                                "allowedProfitProfessionals": [
+                                    {
+                                        "description": "string",
+                                        "obligatory": True
+                                    }
+                                ],
+                                "nonProfessional": "UNRESTRICTED",
+                                "allowedNonProfessionals": [
+                                    {
+                                        "description": "string",
+                                        "obligatory": True
+                                    }
+                                ],
+                                "nonProfitPurpose": "UNRESTRICTED",
+                                "allowedNonProfitPurposes": [
+                                    {
+                                        "description": "string",
+                                        "obligatory": True
+                                    }
+                                ],
+                                "profitPurpose": "UNRESTRICTED",
+                                "allowedProfitPurposes": [
+                                    {
+                                        "description": "string",
+                                        "obligatory": True
+                                    }
+                                ],
+                                "researchPurpose": "UNRESTRICTED",
+                                "allowedResearchPurposes": [
+                                    {
+                                        "description": "string",
+                                        "obligatory": True
+                                    }
+                                ],
+                                "allowedResearchProfiles": [
+                                    {
+                                        "type": "OTHER",
+                                        "description": "string",
+                                        "restriction": "UNRESTRICTED"
+                                    }
+                                ],
+                                "clinicalPurpose": "UNRESTRICTED",
+                                "allowedClinicalPurpose": [
+                                    {
+                                        "description": "string",
+                                        "obligatory": True
+                                    }
+                                ],
+                                "allowedClinicalProfiles": [
+                                    {
+                                        "type": "OTHER",
+                                        "description": "string",
+                                        "restriction": "UNRESTRICTED"
+                                    }
+                                ]
+                            },
+                            "terms": {
+                                "noAuthorizationTerms": True,
+                                "whichAuthorizationTerms": [
+                                    "string"
+                                ],
+                                "noPublicationTerms": True,
+                                "whichPublicationTerms": [
+                                    "string"
+                                ],
+                                "noTimelineTerms": True,
+                                "whichTimelineTerms": [
+                                    "string"
+                                ],
+                                "noSecurityTerms": True,
+                                "whichSecurityTerms": [
+                                    "string"
+                                ],
+                                "noExpungingTerms": True,
+                                "whichExpungingTerms": [
+                                    "string"
+                                ],
+                                "noLinkingTerms": True,
+                                "whichLinkingTerms": [
+                                    "string"
+                                ],
+                                "noRecontactTerms": True,
+                                "allowedRecontactTerms": [
+                                    "string"
+                                ],
+                                "compulsoryRecontactTerms": [
+                                    "string"
+                                ],
+                                "noIPClaimTerms": True,
+                                "whichIPClaimTerms": [
+                                    "string"
+                                ],
+                                "noReportingTerms": True,
+                                "whichReportingTerms": [
+                                    "string"
+                                ],
+                                "noCollaborationTerms": True,
+                                "whichCollaborationTerms": [
+                                    "string"
+                                ],
+                                "noPaymentTerms": True,
+                                "whichPaymentTerms": [
+                                    "string"
+                                ]
+                            },
+                            "metaConditions": {
+                                "sharingMode": "UNKNOWN",
+                                "multipleObligationsRule": "MEET_ALL_OBLIGATIONS",
+                                "noOtherConditions": True,
+                                "whichOtherConditions": [
+                                    "string"
+                                ],
+                                "sensitivePopulations": True,
+                                "uniformConsent": True
+                            }
+                        }
+                    }
+                    }]
 
 
-def info_endpoint():
+def beacon_info(host):
     """
     Construct the `Beacon` dict that the info end point will return.
 
     :type Beacon: Dict
     :return Beacon: A dict that contain all the information about the `Beacon`.
     """
-    # Here are some example requests.
+    beacon_dataset = example_dataset
+
     beacon_allele_request = [{
         "alternateBases": "A",
         "referenceBases": "C",
@@ -41,30 +280,6 @@ def info_endpoint():
     }
     ]
 
-    beacon_dataset = []
-    db_Object = Beacon_dataset_table
-    # List of all the rows in the beacon_dataset_table
-    db_Table = db_Object.query.all()
-
-    for row in db_Table:
-        dataset_row = {
-            "id": row.id,
-            "name": row.name,
-            "description": row.description,
-            "assemblyId": row.assemblyId,
-            "createDateTime": None,
-            "updateDateTime": None,
-            "version": None,
-            "variantCount": row.variantCount,
-            "callCount": row.callCount,
-            "sampleCount": row.sampleCount,
-            "externalUrl": None,
-            "info": {
-                "accessType": row.accessType,
-            }
-        }
-        beacon_dataset.append(dataset_row)
-
     organization = {
         'id': 'EGA',
         'name': 'European Genome-Phenome Archive (EGA)',
@@ -78,13 +293,13 @@ def info_endpoint():
     }
 
     beacon_info = {
-        'id': 'ega-beacon',
-        'name': 'EGA Beacon',
-        'apiVersion': '1.0.0',
+        'id': '.'.join(reversed(host.split('.'))),
+        'name': __title__,
+        'apiVersion': __apiVersion__,
         'organization': organization,
         'description': 'This <a href=\"http://ga4gh.org/#/beacon\">Beacon</a> is based on the GA4GH Beacon\
          <a href=\"https://github.com/ga4gh/beacon-team/blob/develop/src/main/resources/avro/beacon.avdl\">API 0.4</a>',
-        'version': 'v1',
+        'version': __version__,
         'welcomeUrl': 'https://ega-archive.org/beacon_web/',
         'alternativeUrl': 'https://ega-archive.org/beacon_web/',
         'createDateTime': '2018-07-25T00:00.000Z',
@@ -93,6 +308,7 @@ def info_endpoint():
         'sampleAlleleRequests': beacon_allele_request,
         'info': {
             "size": ""
-             }
+        }
     }
+
     return beacon_info
