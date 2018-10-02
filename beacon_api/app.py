@@ -418,18 +418,23 @@ async def close_db_pool(app):
     await app['pool'].close()
 
 
-def main():
-    """Run the beacon API.
-
-    At start also initialize a PostgreSQL connection pool.
-    """
+def init():
+    """Initialise server."""
     key = os.environ.get('PUBLIC_KEY', '')  # .replace(r'\n', '\n')
     beacon = web.Application(middlewares=[token_auth(key)])
     beacon.router.add_routes(routes)
     # Create a database connection pool
     beacon.on_startup.append(create_db_pool)
     beacon.on_cleanup.append(close_db_pool)
-    web.run_app(beacon, host=os.environ.get('HOST', '0.0.0.0'),
+    return beacon
+
+
+def main():
+    """Run the beacon API.
+
+    At start also initialize a PostgreSQL connection pool.
+    """
+    web.run_app(init(), host=os.environ.get('HOST', '0.0.0.0'),
                 port=os.environ.get('PORT', '8080'),
                 shutdown_timeout=0, ssl_context=None)
 
