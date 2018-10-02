@@ -1,7 +1,8 @@
 import unittest
 # import testing.postgresql
 
-from beacon_api.conf.config import application, db
+from beacon_api.conf.config import application, Api
+# from beacon_api.wsgi import Beacon_get
 
 TEST_DB = 'test.db'
 
@@ -13,15 +14,17 @@ class TestSearchAPI(unittest.TestCase):
         """Execute this method on start."""
         application.config['TESTING'] = True
         application.config['WTF_CSRF_ENABLED'] = False
-        application.config['DEBUG'] = False
-        application.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + TEST_DB
+        application.config['DEBUG'] = True
+        # application.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + TEST_DB
+        Api(application)
+        # api.add_resource(Beacon_get, '/')
         self.app = application.test_client()
-        db.drop_all()
-        db.create_all()
+
+        # db.create_all()
 
     def tearDown(self):
         """Execute this method after each test."""
-        db.drop_all()
+        # db.drop_all()
 
     def test_get_response_code(self):
         """Test basic get."""

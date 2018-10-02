@@ -201,8 +201,8 @@ def _check_start_end(start, startMin, startMax, end, endMin, endMax, error_):
     :type error_: Object
     :param error_: Error object for the error handler.
     """
-    if start == 0:
-        if startMin == 0:
+
+    if start == 0 and startMin == 0:
             logging.warning(' * ERROR BAD REQUEST: Missing mandatory parameter start or startMin')
             error_.bad_request('Missing mandatory parameter start or startMin')
     # check if the positional arguments are valid

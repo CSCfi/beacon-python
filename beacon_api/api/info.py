@@ -1,7 +1,7 @@
 from .models import Beacon_dataset_table
 
 
-def constructor():
+def info_endpoint():
     """
     Construct the `Beacon` dict that the info end point will return.
 
@@ -9,7 +9,7 @@ def constructor():
     :return Beacon: A dict that contain all the information about the `Beacon`.
     """
     # Here are some example requests.
-    BeaconAlleleRequest = [{
+    beacon_allele_request = [{
         "alternateBases": "A",
         "referenceBases": "C",
         "referenceName": "17",
@@ -41,13 +41,13 @@ def constructor():
     }
     ]
 
-    BeaconDataset = []
-    dbObject = Beacon_dataset_table
+    beacon_dataset = []
+    db_Object = Beacon_dataset_table
     # List of all the rows in the beacon_dataset_table
-    dbTable = dbObject.query.all()
+    db_Table = db_Object.query.all()
 
-    for row in dbTable:
-        asd = {
+    for row in db_Table:
+        dataset_row = {
             "id": row.id,
             "name": row.name,
             "description": row.description,
@@ -63,9 +63,9 @@ def constructor():
                 "accessType": row.accessType,
             }
         }
-        BeaconDataset.append(asd)
+        beacon_dataset.append(dataset_row)
 
-    Organization = {
+    organization = {
         'id': 'EGA',
         'name': 'European Genome-Phenome Archive (EGA)',
         'description': 'The European Genome-phenome Archive (EGA) is a service for permanent archiving and sharing of all types of personally identifiable \
@@ -77,11 +77,11 @@ def constructor():
         'info': None,
     }
 
-    Beacon = {
+    beacon_info = {
         'id': 'ega-beacon',
         'name': 'EGA Beacon',
         'apiVersion': '1.0.0',
-        'organization': Organization,
+        'organization': organization,
         'description': 'This <a href=\"http://ga4gh.org/#/beacon\">Beacon</a> is based on the GA4GH Beacon\
          <a href=\"https://github.com/ga4gh/beacon-team/blob/develop/src/main/resources/avro/beacon.avdl\">API 0.4</a>',
         'version': 'v1',
@@ -89,10 +89,10 @@ def constructor():
         'alternativeUrl': 'https://ega-archive.org/beacon_web/',
         'createDateTime': '2018-07-25T00:00.000Z',
         'updateDateTime': None,
-        'dataset': BeaconDataset,
-        'sampleAlleleRequests': BeaconAlleleRequest,
+        'dataset': beacon_dataset,
+        'sampleAlleleRequests': beacon_allele_request,
         'info': {
             "size": ""
              }
     }
-    return Beacon
+    return beacon_info

@@ -6,3 +6,4 @@ webargs
 PyJWT
 psycopg2
 psycopg2-binary
+testing.postgresql
