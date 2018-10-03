@@ -1,0 +1,11 @@
+{
+    "name": "DATASET1",
+    "description": "example dataset number 1",
+    "assemblyId": "GRCh38",
+    "version": "v1",
+    "variantCount": 6966,
+    "callCount": 360576,
+    "sampleCount": 1,
+    "externalUrl": "https://datasethost.org/dataset1",
+    "accessType": "PUBLIC"
+}
