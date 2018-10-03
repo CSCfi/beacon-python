@@ -302,13 +302,13 @@ def beacon_info(host):
         'version': __version__,
         'welcomeUrl': 'https://ega-archive.org/beacon_web/',
         'alternativeUrl': 'https://ega-archive.org/beacon_web/',
+        # TO DO - figure out how to dynamically get these dates
         'createDateTime': '2018-07-25T00:00.000Z',
         'updateDateTime': None,
         'dataset': beacon_dataset,
         'sampleAlleleRequests': beacon_allele_request,
-        'info': {
-            "size": ""
-        }
+        'info': [{"key": "string",
+                  "value": "string"}]
     }
 
     return beacon_info

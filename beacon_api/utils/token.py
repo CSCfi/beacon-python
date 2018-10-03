@@ -30,15 +30,14 @@ def token_auth(key):
                 LOG.debug(f' * KEY: {key}')
                 decodeData = jwt.decode(token, key, algorithms=['RS256'])
                 LOG.debug(' * Token payload: {}'.format(decodeData))
-                request["token"] = decodeData
+                request["token"] = True
                 return await handler(request)
             except Exception as e:
                 # If an exception accures when decoding the token --> the token is invalid or expired, then the error
                 # message will be sent in the response.
                 raw_json = await request.read()
                 obj = json.loads(raw_json.decode('utf-8'))
-                LOG.warning(' * * * 401 ERROR MESSAGE: Authorization failed, token invalid.')
-                raise BeaconUnauthorised(obj, e)
+                raise BeaconUnauthorised(obj, request.host, e)
         else:
             return await handler(request)
     return token_middleware

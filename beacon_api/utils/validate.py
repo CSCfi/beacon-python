@@ -3,6 +3,30 @@ from aiohttp import web
 from functools import wraps
 import jsonschema
 from ..api.exceptions import BeaconBadRequest
+# from jsonschema import Draft7Validator, validators
+# from jsonschema.exceptions import ValidationError
+
+
+# TO DO if required do not set default
+# def extend_with_default(validator_class):
+#     validate_properties = validator_class.VALIDATORS["properties"]
+#
+#     def set_defaults(validator, properties, instance, schema):
+#         for property, subschema in properties.items():
+#             if "default" in subschema:
+#                 instance.setdefault(property, subschema["default"])
+#
+#         for error in validate_properties(
+#             validator, properties, instance, schema,
+#         ):
+#             yield error
+#
+#     return validators.extend(
+#         validator_class, {"properties": set_defaults},
+#     )
+#
+#
+# DefaultValidatingDraft7Validator = extend_with_default(Draft7Validator)
 
 
 def validate(schema):
@@ -24,12 +48,13 @@ def validate(schema):
                     obj = json.loads(raw_json.decode('utf-8'))
                 except Exception:
                     # TO DO verify match response as in OpenAPI
-                    raise BeaconBadRequest(obj, "Could not properly parse the provided data as JSON.")
+                    raise BeaconBadRequest(obj, request.host, "Could not properly parse the provided data as JSON.")
                 try:
                     jsonschema.validate(obj, schema)
+                    # DefaultValidatingDraft7Validator(schema).validate(obj)
                 except jsonschema.ValidationError as e:
                     # TO DO verify match response as in OpenAPI
-                    raise BeaconBadRequest(obj, e.message)
+                    raise BeaconBadRequest(obj, request.host, e.message)
             else:
                 # response = await handler(request)
                 pass

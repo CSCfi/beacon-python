@@ -1,6 +1,7 @@
 import json
 from aiohttp import web
 from .. import __apiVersion__
+from ..utils.logging import LOG
 
 
 class BeaconError(Exception):
@@ -9,29 +10,30 @@ class BeaconError(Exception):
     Generates custom exception messages based on request parameters.
     """
 
-    def __init__(self, request, error_code, error):
+    def __init__(self, request, host, error_code, error):
         """Return request data as dictionary."""
-        self.data = {'beaconId': '.'.join(reversed(request.host.split('.'))),
+        self.data = {'beaconId': '.'.join(reversed(host.split('.'))),
                      "apiVersion": __apiVersion__,
                      'exists': None,
                      'error': {
                         'errorCode': error_code,
                         'errorMessage': error  # 'Bad request, missing mandatory parameter or the value is not valid!'
                      },
-                     'allelRequest': {'referenceName': request["referenceName"],
-                                      'start': request["start"],
-                                      'startMin': request["startMin"],
-                                      'startMax': request["startMax"],
-                                      'end': request["end"],
-                                      'endMin': request["endMin"],
-                                      'endMax': request["endMax"],
-                                      'referenceBases': request["referenceBases"],
-                                      'alternateBases': request["alternateBases"],
-                                      'variantType': request["variantType"],
-                                      'assemblyId': request["assemblyId"],
-                                      'datasetIds': request["datasetIds"],
-                                      'includeDatasetResponses': request["includeDatasetResponses"], },
+                     'allelRequest': {'referenceName': request.get("referenceName", 1),
+                                      'start': request.get("start", 0),
+                                      'startMin': request.get("startMin", 0),
+                                      'startMax': request.get("startMax", 0),
+                                      'end': request.get("end", 0),
+                                      'endMin': request.get("endMin", 0),
+                                      'endMax': request.get("endMax", 0),
+                                      'referenceBases': request.get("referenceBases"),
+                                      'alternateBases': request.get("alternateBases", "N"),
+                                      'variantType': request.get("variantType", "0"),
+                                      'assemblyId': request.get("assemblyId", 0),
+                                      'datasetIds': request.get("datasetIds", []),
+                                      'includeDatasetResponses': request.get("includeDatasetResponses", []), },
                      'datasetAllelResponses': []}
+        # TO DO add variant + alternateBases logic
         return self.data
 
 
@@ -42,10 +44,11 @@ class BeaconBadRequest(BeaconError):
     Used in conjuction with JSON Schema validator.
     """
 
-    def __init__(self, request, error):
+    def __init__(self, request, host, error):
         """Return custom bad request exception."""
-        data = super().__init__(request, 400, error)
+        data = super().__init__(request, host, 400, error)
 
+        LOG.error(f'400 ERROR MESSAGE: {error}')
         raise web.HTTPBadRequest(content_type="application/json", body=json.dumps(data).encode('utf-8'))
 
 
@@ -56,10 +59,11 @@ class BeaconUnauthorised(BeaconError):
     Used in conjuction with Token authentication aiohttp middleware.
     """
 
-    def __init__(self, request, error):
+    def __init__(self, request, host, error):
         """Return custom unauthorized exception."""
-        data = super().__init__(request, 401, error)
+        data = super().__init__(request, host, 401, error)
 
+        LOG.error(f'401 ERROR MESSAGE: {error}')
         raise web.HTTPUnauthorized(content_type="application/json", body=json.dumps(data).encode('utf-8'))
 
 
@@ -71,8 +75,9 @@ class BeaconForbidden(BeaconError):
     Used in conjuction with Token authentication aiohttp middleware.
     """
 
-    def __init__(self, request, error):
+    def __init__(self, request, host, error):
         """Return custom forbidden exception."""
-        data = super().__init__(request, 403, error)
+        data = super().__init__(request, host, 403, error)
 
+        LOG.error(f'403 ERROR MESSAGE: {error}')
         raise web.HTTPUnauthorized(content_type="application/json", body=json.dumps(data).encode('utf-8'))

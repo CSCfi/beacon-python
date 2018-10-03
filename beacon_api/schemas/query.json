@@ -10,9 +10,9 @@
   "properties": {
     "referenceName": {
       "type": "string",
-      "default": "1",
       "enum": ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12",
-               "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "X", "Y"]
+        "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "X", "Y"
+      ]
     },
     "start": {
       "type": "integer",
@@ -40,29 +40,26 @@
     },
     "referenceBases": {
       "type": "string",
-      "default": "",
       "pattern": "^([ACGT]+|N)$"
     },
     "alternateBases": {
       "type": "string",
-      "default": "",
       "pattern": "^([ACGT]+|N)$"
     },
     "variantType": {
       "type": "string",
-      "default": "",
       "pattern": "^(.*)$"
     },
     "assemblyId": {
       "type": "string",
-      "default": "",
       "pattern": "^(.*)$"
     },
     "datasetIds": {
       "type": "array",
+      "default": [],
       "items": {
         "type": "string",
-        "default": "",
+        "default": "0",
         "pattern": "^(.*)$"
       }
     },
@@ -71,5 +68,16 @@
       "default": "ALL",
       "enum": ["ALL", "HIT", "MISS", "NONE"]
     }
-  }
+  },
+  "oneOf": [{
+      "required": [
+        "variantType"
+      ]
+    },
+    {
+      "required": [
+        "alternateBases"
+      ]
+    }
+  ]
 }

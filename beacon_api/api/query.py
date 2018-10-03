@@ -51,34 +51,6 @@ class Beacon_query:
         ),
     }
 
-    def _token_auth(authHeader, error_):
-        """Check if token if valid and authenticate.
-
-        :type authHeader:
-        :param authHeader:  Value of `request.headers.get('Authorization')`.
-        :type error_:
-        :param error_:  BeaconError object `error_` so it can use it's error handlers.
-
-        :return authenticated: Return a boolean value of `True` or `False` to validate authentication.
-        """
-        authenticated = False
-        try:
-            # The second item is the token.
-            token = authHeader.split(' ')[1]
-            key = os.environ.get('PUBLIC_KEY').replace(r'\n', '\n')
-            logging.debug(' * TOKEN: {}'.format(token))
-            logging.debug(' * KEY: {}'.format(key))
-            decodeData = jwt.decode(token, key, algorithms=['RS256'])
-            authenticated = True
-            logging.debug(' * Token payload: {}'.format(decodeData))
-        except Exception:
-            # If an exception accures when decoding the token --> the token is invalid or expired, then the error
-            # message will be sent in the response.
-            logging.warning(' * * * 401 ERROR MESSAGE: Authorization failed, token invalid.')
-            error_.unauthorised('Authorization failed, token invalid.')
-        finally:
-            return authenticated
-
     @use_kwargs(args)
     def post(self, referenceName, start, startMin, startMax, end, endMin, endMax, referenceBases, alternateBases, variantType, assemblyId, datasetIds,
              includeDatasetResponses):
