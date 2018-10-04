@@ -9,7 +9,7 @@ import asyncpg
 from ..conf.config import DB_URL
 from .logging import LOG
 
-'''--BEACON DATABASE POPULATOR--'''
+'''--BEACON DATABASE LOADER--'''
 
 
 class BeaconDB:
@@ -22,9 +22,9 @@ class BeaconDB:
             LOG.info('Fetch database URL')
             self._db_url = db_url
         except Exception as e:
-            LOG.error(f'ERROR CONSTRUCTING DSN: {e}')
+            LOG.error(f'ERROR FETCHING DB URL -> {e}')
         else:
-            LOG.info(f'Database URL has been set -> Connections can now be made')
+            LOG.info('Database URL has been set -> Connections can now be made')
 
     async def connection(self):
         """Connect to the database."""
@@ -32,19 +32,18 @@ class BeaconDB:
         try:
             self._conn = await asyncpg.connect(self._db_url)
         except Exception as e:
-            LOG.error(
-                f'AN ERROR OCCURRED WHILE ATTEMPTING TO CONNECT TO DATABASE -> {e}')
+            LOG.error(f'AN ERROR OCCURRED WHILE ATTEMPTING TO CONNECT TO DATABASE -> {e}')
         else:
-            LOG.info(f'Database connection has been established')
+            LOG.info('Database connection has been established')
 
     async def check_tables(self, desired_tables):
         """Check that correct tables exist in the database."""
         LOG.info('Request tables from database')
         found_tables = []
-        tables = await self._conn.fetch('SELECT table_name '
-                                        'FROM information_schema.tables '
-                                        'WHERE table_schema=\'public\' '
-                                        'AND table_type=\'BASE TABLE\';')
+        tables = await self._conn.fetch("""SELECT table_name
+                                        FROM information_schema.tables
+                                        WHERE table_schema='public'
+                                        AND table_type='BASE TABLE';""")
         LOG.info('Tables received -> check that correct tables exist')
         for table in list(tables):
             found_tables.append(dict(table)['table_name'])
@@ -57,15 +56,13 @@ class BeaconDB:
 
     async def create_tables(self, sql_file):
         """Create tables to database according to given schema."""
-        LOG.info(
-            f'Create tables to database according to given schema in file {sql_file}')
+        LOG.info(f'Create tables to database according to given schema in file {sql_file}')
         try:
             with open(sql_file, 'r') as file:
                 schema = file.read()
             await self._conn.execute(schema)
         except Exception as e:
-            LOG.error(
-                f'AN ERROR OCCURRED WHILE ATTEMPTING TO CREATE TABLES -> {e}')
+            LOG.error(f'AN ERROR OCCURRED WHILE ATTEMPTING TO CREATE TABLES -> {e}')
         else:
             LOG.info('Tables have been created')
 
@@ -76,28 +73,27 @@ class BeaconDB:
             with open(metafile, 'r') as file:
                 metadata = json.load(file)
         except Exception as e:
-            LOG.error(
-                f'AN ERROR OCCURRED WHILE ATTEMPTING TO PARSE METADATA FROM {metafile} -> {e}')
+            LOG.error(f'AN ERROR OCCURRED WHILE ATTEMPTING TO PARSE METADATA FROM {metafile} -> {e}')
         else:
             LOG.info('Metadata has been parsed')
             try:
                 LOG.info(f'Attempting to insert metadata to database')
-                await self._conn.execute('INSERT INTO beacon_dataset_table '
-                                         '(name, description, assemblyid, '
-                                         'createdatetime, updatedatetime, '
-                                         'version, variantcount, callcount, '
-                                         'samplecount, externalurl, accesstype) '
-                                         'VALUES '
-                                         '($1, $2, $3, NOW(), NOW(), '
-                                         '$4, $5, $6, $7, $8, $9)',
-                                         metadata['name'], metadata['description'],
-                                         metadata['assemblyId'], metadata['version'],
-                                         metadata['variantCount'], metadata['callCount'],
-                                         metadata['sampleCount'], metadata['externalUrl'],
-                                         metadata['accessType'])
+                await self._conn.execute("""INSERT INTO beacon_dataset_table
+                                         (name, dataset_id, description, assemblyid,
+                                         createdatetime, updatedatetime,
+                                         version, variantcount, callcount,
+                                         samplecount, externalurl, accesstype)
+                                         VALUES
+                                         ($1, $2, $3, $4, NOW(), NOW(),
+                                         $5, $6, $7, $8, $9, $10)""",
+                                         metadata['name'], metadata['name'],
+                                         metadata['description'], metadata['assemblyId'],
+                                         metadata['version'], metadata['variantCount'],
+                                         metadata['callCount'], metadata['sampleCount'],
+                                         metadata['externalUrl'], metadata['accessType'])
+                                         
             except Exception as e:
-                LOG.error(
-                    f'AN ERROR OCCURRED WHILE ATTEMPTING TO INSERT METADATA INTO THE DATABASE -> {e}')
+                LOG.error(f'AN ERROR OCCURRED WHILE ATTEMPTING TO INSERT METADATA INTO THE DATABASE -> {e}')
             else:
                 LOG.info(f'Metadata for {metafile} inserted succesffully')
 
@@ -113,16 +109,15 @@ class BeaconDB:
         async with self._conn.transaction():
             LOG.info('Insert variants into the database')
             for item in queue:
-                await self._conn.execute('INSERT INTO beacon_data_table '
-                                         '(dataset_id, start, chromosome, reference, alternate, '
-                                         '"end", type, sv_length, variantcount, callcount, samplecount, frequency) '
-                                         'VALUES '
-                                         '($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)',
-                                         item[0], int(item[1]), item[2], item[3], item[4], int(
-                                             0 if item[5] == '' else item[5]),
-                                         item[6], int(0 if item[7] == '' else item[7]), int(
-                                             item[8]), int(item[9]), int(item[10]),
-                                         float(item[11]))
+                await self._conn.execute("""INSERT INTO beacon_data_table
+                                         (dataset_id, start, chromosome, reference, alternate,
+                                         "end", type, sv_length, variantcount, callcount, samplecount, frequency)
+                                         VALUES
+                                         ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)""",
+                                         item[0], int(item[1]), item[2], item[3], item[4],
+                                         int(0 if item[5] == '' else item[5]), item[6],
+                                         int(0 if item[7] == '' else item[7]), int(item[8]),
+                                         int(item[9]), int(item[10]), float(item[11]))
 
     async def close(self):
         """Close the database connection."""
@@ -130,8 +125,7 @@ class BeaconDB:
             LOG.info('Mark the database connection to be closed')
             await self._conn.close()
         except Exception as e:
-            LOG.error(
-                f'AN ERROR OCCURRED WHILE ATTEMPTING TO CLOSE DATABASE CONNECTION -> {e}')
+            LOG.error(f'AN ERROR OCCURRED WHILE ATTEMPTING TO CLOSE DATABASE CONNECTION -> {e}')
         else:
             LOG.info('The database connection has been closed')
 
@@ -166,9 +160,9 @@ async def init_beacon_db(arguments=None):
 
 def parse_arguments(arguments):
     """Parse command line arguments."""
-    parser = argparse.ArgumentParser(description='Load datafiles with associated metadata '
-                                     'into the beacon database. See example data and metadata files '
-                                     'in the /data directory')
+    parser = argparse.ArgumentParser(description="""Load datafiles with associated metadata
+                                     into the beacon database. See example data and metadata files
+                                     in the /data directory""")
     parser.add_argument('datafile',
                         help='.csv file containing variant information')
     parser.add_argument('metadata',
