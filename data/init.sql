@@ -29,6 +29,5 @@ CREATE TABLE IF NOT EXISTS beacon_data_table (
     callCount INTEGER,
     sampleCount INTEGER,
     frequency REAL,
-    PRIMARY KEY (id),
-    FOREIGN KEY (dataset_id) REFERENCES beacon_dataset_table (dataset_id)
+    PRIMARY KEY (id)
 );
