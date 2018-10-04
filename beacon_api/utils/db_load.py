@@ -90,7 +90,6 @@ class BeaconDB:
                                          metadata['description'], metadata['assemblyId'],
                                          metadata['version'], metadata['sampleCount'],
                                          metadata['externalUrl'], metadata['accessType'])
-                                         
             except Exception as e:
                 LOG.error(f'AN ERROR OCCURRED WHILE ATTEMPTING TO INSERT METADATA INTO THE DATABASE -> {e}')
             else:

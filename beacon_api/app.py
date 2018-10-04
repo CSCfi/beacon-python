@@ -2,6 +2,7 @@ from aiohttp import web
 import os
 
 from .api.info import beacon_info
+from .api.query import query_request_handler
 from .conf.config import init_db_pool
 from .schemas import load_schema
 from .utils.logging import LOG
@@ -53,11 +54,12 @@ async def beacon_get_query(request):
 @routes.post('/query')
 @validate(load_schema("query"))
 async def beacon_post_query(request):
-    LOG.info(request.method)
+    # LOG.info(request.method)
     # TO DO based on token we should check dataset persmissions
     # print(request["token"])
-    print(await request.read())
-    return web.Response(text="nothing")
+    # print(await request.read())
+    response = query_request_handler(request.method, await request.json(), None, request.host)
+    return web.json_response(response)
 
 
 async def create_db_pool(app):

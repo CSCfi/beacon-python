@@ -108,25 +108,27 @@ def token_auth(key):
 
             if not re.match('Bearer', scheme):
                 obj = await parse_request_object(request)
-                raise BeaconForbidden(obj, request.host, 'Invalid token scheme.')
+                raise BeaconUnauthorised(obj, request.host, 'Invalid token scheme.')
 
             if token is not None:
 
                 try:
                     decodedData = jwt.decode(token, key, algorithms=['RS256'])
                     LOG.info('Auth Token Decoded.')
-
                 except jwt.InvalidTokenError as e:
                     obj = await parse_request_object(request)
-                    raise BeaconForbidden(obj, request.host, f'Invalid authorization token, {e}.')
+                    raise BeaconUnauthorised(obj, request.host, f'Invalid authorization token: {e}.')
 
                 # Validate the issuer is Elixir AAI
-                if decodedData['iss'] == "https://login.elixir-czech.org/oidc/":
-                    request["token"] = {"bona_fide_status": True, "data": decodedData}
+                if decodedData['iss'] in ["https://login.elixir-czech.org/oidc/"]:
+                    LOG.info('Identified as Elixir AAI user.')
+                    # for now the permissions just reflect the decoded data
+                    # the bona fide status for now is set to True
+                    request["token"] = {"bona_fide_status": True, "permissions": decodedData}
                     return await handler(request)
                 else:
                     obj = await parse_request_object(request)
-                    raise BeaconUnauthorised(obj, request.host, 'Token is not validated by an Elixir AAI authorized issuer.')
+                    raise BeaconForbidden(obj, request.host, 'Token is not validated by an Elixir AAI authorized issuer.')
         else:
             request["token"] = None
             return await handler(request)

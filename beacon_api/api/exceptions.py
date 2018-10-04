@@ -30,7 +30,7 @@ class BeaconError(Exception):
                                        'referenceBases': request.get("referenceBases"),
                                        'assemblyId': request.get("assemblyId", 0),
                                        'datasetIds': request.get("datasetIds", []),
-                                       'includeDatasetResponses': request.get("includeDatasetResponses", []), },
+                                       'includeDatasetResponses': request.get("includeDatasetResponses",  "NONE"), },
                      'datasetAlleleResponses': []}
         required_alternative = ["alternateBases", "variantType"]
         self.data['alleleRequest'].update({k: request.get(k) for k in required_alternative if k in request})

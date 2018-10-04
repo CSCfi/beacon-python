@@ -16,27 +16,28 @@
     },
     "start": {
       "type": "integer",
-      "default": 0
+      "default": 0,
+      "minimum": 0
     },
     "end": {
       "type": "integer",
-      "default": 0
+      "minimum": 0
     },
     "startMin": {
       "type": "integer",
-      "default": 0
+      "minimum": 0
     },
     "startMax": {
       "type": "integer",
-      "default": 0
+      "minimum": 0
     },
     "endMin": {
       "type": "integer",
-      "default": 0
+      "minimum": 0
     },
     "endMax": {
       "type": "integer",
-      "default": 0
+      "minimum": 0
     },
     "referenceBases": {
       "type": "string",
