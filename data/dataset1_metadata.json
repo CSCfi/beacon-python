@@ -3,9 +3,7 @@
     "description": "example dataset number 1",
     "assemblyId": "GRCh38",
     "version": "v1",
-    "variantCount": 6966,
-    "callCount": 360576,
-    "sampleCount": 1,
+    "sampleCount": 2504,
     "externalUrl": "https://datasethost.org/dataset1",
     "accessType": "PUBLIC"
 }

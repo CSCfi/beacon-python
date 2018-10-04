@@ -6,9 +6,7 @@ CREATE TABLE IF NOT EXISTS beacon_dataset_table (
     assemblyId VARCHAR(20),
     createDateTime TIMESTAMPTZ,
     updateDateTime TIMESTAMPTZ,
-    version VARCHAR(5),
-    variantCount INTEGER,
-    callCount INTEGER,
+    "version" VARCHAR(5),
     sampleCount INTEGER,
     externalUrl VARCHAR(50),
     accessType VARCHAR(10),
@@ -31,3 +29,9 @@ CREATE TABLE IF NOT EXISTS beacon_data_table (
     frequency REAL,
     PRIMARY KEY (id)
 );
+
+CREATE OR REPLACE VIEW dataset_metadata(name, dataset_id, description, assemblyId, createDateTime, updateDateTime, version, variantCount, callCount, sampleCount, externalUrl, accessType)
+AS SELECT a.name, a.dataset_id, a.description, a.assemblyId, a.createDateTime, a.updateDateTime, a.version, SUM(b.variantCount), SUM(b.callCount), a.sampleCount, a.externalUrl, a.accessType
+FROM beacon_dataset_table a, beacon_data_table b
+WHERE a.dataset_id=b.dataset_id
+GROUP BY a.name, a.dataset_id, a.description, a.assemblyId, a.createDateTime, a.updateDateTime, a.version, a.sampleCount, a.externalUrl, a.accessType;

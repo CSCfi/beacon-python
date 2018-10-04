@@ -16,7 +16,7 @@ async def fetch_dataset_metadata(pool, datasets=None, access_type=None):
         async with connection.transaction():
             # Fetch dataset metadata according to user request
             # TODO: Test that datasets=[] and access_type=[] work with 1..n items
-            db_response = await connection.fetch(f"""SELECT * FROM beacon_dataset_table
+            db_response = await connection.fetch(f"""SELECT * FROM dataset_metadata
                                                  {'' if not datasets else str(tuple(datasets))}
                                                  {'' if not access_type else str(tuple(access_type))};""")
             metadata = []

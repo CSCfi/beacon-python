@@ -81,15 +81,14 @@ class BeaconDB:
                 await self._conn.execute("""INSERT INTO beacon_dataset_table
                                          (name, dataset_id, description, assemblyid,
                                          createdatetime, updatedatetime,
-                                         version, variantcount, callcount,
+                                         version,
                                          samplecount, externalurl, accesstype)
                                          VALUES
                                          ($1, $2, $3, $4, NOW(), NOW(),
-                                         $5, $6, $7, $8, $9, $10)""",
+                                         $5, $6, $7, $8)""",
                                          metadata['name'], metadata['name'],
                                          metadata['description'], metadata['assemblyId'],
-                                         metadata['version'], metadata['variantCount'],
-                                         metadata['callCount'], metadata['sampleCount'],
+                                         metadata['version'], metadata['sampleCount'],
                                          metadata['externalUrl'], metadata['accessType'])
                                          
             except Exception as e:
