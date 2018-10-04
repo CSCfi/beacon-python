@@ -1,17 +1,38 @@
-import logging
-# from .logging import LOG
+import json
+
+from datetime import datetime
+
 from ..conf.config import DB_URL
-import psycopg2
+
+#import logging
+# from .logging import LOG
+#import psycopg2
 
 
-async def fetchrow(pool):
+async def fetch_dataset_metadata(pool, datasets=None, access_type=None):
+    # Take one connection from the database pool
     async with pool.acquire() as connection:
-        # Open a transaction.
+        # Start a new session with the connection
         async with connection.transaction():
-            # Run the query passing the request
-            return await connection.fetchrow('SELECT * FROM user')
+            # Fetch dataset metadata according to user request
+            # TODO: Test that datasets=[] and access_type=[] work with 1..n items
+            db_response = await connection.fetch(f"""SELECT * FROM beacon_dataset_table
+                                                 {'' if not datasets else str(tuple(datasets))}
+                                                 {'' if not access_type else str(tuple(access_type))};""")
+            metadata = []
+            for record in list(db_response):
+                # Format postgres timestamptz into string for JSON serialisation
+                parsed_record = {key : (value.strftime('%Y-%m-%dT%H:%M:%SZ') if isinstance(value, datetime) else value) for key, value in dict(record).items()}
+                metadata.append(parsed_record)
+            return metadata
 
 
+'''
+SELECT * FROM beacon_dataset_table;
+SELECT * FROM beacon_dataset_table WHERE dataset_id IN ('DATASET1', 'DATASET2')
+SELECT * FROM beacon_dataset_table WHERE dataset_id IN ('DATASET1') AND access_TYPE IN ('PUBLIC');
+'''
+'''
 def position(start, end, startMin, startMax, endMin, endMax):
     """Check the values of the position parameters (start, startMin, startMax, end, endMain, endMax).
 
@@ -479,3 +500,4 @@ def checkInclude(includeDatasetResponses, alldatasets, trurdatasets, falsedatase
         return trurdatasets
     elif includeDatasetResponses == 'MISS':
         return falsedatasets
+'''

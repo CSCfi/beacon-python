@@ -24,8 +24,10 @@ async def beacon_get(request):
     :return beacon: The method returns an example Beacon characteristic to beacon info endpoint.
     """
     LOG.info(' * Get request to beacon end point "/"')
+    pool = request.app['pool']
     # TO DO verify match response as in OpenAPI
-    return web.json_response(beacon_info(request.host))
+    response = await beacon_info(request.host, pool)
+    return web.json_response(response)
 
 
 # ----------------------------------------------------------------------------------------------------------------------
