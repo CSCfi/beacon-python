@@ -5,8 +5,7 @@ from .api.info import beacon_info
 from .conf.config import init_db_pool
 from .schemas import load_schema
 from .utils.logging import LOG
-from .utils.validate import validate
-from .utils.token import token_auth
+from .utils.validate import validate, token_auth
 
 routes = web.RouteTableDef()
 
@@ -33,18 +32,19 @@ async def beacon_get(request):
 #                                         QUERY END POINT OPERATIONS
 # ----------------------------------------------------------------------------------------------------------------------
 @routes.get('/query')
+@validate(load_schema("query"))
 async def beacon_get_query(request):
     # TO DO based on token we should check dataset persmissions
-    # print(request["token"])
+    print(request["token"])
 
     # TO DO move db logic to api module
-    pool = request.app['pool']
-    async with pool.acquire() as connection:
-        # Open a transaction.
-        async with connection.transaction():
-            # Run the query passing the request
-            result = await connection.fetchrow('SELECT * FROM user')
-            print(result)
+    # pool = request.app['pool']
+    # async with pool.acquire() as connection:
+    #     # Open a transaction.
+    #     async with connection.transaction():
+    #         # Run the query passing the request
+    #         result = await connection.fetchrow('SELECT * FROM user')
+    #         print(result)
     return web.Response(text="nothing")
 
 
@@ -54,6 +54,7 @@ async def beacon_post_query(request):
     LOG.info(request.method)
     # TO DO based on token we should check dataset persmissions
     # print(request["token"])
+    print(await request.read())
     return web.Response(text="nothing")
 
 

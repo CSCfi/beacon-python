@@ -293,6 +293,7 @@ def beacon_info(host):
     }
 
     beacon_info = {
+        # TO DO implement some faillback mechanism for ID
         'id': '.'.join(reversed(host.split('.'))),
         'name': __title__,
         'apiVersion': __apiVersion__,

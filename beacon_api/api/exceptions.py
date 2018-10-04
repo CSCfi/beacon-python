@@ -19,21 +19,21 @@ class BeaconError(Exception):
                         'errorCode': error_code,
                         'errorMessage': error  # 'Bad request, missing mandatory parameter or the value is not valid!'
                      },
-                     'allelRequest': {'referenceName': request.get("referenceName", 1),
-                                      'start': request.get("start", 0),
-                                      'startMin': request.get("startMin", 0),
-                                      'startMax': request.get("startMax", 0),
-                                      'end': request.get("end", 0),
-                                      'endMin': request.get("endMin", 0),
-                                      'endMax': request.get("endMax", 0),
-                                      'referenceBases': request.get("referenceBases"),
-                                      'alternateBases': request.get("alternateBases", "N"),
-                                      'variantType': request.get("variantType", "0"),
-                                      'assemblyId': request.get("assemblyId", 0),
-                                      'datasetIds': request.get("datasetIds", []),
-                                      'includeDatasetResponses': request.get("includeDatasetResponses", []), },
-                     'datasetAllelResponses': []}
-        # TO DO add variant + alternateBases logic
+                     # TO DO see if we still need the default values now that we take them from schema
+                     'alleleRequest': {'referenceName': request.get("referenceName"),
+                                       'start': request.get("start", 0),
+                                       'startMin': request.get("startMin", 0),
+                                       'startMax': request.get("startMax", 0),
+                                       'end': request.get("end", 0),
+                                       'endMin': request.get("endMin", 0),
+                                       'endMax': request.get("endMax", 0),
+                                       'referenceBases': request.get("referenceBases"),
+                                       'assemblyId': request.get("assemblyId", 0),
+                                       'datasetIds': request.get("datasetIds", []),
+                                       'includeDatasetResponses': request.get("includeDatasetResponses", []), },
+                     'datasetAlleleResponses': []}
+        required_alternative = ["alternateBases", "variantType"]
+        self.data['alleleRequest'].update({k: request.get(k) for k in required_alternative if k in request})
         return self.data
 
 

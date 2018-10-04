@@ -1,6 +1,7 @@
 CREATE TABLE IF NOT EXISTS beacon_dataset_table (
     id SERIAL,
     name VARCHAR(50),
+    dataset_id VARCHAR(200),
     description VARCHAR(800),
     assemblyId VARCHAR(20),
     createDateTime TIMESTAMPTZ,
@@ -28,5 +29,6 @@ CREATE TABLE IF NOT EXISTS beacon_data_table (
     callCount INTEGER,
     sampleCount INTEGER,
     frequency REAL,
-    PRIMARY KEY (id)
+    PRIMARY KEY (id),
+    FOREIGN KEY (dataset_id) REFERENCES beacon_dataset_table (dataset_id)
 );

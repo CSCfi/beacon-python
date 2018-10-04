@@ -1,7 +1,15 @@
 import logging
-from .beacon_info import constructor
+# from .logging import LOG
 from ..conf.config import DB_URL
 import psycopg2
+
+
+async def fetchrow(pool):
+    async with pool.acquire() as connection:
+        # Open a transaction.
+        async with connection.transaction():
+            # Run the query passing the request
+            return await connection.fetchrow('SELECT * FROM user')
 
 
 def position(start, end, startMin, startMax, endMin, endMax):
