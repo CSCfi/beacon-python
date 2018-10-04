@@ -25,9 +25,9 @@ async def beacon_get(request):
     :return beacon: The method returns an example Beacon characteristic to beacon info endpoint.
     """
     LOG.info(' * Get request to beacon end point "/"')
-    pool = request.app['pool']
+    db_pool = request.app['pool']
     # TO DO verify match response as in OpenAPI
-    response = await beacon_info(request.host, pool)
+    response = await beacon_info(request.host, db_pool)
     return web.json_response(response)
 
 
@@ -38,27 +38,17 @@ async def beacon_get(request):
 @validate(load_schema("query"))
 async def beacon_get_query(request):
     # TO DO based on token we should check dataset persmissions
-    print(request["token"])
-
-    # TO DO move db logic to api module
-    # pool = request.app['pool']
-    # async with pool.acquire() as connection:
-    #     # Open a transaction.
-    #     async with connection.transaction():
-    #         # Run the query passing the request
-    #         result = await connection.fetchrow('SELECT * FROM user')
-    #         print(result)
-    return web.Response(text="nothing")
+    params = request.app['pool'], request.method, await request.json(), request["token"], request.host
+    response = await query_request_handler(params)
+    return web.json_response(response)
 
 
 @routes.post('/query')
 @validate(load_schema("query"))
 async def beacon_post_query(request):
-    # LOG.info(request.method)
     # TO DO based on token we should check dataset persmissions
-    # print(request["token"])
-    # print(await request.read())
-    response = query_request_handler(request.method, await request.json(), None, request.host)
+    params = request.app['pool'], request.method, await request.json(), request["token"], request.host
+    response = await query_request_handler(params)
     return web.json_response(response)
 
 

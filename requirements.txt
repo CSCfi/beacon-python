@@ -1,4 +1,4 @@
 aiohttp
 asyncpg
-PyJWT
+python-jose[cryptography]
 jsonschema

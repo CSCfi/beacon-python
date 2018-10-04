@@ -1,5 +1,5 @@
 from aiohttp import web
-import jwt
+from jose import jwt
 import json
 import re
 from functools import wraps
@@ -81,6 +81,7 @@ def validate(schema):
 def token_auth(key):
     """Check if token if valid and authenticate.
 
+    Decided not to use: https://github.com/hzlmn/aiohttp-jwt
     :type authHeader:
     :param authHeader:  Value of `request.headers.get('Authorization')`.
     :type error_:
@@ -115,9 +116,9 @@ def token_auth(key):
                 try:
                     decodedData = jwt.decode(token, key, algorithms=['RS256'])
                     LOG.info('Auth Token Decoded.')
-                except jwt.InvalidTokenError as e:
+                except jwt.JWTError as e:
                     obj = await parse_request_object(request)
-                    raise BeaconUnauthorised(obj, request.host, f'Invalid authorization token: {e}.')
+                    raise BeaconUnauthorised(obj, request.host, f'Invalid authorization token: {e}')
 
                 # Validate the issuer is Elixir AAI
                 if decodedData['iss'] in ["https://login.elixir-czech.org/oidc/"]:

@@ -28,7 +28,7 @@ class BeaconError(Exception):
                                        'endMin': request.get("endMin", 0),
                                        'endMax': request.get("endMax", 0),
                                        'referenceBases': request.get("referenceBases"),
-                                       'assemblyId': request.get("assemblyId", 0),
+                                       'assemblyId': request.get("assemblyId", ""),
                                        'datasetIds': request.get("datasetIds", []),
                                        'includeDatasetResponses': request.get("includeDatasetResponses",  "NONE"), },
                      'datasetAlleleResponses': []}
