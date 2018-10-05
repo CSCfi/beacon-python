@@ -18,19 +18,9 @@ async def parse_request_object(request):
         return request.method, await request.json()  # we are always expecting JSON
 
     if request.method == 'GET':
-        items = {k: v for k, v in request.rel_url.query.items()}
-        if 'start' in items:
-            items['start'] = int(items.pop('start'))
-        if 'end' in items:
-            items['end'] = int(items.pop('end'))
-        if 'startMin' in items:
-            items['startMin'] = int(items.pop('startMin'))
-        if 'endMin' in items:
-            items['endMin'] = int(items.pop('endMin'))
-        if 'startMax' in items:
-            items['startMax'] = int(items.pop('startMax'))
-        if 'endMax' in items:
-            items['endMax'] = int(items.pop('endMax'))
+        # GET parameters are returned as strings
+        int_params = ['start', 'end', 'endMax', 'endMin', 'startMax', 'startMin']
+        items = {k: (int(v) if k in int_params else v) for k, v in request.rel_url.query.items()}
         obj = json.dumps(items)
 
         return request.method, json.loads(obj)

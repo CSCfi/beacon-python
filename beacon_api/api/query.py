@@ -32,7 +32,6 @@ async def query_request_handler(params):
 
     beacon_response = {"beaconId": '.'.join(reversed(params[4].split('.'))),
                        "apiVersion": __apiVersion__,
-                       # 'exists': checkifdatasetisTrue(datasetAlleleResponses),
                        "exists": any(list(map(lambda x: x["exists"], datasets))),
                        "error": None,
                        "alleleRequest": alleleRequest,

@@ -115,11 +115,11 @@ async def fetch_filtered_dataset(db_pool, position, alternate, datasets=None, ac
                             a.frequency, {"FALSE" if misses else "TRUE"} as "exists"
                             FROM beacon_data_table a, beacon_dataset_table b
                             WHERE a.dataset_id=b.dataset_id
-                            AND {access_query} {"<>" if misses else "AND"} {datasets_query}
                             AND {"NOT" if misses else ''} ({start_pos} AND {end_pos}
                             AND {startMax_pos} AND {startMin_pos}
                             AND {endMin_pos} AND {endMax_pos}
-                            AND {variant} AND {altbase});"""
+                            AND {variant} AND {altbase})
+                            AND {access_query} {"<>" if misses and datasets else "AND"} {datasets_query} ;"""
                 datasets = []
                 # TO DO test id this gives inconsistent results on database change
                 statement = await connection.prepare(query)
@@ -150,7 +150,7 @@ def filter_exists(include_dataset, datasets):
 async def find_datasets(db_pool, position, alternate, dataset_ids, token):
     # for now we only check if there is a token
     # we will bona_fide_status and the actual permissions
-    access_type = ["REGISTERED", "PUBLIC"] if not token else ["PUBLIC"]
+    access_type = ["REGISTERED", "PUBLIC"] if token else ["PUBLIC"]
     hit_datasets = await fetch_filtered_dataset(db_pool, position, alternate,
                                                 dataset_ids, access_type)
     miss_datasets = await fetch_filtered_dataset(db_pool, position, alternate,

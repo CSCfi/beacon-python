@@ -28,7 +28,3 @@ async def init_db_pool():
     As we will have frequent requests to the database it is recommended to create a connection pool.
     """
     return await asyncpg.create_pool(dsn=DB_URL)
-
-
-if __name__ == '__main__':
-    pass

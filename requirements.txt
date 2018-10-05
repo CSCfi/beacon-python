@@ -1,4 +1,4 @@
 aiohttp
 asyncpg
 python-jose[cryptography]
-jsonschema
+jsonschema==3.0.0a3

@@ -3,11 +3,9 @@ from ..utils.data_query import fetch_dataset_metadata
 
 
 async def beacon_info(host, pool):
-    """
-    Construct the `Beacon` dict that the info end point will return.
+    """Construct the `Beacon` app information dict.
 
-    :type Beacon: Dict
-    :return Beacon: A dict that contain all the information about the `Beacon`.
+    :return beacon_info: A dict that contain information about the `Beacon` endpoint.
     """
     beacon_dataset = await fetch_dataset_metadata(pool)
 

@@ -1,12 +1,10 @@
 import unittest
-# import asyncio
-
-from unittest import mock
+import asynctest
 
 from beacon_api.utils.db_load import BeaconDB, parse_arguments
 
 
-class DatabaseTestCase(unittest.TestCase):
+class DatabaseTestCase(asynctest.TestCase):
     """Test database operations."""
 
     def setUp(self):
@@ -18,15 +16,14 @@ class DatabaseTestCase(unittest.TestCase):
         """Close database connection after tests."""
         pass
 
-    @mock.patch('beacon_api.utils.db_load.asyncpg')
+    @asynctest.mock.patch('beacon_api.utils.db_load.asyncpg')
     async def test_connection(self, db_mock):
         """Test database URL fetching."""
-        # db_mock.return_value = mock.MagicMock()
-        # asyncio.get_event_loop().run_until_complete(self._db.connection())
         await self._db.connection()
         db_mock.connect.assert_called()
 
     def test_bad_init(self):
+        """Capture error in case of anything wrong with initializing BeaconDB."""
         with self.assertRaises(TypeError):
             BeaconDB()
 
