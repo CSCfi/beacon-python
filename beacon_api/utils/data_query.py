@@ -59,7 +59,11 @@ async def fetch_filtered_dataset(db_pool, position, alternate, datasets=None, ac
             variant = 'TRUE' if not alternate[0] else 'a.type=\'' + alternate[0] + '\''
             altbase = 'TRUE' if not alternate[1] else 'a.alternate=\'' + alternate[1] + '\''
             try:
-                query = f"""SELECT a.dataset_id as "datasetId", b.accessType as "accessType",
+                # TO DO Should just a result be dataset be returned or all finds in datasets ?
+                # The Distinct is here as we one to return only one result per dataset
+                # That is not an OK approach and needs to be rethinked as the API is not clear on this
+                # Or this example dataset used here is faulty and the values need to be caculated in a VIEW
+                query = f"""SELECT DISTINCT ON (a.dataset_id) a.dataset_id as "datasetID", b.accessType as "accessType",
                             b.externalUrl as "externalUrl", b.description as "note",
                             b.assemblyId as "assemblyId", a.variantcount as "variantCount",
                             a.callcount as "callCount", a.samplecount as "sampleCount",
@@ -71,10 +75,10 @@ async def fetch_filtered_dataset(db_pool, position, alternate, datasets=None, ac
                             AND {startMax_pos} AND {startMin_pos}
                             AND {endMin_pos} AND {endMax_pos}
                             AND {variant} AND {altbase};"""
-                # db_response = await connection.fetchrow(query)
-                # datasets = [transform_record(db_response)]
                 datasets = []
-                db_response = await connection.fetch(query)
+                # TO DO test id this gives inconsistent results on database change
+                statement = await connection.prepare(query)
+                db_response = await statement.fetch()
                 for record in list(db_response):
                     datasets.append(transform_record(record))
                 return datasets
