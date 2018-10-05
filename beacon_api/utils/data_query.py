@@ -51,6 +51,10 @@ def transform_metadata(record):
 
 
 async def fetch_dataset_metadata(db_pool, datasets=None, access_type=None):
+    """Execute query for returning dataset metadata.
+
+    We use a DB View for this.
+    """
     # Take one connection from the database pool
     async with db_pool.acquire() as connection:
         # Start a new session with the connection
@@ -68,21 +72,24 @@ async def fetch_dataset_metadata(db_pool, datasets=None, access_type=None):
                             updatedatetime as "updateDateTime"
                             FROM dataset_metadata WHERE
                             ({datasets_query}) AND ({access_query});"""
-                # TO DO test id this gives inconsistent results on database change
+                # TO DO test if use of prepare this gives inconsistent results on database change
                 statement = await connection.prepare(query)
                 db_response = await statement.fetch()
                 metadata = []
+                LOG.info("Quried for specific dataset metadata.")
                 for record in list(db_response):
-                    # Format postgres timestamptz into string for JSON serialisation
-                    # parsed_record = {key: (value.strftime('%Y-%m-%dT%H:%M:%SZ') if isinstance(value, datetime) else value)
-                    #                  for key, value in dict(record).items()}
                     metadata.append(transform_metadata(record))
                 return metadata
             except Exception:
+                # TO DO 500 ?
                 raise Exception
 
 
 async def fetch_filtered_dataset(db_pool, position, alternate, datasets=None, access_type=None, misses=False):
+    """Execute filter datasets.
+
+    There is an Uber query that aims to be all inclusive.
+    """
     # Take one connection from the database pool
     async with db_pool.acquire() as connection:
         # Start a new session with the connection
@@ -121,21 +128,23 @@ async def fetch_filtered_dataset(db_pool, position, alternate, datasets=None, ac
                             AND {variant} AND {altbase})
                             AND {access_query} {"<>" if misses and datasets else "AND"} {datasets_query} ;"""
                 datasets = []
-                # TO DO test id this gives inconsistent results on database change
+                # TO DO test if use of prepare this gives inconsistent results on database change
                 statement = await connection.prepare(query)
                 db_response = await statement.fetch()
+                LOG.info("Quried for specific datasets matching conditions.")
                 for record in list(db_response):
                     processed = transform_misses(record) if misses else transform_record(record)
                     datasets.append(processed)
                 return datasets
             except Exception:
+                # TO DO 500 ?
                 raise Exception
 
 
 def filter_exists(include_dataset, datasets):
     """Return those datasets responses that the `includeDatasetResponses` parameter decides.
 
-    More Description.
+    Look at the exist parameter in each returned dataset to established HIT or MISS.
     """
     if include_dataset == 'ALL':
         return datasets
@@ -148,8 +157,13 @@ def filter_exists(include_dataset, datasets):
 
 
 async def find_datasets(db_pool, position, alternate, dataset_ids, token):
+    """Find datasets based on filter parameters.
+
+    This also takes into consideration the token value as to establish permissions.
+    """
     # for now we only check if there is a token
     # we will bona_fide_status and the actual permissions
+    # TO DO return forbidden if a specific forbidden dataset is requested
     access_type = ["REGISTERED", "PUBLIC"] if token else ["PUBLIC"]
     hit_datasets = await fetch_filtered_dataset(db_pool, position, alternate,
                                                 dataset_ids, access_type)

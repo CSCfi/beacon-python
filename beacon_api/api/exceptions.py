@@ -15,10 +15,9 @@ class BeaconError(Exception):
         self.data = {'beaconId': '.'.join(reversed(host.split('.'))),
                      "apiVersion": __apiVersion__,
                      'exists': None,
-                     'error': {
-                        'errorCode': error_code,
-                        'errorMessage': error  # 'Bad request, missing mandatory parameter or the value is not valid!'
-                     },
+                     'error': {'errorCode': error_code,
+                               # 'Bad request, missing mandatory parameter or the value is not valid!'
+                               'errorMessage': error},
                      # TO DO see if we still need the default values now that we take them from schema
                      'alleleRequest': {'referenceName': request.get("referenceName"),
                                        'start': request.get("start", 0),
@@ -30,7 +29,7 @@ class BeaconError(Exception):
                                        'referenceBases': request.get("referenceBases"),
                                        'assemblyId': request.get("assemblyId", ""),
                                        'datasetIds': request.get("datasetIds", []),
-                                       'includeDatasetResponses': request.get("includeDatasetResponses",  "NONE"), },
+                                       'includeDatasetResponses': request.get("includeDatasetResponses", "NONE"), },
                      'datasetAlleleResponses': []}
         required_alternative = ["alternateBases", "variantType"]
         self.data['alleleRequest'].update({k: request.get(k) for k in required_alternative if k in request})

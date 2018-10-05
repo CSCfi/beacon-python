@@ -96,10 +96,6 @@ def token_auth(key):
     @web.middleware
     async def token_middleware(request, handler):
         assert isinstance(request, web.Request)
-        # if request.headers.get('Authorization') is None:
-        #     raw_json = await request.read()
-        #     obj = json.loads(raw_json.decode('utf-8'))
-        #     raise BeaconUnauthorised(obj, "Authorization not set.")
         if request.path in ['/query'] and 'Authorization' in request.headers:
             try:
                 # The second item is the token.
@@ -108,11 +104,11 @@ def token_auth(key):
             except Exception as e:
                 # If an exception accures when decoding the token --> the token is invalid or expired, then the error
                 # message will be sent in the response.
-                obj = await parse_request_object(request)
+                _, obj = await parse_request_object(request)
                 raise BeaconUnauthorised(obj, request.host, e)
 
             if not re.match('Bearer', scheme):
-                obj = await parse_request_object(request)
+                _, obj = await parse_request_object(request)
                 raise BeaconUnauthorised(obj, request.host, 'Invalid token scheme.')
 
             if token is not None:
@@ -121,7 +117,7 @@ def token_auth(key):
                     decodedData = jwt.decode(token, key, algorithms=['RS256'])
                     LOG.info('Auth Token Decoded.')
                 except jwt.JWTError as e:
-                    obj = await parse_request_object(request)
+                    _, obj = await parse_request_object(request)
                     raise BeaconUnauthorised(obj, request.host, f'Invalid authorization token: {e}')
 
                 # Validate the issuer is Elixir AAI
@@ -132,7 +128,7 @@ def token_auth(key):
                     request["token"] = {"bona_fide_status": True, "permissions": decodedData}
                     return await handler(request)
                 else:
-                    obj = await parse_request_object(request)
+                    _, obj = await parse_request_object(request)
                     raise BeaconForbidden(obj, request.host, 'Token is not validated by an Elixir AAI authorized issuer.')
         else:
             request["token"] = None

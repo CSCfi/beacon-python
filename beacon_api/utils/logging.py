@@ -1,6 +1,6 @@
 import logging
 import os
-import inspect
+# import inspect
 
 # Sets the logging level from environmental variable.
 LOGGING_LVL = os.environ.get('LOGGING_LVL', 'DEBUG')

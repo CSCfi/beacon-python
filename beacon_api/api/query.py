@@ -4,7 +4,8 @@ from ..utils.data_query import filter_exists, find_datasets
 
 
 async def query_request_handler(params):
-    """
+    """Handle the parameters of the query endpoint in order to find the required datasets.
+
     params = db_pool, method, request, token, host
     """
     LOG.info(f'{params[1]} request to beacon endpoint "/query"')

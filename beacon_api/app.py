@@ -34,9 +34,11 @@ async def beacon_get(request):
 # ----------------------------------------------------------------------------------------------------------------------
 #                                         QUERY END POINT OPERATIONS
 # ----------------------------------------------------------------------------------------------------------------------
+# These could be put under a @route.view('/query')
 @routes.get('/query')
 @validate(load_schema("query"))
 async def beacon_get_query(request):
+    """Find datasets using GET endpoint."""
     # TO DO based on token we should check dataset persmissions
     method, processed_request = await parse_request_object(request)
     params = request.app['pool'], method, processed_request, request["token"], request.host
@@ -47,6 +49,7 @@ async def beacon_get_query(request):
 @routes.post('/query')
 @validate(load_schema("query"))
 async def beacon_post_query(request):
+    """Find datasets using POST endpoint."""
     # TO DO based on token we should check dataset persmissions
     method, processed_request = await parse_request_object(request)
     params = request.app['pool'], method, processed_request, request["token"], request.host
@@ -55,19 +58,23 @@ async def beacon_post_query(request):
 
 
 async def create_db_pool(app):
+    """Spin up DB a connection pool with the HTTP server."""
     # TO DO check if table and Database exist
     # and maybe exit gracefully or at lease wait for a bit
     app['pool'] = await init_db_pool()
 
 
 async def close_db_pool(app):
+    """Upon server close, close the DB connection pool."""
     await app['pool'].close()
 
 
 def init():
     """Initialise server."""
     # TO DO see if there is a better way to get the Public Key
-    key = os.environ.get('PUBLIC_KEY', '')  # .replace(r'\n', '\n')
+    with open('beacon_api/key.pub', 'r') as pub_key:
+        key = pub_key.read().replace(r'\n', '\n')
+    # key = os.environ.get('PUBLIC_KEY', '').replace(r'\n', '\n')
     beacon = web.Application(middlewares=[token_auth(key)])
     beacon.router.add_routes(routes)
     # Create a database connection pool
