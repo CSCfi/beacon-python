@@ -6,7 +6,7 @@ from .api.query import query_request_handler
 from .conf.config import init_db_pool
 from .schemas import load_schema
 from .utils.logging import LOG
-from .utils.validate import validate, token_auth
+from .utils.validate import validate, token_auth, parse_request_object
 
 routes = web.RouteTableDef()
 
@@ -38,7 +38,8 @@ async def beacon_get(request):
 @validate(load_schema("query"))
 async def beacon_get_query(request):
     # TO DO based on token we should check dataset persmissions
-    params = request.app['pool'], request.method, await request.json(), request["token"], request.host
+    method, processed_request = await parse_request_object(request)
+    params = request.app['pool'], method, processed_request, request["token"], request.host
     response = await query_request_handler(params)
     return web.json_response(response)
 
@@ -47,13 +48,14 @@ async def beacon_get_query(request):
 @validate(load_schema("query"))
 async def beacon_post_query(request):
     # TO DO based on token we should check dataset persmissions
-    params = request.app['pool'], request.method, await request.json(), request["token"], request.host
+    method, processed_request = await parse_request_object(request)
+    params = request.app['pool'], method, processed_request, request["token"], request.host
     response = await query_request_handler(params)
     return web.json_response(response)
 
 
 async def create_db_pool(app):
-    # TO DO check if table and Databse exist
+    # TO DO check if table and Database exist
     # and maybe exit gracefully or at lease wait for a bit
     app['pool'] = await init_db_pool()
 

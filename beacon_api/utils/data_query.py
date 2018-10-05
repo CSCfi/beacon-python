@@ -3,19 +3,52 @@ from .logging import LOG
 
 
 def sql_tuple(array):
+    """Transform array to SQL tupleself.
+
+    Special case if array is of length 1.
+    """
     if len(array) > 1:
-        return f"({str(tuple(array))})"
+        return f"{str(tuple(array))}"
     elif len(array) == 1:
         return "(\'" + array[0] + "\')"
 
 
 def transform_record(record):
+    """Format the record we got from the database to adhere to the response schema."""
     response = dict(record)
     response["frequency"] = round(response.pop("frequency"), 9)
     response["info"] = [{"accessType": response.pop("accessType")}]
     response["error"] = None
 
     return response
+
+
+def transform_misses(record):
+    """Format the missed datasets record we got from the database to adhere to the response schema."""
+    response = dict(record)
+    response["frequency"] = 0
+    response["variantCount"] = 0
+    response["callCount"] = 0
+    response["sampleCount"] = 0
+    response["info"] = [{"accessType": response.pop("accessType")}]
+    response["error"] = None
+
+    return response
+
+
+def transform_metadata(record):
+    """Format the metadata record we got from the database to adhere to the response schema."""
+    response = dict(record)
+    response["info"] = [{"accessType": response.pop("accessType")}]
+    # TO DO test with null date
+    if 'createDateTime' in response and isinstance(response["createDateTime"], datetime):
+        response["createDateTime"] = response.pop("createDateTime").strftime('%Y-%m-%dT%H:%M:%SZ')
+    # TO DO test with null date
+    if 'updateDateTime' in record and isinstance(response["updateDateTime"], datetime):
+        response["updateDateTime"] = response.pop("updateDateTime").strftime('%Y-%m-%dT%H:%M:%SZ')
+
+    return response
+
 
 async def fetch_dataset_metadata(db_pool, datasets=None, access_type=None):
     # Take one connection from the database pool
@@ -27,20 +60,30 @@ async def fetch_dataset_metadata(db_pool, datasets=None, access_type=None):
             datasets_query = "TRUE" if not datasets else f"a.dataset_id IN {sql_tuple(datasets)}"
             access_query = "TRUE" if not access_type else f"b.accesstype IN {sql_tuple(access_type)}"
             try:
-                db_response = await connection.fetch(f"""SELECT * FROM dataset_metadata WHERE
-                                                     ({datasets_query}) AND ({access_query});""")
+                query = f"""SELECT  dataset_id as "id", name as "name", accessType as "accessType",
+                            externalUrl as "externalUrl", description as "description",
+                            assemblyId as "assemblyId", variantcount as "variantCount",
+                            callcount as "callCount", samplecount as "sampleCount",
+                            version as "version", createdatetime as "createDateTime",
+                            updatedatetime as "updateDateTime"
+                            FROM dataset_metadata WHERE
+                            ({datasets_query}) AND ({access_query});"""
+                # TO DO test id this gives inconsistent results on database change
+                statement = await connection.prepare(query)
+                db_response = await statement.fetch()
                 metadata = []
                 for record in list(db_response):
                     # Format postgres timestamptz into string for JSON serialisation
-                    parsed_record = {key: (value.strftime('%Y-%m-%dT%H:%M:%SZ') if isinstance(value, datetime) else value)
-                                     for key, value in dict(record).items()}
-                    metadata.append(parsed_record)
+                    # parsed_record = {key: (value.strftime('%Y-%m-%dT%H:%M:%SZ') if isinstance(value, datetime) else value)
+                    #                  for key, value in dict(record).items()}
+                    metadata.append(transform_metadata(record))
                 return metadata
             except Exception:
                 raise Exception
 
 
-async def fetch_filtered_dataset(db_pool, position, alternate, datasets=None, access_type=None):
+async def fetch_filtered_dataset(db_pool, position, alternate, datasets=None, access_type=None, misses=False):
+    # Take one connection from the database pool
     async with db_pool.acquire() as connection:
         # Start a new session with the connection
         async with connection.transaction():
@@ -63,24 +106,27 @@ async def fetch_filtered_dataset(db_pool, position, alternate, datasets=None, ac
                 # The Distinct is here as we one to return only one result per dataset
                 # That is not an OK approach and needs to be rethinked as the API is not clear on this
                 # Or this example dataset used here is faulty and the values need to be caculated in a VIEW
-                query = f"""SELECT DISTINCT ON (a.dataset_id) a.dataset_id as "datasetID", b.accessType as "accessType",
+
+                # UBER QUERY - TBD if it is what we need
+                query = f"""SELECT DISTINCT ON (a.dataset_id) a.dataset_id as "datasetId", b.accessType as "accessType",
                             b.externalUrl as "externalUrl", b.description as "note",
-                            b.assemblyId as "assemblyId", a.variantcount as "variantCount",
+                            a.variantcount as "variantCount",
                             a.callcount as "callCount", a.samplecount as "sampleCount",
-                            a.frequency, TRUE as "exists"
+                            a.frequency, {"FALSE" if misses else "TRUE"} as "exists"
                             FROM beacon_data_table a, beacon_dataset_table b
                             WHERE a.dataset_id=b.dataset_id
-                            AND {datasets_query} AND {access_query}
-                            AND {start_pos} AND {end_pos}
+                            AND {access_query} {"<>" if misses else "AND"} {datasets_query}
+                            AND {"NOT" if misses else ''} ({start_pos} AND {end_pos}
                             AND {startMax_pos} AND {startMin_pos}
                             AND {endMin_pos} AND {endMax_pos}
-                            AND {variant} AND {altbase};"""
+                            AND {variant} AND {altbase});"""
                 datasets = []
                 # TO DO test id this gives inconsistent results on database change
                 statement = await connection.prepare(query)
                 db_response = await statement.fetch()
                 for record in list(db_response):
-                    datasets.append(transform_record(record))
+                    processed = transform_misses(record) if misses else transform_record(record)
+                    datasets.append(processed)
                 return datasets
             except Exception:
                 raise Exception
@@ -104,7 +150,12 @@ def filter_exists(include_dataset, datasets):
 async def find_datasets(db_pool, position, alternate, dataset_ids, token):
     # for now we only check if there is a token
     # we will bona_fide_status and the actual permissions
-    access_type = "PUBLIC" if not token else None
-    response = await fetch_filtered_dataset(db_pool, position, alternate,
-                                            datasets=dataset_ids, access_type=[access_type])
+    access_type = ["REGISTERED", "PUBLIC"] if not token else ["PUBLIC"]
+    hit_datasets = await fetch_filtered_dataset(db_pool, position, alternate,
+                                                dataset_ids, access_type)
+    miss_datasets = await fetch_filtered_dataset(db_pool, position, alternate,
+                                                 [item["datasetId"] for item in hit_datasets],
+                                                 access_type, misses=True)
+
+    response = hit_datasets + miss_datasets
     return response

@@ -15,11 +15,25 @@ async def parse_request_object(request):
     For POST request parse the body, while for the GET request parse the query parameters.
     """
     if request.method == 'POST':
-        return await request.json()  # we are always expecting JSON
+        return request.method, await request.json()  # we are always expecting JSON
 
     if request.method == 'GET':
-        obj = json.dumps({k: v for k, v in request.rel_url.query.items()})
-        return json.loads(obj)
+        items = {k: v for k, v in request.rel_url.query.items()}
+        if 'start' in items:
+            items['start'] = int(items.pop('start'))
+        if 'end' in items:
+            items['end'] = int(items.pop('end'))
+        if 'startMin' in items:
+            items['startMin'] = int(items.pop('startMin'))
+        if 'endMin' in items:
+            items['endMin'] = int(items.pop('endMin'))
+        if 'startMax' in items:
+            items['startMax'] = int(items.pop('startMax'))
+        if 'endMax' in items:
+            items['endMax'] = int(items.pop('endMax'))
+        obj = json.dumps(items)
+
+        return request.method, json.loads(obj)
 
 
 # TO DO if required do not set default
@@ -62,7 +76,7 @@ def validate(schema):
             request = args[-1]
             assert isinstance(request, web.Request)
             try:
-                obj = await parse_request_object(request)
+                _, obj = await parse_request_object(request)
             except Exception:
                 # TO DO verify match response as in OpenAPI
                 raise BeaconBadRequest(obj, request.host, "Could not properly parse the provided data as JSON.")
