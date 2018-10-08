@@ -15,9 +15,9 @@ Beacon API
    :maxdepth: 2
    :caption: Contents:
 
-   code
-
    instructions
+   code
+   example
 
 Indices and tables
 ==================

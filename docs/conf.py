@@ -59,7 +59,7 @@ current_year = str(datetime.date.today().year)
 
 # General information about the project.
 project = 'beacon_api'
-copyright = f'{current_year}, CSC Finland'
+copyright = f'{current_year}, CSC - IT Center for Science'
 author = 'CSC developers'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -94,7 +94,7 @@ autosummary_generate = True
 
 # -- Options for HTML output ----------------------------------------------
 
-html_title = 'Beacon API'
+html_title = 'Beacon-python API'
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.

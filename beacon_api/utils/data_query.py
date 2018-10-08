@@ -111,13 +111,9 @@ async def fetch_filtered_dataset(db_pool, position, alternate, datasets=None, ac
             variant = 'TRUE' if not alternate[0] else 'a.type=\'' + alternate[0] + '\''
             altbase = 'TRUE' if not alternate[1] else 'a.alternate=\'' + alternate[1] + '\''
             try:
-                # TO DO Should just a result be dataset be returned or all finds in datasets ?
-                # The Distinct is here as we one to return only one result per dataset
-                # That is not an OK approach and needs to be rethinked as the API is not clear on this
-                # Or this example dataset used here is faulty and the values need to be caculated in a VIEW
 
                 # UBER QUERY - TBD if it is what we need
-                query = f"""SELECT DISTINCT ON (a.dataset_id) a.dataset_id as "datasetId", b.accessType as "accessType",
+                query = f"""SELECT a.dataset_id as "datasetId", b.accessType as "accessType",
                             b.externalUrl as "externalUrl", b.description as "note",
                             a.variantcount as "variantCount",
                             a.callcount as "callCount", a.samplecount as "sampleCount",

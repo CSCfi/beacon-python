@@ -5,6 +5,7 @@ Server was designed with aync/await mindset and with at aim at performance (TBD)
 
 from aiohttp import web
 import os
+import sys
 
 from .api.info import beacon_info
 from .api.query import query_request_handler
@@ -104,4 +105,8 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    if sys.version_info[0] != 3 or sys.version_info[1] < 6:
+        print("This script requires Python version 3.6")
+        sys.exit(1)
+    else:
+        main()

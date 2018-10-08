@@ -16,7 +16,7 @@
 Start the PostgreSQL DB server and set up `POSTGRES_USER` and `POSTGRES_PASSWORD` as `beacon` and `POSTGRES_DB` as `beacondb` (default values, that can be changed via environment variables - see [documentation](https://beacon-python.readthedocs.io) for instructions).
 
 Recommended is to start PostgreSQL using Docker
-```console
+```shell
 docker run -e POSTGRES_USER=beacon \
            -e POSTGRES_PASSWORD=beacon \
            -e POSTGRES_DB=beacondb \
@@ -27,14 +27,15 @@ docker run -e POSTGRES_USER=beacon \
 
 For installing `beacon-python` do the following:
 
-```
+```shell
 git clone https://github.com/CSCfi/beacon-python
+pip3 install -r requirements.txt
 cd beacon-python
 pip install .
 ```
 
 For loading example database we provide the `beacon_init` utility:
-```
+```shell
 ╰─$ beacon_init --help
 usage: beacon_init [-h] datafile metadata
 
@@ -50,14 +51,14 @@ optional arguments:
 ```
 
 Load example data from the `/data` folder, as follows:
-```
+```shell
 beacon_init data/dataset1.csv data/dataset1_metadata.json
 beacon_init data/dataset2.csv data/dataset2_metadata.json
 beacon_init data/dataset3.csv data/dataset3_metadata.json
 ```
 
 Run the `beacon-python` Web Server from the command simply using:
-```
+```shell
 beacon
 ```
 
