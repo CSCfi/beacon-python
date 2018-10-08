@@ -41,15 +41,15 @@
     },
     "referenceBases": {
       "type": "string",
-      "pattern": "^([ACGT]+|N)$"
+      "pattern": "^([ACGTN]+)$"
     },
     "alternateBases": {
       "type": "string",
-      "pattern": "^([ACGT]+|N)$"
+      "pattern": "^([ACGTN]+)$"
     },
     "variantType": {
       "type": "string",
-      "pattern": "^(.*)$"
+      "enum": ["DEL", "INS", "DUP", "INV", "CNV", "SNP", "DUP:TANDEM", "DEL:ME", "INS:ME"]
     },
     "assemblyId": {
       "type": "string",
