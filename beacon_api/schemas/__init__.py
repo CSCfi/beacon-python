@@ -4,7 +4,8 @@ The schemas represent a good way of checking the endpoint requests/responses tha
 it adheres to the API specification.
 Schemas available:
 
-* ``query.json`` - for the ``/query`` endpoint request.
+* ``query.json`` - for the ``/query`` endpoint request;
+* ``response.json`` - beacon API JSON response.
 """
 
 import os

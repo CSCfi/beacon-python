@@ -30,7 +30,7 @@ async def query_request_handler(params):
                      'referenceBases': request.get("referenceBases"),
                      'assemblyId': request.get("assemblyId", "GRCh38"),
                      'datasetIds': request.get("datasetIds", []),
-                     'includeDatasetResponses': request.get("includeDatasetResponses")}
+                     'includeDatasetResponses': request.get("includeDatasetResponses", "NONE")}
     required_alternative = ["alternateBases", "variantType"]
     alleleRequest.update({k: request.get(k) for k in required_alternative if k in request})
     alternate = alleleRequest.get("variantType"), alleleRequest.get("alternateBases")

@@ -1,4 +1,4 @@
-## beacon-python
+## beacon-python - Python-based Beacon API Server
 
 [![Build Status](https://travis-ci.org/CSCfi/beacon-python.svg?branch=master)](https://travis-ci.org/CSCfi/beacon-python)
 [![Coverage Status](https://coveralls.io/repos/github/CSCfi/beacon-python/badge.svg?branch=master)](https://coveralls.io/github/CSCfi/beacon-python?branch=master)
@@ -6,16 +6,14 @@
 ### Quick start
 
 `beacon-python` requires:
-* Python 3.6+
-* running DB [PostgreSQL Server](https://www.postgresql.org/) 9.6+
-* (recommended) [Docker](https://www.docker.com/)
-
+* Python 3.6+;
+* running DB [PostgreSQL Server](https://www.postgresql.org/) 9.6+.
 
 #### Database start
 
 Start the PostgreSQL DB server and set up `POSTGRES_USER` and `POSTGRES_PASSWORD` as `beacon` and `POSTGRES_DB` as `beacondb` (default values, that can be changed via environment variables - see [documentation](https://beacon-python.readthedocs.io) for instructions).
 
-Recommended is to start PostgreSQL using Docker
+Recommended is to start PostgreSQL using [Docker](https://www.docker.com/):
 ```shell
 docker run -e POSTGRES_USER=beacon \
            -e POSTGRES_PASSWORD=beacon \
@@ -29,7 +27,7 @@ For installing `beacon-python` do the following:
 
 ```shell
 git clone https://github.com/CSCfi/beacon-python
-pip3 install -r requirements.txt
+pip install -r requirements.txt
 cd beacon-python
 pip install .
 ```

@@ -2,6 +2,7 @@
 
 from datetime import datetime
 from .logging import LOG
+from ..api.exceptions import BeaconServerError
 
 
 def sql_tuple(array):
@@ -82,9 +83,8 @@ async def fetch_dataset_metadata(db_pool, datasets=None, access_type=None):
                 for record in list(db_response):
                     metadata.append(transform_metadata(record))
                 return metadata
-            except Exception:
-                # TO DO 500 ?
-                raise Exception
+            except Exception as e:
+                raise BeaconServerError(f'DB error: {e}')
 
 
 async def fetch_filtered_dataset(db_pool, position, alternate, datasets=None, access_type=None, misses=False):
@@ -134,9 +134,8 @@ async def fetch_filtered_dataset(db_pool, position, alternate, datasets=None, ac
                     processed = transform_misses(record) if misses else transform_record(record)
                     datasets.append(processed)
                 return datasets
-            except Exception:
-                # TO DO 500 ?
-                raise Exception
+            except Exception as e:
+                raise BeaconServerError(f'DB error: {e}')
 
 
 def filter_exists(include_dataset, datasets):

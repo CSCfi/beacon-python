@@ -18,6 +18,8 @@ API Schemas
 
 .. automodule:: beacon_api.schemas
 
+Example snippets from ``query.json``:
+
 .. literalinclude:: /../beacon_api/schemas/query.json
    :language: javascript
    :lines: 11-15

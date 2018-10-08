@@ -85,3 +85,18 @@ class BeaconForbidden(BeaconError):
 
         LOG.error(f'403 ERROR MESSAGE: {error}')
         raise web.HTTPUnauthorized(content_type="application/json", body=json.dumps(data).encode('utf-8'))
+
+
+class BeaconServerError(BeaconError):
+    """HTTP Exception returns with 500 code with the error message.
+
+    The 500 error is not specified by the Beacon API, thus as simple error would do.
+    """
+
+    def __init__(self, error):
+        """Return custom forbidden exception."""
+        data = {'errorCode': 500,
+                'errorMessage': error}
+
+        LOG.error(f'500 ERROR MESSAGE: {error}')
+        raise web.HTTPUnauthorized(content_type="application/json", body=json.dumps(data).encode('utf-8'))

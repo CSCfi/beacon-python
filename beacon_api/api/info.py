@@ -22,7 +22,7 @@ async def beacon_info(host, pool):
         "start": 6689,
         "assemblyId": "GRCh37",
         "datasetIds": None,
-        "includeDatasetResponses": False
+        "includeDatasetResponses": "NONE"
     }, {
         "alternateBases": "G",
         "referenceBases": "A",
@@ -30,7 +30,7 @@ async def beacon_info(host, pool):
         "start": 14929,
         "assemblyId": "GRCh37",
         "datasetIds": [
-            "EGAD00000000028"
+            "DATASET1"
         ],
         "includeDatasetResponses": "ALL"},
         {
@@ -40,8 +40,8 @@ async def beacon_info(host, pool):
         "start": 866510,
         "assemblyId": "GRCh37",
         "datasetIds": [
-            "EGAD00001000740",
-            "EGAD00001000741"
+            "DATASET2",
+            "DATASET3"
         ],
         "includeDatasetResponses": "HIT"
     }

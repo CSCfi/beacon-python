@@ -1,5 +1,5 @@
-Beacon API
-======================================
+Python-based Beacon API Server
+==============================
 
 .. epigraph::
 
@@ -11,13 +11,22 @@ Beacon API
 
     -- https://github.com/ga4gh-beacon/specification
 
+``beacon-python`` Web Server aims to implement the `Beacon API specification <https://github.com/ga4gh-beacon/specification>`_
+by providing an easy to use and configure web application.
+
+----
+
+Table of Contents
+-----------------
+
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
 
-   instructions
-   code
-   example
+   Setup Instructions <instructions>
+   Database           <db>
+   Deployment         <deploy>
+   API Examples       <example>
+   Python Modules     <code>
 
 Indices and tables
 ==================
