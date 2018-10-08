@@ -24,13 +24,17 @@ class DatabaseTestCase(asynctest.TestCase):
         await self._db.connection()
         db_mock.connect.assert_called_with(self._db_url)
 
-    # @asynctest.mock.patch('beacon_api.utils.db_load.asyncpg', new_callable=MagicMockContext)
+    # @asynctest.mock.patch('beacon_api.utils.db_load.asyncpg')
     # async def test_check_tables(self, db_mock):
     #     """Test checking tables."""
-    #     self._db._conn = asynctest.CoroutineMock(side_effect=asyncpg.connect())
-    #     # db_mock.connect = asynctest.CoroutineMock()
-    #     await self._db.check_tables([])
-    #     # db_mock.connect.fetch.return_value = asynctest.CoroutineMock()
+    #     # self._db._conn = asynctest.CoroutineMock(side_effect=asyncpg.connect())
+    #     db_mock.return_value = asynctest.CoroutineMock(name='connect')
+    #     db_mock.connect = asynctest.CoroutineMock()
+    #     await self._db.connection()
+    #     db_mock.connect.assert_called_with(self._db_url)
+    #     db_mock.connect.side_effect = asynctest.CoroutineMock(name='fetch')
+    #     db_mock.connect.fetch.side_effect = asynctest.CoroutineMock()
+    #     await self._db.check_tables(['DATATSET1'])
     #     db_mock.connect.fetch.assert_called()
 
     def test_bad_init(self):

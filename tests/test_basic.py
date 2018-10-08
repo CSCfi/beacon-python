@@ -1,27 +1,6 @@
-# import unittest
 import asynctest
-import asyncpg
 from beacon_api.utils.db_load import parse_arguments
-# from beacon_api.conf.config import init_db_pool
-
-
-class MagicMockContext(asynctest.MagicMock):
-    """Something."""
-
-    async def __aenter__(self):
-        """Do magic."""
-        return self.aenter
-
-    async def __aexit__(self, *args):
-        """Do magic."""
-        pass
-
-
-async def create_db_mock():
-    """Mock the db connection pool."""
-    return asynctest.CoroutineMock(side_effect=asyncpg.pool.Pool)
-    # return asynctest.CoroutineMock(asyncpg.create_pool())
-    # return mock.__aenter__.return_value
+from beacon_api.conf.config import init_db_pool
 
 
 class TestBasicFunctions(asynctest.TestCase):
@@ -33,13 +12,13 @@ class TestBasicFunctions(asynctest.TestCase):
         self.assertEqual(parsed.datafile, '/path/to/datafile.csv')
         self.assertEqual(parsed.metadata, '/path/to/metadata.json')
 
-    # @asynctest.mock.patch('beacon_api.conf.config.asyncpg', new_callable=MagicMockContext)
-    # async def test_connection(self, db_mock):
-    #     """Test database URL fetching."""
-    #     # with asynctest.mock.patch('beacon_api.conf.config.asyncpg', side_effect=create_db_mock):
-    #     db_mock.return_value.aenter.create_pool = asynctest.CoroutineMock(side_effect=asyncpg.pool.Pool)
-    #     await init_db_pool()
-    #     db_mock.assert_called()
+    @asynctest.mock.patch('beacon_api.conf.config.asyncpg')
+    async def test_connection(self, db_mock):
+        """Test database URL fetching."""
+        db_mock.return_value = asynctest.CoroutineMock(name='create_pool')
+        db_mock.create_pool = asynctest.CoroutineMock()
+        await init_db_pool()
+        db_mock.create_pool.assert_called()
 
 
 if __name__ == '__main__':
