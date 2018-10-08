@@ -7,11 +7,22 @@ import asyncpg
 import asynctest
 import json
 
+PARAMS = {'assemblyId': 'GRCh38',
+          'referenceName': '1',
+          'start': 10000,
+          'referenceBases': 'A',
+          'alternateBases': 'T'}
+
 
 async def create_db_mock(app):
     """Mock the db connection pool."""
     app['pool'] = asynctest.mock.Mock(asyncpg.create_pool())
     return app
+
+
+async def mock_parse_request_object(request):
+    """Mock parse request object."""
+    return 'GET', json.dumps(PARAMS)
 
 
 class AppTestCase(AioHTTPTestCase):
@@ -56,6 +67,26 @@ class AppTestCase(AioHTTPTestCase):
         """Test empty GET query endpoint."""
         resp = await self.client.request("POST", "/query", data=json.dumps({}))
         assert 400 == resp.status
+
+    @asynctest.mock.patch('beacon_api.app.parse_request_object', side_effect=mock_parse_request_object)
+    @asynctest.mock.patch('beacon_api.app.query_request_handler', side_effect=json.dumps(PARAMS))
+    @unittest_run_loop
+    async def test_valid_get_query(self, mock_handler, mock_object):
+        """Test valid GET query endpoint."""
+        params = '?assemblyId=GRCh38&referenceName=1&start=10000&referenceBases=A&alternateBases=T'
+        with asynctest.mock.patch('beacon_api.app.create_db_pool', side_effect=create_db_mock):
+            resp = await self.client.request("GET", f"/query{params}")
+        print(resp.text)
+        print(dir(resp))
+        assert 200 == resp.status
+
+    @asynctest.mock.patch('beacon_api.app.parse_request_object', side_effect=mock_parse_request_object)
+    @asynctest.mock.patch('beacon_api.app.query_request_handler', side_effect=json.dumps(PARAMS))
+    @unittest_run_loop
+    async def test_valid_post_query(self, mock_handler, mock_object):
+        """Test valid POST query endpoint."""
+        resp = await self.client.request("POST", "/query", data=json.dumps(PARAMS))
+        assert 200 == resp.status
 
 
 class TestBasicFunctionsApp(asynctest.TestCase):

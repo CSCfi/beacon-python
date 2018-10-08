@@ -1,7 +1,9 @@
 import unittest
 import asynctest
 
-from beacon_api.utils.db_load import BeaconDB, parse_arguments
+# import asyncpg
+
+from beacon_api.utils.db_load import BeaconDB
 
 
 class DatabaseTestCase(asynctest.TestCase):
@@ -22,28 +24,19 @@ class DatabaseTestCase(asynctest.TestCase):
         await self._db.connection()
         db_mock.connect.assert_called_with(self._db_url)
 
+    # @asynctest.mock.patch('beacon_api.utils.db_load.asyncpg', new_callable=MagicMockContext)
+    # async def test_check_tables(self, db_mock):
+    #     """Test checking tables."""
+    #     self._db._conn = asynctest.CoroutineMock(side_effect=asyncpg.connect())
+    #     # db_mock.connect = asynctest.CoroutineMock()
+    #     await self._db.check_tables([])
+    #     # db_mock.connect.fetch.return_value = asynctest.CoroutineMock()
+    #     db_mock.connect.fetch.assert_called()
+
     def test_bad_init(self):
         """Capture error in case of anything wrong with initializing BeaconDB."""
         with self.assertRaises(TypeError):
             BeaconDB()
-
-
-class TestBasicFunctions(unittest.TestCase):
-    """Test supporting functions."""
-
-    def setUp(self):
-        """Initialise fixtures."""
-        pass
-
-    def tearDown(self):
-        """Remove setup variables."""
-        pass
-
-    def test_parser(self):
-        """Test argument parsing."""
-        parsed = parse_arguments(['/path/to/datafile.csv', '/path/to/metadata.json'])
-        self.assertEqual(parsed.datafile, '/path/to/datafile.csv')
-        self.assertEqual(parsed.metadata, '/path/to/metadata.json')
 
 
 if __name__ == '__main__':
