@@ -6,6 +6,10 @@ omit =
     # omit everything in /usr
     /usr/*
     # omit this single file
+    beacon_api/__init__.py
+    beacon_api/utils/__init__.py
+    beacon_api/conf/__init__.py
+    beacon_api/api/__init__.py
 
 [report]
 # Regexes for lines to exclude from consideration

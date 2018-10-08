@@ -31,6 +31,7 @@ wheels/
 *.egg
 MANIFEST
 
+
 # PyInstaller
 #  Usually these files are written by a python script from a template
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.
@@ -71,6 +72,9 @@ instance/
 
 # Sphinx documentation
 docs/_build/
+docs/beacon_api.api/
+docs/beacon_api.utils/
+docs/beacon_api.conf/
 
 # PyBuilder
 target/

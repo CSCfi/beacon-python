@@ -1,7 +1,10 @@
+"""Logging formatting."""
+
 import logging
 import os
 # import inspect
 
+# TO DO: do some proper logs
 # Sets the logging level from environmental variable.
 LOGGING_LVL = os.environ.get('LOGGING_LVL', 'DEBUG')
 # callerframe = inspect.stack()[1][0]

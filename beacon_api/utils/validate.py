@@ -1,3 +1,5 @@
+"""JSON Request/Response Validation and Token authentication."""
+
 from aiohttp import web
 from jose import jwt
 import json
@@ -5,6 +7,7 @@ import re
 from functools import wraps
 from .logging import LOG
 from ..api.exceptions import BeaconUnauthorised, BeaconBadRequest, BeaconForbidden
+# Draft7Validator should be kept an eye on as this might change
 from jsonschema import Draft7Validator, validators
 from jsonschema.exceptions import ValidationError
 

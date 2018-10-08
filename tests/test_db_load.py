@@ -20,7 +20,7 @@ class DatabaseTestCase(asynctest.TestCase):
     async def test_connection(self, db_mock):
         """Test database URL fetching."""
         await self._db.connection()
-        db_mock.connect.assert_called()
+        db_mock.connect.assert_called_with(self._db_url)
 
     def test_bad_init(self):
         """Capture error in case of anything wrong with initializing BeaconDB."""

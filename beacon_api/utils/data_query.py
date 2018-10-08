@@ -1,9 +1,11 @@
+"""Query DB and prepare data for reponse."""
+
 from datetime import datetime
 from .logging import LOG
 
 
 def sql_tuple(array):
-    """Transform array to SQL tupleself.
+    """Transform array to SQL tuple.
 
     Special case if array is of length 1.
     """

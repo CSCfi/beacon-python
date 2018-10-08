@@ -1,3 +1,9 @@
+"""Query Endpoint.
+
+Querying the infor endpoint reveals information about existing datasets in this beacon
+and their associated metadata.
+"""
+
 from ..utils.logging import LOG
 from .. import __apiVersion__
 from ..utils.data_query import filter_exists, find_datasets

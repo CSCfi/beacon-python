@@ -1,13 +1,14 @@
+"""DB Configuration.
+
+Specify the url and the necessary info for the PostgreSQL server from the environmental variables and packs it into one
+variable called DB_URL. The variable is then used to configure the application to connect to that database using asyncpg.
+At this point we also initialize a conection pool that the API is going to use throughout its endpoints.
+"""
+
 import os
 import asyncpg
 
-# ----------------------------------------------------------------------------------------------------------------------
-#                                   APPLICATION SET UPP AND CONFIGURATION
-# ----------------------------------------------------------------------------------------------------------------------
 
-# Takes the url and the necessary info for the postgres server from the environmental variables and packs it into one
-# variable called DB_URL. The variable is then used to configure the application to connect to that database using
-# SQLAlchemy.
 URL = os.environ.get('DATABASE_URL', 'postgresql://localhost:5432').split('/')[2]
 POSTGRES = {
     'user': os.environ.get('DATABASE_USER', 'beacon'),

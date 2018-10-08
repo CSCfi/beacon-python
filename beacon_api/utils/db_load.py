@@ -1,3 +1,5 @@
+"""Beacon Database Loader."""
+
 import os
 import csv
 import argparse
@@ -8,8 +10,6 @@ import asyncpg
 
 from ..conf.config import DB_URL
 from .logging import LOG
-
-'''--BEACON DATABASE LOADER--'''
 
 
 class BeaconDB:

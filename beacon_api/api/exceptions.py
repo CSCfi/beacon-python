@@ -1,3 +1,8 @@
+"""Custom API exception reponses.
+
+API specification requires custom messages upon error.
+"""
+
 import json
 from aiohttp import web
 from .. import __apiVersion__
@@ -5,7 +10,7 @@ from ..utils.logging import LOG
 
 
 class BeaconError(Exception):
-    """BeaconError Exception specifc class.
+    """BeaconError Exception specific class.
 
     Generates custom exception messages based on request parameters.
     """
@@ -37,7 +42,7 @@ class BeaconError(Exception):
 
 
 class BeaconBadRequest(BeaconError):
-    """Raise an HTTP Exception returns with 400 code and a customised error message.
+    """Exception returns with 400 code and a custom error message.
 
     The method is called if one of the required parameters are missing or invalid.
     Used in conjuction with JSON Schema validator.
@@ -52,7 +57,7 @@ class BeaconBadRequest(BeaconError):
 
 
 class BeaconUnauthorised(BeaconError):
-    """Raise an HTTP Exception returns with 401 code with a custom error message.
+    """HTTP Exception returns with 401 code with a custom error message.
 
     The method is called if the user is not registered or if the token from the authentication has expired.
     Used in conjuction with Token authentication aiohttp middleware.
@@ -67,11 +72,11 @@ class BeaconUnauthorised(BeaconError):
 
 
 class BeaconForbidden(BeaconError):
-    """Raise an HTTP Exception returns with 403 code with the error message.
+    """HTTP Exception returns with 403 code with the error message.
 
-    `'Resource not granted for authenticated user or resource protected for all users.'`. The method is called if the dataset
-    is protected or if the user is authenticated but not granted the resource.
-    Used in conjuction with Token authentication aiohttp middleware.
+    `'Resource not granted for authenticated user or resource protected for all users.'`.
+    The method is called if the dataset is protected or if the user is authenticated
+    but not granted the resource. Used in conjuction with Token authentication aiohttp middleware.
     """
 
     def __init__(self, request, host, error):

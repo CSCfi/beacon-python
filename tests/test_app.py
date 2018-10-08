@@ -5,6 +5,7 @@ from beacon_api.app import init, main, create_db_pool
 from unittest import mock
 import asyncpg
 import asynctest
+import json
 
 
 async def create_db_mock(app):
@@ -48,6 +49,12 @@ class AppTestCase(AioHTTPTestCase):
     async def test_empty_get_query(self):
         """Test empty GET query endpoint."""
         resp = await self.client.request("GET", "/query")
+        assert 400 == resp.status
+
+    @unittest_run_loop
+    async def test_empty_post_query(self):
+        """Test empty GET query endpoint."""
+        resp = await self.client.request("POST", "/query", data=json.dumps({}))
         assert 400 == resp.status
 
 

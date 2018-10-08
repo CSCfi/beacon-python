@@ -6,22 +6,10 @@
 - [About](#about)
   * [What is a Beacon?](#what-is-a-beacon-)
 - [Requirements](#requirements)
-- [License](#license)
 - [Quick start](#quick-start)
   * [Create database](#create-database)
   * [Run the application](#run-the-application)
-- [Configure database](#configure-database)
-  * [Create tables](#create-tables)
-  * [Load data](#load-data)
 - [Using the application](#using-the-application)
-  * [Info endpoint](#info-endpoint)
-    + [Request](#request)
-    + [Response](#response)
-    + [Examples](#examples)
-  * [Query endpoint](#query-endpoint)
-    + [Request](#request-1)
-    + [Response](#response-1)
-    + [Examples](#examples-1)
 - [Further information](#further-information)
   * [Project structure](#project-structure)
   * [Testing](#testing)
@@ -36,10 +24,6 @@ The Beacon project was launched in 2014 to show the willingness of researchers t
 ## Requirements
 * Python 3.6
 * PostgreSQL Server 9.0+
-
-
-## License
-This project is licensed under the terms of the Apache2.0 license.
 
 ## Quick start
 
@@ -477,33 +461,7 @@ $ curl -v 'http://localhost:8080/query?referenceName=1&start=2947892&referenceBa
 ### Project structure
 
 ```text
-beacon-python
-├── beacon_api
-│   ├── conf
-│   │   ├── config.py
-│   │   └── __init__.py
-│   ├── __init__.py
-│   ├── utils
-│   │   ├── beacon_info.py
-│   │   ├── check_functions.py
-│   │   ├── error_handelers.py
-│   │   ├── __init__.py
-│   │   └── models.py
-│   └── wsgi.py
-├── beacon.md
-├── data
-│   ├── dataset1.csv
-│   ├── dataset2.csv
-│   └── dataset3.csv
-├── docs
-├── LICENSE
-├── README.md
-├── requirements.txt
-├── tests
-│   ├── __init__.py
-│   ├── requirements.txt
-│   └── test_wsgi.py
-└── tox.ini
+
 ```
 
 ### Testing

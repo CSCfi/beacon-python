@@ -1,3 +1,8 @@
+"""Beacon API Web Server.
+
+Server was designed with aync/await mindset and with at aim at performance (TBD).
+"""
+
 from aiohttp import web
 import os
 
@@ -89,8 +94,12 @@ def main():
     At start also initialize a PostgreSQL connection pool.
     """
     # TO DO make it HTTPS and request certificate
+    # TO DO allow CORS ?
+    # sslcontext.load_cert_chain(ssl_certfile, ssl_keyfile)
+    # sslcontext = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+    # sslcontext.check_hostname = False
     web.run_app(init(), host=os.environ.get('HOST', '0.0.0.0'),
-                port=os.environ.get('PORT', '8080'),
+                port=os.environ.get('PORT', '5050'),
                 shutdown_timeout=0, ssl_context=None)
 
 

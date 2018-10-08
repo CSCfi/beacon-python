@@ -1,5 +1,5 @@
 
-"""The beacon package contains code to start a EGA beacon."""
+"""The beacon package contains code to start an EGA Beacon API."""
 
 __title__ = 'EGA Beacon'
 __version__ = VERSION = '1.0.0'

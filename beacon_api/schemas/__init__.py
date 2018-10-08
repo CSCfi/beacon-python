@@ -1,3 +1,12 @@
+"""Load JSON Schemas.
+
+The schemas represent a good way of checking the endpoint requests/responses that
+it adheres to the API specification.
+Schemas available:
+
+* ``query.json`` - for the ``/query`` endpoint request.
+"""
+
 import os
 import json
 
