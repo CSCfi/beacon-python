@@ -1,0 +1,25 @@
+language: python
+
+python: 3.6
+install: true
+
+git:
+  depth: false
+  quiet: true
+
+stages:
+  - name: unittests
+    if: type IN (push, pull_request)
+
+
+jobs:
+  include:
+    - stage: unittests
+      python: 3.6
+      before_script:
+        - pip install tox-travis
+      script: tox
+
+
+notifications:
+  email: false

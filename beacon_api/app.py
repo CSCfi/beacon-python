@@ -77,9 +77,9 @@ async def close_db_pool(app):
 def init():
     """Initialise server."""
     # TO DO see if there is a better way to get the Public Key
-    with open('beacon_api/key.pub', 'r') as pub_key:
-        key = pub_key.read().replace(r'\n', '\n')
-    # key = os.environ.get('PUBLIC_KEY', '').replace(r'\n', '\n')
+    # with open('beacon_api/key.pub', 'r') as pub_key:
+    #     key = pub_key.read().replace(r'\n', '\n')
+    key = os.environ.get('PUBLIC_KEY', '\n').replace(r'\n', '\n')
     beacon = web.Application(middlewares=[token_auth(key)])
     beacon.router.add_routes(routes)
     # Create a database connection pool
