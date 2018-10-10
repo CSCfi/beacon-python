@@ -127,7 +127,7 @@ async def fetch_filtered_dataset(db_pool, position, reference, alternate, datase
                             AND {refbase} AND {variant} AND {altbase})
                             AND {access_query} {"<>" if misses and datasets else "AND"} {datasets_query} ;"""
                 datasets = []
-                print(query)
+
                 # TO DO test if use of prepare this gives inconsistent results on database change
                 statement = await connection.prepare(query)
                 db_response = await statement.fetch()
