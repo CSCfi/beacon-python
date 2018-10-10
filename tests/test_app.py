@@ -64,9 +64,39 @@ class AppTestCase(AioHTTPTestCase):
 
     @unittest_run_loop
     async def test_empty_post_query(self):
-        """Test empty GET query endpoint."""
+        """Test empty POST query endpoint."""
         resp = await self.client.request("POST", "/query", data=json.dumps({}))
         assert 400 == resp.status
+
+    @unittest_run_loop
+    async def test_unauthorized_no_token_post_query(self):
+        """Test unauthorized POST query endpoint, with no token."""
+        resp = await self.client.request("POST", "/query",
+                                         data=json.dumps(PARAMS),
+                                         headers={'Authorization': "Bearer"})
+        assert 401 == resp.status
+
+    @unittest_run_loop
+    async def test_unauthorized_token_post_query(self):
+        """Test unauthorized POST query endpoint, bad token."""
+        resp = await self.client.request("POST", "/query",
+                                         data=json.dumps(PARAMS),
+                                         headers={'Authorization': "Bearer x"})
+        assert 401 == resp.status
+
+    @unittest_run_loop
+    async def test_invalid_scheme_get_query(self):
+        """Test unauthorized GET query endpoint, invalid scheme."""
+        resp = await self.client.request("GET", "/query",
+                                         data=json.dumps(PARAMS),
+                                         headers={'Authorization': "SMTH x"})
+        assert 401 == resp.status
+
+    @unittest_run_loop
+    async def test_bad_json_post_query(self):
+        """Test bad json POST query endpoint."""
+        resp = await self.client.request("POST", "/query", data="")
+        assert 500 == resp.status
 
     @asynctest.mock.patch('beacon_api.app.parse_request_object', side_effect=mock_parse_request_object)
     @asynctest.mock.patch('beacon_api.app.query_request_handler', side_effect=json.dumps(PARAMS))

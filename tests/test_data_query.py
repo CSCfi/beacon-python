@@ -1,6 +1,6 @@
 import asynctest
 from beacon_api.utils.data_query import sql_tuple, filter_exists, transform_record
-from beacon_api.utils.data_query import transform_misses, transform_metadata
+from beacon_api.utils.data_query import transform_misses, transform_metadata, find_datasets
 from datetime import datetime
 
 
@@ -97,6 +97,13 @@ class TestDataQueryFunctions(asynctest.TestCase):
         result = transform_metadata(record)
         print(result)
         self.assertEqual(result, response)
+
+    @asynctest.mock.patch('beacon_api.utils.data_query.fetch_filtered_dataset')
+    async def test_find_datasets(self, mock_filtered):
+        """Test find datasets."""
+        mock_filtered.return_value = []
+        result = await find_datasets(None, None, 'C', [], None)
+        self.assertEqual(result, [])
 
 
 if __name__ == '__main__':
