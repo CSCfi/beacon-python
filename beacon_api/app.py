@@ -30,7 +30,7 @@ async def beacon_get(request):
     :type beacon: Dict
     :return beacon: The method returns an example Beacon characteristic to beacon info endpoint.
     """
-    LOG.info(' * Get request to beacon end point "/"')
+    LOG.info('GET request to the info endpoint "/"')
     db_pool = request.app['pool']
     # TO DO verify match response as in OpenAPI
     response = await beacon_info(request.host, db_pool)
@@ -67,6 +67,7 @@ async def create_db_pool(app):
     """Spin up DB a connection pool with the HTTP server."""
     # TO DO check if table and Database exist
     # and maybe exit gracefully or at lease wait for a bit
+    LOG.debug('Create PostgreSQL connection pool.')
     app['pool'] = await init_db_pool()
 
 

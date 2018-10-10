@@ -79,7 +79,7 @@ async def fetch_dataset_metadata(db_pool, datasets=None, access_type=None):
                 statement = await connection.prepare(query)
                 db_response = await statement.fetch()
                 metadata = []
-                LOG.info("Quried for specific dataset metadata.")
+                LOG.info(f"Query for dataset(s): {datasets} metadata that are {access_type}.")
                 for record in list(db_response):
                     metadata.append(transform_metadata(record))
                 return metadata
@@ -129,7 +129,7 @@ async def fetch_filtered_dataset(db_pool, position, alternate, datasets=None, ac
                 # TO DO test if use of prepare this gives inconsistent results on database change
                 statement = await connection.prepare(query)
                 db_response = await statement.fetch()
-                LOG.info("Quried for specific datasets matching conditions.")
+                LOG.info(f"Query for dataset(s): {datasets} that are {access_type} matching conditions.")
                 for record in list(db_response):
                     processed = transform_misses(record) if misses else transform_record(record)
                     datasets.append(processed)
@@ -161,7 +161,7 @@ async def find_datasets(db_pool, position, alternate, dataset_ids, token):
     # for now we only check if there is a token
     # we will bona_fide_status and the actual permissions
     # TO DO return forbidden if a specific forbidden dataset is requested
-    access_type = ["REGISTERED", "PUBLIC"] if token else ["PUBLIC"]
+    access_type = ["REGISTERED", "PUBLIC", "CONTROLLED"] if token else ["PUBLIC"]
     hit_datasets = await fetch_filtered_dataset(db_pool, position, alternate,
                                                 dataset_ids, access_type)
     miss_datasets = await fetch_filtered_dataset(db_pool, position, alternate,

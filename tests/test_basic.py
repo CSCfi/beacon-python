@@ -1,10 +1,51 @@
 import asynctest
-from beacon_api.utils.db_load import parse_arguments
+from beacon_api.utils.db_load import parse_arguments, init_beacon_db
 from beacon_api.conf.config import init_db_pool
+from testfixtures import TempDirectory
+
+
+class MockBeaconDB:
+    """Class Connection."""
+
+    def __init__(self):
+        """Initialize class."""
+        pass
+
+    async def connection(self):
+        """Mimic connection."""
+        pass
+
+    async def close(self):
+        """Mimic connection."""
+        pass
+
+    async def check_tables(self, array):
+        """Mimic check_tables."""
+        return ['DATASET1', 'DATASET2']
+
+    async def create_tables(self, sql_file):
+        """Mimic clocreate_tablesse."""
+        pass
+
+    async def load_metadata(self, metafile):
+        """Mimic load_metadata."""
+        pass
+
+    async def load_datafile(self, datafile):
+        """Mimic load_datafile."""
+        pass
 
 
 class TestBasicFunctions(asynctest.TestCase):
     """Test supporting functions."""
+
+    def setUp(self):
+        """Initialise BeaconDB object."""
+        self._dir = TempDirectory()
+
+    def tearDown(self):
+        """Close database connection after tests."""
+        self._dir.cleanup_all()
 
     def test_parser(self):
         """Test argument parsing."""
@@ -19,6 +60,25 @@ class TestBasicFunctions(asynctest.TestCase):
         db_mock.create_pool = asynctest.CoroutineMock()
         await init_db_pool()
         db_mock.create_pool.assert_called()
+
+    @asynctest.mock.patch('beacon_api.utils.db_load.LOG')
+    @asynctest.mock.patch('beacon_api.utils.db_load.BeaconDB')
+    async def test_init_beacon_db(self, db_mock, mock_log):
+        """Test database URL fetching."""
+        db_mock.return_value = MockBeaconDB()
+        metadata = """{"name": "DATASET1",
+                    "description": "example dataset number 1",
+                    "assemblyId": "GRCh38",
+                    "version": "v1",
+                    "sampleCount": 2504,
+                    "externalUrl": "https://datasethost.org/dataset1",
+                    "accessType": "PUBLIC"}"""
+        metafile = self._dir.write('data.json', metadata.encode('utf-8'))
+        data = """DATASET1;2947887;1;C;T;;SNP;;1;5008;2504;0.000199681"""
+        datafile = self._dir.write('data.csv', data.encode('utf-8'))
+        await init_beacon_db([datafile, metafile])
+        mock_log.info.mock_calls = ['Mark the database connection to be closed',
+                                    'The database connection has been closed']
 
 
 if __name__ == '__main__':

@@ -49,8 +49,6 @@ the table below.
 +---------------------+-------------------------------+--------------------------------------------------+
 | `DEBUG`             | `True`                        | If set to `True`, Standard Output.               |
 +---------------------+-------------------------------+--------------------------------------------------+
-| `LOGGING_LVL`       | `DEBUG`                       | Options: [`DEBUG`, `INFO`, `WARNIG`, `CRITICAL`] |
-+---------------------+-------------------------------+--------------------------------------------------+
 
 Setting the necessary environment variables can be done  e.g. via the command line:
 
@@ -63,7 +61,15 @@ Setting the necessary environment variables can be done  e.g. via the command li
     $ export HOST=0.0.0.0
     $ export PORT=5050
     $ export DEBUG=True
-    $ export LOGGING_LVL=DEBUG
+
+Starting PostgreSQL using Docker:
+
+.. code-block:: console
+
+    docker run -e POSTGRES_USER=beacon \
+               -e POSTGRES_PASSWORD=beacon \
+               -e POSTGRES_DB=beacondb \
+               -p 5432:5432 postgres:9.6
 
 For loading example database we provide the ``beacon_init`` utility:
 
