@@ -6,7 +6,7 @@ import json
 import re
 from functools import wraps
 from .logging import LOG
-from ..api.exceptions import BeaconUnauthorised, BeaconBadRequest, BeaconForbidden
+from ..api.exceptions import BeaconUnauthorised, BeaconBadRequest, BeaconForbidden, BeaconServerError
 # Draft7Validator should be kept an eye on as this might change
 from jsonschema import Draft7Validator, validators
 from jsonschema.exceptions import ValidationError
@@ -72,7 +72,7 @@ def validate(schema):
                 _, obj = await parse_request_object(request)
             except Exception:
                 # TO DO verify match response as in OpenAPI
-                raise BeaconBadRequest(obj, request.host, "Could not properly parse the provided data as JSON.")
+                raise BeaconServerError("Could not properly parse the provided Request Body as JSON.")
             try:
                 # jsonschema.validate(obj, schema)
                 DefaultValidatingDraft7Validator(schema).validate(obj)
@@ -101,7 +101,7 @@ def token_auth(key):
                 LOG.info('Auth Token Received.')
             except Exception as e:
                 _, obj = await parse_request_object(request)
-                raise BeaconUnauthorised(obj, request.host, e)
+                raise BeaconUnauthorised(obj, request.host, str(e))
 
             if not re.match('Bearer', scheme):
                 _, obj = await parse_request_object(request)

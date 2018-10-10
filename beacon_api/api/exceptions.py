@@ -24,14 +24,14 @@ class BeaconError(Exception):
                                # 'Bad request, missing mandatory parameter or the value is not valid!'
                                'errorMessage': error},
                      # TO DO see if we still need the default values now that we take them from schema
-                     'alleleRequest': {'referenceName': request.get("referenceName"),
+                     'alleleRequest': {'referenceName': request.get("referenceName", None),
                                        'start': request.get("start", 0),
                                        'startMin': request.get("startMin", 0),
                                        'startMax': request.get("startMax", 0),
                                        'end': request.get("end", 0),
                                        'endMin': request.get("endMin", 0),
                                        'endMax': request.get("endMax", 0),
-                                       'referenceBases': request.get("referenceBases"),
+                                       'referenceBases': request.get("referenceBases", None),
                                        'assemblyId': request.get("assemblyId", ""),
                                        'datasetIds': request.get("datasetIds", []),
                                        'includeDatasetResponses': request.get("includeDatasetResponses", "NONE"), },
@@ -99,4 +99,4 @@ class BeaconServerError(BeaconError):
                 'errorMessage': error}
 
         LOG.error(f'500 ERROR MESSAGE: {error}')
-        raise web.HTTPUnauthorized(content_type="application/json", body=json.dumps(data).encode('utf-8'))
+        raise web.HTTPInternalServerError(content_type="application/json", body=json.dumps(data).encode('utf-8'))
