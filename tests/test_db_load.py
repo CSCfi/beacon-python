@@ -5,7 +5,10 @@ from beacon_api.utils.db_load import BeaconDB
 
 
 class Transaction:
-    """Class Connection."""
+    """Class Transaction.
+
+    Mock this from asyncpg.
+    """
 
     def __init__(self, *args, **kwargs):
         """Initialize class."""
@@ -21,7 +24,10 @@ class Transaction:
 
 
 class Connection:
-    """Class Connection."""
+    """Class Connection.
+
+    Mock this from asyncpg.
+    """
 
     def __init__(self):
         """Initialize class."""

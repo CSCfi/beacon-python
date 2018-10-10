@@ -1,11 +1,14 @@
 import asynctest
-from beacon_api.utils.db_load import parse_arguments, init_beacon_db
+from beacon_api.utils.db_load import parse_arguments, init_beacon_db, main
 from beacon_api.conf.config import init_db_pool
 from testfixtures import TempDirectory
 
 
 class MockBeaconDB:
-    """Class Connection."""
+    """BeaconDB mock.
+
+    We test this in db_load.
+    """
 
     def __init__(self):
         """Initialize class."""
@@ -54,8 +57,8 @@ class TestBasicFunctions(asynctest.TestCase):
         self.assertEqual(parsed.metadata, '/path/to/metadata.json')
 
     @asynctest.mock.patch('beacon_api.conf.config.asyncpg')
-    async def test_connection(self, db_mock):
-        """Test database URL fetching."""
+    async def test_init_pool(self, db_mock):
+        """Test database connection pool creation."""
         db_mock.return_value = asynctest.CoroutineMock(name='create_pool')
         db_mock.create_pool = asynctest.CoroutineMock()
         await init_db_pool()
@@ -64,7 +67,7 @@ class TestBasicFunctions(asynctest.TestCase):
     @asynctest.mock.patch('beacon_api.utils.db_load.LOG')
     @asynctest.mock.patch('beacon_api.utils.db_load.BeaconDB')
     async def test_init_beacon_db(self, db_mock, mock_log):
-        """Test database URL fetching."""
+        """Test beacon_init call."""
         db_mock.return_value = MockBeaconDB()
         metadata = """{"name": "DATASET1",
                     "description": "example dataset number 1",
@@ -79,6 +82,12 @@ class TestBasicFunctions(asynctest.TestCase):
         await init_beacon_db([datafile, metafile])
         mock_log.info.mock_calls = ['Mark the database connection to be closed',
                                     'The database connection has been closed']
+
+    @asynctest.mock.patch('beacon_api.utils.db_load.init_beacon_db')
+    def test_main_db(self, mock_init):
+        """Test run asyncio main beacon init."""
+        main()
+        mock_init.assert_called()
 
 
 if __name__ == '__main__':

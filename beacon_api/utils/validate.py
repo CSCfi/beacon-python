@@ -88,13 +88,8 @@ def validate(schema):
 def token_auth(key):
     """Check if token if valid and authenticate.
 
-    Decided not to use: https://github.com/hzlmn/aiohttp-jwt
-    :type authHeader:
-    :param authHeader:  Value of `request.headers.get('Authorization')`.
-    :type error_:
-    :param error_:  BeaconError object `error_` so it can use it's error handlers.
-
-    :return authenticated: Return a boolean value of `True` or `False` to validate authentication.
+    Decided not to use: https://github.com/hzlmn/aiohttp-jwt, as we need to verify
+    ELIXIR AAI issuer and bona_fide_status.
     """
     @web.middleware
     async def token_middleware(request, handler):
@@ -105,8 +100,6 @@ def token_auth(key):
                 scheme, token = request.headers.get('Authorization').split(' ')
                 LOG.info('Auth Token Received.')
             except Exception as e:
-                # If an exception accures when decoding the token --> the token is invalid or expired, then the error
-                # message will be sent in the response.
                 _, obj = await parse_request_object(request)
                 raise BeaconUnauthorised(obj, request.host, e)
 
