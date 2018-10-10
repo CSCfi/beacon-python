@@ -1,9 +1,0 @@
-{
-    "name": "DATASET3",
-    "description": "example dataset number 3",
-    "assemblyId": "GRCh38",
-    "version": "v1",
-    "sampleCount": 1,
-    "externalUrl": "https://datasethost.org/dataset3",
-    "accessType": "REGISTERED"
-}

@@ -1,37 +1,35 @@
 CREATE TABLE IF NOT EXISTS beacon_dataset_table (
-    id SERIAL,
-    name VARCHAR(50),
-    dataset_id VARCHAR(200),
-    description VARCHAR(800),
-    assemblyId VARCHAR(20),
-    createDateTime TIMESTAMPTZ,
-    updateDateTime TIMESTAMPTZ,
-    "version" VARCHAR(5),
+    index SERIAL,
+    name VARCHAR(128),
+    datasetId VARCHAR(128),
+    description VARCHAR(512),
+    assemblyId VARCHAR(16),
+    createDateTime TIMESTAMP WITH TIME ZONE,
+    updateDateTime TIMESTAMP WITH TIME ZONE,
+    version VARCHAR(8),
     sampleCount INTEGER,
-    externalUrl VARCHAR(50),
+    externalUrl VARCHAR(128),
     accessType VARCHAR(10),
-    PRIMARY KEY (id)
+    PRIMARY KEY (index)
 );
 
 CREATE TABLE IF NOT EXISTS beacon_data_table (
-    id SERIAL,
-    dataset_id VARCHAR(200),
+    index SERIAL,
+    datasetId VARCHAR(128),
     start INTEGER,
     chromosome VARCHAR(2),
-    reference VARCHAR(200),
-    alternate VARCHAR(200),
+    reference VARCHAR(8192),
+    alternate VARCHAR(8192),
     "end" INTEGER,
-    type VARCHAR(100),
-    sv_length INTEGER,
+    variantType VARCHAR(16),
     variantCount INTEGER,
     callCount INTEGER,
-    sampleCount INTEGER,
     frequency REAL,
-    PRIMARY KEY (id)
+    PRIMARY KEY (index)
 );
 
-CREATE OR REPLACE VIEW dataset_metadata(name, dataset_id, description, assemblyId, createDateTime, updateDateTime, version, variantCount, callCount, sampleCount, externalUrl, accessType)
-AS SELECT a.name, a.dataset_id, a.description, a.assemblyId, a.createDateTime, a.updateDateTime, a.version, SUM(b.variantCount), SUM(b.callCount), a.sampleCount, a.externalUrl, a.accessType
+CREATE OR REPLACE VIEW dataset_metadata(name, datasetId, description, assemblyId, createDateTime, updateDateTime, version, callCount, variantCount, sampleCount, externalUrl, accessType)
+AS SELECT a.name, a.datasetId, a.description, a.assemblyId, a.createDateTime, a.updateDateTime, a.version, 0 as callCount, 0 as variantCount, a.sampleCount, a.externalUrl, a.accessType
 FROM beacon_dataset_table a, beacon_data_table b
-WHERE a.dataset_id=b.dataset_id
-GROUP BY a.name, a.dataset_id, a.description, a.assemblyId, a.createDateTime, a.updateDateTime, a.version, a.sampleCount, a.externalUrl, a.accessType;
+WHERE a.datasetId=b.datasetId
+GROUP BY a.name, a.datasetId, a.description, a.assemblyId, a.createDateTime, a.updateDateTime, a.version, a.sampleCount, a.externalUrl, a.accessType;

@@ -35,7 +35,8 @@ async def query_request_handler(params):
     alleleRequest.update({k: request.get(k) for k in required_alternative if k in request})
     alternate = alleleRequest.get("variantType"), alleleRequest.get("alternateBases")
 
-    datasets = await find_datasets(params[0], position, alternate, request.get("datasetIds"), params[3])
+    datasets = await find_datasets(params[0], position, request.get("referenceBases"),
+                                   alternate, request.get("datasetIds"), params[3])
 
     beacon_response = {"beaconId": '.'.join(reversed(params[4].split('.'))),
                        "apiVersion": __apiVersion__,

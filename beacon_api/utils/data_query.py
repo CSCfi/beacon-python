@@ -67,12 +67,12 @@ async def fetch_dataset_metadata(db_pool, datasets=None, access_type=None):
             datasets_query = "TRUE" if not datasets else f"a.dataset_id IN {sql_tuple(datasets)}"
             access_query = "TRUE" if not access_type else f"b.accesstype IN {sql_tuple(access_type)}"
             try:
-                query = f"""SELECT  dataset_id as "id", name as "name", accessType as "accessType",
+                query = f"""SELECT  datasetId as "id", name as "name", accessType as "accessType",
                             externalUrl as "externalUrl", description as "description",
-                            assemblyId as "assemblyId", variantcount as "variantCount",
-                            callcount as "callCount", samplecount as "sampleCount",
-                            version as "version", createdatetime as "createDateTime",
-                            updatedatetime as "updateDateTime"
+                            assemblyId as "assemblyId", variantCount as "variantCount",
+                            callCount as "callCount", sampleCount as "sampleCount",
+                            version as "version", createDateTime as "createDateTime",
+                            updateDateTime as "updateDateTime"
                             FROM dataset_metadata WHERE
                             ({datasets_query}) AND ({access_query});"""
                 # TO DO test if use of prepare this gives inconsistent results on database change
@@ -87,7 +87,7 @@ async def fetch_dataset_metadata(db_pool, datasets=None, access_type=None):
                 raise BeaconServerError(f'DB error: {e}')
 
 
-async def fetch_filtered_dataset(db_pool, position, alternate, datasets=None, access_type=None, misses=False):
+async def fetch_filtered_dataset(db_pool, position, reference, alternate, datasets=None, access_type=None, misses=False):
     """Execute filter datasets.
 
     There is an Uber query that aims to be all inclusive.
@@ -98,34 +98,36 @@ async def fetch_filtered_dataset(db_pool, position, alternate, datasets=None, ac
         async with connection.transaction():
             # Fetch dataset metadata according to user request
             # TO DO Test that datasets=[] and access_type=[] work with 1..n items
-            datasets_query = "TRUE" if not datasets else f"a.dataset_id IN {sql_tuple(datasets)}"
-            access_query = "TRUE" if not access_type else f"b.accesstype IN {sql_tuple(access_type)}"
+            datasets_query = "TRUE" if not datasets else f"a.datasetId IN {sql_tuple(datasets)}"
+            access_query = "TRUE" if not access_type else f"b.accessType IN {sql_tuple(access_type)}"
 
-            start_pos = "TRUE" if position[0] == 0 else f"a.start>={position[0]}"
-            end_pos = "TRUE" if position[1] == 0 else f"a.end<={position[1]}"
+            start_pos = "TRUE" if position[0] == 0 else f"a.start={position[0]}"
+            end_pos = "TRUE" if position[1] == 0 else f"a.end={position[1]}"
             startMax_pos = "TRUE" if position[2] == 0 else f"a.start<={position[2]}"
             startMin_pos = "TRUE" if position[3] == 0 else f"a.start>={position[3]}"
             endMin_pos = "TRUE" if position[4] == 0 else f"a.end>={position[4]}"
             endMax_pos = "TRUE" if position[5] == 0 else f"a.end<={position[5]}"
 
-            variant = 'TRUE' if not alternate[0] else 'a.type=\'' + alternate[0] + '\''
+            variant = 'TRUE' if not alternate[0] else 'a.variantType=\'' + alternate[0] + '\''
             altbase = 'TRUE' if not alternate[1] else 'a.alternate=\'' + alternate[1] + '\''
+            refbase = 'TRUE' if not reference else 'a.reference=\'' + reference + '\''
             try:
 
                 # UBER QUERY - TBD if it is what we need
-                query = f"""SELECT a.dataset_id as "datasetId", b.accessType as "accessType",
+                query = f"""SELECT a.datasetId as "datasetId", b.accessType as "accessType",
                             b.externalUrl as "externalUrl", b.description as "note",
-                            a.variantcount as "variantCount",
-                            a.callcount as "callCount", a.samplecount as "sampleCount",
+                            a.variantCount as "variantCount",
+                            a.callCount as "callCount", b.sampleCount as "sampleCount",
                             a.frequency, {"FALSE" if misses else "TRUE"} as "exists"
                             FROM beacon_data_table a, beacon_dataset_table b
-                            WHERE a.dataset_id=b.dataset_id
+                            WHERE a.datasetId=b.datasetId
                             AND {"NOT" if misses else ''} ({start_pos} AND {end_pos}
                             AND {startMax_pos} AND {startMin_pos}
                             AND {endMin_pos} AND {endMax_pos}
-                            AND {variant} AND {altbase})
+                            AND {refbase} AND {variant} AND {altbase})
                             AND {access_query} {"<>" if misses and datasets else "AND"} {datasets_query} ;"""
                 datasets = []
+                print(query)
                 # TO DO test if use of prepare this gives inconsistent results on database change
                 statement = await connection.prepare(query)
                 db_response = await statement.fetch()
@@ -153,7 +155,7 @@ def filter_exists(include_dataset, datasets):
         return list(filter(lambda d: d['exists'] is False, datasets))
 
 
-async def find_datasets(db_pool, position, alternate, dataset_ids, token):
+async def find_datasets(db_pool, position, reference, alternate, dataset_ids, token):
     """Find datasets based on filter parameters.
 
     This also takes into consideration the token value as to establish permissions.
@@ -162,10 +164,10 @@ async def find_datasets(db_pool, position, alternate, dataset_ids, token):
     # we will bona_fide_status and the actual permissions
     # TO DO return forbidden if a specific forbidden dataset is requested
     access_type = ["REGISTERED", "PUBLIC", "CONTROLLED"] if token else ["PUBLIC"]
-    hit_datasets = await fetch_filtered_dataset(db_pool, position, alternate,
+    hit_datasets = await fetch_filtered_dataset(db_pool, position, reference, alternate,
                                                 dataset_ids, access_type)
-    miss_datasets = await fetch_filtered_dataset(db_pool, position, alternate,
-                                                 [item["datasetId"] for item in hit_datasets],
+    miss_datasets = await fetch_filtered_dataset(db_pool, position, reference, alternate,
+                                                 set([item["datasetId"] for item in hit_datasets]),
                                                  access_type, misses=True)
 
     response = hit_datasets + miss_datasets

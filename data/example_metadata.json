@@ -1,0 +1,11 @@
+{
+    "name": "ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf",
+    "datasetId": "urn:hg:exampleid",
+    "description": "Mitochondrial genome from the 1000 Genomes project",
+    "assemblyId": "GRCh38",
+    "createDateTime": "2013-05-02 12:00:00",
+    "updateDateTime": "2013-05-02 12:00:00",
+    "version": "v0.4",
+    "externalUrl": "ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz",
+    "accessType": "PUBLIC"
+}
