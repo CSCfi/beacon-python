@@ -98,7 +98,6 @@ class BeaconDB:
                                          datetime.strptime(metadata['updateDateTime'], '%Y-%m-%d %H:%M:%S'),
                                          metadata['version'], sample_count,
                                          metadata['externalUrl'], metadata['accessType'])
-                LOG.info(f'Metadata for {metadata["name"]} inserted succesffully')
             except Exception as e:
                 LOG.error(f'AN ERROR OCCURRED WHILE ATTEMPTING TO INSERT METADATA -> {e}')
         except Exception as e:
@@ -134,7 +133,6 @@ class BeaconDB:
                                              [str(alt) for alt in variant.ALT], variant.end,
                                              variant.var_type, variant.num_hom_alt, variant.num_called,
                                              [float(freq) for freq in variant.aaf])
-                LOG.info('Variants have been inserted')
         except Exception as e:
             LOG.error(f'AN ERROR OCCURRED WHILE ATTEMPTING TO INSERT VARIANTS -> {e}')
 

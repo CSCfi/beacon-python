@@ -84,7 +84,7 @@ class BeaconForbidden(BeaconError):
         data = super().__init__(request, host, 403, error)
 
         LOG.error(f'403 ERROR MESSAGE: {error}')
-        raise web.HTTPUnauthorized(content_type="application/json", body=json.dumps(data).encode('utf-8'))
+        raise web.HTTPForbidden(content_type="application/json", body=json.dumps(data).encode('utf-8'))
 
 
 class BeaconServerError(BeaconError):
