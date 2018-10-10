@@ -27,16 +27,20 @@ class MockBeaconDB:
         return ['DATASET1', 'DATASET2']
 
     async def create_tables(self, sql_file):
-        """Mimic clocreate_tablesse."""
+        """Mimic create_tables."""
         pass
 
-    async def load_metadata(self, metafile):
+    async def insert_variants(self, dataset_id, variants):
+        """Mimic insert_variants."""
+        pass
+
+    async def load_metadata(self, metafile, datafile):
         """Mimic load_metadata."""
         pass
 
-    async def load_datafile(self, datafile):
+    async def load_datafile(self, datafile, datasetId):
         """Mimic load_datafile."""
-        pass
+        return ["datasetId", "variants"]
 
 
 class TestBasicFunctions(asynctest.TestCase):
@@ -77,7 +81,7 @@ class TestBasicFunctions(asynctest.TestCase):
                     "externalUrl": "https://datasethost.org/dataset1",
                     "accessType": "PUBLIC"}"""
         metafile = self._dir.write('data.json', metadata.encode('utf-8'))
-        data = """DATASET1;2947887;1;C;T;;SNP;;1;5008;2504;0.000199681"""
+        data = """MOCK VCF file"""
         datafile = self._dir.write('data.csv', data.encode('utf-8'))
         await init_beacon_db([datafile, metafile])
         mock_log.info.mock_calls = ['Mark the database connection to be closed',

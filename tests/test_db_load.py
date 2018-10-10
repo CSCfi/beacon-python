@@ -58,6 +58,32 @@ class DatabaseTestCase(asynctest.TestCase):
         self._db_url = 'http://url.fi'
         self._db = BeaconDB(self._db_url)
         self._dir = TempDirectory()
+        self.data = """##fileformat=VCFv4.0
+        ##fileDate=20090805
+        ##source=myImputationProgramV3.1
+        ##reference=1000GenomesPilot-NCBI36
+        ##phasing=partial
+        ##INFO=<ID=NS,Number=1,Type=Integer,Description="Number of Samples With Data">
+        ##INFO=<ID=AN,Number=1,Type=Integer,Description="Total number of alleles in called genotypes">
+        ##INFO=<ID=AC,Number=.,Type=Integer,Description="Allele count in genotypes, for each ALT allele, in the same order as listed">
+        ##INFO=<ID=DP,Number=1,Type=Integer,Description="Total Depth">
+        ##INFO=<ID=AF,Number=.,Type=Float,Description="Allele Frequency">
+        ##INFO=<ID=AA,Number=1,Type=String,Description="Ancestral Allele">
+        ##INFO=<ID=DB,Number=0,Type=Flag,Description="dbSNP membership, build 129">
+        ##INFO=<ID=H2,Number=0,Type=Flag,Description="HapMap2 membership">
+        ##FILTER=<ID=q10,Description="Quality below 10">
+        ##FILTER=<ID=s50,Description="Less than 50% of samples have data">
+        ##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
+        ##FORMAT=<ID=GQ,Number=1,Type=Integer,Description="Genotype Quality">
+        ##FORMAT=<ID=DP,Number=1,Type=Integer,Description="Read Depth">
+        ##FORMAT=<ID=HQ,Number=2,Type=Integer,Description="Haplotype Quality">
+        ##ALT=<ID=DEL:ME:ALU,Description="Deletion of ALU element">
+        ##ALT=<ID=CNV,Description="Copy number variable region">
+        #CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	NA00001	NA00002	NA00003
+        19	111	.	A	C	9.6	.	.	GT:HQ	0|0:10,10	0|0:10,10	0/1:3,3
+        19	112	.	A	G	10	.	.	GT:HQ	0|0:10,10	0|0:10,10	0/1:3,3
+        20	14370	rs6054257	G	A	29	PASS	NS=3;DP=14;AF=0.5;DB;H2	GT:GQ:DP:HQ	0|0:48:1:51,51	1|0:48:8:51,51	1/1:43:5:.,."""
+        self.datafile = self._dir.write('data.csv', self.data.encode('utf-8'))
 
     def tearDown(self):
         """Close database connection after tests."""
@@ -100,6 +126,7 @@ class DatabaseTestCase(asynctest.TestCase):
     async def test_load_metadata(self, db_mock, mock_log):
         """Test load metadata."""
         metadata = """{"name": "DATASET1",
+                    "datasetId": "urn:hg:exampleid",
                     "description": "example dataset number 1",
                     "assemblyId": "GRCh38",
                     "version": "v1",
@@ -110,25 +137,34 @@ class DatabaseTestCase(asynctest.TestCase):
         await self._db.connection()
         db_mock.assert_called_with(self._db_url)
         metafile = self._dir.write('data.json', metadata.encode('utf-8'))
-        await self._db.load_metadata(metafile)
+        await self._db.load_metadata(metafile, self.datafile)
         # Should assert logs
         mock_log.info.mock_calls = [f'Parsing metadata from {metafile}',
-                                    'Metadata has been parsed',
-                                    f'Metadata for {metafile} inserted succesffully']
+                                    'Metadata has been parsed']
 
     @asynctest.mock.patch('beacon_api.utils.db_load.LOG')
     @asynctest.mock.patch('beacon_api.utils.db_load.asyncpg.connect')
     async def test_load_datafile(self, db_mock, mock_log):
         """Test load_datafile."""
-        data = """DATASET1;2947887;1;C;T;;SNP;;1;5008;2504;0.000199681"""
         db_mock.return_value = Connection()
         await self._db.connection()
         db_mock.assert_called_with(self._db_url)
-        datafile = self._dir.write('data.csv', data.encode('utf-8'))
-        await self._db.load_datafile(datafile)
+        await self._db.load_datafile(self.datafile, 'DATASET1')
         # Should assert logs
-        mock_log.info.mock_calls = [f'Load variants from file {datafile}',
-                                    'Insert variants into the database']
+        mock_log.info.mock_calls = [f'Read data from {self.datafile}']
+
+    @asynctest.mock.patch('beacon_api.utils.db_load.LOG')
+    @asynctest.mock.patch('beacon_api.utils.db_load.asyncpg.connect')
+    async def test_insert_variants(self, db_mock, mock_log):
+        """Test load_datafile."""
+        db_mock.return_value = Connection()
+        await self._db.connection()
+        db_mock.assert_called_with(self._db_url)
+        await self._db.insert_variants('DATASET1', ['C'])
+        # Should assert logs
+        mock_log.info.mock_calls = [f'Received 1 variants for insertion to DATASET1',
+                                    'Insert variants into the database',
+                                    'Variants have been inserted']
 
     def test_bad_init(self):
         """Capture error in case of anything wrong with initializing BeaconDB."""

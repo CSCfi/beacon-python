@@ -1,7 +1,7 @@
 """JSON Request/Response Validation and Token authentication."""
 
 from aiohttp import web
-from jose import jwt
+import jwt
 import json
 import re
 from functools import wraps
@@ -111,8 +111,9 @@ def token_auth(key):
 
                 try:
                     decodedData = jwt.decode(token, key, algorithms=['RS256'])
+                    print(key)
                     LOG.info('Auth Token Decoded.')
-                except jwt.JWTError as e:
+                except jwt.InvalidTokenError as e:
                     _, obj = await parse_request_object(request)
                     raise BeaconUnauthorised(obj, request.host, f'Invalid authorization token: {e}')
 
