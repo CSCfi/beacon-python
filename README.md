@@ -32,27 +32,20 @@ cd beacon-python
 pip install .
 ```
 
-For loading example database we provide the `beacon_init` utility:
+For loading `*.vcf` files into the database we provide the `beacon_init` utility:
 ```shell
-╰─$ beacon_init --help
+╰─$ beacon_init --help             
 usage: beacon_init [-h] datafile metadata
 
 Load datafiles with associated metadata into the beacon database. See example
 data and metadata files in the /data directory.
 
 positional arguments:
-  datafile    .csv file containing variant information.
-  metadata    .json file containing metadata associated to datafile.
+  datafile    .vcf file containing variant information
+  metadata    .json file containing metadata associated to datafile
 
 optional arguments:
   -h, --help  show this help message and exit
-```
-
-Load example data from the `/data` folder, as follows:
-```shell
-beacon_init data/dataset1.csv data/dataset1_metadata.json
-beacon_init data/dataset2.csv data/dataset2_metadata.json
-beacon_init data/dataset3.csv data/dataset3_metadata.json
 ```
 
 Run the `beacon-python` Web Server from the command simply using:

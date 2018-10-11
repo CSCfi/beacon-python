@@ -1,16 +1,19 @@
-Database schema
-===============
+.. _database:
 
-.. note:: The Database and the queries are subject to change.
+Database
+========
 
 We use a PostgreSQL database (version 9.6+) for working beacon data.
 For more information on seting up the database consult :ref:`database-setup`.
 
 .. literalinclude:: /../data/init.sql
    :language: sql
-   :lines: 1-31
+   :lines: 1-35
 
-Example queries to the database
+.. note:: In order to retrieve bot HIT and MISS (according) to the API specification,
+          we make use of the same query structure, exemplified below:
+
+For ``HIT`` results:
 
 .. code-block:: sql
 
@@ -21,11 +24,13 @@ Example queries to the database
                                 a.frequency, TRUE as "exists"
                                 FROM beacon_data_table a, beacon_dataset_table b
                                 WHERE a.dataset_id=b.dataset_id
-                                AND  (a.start>=3056601 AND TRUE
+                                AND  (a.start=3056601 AND TRUE
                                 AND TRUE AND TRUE
                                 AND TRUE AND TRUE
-                                AND TRUE AND a.alternate='T')
+                                AND TRUE AND a.reference='T' AND a.alternate='C')
                                 AND b.accesstype IN ('REGISTERED', 'PUBLIC') AND TRUE ;
+
+For ``MISS`` results:
 
 .. code-block:: sql
 
@@ -36,9 +41,9 @@ Example queries to the database
                                 a.frequency, FALSE as "exists"
                                 FROM beacon_data_table a, beacon_dataset_table b
                                 WHERE a.dataset_id=b.dataset_id
-                                AND NOT (a.start>=3056601 AND TRUE
+                                AND NOT (a.start=3056601 AND TRUE
                                 AND TRUE AND TRUE
                                 AND TRUE AND TRUE
-                                AND TRUE AND a.alternate='T')
+                                AND TRUE AND a.reference='T' AND a.alternate='C')
                                 AND b.accesstype IN ('REGISTERED', 'PUBLIC')
                                 <> a.dataset_id IN ('DATASET2') ;

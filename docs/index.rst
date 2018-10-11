@@ -5,14 +5,20 @@ Python-based Beacon API Server
 
     The Beacon project was launched in 2014 to show the willingness of researchers to enable the secure sharing of
     genomic data from participants of genomic studies.
-    Beacons are web-servers that answer questions such as Does your dataset include a genome that has a specific nucleotide (e.g. G)
-    at a specific genomic coordinate (e.g. Chr.1 position 111,111)? to which the Beacon must respond with yes or no,
-    without referring to a specific individual.
+    Beacons are web-servers that answer questions such as:
+
+    Does your dataset include a genome that has a specific nucleotide (e.g. `G`)
+    at a specific genomic coordinate (e.g. `Chr.1 position 111,111`)?
+
+    To which the Beacon must respond with yes or no, without referring to a specific individual.
 
     -- https://github.com/ga4gh-beacon/specification
 
 ``beacon-python`` Web Server aims to implement the `Beacon API specification <https://github.com/ga4gh-beacon/specification>`_
 by providing an easy to use and configure web application.
+
+In order to facilitate loading data, we provide out of the box a ``*.vcf`` data loader into
+the Beacon :ref:`database`.
 
 ----
 

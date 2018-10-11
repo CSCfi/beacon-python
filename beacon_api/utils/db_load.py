@@ -179,7 +179,7 @@ def parse_arguments(arguments):
     """Parse command line arguments."""
     parser = argparse.ArgumentParser(description="""Load datafiles with associated metadata
                                      into the beacon database. See example data and metadata files
-                                     in the /data directory""")
+                                     in the /data directory.""")
     parser.add_argument('datafile',
                         help='.vcf file containing variant information')
     parser.add_argument('metadata',

@@ -138,7 +138,7 @@ Example Response:
     }
 
 Query Endpoint
--------------
+--------------
 
 An example ``GET`` request and response to the ``query`` endpoint:
 
