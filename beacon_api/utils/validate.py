@@ -7,6 +7,7 @@ import re
 import aiohttp
 import base64
 import struct
+import os
 from functools import wraps
 from .logging import LOG
 from ..api.exceptions import BeaconUnauthorised, BeaconBadRequest, BeaconForbidden, BeaconServerError
@@ -106,12 +107,14 @@ def base64_to_long(data):
     _d = base64.urlsafe_b64decode(bytes(data.encode("ascii")) + b'==')
     unpacked = struct.unpack('%sB' % len(_d), _d)
     converted = int(''.join(["%02x" % byte for byte in unpacked]), 16)
-
     return converted
 
 
 async def get_key():
-    """Check user details bona_fide_status."""
+    """Get Elixir public key and transform it to usable pem key."""
+    existing_key = os.environ.get('PUBLIC_KEY', None)
+    if existing_key:
+        return existing_key
     async with aiohttp.ClientSession() as session:
         async with session.get("https://login.elixir-czech.org/oidc/jwk") as r:
             jwk = await r.json()
@@ -119,11 +122,8 @@ async def get_key():
             modulus = base64_to_long(jwk['keys'][0]['n'])
             numbers = RSAPublicNumbers(exponent, modulus)
             public_key = numbers.public_key(backend=default_backend())
-            pem = public_key.public_bytes(
-                encoding=serialization.Encoding.PEM,
-                format=serialization.PublicFormat.SubjectPublicKeyInfo
-            )
-
+            pem = public_key.public_bytes(encoding=serialization.Encoding.PEM,
+                                          format=serialization.PublicFormat.SubjectPublicKeyInfo)
             return pem.decode('utf-8')
 
 
