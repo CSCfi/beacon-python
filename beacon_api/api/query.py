@@ -17,7 +17,7 @@ async def query_request_handler(params):
     LOG.info(f'{params[1]} request to beacon endpoint "/query"')
     request = params[2]
     # Fills the Beacon variable with the found data.
-    position = (request.get("start"), request.get("end", 0),
+    position = (request.get("start", 0), request.get("end", 0),
                 request.get("startMin", 0), request.get("startMax", 0),
                 request.get("endMin", 0), request.get("endMax", 0))
     alleleRequest = {'referenceName': request.get("referenceName"),

@@ -101,10 +101,10 @@ async def fetch_filtered_dataset(db_pool, position, reference, alternate, datase
             datasets_query = "TRUE" if not datasets else f"a.datasetId IN {sql_tuple(datasets)}"
             access_query = "TRUE" if not access_type else f"b.accessType IN {sql_tuple(access_type)}"
 
-            start_pos = "TRUE" if position[0] == 0 else f"a.start={position[0]}"
-            end_pos = "TRUE" if position[1] == 0 else f"a.end={position[1]}"
-            startMax_pos = "TRUE" if position[2] == 0 else f"a.start<={position[2]}"
-            startMin_pos = "TRUE" if position[3] == 0 else f"a.start>={position[3]}"
+            start_pos = "TRUE" if position[0] == 0 or (position[2] > 0 and position[3] > 0) else f"a.start={position[0]}"
+            end_pos = "TRUE" if position[1] == 0 or (position[4] > 0 and position[5] > 0) else f"a.end={position[1]}"
+            startMax_pos = "TRUE" if position[2] == 0 else f"a.start<={position[3]}"
+            startMin_pos = "TRUE" if position[3] == 0 else f"a.start>={position[2]}"
             endMin_pos = "TRUE" if position[4] == 0 else f"a.end>={position[4]}"
             endMax_pos = "TRUE" if position[5] == 0 else f"a.end<={position[5]}"
 
@@ -167,7 +167,7 @@ async def find_datasets(db_pool, position, reference, alternate, dataset_ids, to
     hit_datasets = await fetch_filtered_dataset(db_pool, position, reference, alternate,
                                                 dataset_ids, access_type)
     miss_datasets = await fetch_filtered_dataset(db_pool, position, reference, alternate,
-                                                 set([item["datasetId"] for item in hit_datasets]),
+                                                 [item["datasetId"] for item in hit_datasets],
                                                  access_type, misses=True)
 
     response = hit_datasets + miss_datasets

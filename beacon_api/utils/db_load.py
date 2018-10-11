@@ -162,7 +162,7 @@ async def init_beacon_db(arguments=None):
 
     # If some tables are missing, run init.sql to recover them
     if len(tables) > 0:
-        await db.create_tables(os.environ.get('TABLES_SCHEMA', 'init.sql'))
+        await db.create_tables(os.environ.get('TABLES_SCHEMA', 'data/init.sql'))
 
     # Insert dataset metadata into the database, prior to inserting actual variant data
     dataset_id = await db.load_metadata(args.metadata, args.datafile)

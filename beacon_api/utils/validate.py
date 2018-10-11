@@ -4,12 +4,18 @@ from aiohttp import web
 import jwt
 import json
 import re
+import aiohttp
+import base64
+import struct
 from functools import wraps
 from .logging import LOG
 from ..api.exceptions import BeaconUnauthorised, BeaconBadRequest, BeaconForbidden, BeaconServerError
 # Draft7Validator should be kept an eye on as this might change
 from jsonschema import Draft7Validator, validators
 from jsonschema.exceptions import ValidationError
+from cryptography.hazmat.primitives.asymmetric.rsa import RSAPublicNumbers
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import serialization
 
 
 async def parse_request_object(request):
@@ -85,7 +91,43 @@ def validate(schema):
     return wrapper
 
 
-def token_auth(key):
+async def check_bona_fide_status(token):
+    """Check user details bona_fide_status."""
+    headers = {"Authorization": f"Bearer {token}"}
+    async with aiohttp.ClientSession(headers=headers) as session:
+        async with session.get("https://login.elixir-czech.org/oidc/userinfo") as r:
+            json_body = await r.json()
+            return json_body.get("bona_fide_status", None)
+
+
+def base64_to_long(data):
+    """Convert JSON Web Key to armored key."""
+    # urlsafe_b64decode will happily convert b64encoded data
+    _d = base64.urlsafe_b64decode(bytes(data.encode("ascii")) + b'==')
+    unpacked = struct.unpack('%sB' % len(_d), _d)
+    converted = int(''.join(["%02x" % byte for byte in unpacked]), 16)
+
+    return converted
+
+
+async def get_key():
+    """Check user details bona_fide_status."""
+    async with aiohttp.ClientSession() as session:
+        async with session.get("https://login.elixir-czech.org/oidc/jwk") as r:
+            jwk = await r.json()
+            exponent = base64_to_long(jwk['keys'][0]['e'])
+            modulus = base64_to_long(jwk['keys'][0]['n'])
+            numbers = RSAPublicNumbers(exponent, modulus)
+            public_key = numbers.public_key(backend=default_backend())
+            pem = public_key.public_bytes(
+                encoding=serialization.Encoding.PEM,
+                format=serialization.PublicFormat.SubjectPublicKeyInfo
+            )
+
+            return pem.decode('utf-8')
+
+
+def token_auth():
     """Check if token if valid and authenticate.
 
     Decided not to use: https://github.com/hzlmn/aiohttp-jwt, as we need to verify
@@ -108,7 +150,7 @@ def token_auth(key):
                 raise BeaconUnauthorised(obj, request.host, 'Invalid token scheme.')
 
             if token is not None:
-
+                key = await get_key()
                 try:
                     decodedData = jwt.decode(token, key, algorithms=['RS256'])
                     LOG.info('Auth Token Decoded.')
@@ -121,7 +163,7 @@ def token_auth(key):
                     LOG.info('Identified as Elixir AAI user.')
                     # for now the permissions just reflect the decoded data
                     # the bona fide status for now is set to True
-                    request["token"] = {"bona_fide_status": True, "permissions": decodedData}
+                    request["token"] = {"bona_fide_status": await check_bona_fide_status(token), "permissions": decodedData}
                     return await handler(request)
                 else:
                     _, obj = await parse_request_object(request)
