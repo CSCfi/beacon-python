@@ -165,9 +165,10 @@ def token_auth():
                     # the bona fide status for now is set to True
                     if await check_bona_fide_status(token):
                         request["token"] = {"bona_fide_status": True}
+                        return await handler(request)
                     else:
                         request["token"] = {"bona_fide_status": False}
-                    return await handler(request)
+                        return await handler(request)
                 else:
                     _, obj = await parse_request_object(request)
                     raise BeaconForbidden(obj, request.host, 'Token is not validated by an Elixir AAI authorized issuer.')
