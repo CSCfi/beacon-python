@@ -163,13 +163,15 @@ def token_auth():
                     LOG.info('Identified as Elixir AAI user.')
                     # for now the permissions just reflect the decoded data
                     # the bona fide status for now is set to True
-                    request["token"] = {"bona_fide_status": await check_bona_fide_status(token)}
-                    LOG.info(request["token"])
+                    if await check_bona_fide_status(token):
+                        request["token"] = {"bona_fide_status": True}
+                    else:
+                        request["token"] = {"bona_fide_status": False}
                     return await handler(request)
                 else:
                     _, obj = await parse_request_object(request)
                     raise BeaconForbidden(obj, request.host, 'Token is not validated by an Elixir AAI authorized issuer.')
         else:
-            request["token"] = None
+            request["token"] = {"bona_fide_status": False}
             return await handler(request)
     return token_middleware
