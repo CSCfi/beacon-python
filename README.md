@@ -7,7 +7,7 @@ Documentation: https://beacon-python.readthedocs.io
 
 ### Quick start
 
-`beacon-python` requires:
+`beacon-python` Web Server requires:
 * Python 3.6+;
 * running DB [PostgreSQL Server](https://www.postgresql.org/) 9.6+.
 
