@@ -63,7 +63,7 @@ async def beacon_post_query(request):
     return web.json_response(response)
 
 
-async def create_db_pool(app):
+async def initialize(app):
     """Spin up DB a connection pool with the HTTP server."""
     # TO DO check if table and Database exist
     # and maybe exit gracefully or at lease wait for a bit
@@ -71,7 +71,7 @@ async def create_db_pool(app):
     app['pool'] = await init_db_pool()
 
 
-async def close_db_pool(app):
+async def destroy(app):
     """Upon server close, close the DB connection pool."""
     await app['pool'].close()
 
@@ -81,8 +81,8 @@ def init():
     beacon = web.Application(middlewares=[token_auth()])
     beacon.router.add_routes(routes)
     # Create a database connection pool
-    beacon.on_startup.append(create_db_pool)
-    beacon.on_cleanup.append(close_db_pool)
+    beacon.on_startup.append(initialize)
+    beacon.on_cleanup.append(destroy)
     return beacon
 
 

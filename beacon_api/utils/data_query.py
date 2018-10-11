@@ -163,7 +163,7 @@ async def find_datasets(db_pool, position, reference, alternate, dataset_ids, to
     # for now we only check if there is a token
     # we will bona_fide_status and the actual permissions
     # TO DO return forbidden if a specific forbidden dataset is requested
-    access_type = ["REGISTERED", "PUBLIC", "CONTROLLED"] if token else ["PUBLIC"]
+    access_type = ["REGISTERED", "PUBLIC", "CONTROLLED"] if token["bona_fide_status"] else ["PUBLIC"]
     hit_datasets = await fetch_filtered_dataset(db_pool, position, reference, alternate,
                                                 dataset_ids, access_type)
     miss_datasets = await fetch_filtered_dataset(db_pool, position, reference, alternate,

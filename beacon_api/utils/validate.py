@@ -159,11 +159,12 @@ def token_auth():
                     raise BeaconUnauthorised(obj, request.host, f'Invalid authorization token: {e}')
 
                 # Validate the issuer is Elixir AAI
-                if decodedData['iss'] in ["https://login.elixir-czech.org/oidc/"]:
+                if decodedData['iss'] in ["https://login.elixir-czech.org/oidc/"] and decodedData['sub'].endswith("@elixir-europe.org"):
                     LOG.info('Identified as Elixir AAI user.')
                     # for now the permissions just reflect the decoded data
                     # the bona fide status for now is set to True
-                    request["token"] = {"bona_fide_status": await check_bona_fide_status(token), "permissions": decodedData}
+                    request["token"] = {"bona_fide_status": await check_bona_fide_status(token)}
+                    LOG.info(request["token"])
                     return await handler(request)
                 else:
                     _, obj = await parse_request_object(request)

@@ -1,7 +1,7 @@
 import unittest
 from aiohttp.test_utils import AioHTTPTestCase, unittest_run_loop
 from aiohttp import web
-from beacon_api.app import init, main, create_db_pool
+from beacon_api.app import init, main, initialize
 from unittest import mock
 import asyncpg
 import asynctest
@@ -27,7 +27,7 @@ def generate_token(issuer):
     pem = private_key.private_bytes(encoding=serialization.Encoding.PEM,
                                     format=serialization.PrivateFormat.PKCS8,
                                     encryption_algorithm=serialization.NoEncryption())
-    token = jwt.encode({'iss': issuer},
+    token = jwt.encode({'iss': issuer, 'sub': 'smth@elixir-europe.org'},
                        pem, algorithm='RS256')
 
     public_key = private_key.public_key()
@@ -59,7 +59,7 @@ class AppTestCase(AioHTTPTestCase):
         env = EnvironmentVarGuard()
         env.set('PUBLIC_KEY', str(public_key.decode('utf-8')))
         env.set('TOKEN', token.decode('utf-8'))
-        with asynctest.mock.patch('beacon_api.app.create_db_pool', side_effect=create_db_mock):
+        with asynctest.mock.patch('beacon_api.app.initialize', side_effect=create_db_mock):
             return init()
 
     @unittest_run_loop
@@ -140,7 +140,7 @@ class AppTestCase(AioHTTPTestCase):
     async def test_valid_get_query(self, mock_handler, mock_object):
         """Test valid GET query endpoint."""
         params = '?assemblyId=GRCh38&referenceName=1&start=10000&referenceBases=A&alternateBases=T'
-        with asynctest.mock.patch('beacon_api.app.create_db_pool', side_effect=create_db_mock):
+        with asynctest.mock.patch('beacon_api.app.initialize', side_effect=create_db_mock):
             resp = await self.client.request("GET", f"/query{params}")
         print(resp.text)
         print(dir(resp))
@@ -167,7 +167,7 @@ class AppTestCaseForbidden(AioHTTPTestCase):
         env = EnvironmentVarGuard()
         env.set('PUBLIC_KEY', str(public_key.decode('utf-8')))
         env.set('TOKEN', token.decode('utf-8'))
-        with asynctest.mock.patch('beacon_api.app.create_db_pool', side_effect=create_db_mock):
+        with asynctest.mock.patch('beacon_api.app.initialize', side_effect=create_db_mock):
             return init()
 
     @asynctest.mock.patch('beacon_api.app.parse_request_object', side_effect=mock_parse_request_object)
@@ -207,14 +207,14 @@ class TestBasicFunctionsApp(asynctest.TestCase):
         server = init()
         self.assertIs(type(server), web.Application)
 
-    async def test_create_db_pool(self):
+    async def test_initialize(self):
         """Test create db pool, should just return the result of init_db_pool.
 
         We will mock the init_db_pool, thus we assert we just call it.
         """
         app = {}
         with asynctest.mock.patch('beacon_api.app.init_db_pool') as db_mock:
-            await create_db_pool(app)
+            await initialize(app)
             db_mock.assert_called()
 
 
