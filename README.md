@@ -3,6 +3,8 @@
 [![Build Status](https://travis-ci.org/CSCfi/beacon-python.svg?branch=master)](https://travis-ci.org/CSCfi/beacon-python)
 [![Coverage Status](https://coveralls.io/repos/github/CSCfi/beacon-python/badge.svg?branch=master)](https://coveralls.io/github/CSCfi/beacon-python?branch=master)
 
+Documentation: https://beacon-python.readthedocs.io
+
 ### Quick start
 
 `beacon-python` requires:
