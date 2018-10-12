@@ -71,13 +71,18 @@ Before running the application proceed with the :ref:`database-setup`.
 Database Setup
 --------------
 
+Full information about the database schema and the queries performed against it
+see: :ref:`database`.
+
 Starting PostgreSQL using Docker:
 
 .. code-block:: console
 
+    cd beacon-python
     docker run -e POSTGRES_USER=beacon \
                -e POSTGRES_PASSWORD=beacon \
                -e POSTGRES_DB=beacondb \
+               -v "$PWD/data":/docker-entrypoint-initdb.d
                -p 5432:5432 postgres:9.6
 
 For loading example database we provide the ``beacon_init`` utility:

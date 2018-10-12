@@ -21,7 +21,6 @@ class BeaconError(Exception):
                      "apiVersion": __apiVersion__,
                      'exists': None,
                      'error': {'errorCode': error_code,
-                               # 'Bad request, missing mandatory parameter or the value is not valid!'
                                'errorMessage': error},
                      # TO DO see if we still need the default values now that we take them from schema
                      'alleleRequest': {'referenceName': request.get("referenceName", None),

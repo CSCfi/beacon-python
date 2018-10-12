@@ -11,14 +11,22 @@ Documentation: https://beacon-python.readthedocs.io
 * Python 3.6+;
 * running DB [PostgreSQL Server](https://www.postgresql.org/) 9.6+.
 
+```shell
+git clone https://github.com/CSCfi/beacon-python
+pip install -r requirements.txt
+cd beacon-python
+```
+
 #### Database start
 
 Start the PostgreSQL DB server and set up `POSTGRES_USER` and `POSTGRES_PASSWORD` as `beacon` and `POSTGRES_DB` as `beacondb` (default values, that can be changed via environment variables - see [documentation](https://beacon-python.readthedocs.io) for instructions).
 
 Recommended is to start PostgreSQL using [Docker](https://www.docker.com/):
+
 ```shell
 docker run -e POSTGRES_USER=beacon \
            -e POSTGRES_PASSWORD=beacon \
+           -v "$PWD/data":/docker-entrypoint-initdb.d
            -e POSTGRES_DB=beacondb \
            -p 5432:5432 postgres:9.6
 ```
@@ -28,9 +36,6 @@ docker run -e POSTGRES_USER=beacon \
 For installing `beacon-python` do the following:
 
 ```shell
-git clone https://github.com/CSCfi/beacon-python
-pip install -r requirements.txt
-cd beacon-python
 pip install .
 ```
 

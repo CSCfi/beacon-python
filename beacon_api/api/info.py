@@ -1,7 +1,9 @@
 """Info Endpoint.
 
-Querying the infor endpoint reveals information about existing datasets in this beacon
+Querying the info endpoint reveals information about existing datasets in this beacon
 and their associated metadata.
+
+.. note:: In this file is where one would change information about their beacon.
 """
 
 from .. import __apiVersion__, __title__, __version__
@@ -15,7 +17,8 @@ async def beacon_info(host, pool):
     """
     beacon_dataset = await fetch_dataset_metadata(pool)
 
-    beacon_allele_request = [{
+    # TO DO provide more meaninful example specific to the endpoint data
+    sample_allele_request = [{
         "alternateBases": "A",
         "referenceBases": "C",
         "referenceName": "17",
@@ -74,7 +77,7 @@ async def beacon_info(host, pool):
         'createDateTime': '2018-07-25T00:00.000Z',
         'updateDateTime': None,
         'dataset': beacon_dataset,
-        'sampleAlleleRequests': beacon_allele_request,
+        'sampleAlleleRequests': sample_allele_request,
         'info': [{"key": "value"}]
     }
 

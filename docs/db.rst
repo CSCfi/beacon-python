@@ -4,14 +4,21 @@ Database
 ========
 
 We use a PostgreSQL database (version 9.6+) for working beacon data.
-For more information on seting up the database consult :ref:`database-setup`.
+For more information on setting up the database consult :ref:`database-setup`.
+
+We use the DB schema below as a means for providing data contained in ``*.vcf`` file and making
+it accessible via the Beacon API specification.
+
+Information for the metadata table, currently needs to be provided by the data submitter,
+as additional information, that cannot be extracted from ``*.vcf`` files, is required.
 
 .. literalinclude:: /../data/init.sql
    :language: sql
    :lines: 1-35
 
 .. note:: In order to retrieve bot HIT and MISS (according) to the API specification,
-          we make use of the same query structure, exemplified below:
+          we make use of the same query structure, exemplified below.
+
 
 For ``HIT`` results:
 

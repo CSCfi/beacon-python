@@ -46,7 +46,6 @@ def transform_metadata(record):
     # TO DO test with null date
     if 'createDateTime' in response and isinstance(response["createDateTime"], datetime):
         response["createDateTime"] = response.pop("createDateTime").strftime('%Y-%m-%dT%H:%M:%SZ')
-    # TO DO test with null date
     if 'updateDateTime' in record and isinstance(response["updateDateTime"], datetime):
         response["updateDateTime"] = response.pop("updateDateTime").strftime('%Y-%m-%dT%H:%M:%SZ')
 
@@ -127,8 +126,6 @@ async def fetch_filtered_dataset(db_pool, position, reference, alternate, datase
                             AND {refbase} AND {variant} AND {altbase})
                             AND {access_query} {"<>" if misses and datasets else "AND"} {datasets_query} ;"""
                 datasets = []
-
-                # TO DO test if use of prepare this gives inconsistent results on database change
                 statement = await connection.prepare(query)
                 db_response = await statement.fetch()
                 LOG.info(f"Query for dataset(s): {datasets} that are {access_type} matching conditions.")
@@ -160,10 +157,8 @@ async def find_datasets(db_pool, position, reference, alternate, dataset_ids, to
 
     This also takes into consideration the token value as to establish permissions.
     """
-    # for now we only check if there is a token
-    # we will bona_fide_status and the actual permissions
+    # TO DO wait for info on the actual permissions
     # TO DO return forbidden if a specific forbidden dataset is requested
-    print(token["bona_fide_status"])
     access_type = ["REGISTERED", "PUBLIC", "CONTROLLED"] if token["bona_fide_status"] else ["PUBLIC"]
     hit_datasets = await fetch_filtered_dataset(db_pool, position, reference, alternate,
                                                 dataset_ids, access_type)

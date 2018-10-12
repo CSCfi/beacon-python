@@ -7,8 +7,12 @@ git:
   depth: false
   quiet: true
 
+services: docker
+
 stages:
   - name: unittests
+    if: type IN (push, pull_request)
+  - name: image
     if: type IN (push, pull_request)
 
 
@@ -19,7 +23,14 @@ jobs:
       before_script:
         - pip install tox-travis
       script: tox
-
+    - stage: image
+      script:
+        - if [[ "$TRAVIS_BRANCH" == "master" && "$TRAVIS_PULL_REQUEST" == "false" ]]; then
+             cd deploy ;
+             docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD ;
+             docker build -t cscfi/beacon-python . ;
+             docker push cscfi/beacon-python:latest;
+          fi
 
 notifications:
   email: false

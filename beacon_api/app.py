@@ -32,7 +32,6 @@ async def beacon_get(request):
     """
     LOG.info('GET request to the info endpoint "/"')
     db_pool = request.app['pool']
-    # TO DO verify match response as in OpenAPI
     response = await beacon_info(request.host, db_pool)
     return web.json_response(response)
 
@@ -45,7 +44,6 @@ async def beacon_get(request):
 @validate(load_schema("query"))
 async def beacon_get_query(request):
     """Find datasets using GET endpoint."""
-    # TO DO based on token we should check dataset persmissions
     method, processed_request = await parse_request_object(request)
     params = request.app['pool'], method, processed_request, request["token"], request.host
     response = await query_request_handler(params)
@@ -56,7 +54,6 @@ async def beacon_get_query(request):
 @validate(load_schema("query"))
 async def beacon_post_query(request):
     """Find datasets using POST endpoint."""
-    # TO DO based on token we should check dataset persmissions
     method, processed_request = await parse_request_object(request)
     params = request.app['pool'], method, processed_request, request["token"], request.host
     response = await query_request_handler(params)
@@ -80,7 +77,6 @@ def init():
     """Initialise server."""
     beacon = web.Application(middlewares=[token_auth()])
     beacon.router.add_routes(routes)
-    # Create a database connection pool
     beacon.on_startup.append(initialize)
     beacon.on_cleanup.append(destroy)
     return beacon
