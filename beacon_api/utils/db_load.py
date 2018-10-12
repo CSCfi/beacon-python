@@ -19,6 +19,7 @@ from ..conf.config import DB_URL  # , init_db_pool  # test pool
 from .logging import LOG
 
 
+# This was simply moved here from BeaconDB.insert_variants
 async def insert_variants(db, dataset_id, variants):
     """Insert variant data to the database."""
     LOG.info(f'Received {len(variants)} variants for insertion to {dataset_id}')
@@ -27,14 +28,14 @@ async def insert_variants(db, dataset_id, variants):
             # LOG.info('Insert variants into the database')
             for variant in variants:
                 await db.execute("""INSERT INTO beacon_data_table
-                                            (datasetId, chromosome, start, reference, alternate,
-                                            "end", variantType, variantCount, callCount, frequency)
-                                            SELECT ($1), ($2), ($3), ($4), alt, ($6), ($7), ($8), ($9), freq
-                                            FROM unnest($5::varchar[]) alt, unnest($10::float[]) freq""",
-                                            dataset_id, variant.CHROM, variant.POS, variant.REF,
-                                            [str(alt) for alt in variant.ALT], variant.end,
-                                            variant.var_type, variant.num_hom_alt, variant.num_called,
-                                            [float(freq) for freq in variant.aaf])
+                                 (datasetId, chromosome, start, reference, alternate,
+                                 "end", variantType, variantCount, callCount, frequency)
+                                 SELECT ($1), ($2), ($3), ($4), alt, ($6), ($7), ($8), ($9), freq
+                                 FROM unnest($5::varchar[]) alt, unnest($10::float[]) freq""",
+                                 dataset_id, variant.CHROM, variant.POS, variant.REF,
+                                 [str(alt) for alt in variant.ALT], variant.end,
+                                 variant.var_type, variant.num_hom_alt, variant.num_called,
+                                 [float(freq) for freq in variant.aaf])
             LOG.info('Variants have been inserted')
     except Exception as e:
         LOG.error(f'AN ERROR OCCURRED WHILE ATTEMPTING TO INSERT VARIANTS -> {e}')
@@ -153,7 +154,8 @@ class BeaconDB:
         except Exception as e:
             LOG.error(f'AN ERROR OCCURRED WHILE GENERATING DB QUEUE -> {e}')
 
-    async def DISABLED_insert_variants(self, dataset_id, variants):
+    # This function was moved outside BeaconDB to test chunking
+    async def insert_variants(self, dataset_id, variants):
         """Insert variant data to the database."""
         LOG.info(f'Received {len(variants)} variants for insertion to {dataset_id}')
         try:
