@@ -15,8 +15,29 @@ import vcf
 
 from datetime import datetime
 
-from ..conf.config import DB_URL
+from ..conf.config import DB_URL  # , init_db_pool  # test pool
 from .logging import LOG
+
+
+async def insert_variants(db, dataset_id, variants):
+    """Insert variant data to the database."""
+    LOG.info(f'Received {len(variants)} variants for insertion to {dataset_id}')
+    try:
+        async with db.transaction():
+            # LOG.info('Insert variants into the database')
+            for variant in variants:
+                await db.execute("""INSERT INTO beacon_data_table
+                                            (datasetId, chromosome, start, reference, alternate,
+                                            "end", variantType, variantCount, callCount, frequency)
+                                            SELECT ($1), ($2), ($3), ($4), alt, ($6), ($7), ($8), ($9), freq
+                                            FROM unnest($5::varchar[]) alt, unnest($10::float[]) freq""",
+                                            dataset_id, variant.CHROM, variant.POS, variant.REF,
+                                            [str(alt) for alt in variant.ALT], variant.end,
+                                            variant.var_type, variant.num_hom_alt, variant.num_called,
+                                            [float(freq) for freq in variant.aaf])
+            LOG.info('Variants have been inserted')
+    except Exception as e:
+        LOG.error(f'AN ERROR OCCURRED WHILE ATTEMPTING TO INSERT VARIANTS -> {e}')
 
 
 class BeaconDB:
@@ -104,20 +125,35 @@ class BeaconDB:
             LOG.error(f'AN ERROR OCCURRED WHILE ATTEMPTING TO PARSE METADATA -> {e}')
         return metadata['datasetId']
 
-    async def load_datafile(self, datafile, dataset_id):
+    async def load_datafile(self, datafile, dataset_id, n=1000):
         """Parse data from datafile and send it to be inserted."""
         LOG.info(f'Read data from {datafile}')
-        db_queue = []  # TO DO: Look into chunking this to smaller bits (async generator)
+        db_queue = [None] * n  # pre-allocate memory
         try:
             with open(datafile, 'r') as data:
-                LOG.info('Generate database queue')
-                db_queue = [record for record in vcf.Reader(data)]
-                LOG.info(f'Send {len(db_queue)} variants for insertion')
-                return dataset_id, db_queue
+                LOG.info('Generate database queue(s)')
+                # db_queue = [record for record in vcf.Reader(data)]
+                # LOG.info(f'Send {len(db_queue)} variants for insertion')
+                # return dataset_id, db_queue
+                i = 0
+                for record in vcf.Reader(data):
+                    db_queue[i] = record  # append record to queue
+                    i += 1
+                    if i == 1000:
+                        LOG.info(f'Send {len(db_queue)} variants for insertion')
+                        # Stop VCF parsing and send variants to be inserted
+                        await insert_variants(db=self._conn, dataset_id=dataset_id, variants=db_queue)
+                        i = 0
+                        db_queue = [None] * n  # reset queue
+                if i < 1000:
+                    # Insert stragglers
+                    LOG.info(f'Send {len(db_queue)} variants for insertion')
+                    await insert_variants(db=self._conn, dataset_id=dataset_id, variants=db_queue[:i])
+            LOG.info(f'{datafile} has been processed')
         except Exception as e:
             LOG.error(f'AN ERROR OCCURRED WHILE GENERATING DB QUEUE -> {e}')
 
-    async def insert_variants(self, dataset_id, variants):
+    async def DISABLED_insert_variants(self, dataset_id, variants):
         """Insert variant data to the database."""
         LOG.info(f'Received {len(variants)} variants for insertion to {dataset_id}')
         try:
@@ -133,6 +169,7 @@ class BeaconDB:
                                              [str(alt) for alt in variant.ALT], variant.end,
                                              variant.var_type, variant.num_hom_alt, variant.num_called,
                                              [float(freq) for freq in variant.aaf])
+                LOG.info('Variants have been inserted')
         except Exception as e:
             LOG.error(f'AN ERROR OCCURRED WHILE ATTEMPTING TO INSERT VARIANTS -> {e}')
 
@@ -168,8 +205,9 @@ async def init_beacon_db(arguments=None):
     dataset_id = await db.load_metadata(args.metadata, args.datafile)
 
     # Insert data into the database
-    data = await db.load_datafile(args.datafile, dataset_id)
-    await db.insert_variants(dataset_id=data[0], variants=data[1])
+    await db.load_datafile(args.datafile, dataset_id)
+    # data = await db.load_datafile(args.datafile, dataset_id)
+    # await db.insert_variants(dataset_id=data[0], variants=data[1])
 
     # Close the database connection
     await db.close()
