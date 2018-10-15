@@ -21,34 +21,28 @@ async def beacon_info(host, pool):
 
     # TO DO provide more meaninful example specific to the endpoint data
     sample_allele_request = [{
-        "alternateBases": "A",
-        "referenceBases": "C",
-        "referenceName": "17",
-        "start": 6689,
-        "assemblyId": "GRCh37",
-        "datasetIds": None,
-        "includeDatasetResponses": "NONE"
+        "alternateBases": "C",
+        "referenceBases": "T",
+        "referenceName": "MT",
+        "start": 10,
+        "assemblyId": "GRCh38",
+        "includeDatasetResponses": "ALL"
     }, {
-        "alternateBases": "G",
-        "referenceBases": "A",
-        "referenceName": "1",
-        "start": 14929,
-        "assemblyId": "GRCh37",
+        "alternateBases": "A",
+        "referenceBases": "G",
+        "referenceName": "MT",
+        "start": 7600,
+        "assemblyId": "GRCh38",
         "datasetIds": [
-            "DATASET1"
+            "urn:hg:exampleid-mt"
         ],
-        "includeDatasetResponses": "ALL"},
+        "includeDatasetResponses": "HIT"},
         {
-        "alternateBases": "CCCCT",
-        "referenceBases": "C",
-        "referenceName": "1",
-        "start": 866510,
-        "assemblyId": "GRCh37",
-        "datasetIds": [
-            "DATASET2",
-            "DATASET3"
-        ],
-        "includeDatasetResponses": "HIT"
+        "variantType": "snp",
+        "referenceBases": "T",
+        "referenceName": "Y",
+        "start": 7267244,
+        "assemblyId": "GRCh38"
     }
     ]
 
