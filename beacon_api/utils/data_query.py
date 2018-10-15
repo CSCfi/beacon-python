@@ -86,7 +86,7 @@ async def fetch_dataset_metadata(db_pool, datasets=None, access_type=None):
                 raise BeaconServerError(f'DB error: {e}')
 
 
-async def fetch_filtered_dataset(db_pool, position, reference, alternate, datasets=None, access_type=None, misses=False):
+async def fetch_filtered_dataset(db_pool, position, chromosome, reference, alternate, datasets=None, access_type=None, misses=False):
     """Execute filter datasets.
 
     There is an Uber query that aims to be all inclusive.
@@ -114,6 +114,7 @@ async def fetch_filtered_dataset(db_pool, position, reference, alternate, datase
 
                 # UBER QUERY - TBD if it is what we need
                 query = f"""SELECT {"DISTINCT ON (a.datasetId)" if misses else ''} a.datasetId as "datasetId", b.accessType as "accessType",
+                            a.chromosome as "referenceName",
                             b.externalUrl as "externalUrl", b.description as "note",
                             a.variantCount as "variantCount",
                             a.callCount as "callCount", b.sampleCount as "sampleCount",
@@ -124,6 +125,7 @@ async def fetch_filtered_dataset(db_pool, position, reference, alternate, datase
                             AND {startMax_pos} AND {startMin_pos}
                             AND {endMin_pos} AND {endMax_pos}
                             AND {refbase} AND {variant} AND {altbase})
+                            AND {chromosome} AND
                             AND {access_query} {"<>" if misses and datasets else "AND"} {datasets_query} ;"""
                 datasets = []
                 statement = await connection.prepare(query)
@@ -152,7 +154,7 @@ def filter_exists(include_dataset, datasets):
         return list(filter(lambda d: d['exists'] is False, datasets))
 
 
-async def find_datasets(db_pool, position, reference, alternate, dataset_ids, token):
+async def find_datasets(db_pool, position, chromosome, reference, alternate, dataset_ids, token):
     """Find datasets based on filter parameters.
 
     This also takes into consideration the token value as to establish permissions.
@@ -160,9 +162,9 @@ async def find_datasets(db_pool, position, reference, alternate, dataset_ids, to
     # TO DO wait for info on the actual permissions
     # TO DO return forbidden if a specific forbidden dataset is requested
     access_type = ["REGISTERED", "PUBLIC", "CONTROLLED"] if token["bona_fide_status"] else ["PUBLIC"]
-    hit_datasets = await fetch_filtered_dataset(db_pool, position, reference, alternate,
+    hit_datasets = await fetch_filtered_dataset(db_pool, position, chromosome, reference, alternate,
                                                 dataset_ids, access_type)
-    miss_datasets = await fetch_filtered_dataset(db_pool, position, reference, alternate,
+    miss_datasets = await fetch_filtered_dataset(db_pool, position, chromosome, reference, alternate,
                                                  [item["datasetId"] for item in hit_datasets],
                                                  access_type, misses=True)
 
