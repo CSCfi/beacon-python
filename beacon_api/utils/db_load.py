@@ -1,10 +1,13 @@
 """Beacon Database Loader.
 
-This utility script is used to parse VCF files into a PostgreSQL database. See :ref:`database` table ``beacon_data_table`` for what information is extracted from the VCF file.
+This utility script is used to parse VCF files into a PostgreSQL database.
+See :ref:`database` table ``beacon_data_table`` for what information is extracted from the VCF file.
 
-Datafiles ``*.vcf`` are denoted as ``datafile`` in the script parameters. Metadata for a datafile is given in a ``*.json`` file, denoted as ``metafile`` in the script parameters.
+Datafiles ``*.vcf`` are denoted as ``datafile`` in the script parameters.
+Metadata for a datafile is given in a ``*.json`` file, denoted as ``metafile`` in the script parameters.
 
-.. note:: Future releases are expected to drop the additional ``metafile`` parameter in favour of simplifying the database loading process, reading metadata from the datafile directly.
+.. note:: Future releases are expected to drop the additional ``metafile``
+parameter in favour of simplifying the database loading process, reading metadata from the datafile directly.
 
 Environment Setup
 -----------------
