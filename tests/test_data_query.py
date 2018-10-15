@@ -2,6 +2,7 @@ import asynctest
 from beacon_api.utils.data_query import sql_tuple, filter_exists, transform_record
 from beacon_api.utils.data_query import transform_misses, transform_metadata, find_datasets
 from datetime import datetime
+# from beacon_api.utils.data_query import fetch_dataset_metadata
 
 
 class Record:
@@ -74,7 +75,7 @@ class TestDataQueryFunctions(asynctest.TestCase):
 
     def test_transform_record(self):
         """Test transform DB record."""
-        response = {"frequency": 0.009112876, "error": None, "info": [{"accessType": "PUBLIC"}]}
+        response = {"frequency": 0.009112876, "info": [{"accessType": "PUBLIC"}]}
         record = Record("PUBLIC", 0.009112875989879)
         result = transform_record(record)
         self.assertEqual(result, response)
@@ -82,7 +83,7 @@ class TestDataQueryFunctions(asynctest.TestCase):
     def test_transform_misses(self):
         """Test transform misses record."""
         response = {"frequency": 0, "callCount": 0, "sampleCount": 0, "variantCount": 0,
-                    "info": [{"accessType": "PUBLIC"}], "error": None}
+                    "info": [{"accessType": "PUBLIC"}]}
         record = Record("PUBLIC")
         result = transform_misses(record)
         print(result)
@@ -106,6 +107,14 @@ class TestDataQueryFunctions(asynctest.TestCase):
         token["bona_fide_status"] = False
         result = await find_datasets(None, None, 'Y', 'T', 'C', [], token)
         self.assertEqual(result, [])
+
+    # async def test_fetch_metadata(self):
+    #     """Test fetch_metadata."""
+    #     pool = asynctest.CoroutineMock()
+    #     pool.connection.prepare.return_value = asynctest.CoroutineMock()
+    #     result = await fetch_dataset_metadata(pool)
+    #     print(result)
+    #     self.assertTrue(False)
 
 
 if __name__ == '__main__':

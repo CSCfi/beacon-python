@@ -45,6 +45,10 @@ class Connection:
         """Mimic close."""
         pass
 
+    async def prepare(self, query):
+        """Mimic prepare."""
+        pass
+
     def transaction(self, *args, **kwargs):
         """Mimic execute."""
         return Transaction(self, *args, **kwargs)

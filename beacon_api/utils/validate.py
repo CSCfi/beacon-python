@@ -111,9 +111,8 @@ async def check_bona_fide_status(token):
 
 def base64_to_long(data):
     """Convert JSON Web Key to armored key."""
-    # urlsafe_b64decode will happily convert b64encoded data
-    _d = base64.urlsafe_b64decode(bytes(data.encode("ascii")) + b'==')
-    unpacked = struct.unpack('%sB' % len(_d), _d)
+    _decoded = base64.urlsafe_b64decode(bytes(data.encode("ascii")) + b'==')
+    unpacked = struct.unpack('%sB' % len(_decoded), _decoded)
     converted = int(''.join(["%02x" % byte for byte in unpacked]), 16)
     return converted
 
@@ -121,7 +120,7 @@ def base64_to_long(data):
 async def get_key():
     """Get Elixir public key and transform it to usable pem key."""
     existing_key = os.environ.get('PUBLIC_KEY', None)
-    if existing_key:
+    if existing_key is not None:
         return existing_key
     try:
         async with aiohttp.ClientSession() as session:

@@ -13,6 +13,7 @@ from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives import serialization
 from test.support import EnvironmentVarGuard
 
+
 PARAMS = {'assemblyId': 'GRCh38',
           'referenceName': '1',
           'start': 10000,
@@ -56,11 +57,16 @@ class AppTestCase(AioHTTPTestCase):
     async def get_application(self):
         """Retrieve web Application for test."""
         token, public_key = generate_token('https://login.elixir-czech.org/oidc/')
-        env = EnvironmentVarGuard()
-        env.set('PUBLIC_KEY', str(public_key.decode('utf-8')))
-        env.set('TOKEN', token.decode('utf-8'))
+        self.env = EnvironmentVarGuard()
+        self.env.set('PUBLIC_KEY', str(public_key.decode('utf-8')))
+        self.env.set('TOKEN', token.decode('utf-8'))
         with asynctest.mock.patch('beacon_api.app.initialize', side_effect=create_db_mock):
             return init()
+
+    def tearDown(self):
+        """Finish up tests."""
+        self.env.unset('PUBLIC_KEY')
+        self.env.unset('TOKEN')
 
     @unittest_run_loop
     async def test_info(self):
@@ -112,7 +118,7 @@ class AppTestCase(AioHTTPTestCase):
     @unittest_run_loop
     async def test_invalid_scheme_get_query(self):
         """Test unauthorized GET query endpoint, invalid scheme."""
-        params = '?assemblyId=GRCh38&referenceName=1&start=10000&referenceBases=A&alternateBases=T'
+        params = '?assemblyId=GRCh38&referenceName=1&start=10000&referenceBases=A&alternateBases=T&datasetIds=dataset1'
         resp = await self.client.request("GET", f"/query{params}",
                                          headers={'Authorization': "SMTH x"})
         assert 401 == resp.status
@@ -164,11 +170,16 @@ class AppTestCaseForbidden(AioHTTPTestCase):
     async def get_application(self):
         """Retrieve web Application for test."""
         token, public_key = generate_token('something')
-        env = EnvironmentVarGuard()
-        env.set('PUBLIC_KEY', str(public_key.decode('utf-8')))
-        env.set('TOKEN', token.decode('utf-8'))
+        self.env = EnvironmentVarGuard()
+        self.env.set('PUBLIC_KEY', str(public_key.decode('utf-8')))
+        self.env.set('TOKEN', token.decode('utf-8'))
         with asynctest.mock.patch('beacon_api.app.initialize', side_effect=create_db_mock):
             return init()
+
+    def tearDown(self):
+        """Finish up tests."""
+        self.env.unset('PUBLIC_KEY')
+        self.env.unset('TOKEN')
 
     @asynctest.mock.patch('beacon_api.app.parse_request_object', side_effect=mock_parse_request_object)
     @asynctest.mock.patch('beacon_api.app.query_request_handler', side_effect=json.dumps(PARAMS))

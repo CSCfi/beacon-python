@@ -5,3 +5,4 @@ testfixtures
 flake8
 flake8-docstrings
 asynctest
+aioresponses

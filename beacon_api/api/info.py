@@ -38,7 +38,7 @@ async def beacon_info(host, pool):
         ],
         "includeDatasetResponses": "HIT"},
         {
-        "variantType": "snp",
+        "variantType": "SNP",
         "referenceBases": "T",
         "referenceName": "Y",
         "start": 7267244,
@@ -69,7 +69,7 @@ async def beacon_info(host, pool):
         'alternativeUrl': __alturl__,
         'createDateTime': __createtime__,
         'updateDateTime': __updatetime__,
-        'dataset': beacon_dataset,
+        'datasets': beacon_dataset,
         'sampleAlleleRequests': sample_allele_request,
         'info': [{"key": "value"}]
     }

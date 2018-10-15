@@ -21,7 +21,9 @@ def transform_record(record):
     response = dict(record)
     response["frequency"] = round(response.pop("frequency"), 9)
     response["info"] = [{"accessType": response.pop("accessType")}]
-    response["error"] = None
+    # Error is not required and should not be shown
+    # otherwise schema validation will fail
+    # response["error"] = None
 
     return response
 
@@ -34,7 +36,9 @@ def transform_misses(record):
     response["callCount"] = 0
     response["sampleCount"] = 0
     response["info"] = [{"accessType": response.pop("accessType")}]
-    response["error"] = None
+    # Error is not required and should not be shown
+    # otherwise schema validation will fail
+    # response["error"] = None
 
     return response
 
@@ -149,9 +153,9 @@ def filter_exists(include_dataset, datasets):
     elif include_dataset == 'NONE':
         return []
     elif include_dataset == 'HIT':
-        return list(filter(lambda d: d['exists'] is True, datasets))
+        return [d for d in datasets if d['exists'] is True]
     elif include_dataset == 'MISS':
-        return list(filter(lambda d: d['exists'] is False, datasets))
+        return [d for d in datasets if d['exists'] is False]
 
 
 async def find_datasets(db_pool, position, chromosome, reference, alternate, dataset_ids, token):

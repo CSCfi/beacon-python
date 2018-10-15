@@ -40,8 +40,10 @@ async def query_request_handler(params):
 
     beacon_response = {"beaconId": '.'.join(reversed(params[4].split('.'))),
                        "apiVersion": __apiVersion__,
-                       "exists": any(list(map(lambda x: x["exists"], datasets))),
-                       "error": None,
+                       "exists": any([x['exists'] for x in datasets]),
+                       # Error is not required and should not be shown
+                       # otherwise schema validation will fail
+                       # "error": None,
                        "alleleRequest": alleleRequest,
                        "datasetAlleleResponses": filter_exists(request.get("includeDatasetResponses", "NONE"), datasets)}
 
