@@ -113,7 +113,7 @@ async def fetch_filtered_dataset(db_pool, position, reference, alternate, datase
             try:
 
                 # UBER QUERY - TBD if it is what we need
-                query = f"""SELECT a.datasetId as "datasetId", b.accessType as "accessType",
+                query = f"""SELECT {"DISTINCT ON (a.datasetId)" if misses else ''} a.datasetId as "datasetId", b.accessType as "accessType",
                             b.externalUrl as "externalUrl", b.description as "note",
                             a.variantCount as "variantCount",
                             a.callCount as "callCount", b.sampleCount as "sampleCount",
