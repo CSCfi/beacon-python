@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS beacon_dataset_table (
     updateDateTime TIMESTAMP WITH TIME ZONE,
     version VARCHAR(8),
     sampleCount INTEGER,
-    externalUrl VARCHAR(128),
+    externalUrl VARCHAR(256),
     accessType VARCHAR(10),
     PRIMARY KEY (index)
 );
