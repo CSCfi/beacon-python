@@ -104,7 +104,7 @@ class TestDataQueryFunctions(asynctest.TestCase):
         mock_filtered.return_value = []
         token = dict()
         token["bona_fide_status"] = False
-        result = await find_datasets(None, None, 'T', 'C', [], token)
+        result = await find_datasets(None, None, 'Y', 'T', 'C', [], token)
         self.assertEqual(result, [])
 
 
