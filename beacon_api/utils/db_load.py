@@ -1,4 +1,35 @@
-"""Beacon Database Loader."""
+"""Beacon Database Loader.
+==========================
+
+This utility script is used to parse VCF files into a PostgreSQL database. See :ref:`database` table ``beacon_data_table`` for what information is extracted from the VCF file.
+
+Datafiles ``*.vcf`` are denoted as ``datafile`` in the script parameters. Metadata for a datafile is given in a ``*.json`` file, denoted as ``metafile`` in the script parameters.
+
+.. note:: Future releases are expected to drop the additional ``metafile`` parameter in favour of simplifying the database loading process, reading metadata from the datafile directly.
+
+Environment Setup
+-----------------
+
+Location of the table creation script can be changed with the ``TABLES_SCHEMA`` environment variable.
+
++---------------------+------------------------+---------------------------------------------------+
+| ENV                 | Default                | Description                                       |
++---------------------+------------------------+---------------------------------------------------+
+| `TABLES_SCHEMA`     | `data/init.sql`        | Database tables schema for metadata and variants. |
++---------------------+------------------------+---------------------------------------------------+
+
+Run Module
+----------
+
+Below are the two ways of running this module (pip installed and uninstalled).
+
+.. code-block:: console
+
+    $ beacon_init [datafile] [metafile]
+    $ python -m beacon_api.utils.db_load [datafile] [metafile]
+
+.. note:: This script has been tested with VCF specification v4.2.
+"""
 
 import os
 import argparse
