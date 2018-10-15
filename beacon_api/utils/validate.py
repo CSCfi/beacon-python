@@ -25,6 +25,7 @@ async def parse_request_object(request):
     For POST request parse the body, while for the GET request parse the query parameters.
     """
     if request.method == 'POST':
+        LOG.debug('Parsed POST request body.')
         return request.method, await request.json()  # we are always expecting JSON
 
     if request.method == 'GET':
@@ -32,7 +33,7 @@ async def parse_request_object(request):
         int_params = ['start', 'end', 'endMax', 'endMin', 'startMax', 'startMin']
         items = {k: (int(v) if k in int_params else v) for k, v in request.rel_url.query.items()}
         obj = json.dumps(items)
-
+        LOG.debug('Parsed GET request parameters.')
         return request.method, json.loads(obj)
 
 
@@ -82,6 +83,7 @@ def validate(schema):
                 raise BeaconServerError("Could not properly parse the provided Request Body as JSON.")
             try:
                 # jsonschema.validate(obj, schema)
+                LOG.debug('Validate agains JSON schema.')
                 DefaultValidatingDraft7Validator(schema).validate(obj)
             except ValidationError as e:
                 # TO DO verify match response as in OpenAPI
@@ -95,10 +97,14 @@ def validate(schema):
 async def check_bona_fide_status(token):
     """Check user details bona_fide_status."""
     headers = {"Authorization": f"Bearer {token}"}
-    async with aiohttp.ClientSession(headers=headers) as session:
-        async with session.get("https://login.elixir-czech.org/oidc/userinfo") as r:
-            json_body = await r.json()
-            return json_body.get("bona_fide_status", None)
+    try:
+        async with aiohttp.ClientSession(headers=headers) as session:
+            async with session.get("https://login.elixir-czech.org/oidc/userinfo") as r:
+                json_body = await r.json()
+                LOG.info('Retrieve a user\'s bona_fide_status.')
+                return json_body.get("bona_fide_status", None)
+    except Exception:
+        raise BeaconServerError("Could not retrieve ELIXIR AAI bona fide status.")
 
 
 def base64_to_long(data):
@@ -115,16 +121,20 @@ async def get_key():
     existing_key = os.environ.get('PUBLIC_KEY', None)
     if existing_key:
         return existing_key
-    async with aiohttp.ClientSession() as session:
-        async with session.get("https://login.elixir-czech.org/oidc/jwk") as r:
-            jwk = await r.json()
-            exponent = base64_to_long(jwk['keys'][0]['e'])
-            modulus = base64_to_long(jwk['keys'][0]['n'])
-            numbers = RSAPublicNumbers(exponent, modulus)
-            public_key = numbers.public_key(backend=default_backend())
-            pem = public_key.public_bytes(encoding=serialization.Encoding.PEM,
-                                          format=serialization.PublicFormat.SubjectPublicKeyInfo)
-            return pem.decode('utf-8')
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get("https://login.elixir-czech.org/oidc/jwk") as r:
+                jwk = await r.json()
+                exponent = base64_to_long(jwk['keys'][0]['e'])
+                modulus = base64_to_long(jwk['keys'][0]['n'])
+                numbers = RSAPublicNumbers(exponent, modulus)
+                public_key = numbers.public_key(backend=default_backend())
+                pem = public_key.public_bytes(encoding=serialization.Encoding.PEM,
+                                              format=serialization.PublicFormat.SubjectPublicKeyInfo)
+                LOG.info('Got the public key for validating the token.')
+                return pem.decode('utf-8')
+    except Exception:
+        raise BeaconServerError("Could not retrieve ELIXIR AAI public key.")
 
 
 def token_auth():
@@ -152,6 +162,8 @@ def token_auth():
             if token is not None:
                 key = await get_key()
                 try:
+                    # TO DO algorithm should be retrieved from the header and
+                    # checked against the JSON Web Key
                     decodedData = jwt.decode(token, key, algorithms=['RS256'])
                     LOG.info('Auth Token Decoded.')
                 except jwt.InvalidTokenError as e:
@@ -160,7 +172,7 @@ def token_auth():
 
                 # Validate the issuer is Elixir AAI
                 if decodedData['iss'] in ["https://login.elixir-czech.org/oidc/"] and decodedData['sub'].endswith("@elixir-europe.org"):
-                    LOG.info('Identified as Elixir AAI user.')
+                    LOG.info('Identified as ELIXIR AAI user.')
                     # for now the permissions just reflect the decoded data
                     # the bona fide status for now is set to True
 
@@ -168,7 +180,7 @@ def token_auth():
                     return await handler(request)
                 else:
                     _, obj = await parse_request_object(request)
-                    raise BeaconForbidden(obj, request.host, 'Token is not validated by an Elixir AAI authorized issuer.')
+                    raise BeaconForbidden(obj, request.host, 'Token is not validated by an ELIXIR AAI authorized issuer.')
         else:
             request["token"] = {"bona_fide_status": False}
             return await handler(request)

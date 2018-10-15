@@ -30,7 +30,7 @@ async def beacon_get(request):
     :type beacon: Dict
     :return beacon: The method returns an example Beacon characteristic to beacon info endpoint.
     """
-    LOG.info('GET request to the info endpoint "/"')
+    LOG.info('GET request to the info endpoint "/".')
     db_pool = request.app['pool']
     response = await beacon_info(request.host, db_pool)
     return web.json_response(response)
