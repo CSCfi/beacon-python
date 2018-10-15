@@ -32,6 +32,8 @@ async def parse_request_object(request):
         # GET parameters are returned as strings
         int_params = ['start', 'end', 'endMax', 'endMin', 'startMax', 'startMin']
         items = {k: (int(v) if k in int_params else v) for k, v in request.rel_url.query.items()}
+        if 'datasetIds' in items:
+            items['datasetIds'] = request.rel_url.query.get('datasetIds').split(',')
         obj = json.dumps(items)
         LOG.debug('Parsed GET request parameters.')
         return request.method, json.loads(obj)
