@@ -6,14 +6,16 @@ and their associated metadata.
 .. note:: In this file is where one would change information about their beacon.
 """
 
-from .. import __apiVersion__, __title__, __version__
+from .. import __apiVersion__, __title__, __version__, __description__, __url__, __alturl__
+from .. import __createtime__, __updatetime__, __org_id__, __org_name__, __org_description__
+from .. import __org_address__, __org_logoUrl__, __org_welcomeUrl__, __org_info__, __org_contactUrl__
 from ..utils.data_query import fetch_dataset_metadata
 
 
 async def beacon_info(host, pool):
     """Construct the `Beacon` app information dict.
 
-    :return beacon_info: A dict that contain information about the `Beacon` endpoint.
+    :return beacon_info: A dict that contain information about the ``Beacon`` endpoint.
     """
     beacon_dataset = await fetch_dataset_metadata(pool)
 
@@ -51,15 +53,14 @@ async def beacon_info(host, pool):
     ]
 
     organization = {
-        'id': 'EGA',
-        'name': 'European Genome-Phenome Archive (EGA)',
-        'description': 'The European Genome-phenome Archive (EGA) is a service for permanent archiving and sharing of all types of personally identifiable \
-        genetic and phenotypic data resulting from biomedical research projects.',
-        'address': '',
-        'welcomeUrl': 'https://ega-archive.org/',
-        'contactUrl': 'mailto:beacon.ega@crg.eu',
-        'logoUrl': 'https://ega-archive.org/images/logo.png',
-        'info': None,
+        'id': __org_id__,
+        'name': __org_name__,
+        'description': __org_description__,
+        'address': __org_address__,
+        'welcomeUrl': __org_welcomeUrl__,
+        'contactUrl': __org_contactUrl__,
+        'logoUrl': __org_logoUrl__,
+        'info': __org_info__,
     }
 
     beacon_info = {
@@ -68,14 +69,12 @@ async def beacon_info(host, pool):
         'name': __title__,
         'apiVersion': __apiVersion__,
         'organization': organization,
-        'description': 'This <a href=\"http://ga4gh.org/#/beacon\">Beacon</a> is based on the GA4GH Beacon\
-         <a href=\"https://github.com/ga4gh/beacon-team/blob/develop/src/main/resources/avro/beacon.avdl\">API 0.4</a>',
+        'description': __description__,
         'version': __version__,
-        'welcomeUrl': 'https://ega-archive.org/beacon_web/',
-        'alternativeUrl': 'https://ega-archive.org/beacon_web/',
-        # TO DO - figure out how to dynamically get these dates
-        'createDateTime': '2018-07-25T00:00.000Z',
-        'updateDateTime': None,
+        'welcomeUrl': __url__,
+        'alternativeUrl': __alturl__,
+        'createDateTime': __createtime__,
+        'updateDateTime': __updatetime__,
         'dataset': beacon_dataset,
         'sampleAlleleRequests': sample_allele_request,
         'info': [{"key": "value"}]

@@ -228,7 +228,7 @@ def parse_arguments(arguments):
 
 
 def main():
-    """Run the magic."""
+    """Run the beacon_init script."""
     # TO DO add this to setup to run from command line
     # allow arguments to be passed from command line
     asyncio.get_event_loop().run_until_complete(init_beacon_db())
