@@ -1,5 +1,4 @@
 """Beacon Database Loader.
-==========================
 
 This utility script is used to parse VCF files into a PostgreSQL database. See :ref:`database` table ``beacon_data_table`` for what information is extracted from the VCF file.
 
