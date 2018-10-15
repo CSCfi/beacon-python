@@ -125,7 +125,7 @@ async def fetch_filtered_dataset(db_pool, position, chromosome, reference, alter
                             AND {startMax_pos} AND {startMin_pos}
                             AND {endMin_pos} AND {endMax_pos}
                             AND {refbase} AND {variant} AND {altbase})
-                            AND {chromosome} AND
+                            AND a.chromosome='{chromosome}'
                             AND {access_query} {"<>" if misses and datasets else "AND"} {datasets_query} ;"""
                 datasets = []
                 statement = await connection.prepare(query)
