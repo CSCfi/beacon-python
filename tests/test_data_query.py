@@ -3,6 +3,7 @@ from beacon_api.utils.data_query import sql_tuple, filter_exists, transform_reco
 from beacon_api.utils.data_query import transform_misses, transform_metadata, find_datasets
 from datetime import datetime
 # from beacon_api.utils.data_query import fetch_dataset_metadata
+from beacon_api.utils.data_query import handle_wildcard
 
 
 class Record:
@@ -115,6 +116,15 @@ class TestDataQueryFunctions(asynctest.TestCase):
     #     result = await fetch_dataset_metadata(pool)
     #     print(result)
     #     self.assertTrue(False)
+
+    def test_handle_wildcard(self):
+        """Test PostgreSQL wildcard handling."""
+        sequence1 = 'ATCG'
+        sequence2 = 'ATNG'
+        sequence3 = 'NNCN'
+        self.assertEqual(handle_wildcard(sequence1), "='ATCG'")
+        self.assertEqual(handle_wildcard(sequence2), " LIKE '%AT_G%'")
+        self.assertEqual(handle_wildcard(sequence3), " LIKE '%__C_%'")
 
 
 if __name__ == '__main__':
