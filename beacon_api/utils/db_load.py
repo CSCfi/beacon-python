@@ -39,7 +39,7 @@ import json
 
 import asyncio
 import asyncpg
-import vcf
+from cyvcf2 import VCF
 
 from datetime import datetime
 
@@ -60,6 +60,30 @@ class BeaconDB:
             LOG.info('Database URL has been set -> Connections can now be made')
         except Exception as e:
             LOG.error(f'ERROR FETCHING DB URL -> {e}')
+
+    def _unpack(self, variant, len_samples):
+        """Unpack variant type, allele frequency and count."""
+        aaf = []
+        ac = []
+        vt = []
+        for k, v in variant.INFO:
+            if k == 'AC':
+                if isinstance(v, tuple):
+                    aaf = [float(i) / (variant.call_rate * len_samples) for i in v]
+                    ac = [int(i) for i in v]
+                elif isinstance(v, int):
+                    aaf = [float(v) / (variant.call_rate * len_samples)]
+                    ac = [int(v)]
+                else:
+                    raise KeyError
+            # TO DO TRANSLATE this to proper Variant type
+            elif k == 'VT':
+                vt = v.split(',')
+            else:
+                # TO DO unsupported
+                raise KeyError
+
+        return (aaf, ac, vt)
 
     async def connection(self):
         """Connect to the database."""
@@ -99,20 +123,19 @@ class BeaconDB:
         except Exception as e:
             LOG.error(f'AN ERROR OCCURRED WHILE ATTEMPTING TO CREATE TABLES -> {e}')
 
-    async def load_metadata(self, metafile, datafile):
+    async def load_metadata(self, vcf, metafile, datafile):
         """Parse metadata from a JSON file and insert it into the database."""
         metadata = {}
         try:
             LOG.info(f'Calculate number of samples from {datafile}')
-            sample_count = 0
-            with open(datafile, 'r') as df:
-                # calculate number of unique test subjects
-                sample_count = len(vcf.Reader(df).samples)
+            len_samples = len(vcf.samples)
             LOG.info(f'Parse metadata from {metafile}')
             with open(metafile, 'r') as metafile:
                 # read metadata from given JSON file
                 # TO DO: parse metadata directly from datafile if possible
+                LOG.info(metafile)
                 metadata = json.load(metafile)
+            LOG.info(metadata)
             LOG.info('Metadata has been parsed')
             try:
                 LOG.info(f'Attempting to insert metadata to database')
@@ -126,7 +149,7 @@ class BeaconDB:
                                          metadata['description'], metadata['assemblyId'],
                                          datetime.strptime(metadata['createDateTime'], '%Y-%m-%d %H:%M:%S'),
                                          datetime.strptime(metadata['updateDateTime'], '%Y-%m-%d %H:%M:%S'),
-                                         metadata['version'], sample_count,
+                                         metadata['version'], len_samples,
                                          metadata['externalUrl'], metadata['accessType'])
             except Exception as e:
                 LOG.error(f'AN ERROR OCCURRED WHILE ATTEMPTING TO INSERT METADATA -> {e}')
@@ -134,29 +157,29 @@ class BeaconDB:
             LOG.error(f'AN ERROR OCCURRED WHILE ATTEMPTING TO PARSE METADATA -> {e}')
         return metadata['datasetId']
 
-    async def load_datafile(self, datafile, dataset_id, n=1000):
+    async def load_datafile(self, vcf, datafile, dataset_id, n=1000):
         """Parse data from datafile and send it to be inserted."""
         LOG.info(f'Read data from {datafile}')
         db_queue = []
+        len_samples = len(vcf.samples)
         try:
-            with open(datafile, 'r') as data:
-                LOG.info('Generate database queue(s)')
-                for record in vcf.Reader(data):
-                    db_queue.append(record)
-                    if len(db_queue) == n:
-                        LOG.info(f'Send {len(db_queue)} variants for insertion')
-                        # Pause VCF parsing and send variants to be inserted
-                        await self.insert_variants(dataset_id, db_queue)
-                        db_queue = []
-                if len(db_queue) < n:
-                    # Insert stragglers
-                    LOG.info(f'Send final {len(db_queue)} variants for insertion')
-                    await self.insert_variants(dataset_id, db_queue)
+            LOG.info('Generate database queue(s)')
+            for record in vcf:
+                db_queue.append(record)
+                if len(db_queue) == n:
+                    LOG.info(f'Send {len(db_queue)} variants for insertion')
+                    # Pause VCF parsing and send variants to be inserted
+                    await self.insert_variants(dataset_id, db_queue, len_samples)
+                    db_queue = []
+            if len(db_queue) < n:
+                # Insert stragglers
+                LOG.info(f'Send final {len(db_queue)} variants for insertion')
+                await self.insert_variants(dataset_id, db_queue, len_samples)
             LOG.info(f'{datafile} has been processed')
         except Exception as e:
             LOG.error(f'AN ERROR OCCURRED WHILE GENERATING DB QUEUE -> {e}')
 
-    async def insert_variants(self, dataset_id, variants):
+    async def insert_variants(self, dataset_id, variants, len_samples):
         """Insert variant data to the database."""
         LOG.info(f'Received {len(variants)} variants for insertion to {dataset_id}')
         try:
@@ -164,15 +187,19 @@ class BeaconDB:
             async with self._conn.transaction():
                 LOG.info('Insert variants into the database')
                 for variant in variants:
+                    # params = (frequency, count, actual variant Type)
+                    params = self._unpack(variant, len_samples)
                     await self._conn.execute("""INSERT INTO beacon_data_table
                                              (datasetId, chromosome, start, reference, alternate,
                                              "end", variantType, variantCount, callCount, frequency)
-                                             SELECT ($1), ($2), ($3), ($4), alt, ($6), ($7), ($8), ($9), freq
-                                             FROM unnest($5::varchar[]) alt, unnest($10::float[]) freq""",
-                                             dataset_id, variant.CHROM, variant.POS, variant.REF,
-                                             [str(alt) for alt in variant.ALT], variant.end,
-                                             variant.var_type, variant.num_hom_alt, variant.num_called,
-                                             [float(freq) for freq in variant.aaf])
+                                             SELECT ($1), ($2), ($3), ($4), t.alt, ($6), ($7), t.ac, ($9), t.freq
+                                             FROM (SELECT unnest($5::varchar[]) alt, unnest($8::integer[]) ac,
+                                             unnest($10::float[]) freq) t
+                                             ON CONFLICT (datasetId, chromosome, start, reference, alternate)
+                                             DO NOTHING""",
+                                             dataset_id, variant.CHROM, variant.start + 1, variant.REF,
+                                             variant.ALT, variant.end + 1, variant.var_type.upper(),
+                                             params[1], variant.num_called, params[0])
                 LOG.info('Variants have been inserted')
         except Exception as e:
             LOG.error(f'AN ERROR OCCURRED WHILE ATTEMPTING TO INSERT VARIANTS -> {e}')
@@ -197,6 +224,8 @@ async def init_beacon_db(arguments=None):
 
     # Connect to the database
     await db.connection()
+    # LOG.info(args.datafile)
+    vcf = VCF(args.datafile)
 
     # Check that desired tables exist (missing tables are returned)
     tables = await db.check_tables(['beacon_dataset_table', 'beacon_data_table'])
@@ -206,10 +235,10 @@ async def init_beacon_db(arguments=None):
         await db.create_tables(os.environ.get('TABLES_SCHEMA', 'data/init.sql'))
 
     # Insert dataset metadata into the database, prior to inserting actual variant data
-    dataset_id = await db.load_metadata(args.metadata, args.datafile)
+    dataset_id = await db.load_metadata(vcf, args.metadata, args.datafile)
 
     # Insert data into the database
-    await db.load_datafile(args.datafile, dataset_id)
+    await db.load_datafile(vcf, args.datafile, dataset_id)
 
     # Close the database connection
     await db.close()

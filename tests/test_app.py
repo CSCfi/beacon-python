@@ -54,14 +54,14 @@ class AppTestCase(AioHTTPTestCase):
     Testing web app endpoints.
     """
 
-    async def get_application(self):
+    @asynctest.mock.patch('beacon_api.app.initialize', side_effect=create_db_mock)
+    async def get_application(self, pool_mock):
         """Retrieve web Application for test."""
         token, public_key = generate_token('https://login.elixir-czech.org/oidc/')
         self.env = EnvironmentVarGuard()
         self.env.set('PUBLIC_KEY', str(public_key.decode('utf-8')))
         self.env.set('TOKEN', token.decode('utf-8'))
-        with asynctest.mock.patch('beacon_api.app.initialize', side_effect=create_db_mock):
-            return init()
+        return init()
 
     def tearDown(self):
         """Finish up tests."""
@@ -167,14 +167,14 @@ class AppTestCaseForbidden(AioHTTPTestCase):
     Testing web app for wrong issuer.
     """
 
-    async def get_application(self):
+    @asynctest.mock.patch('beacon_api.app.initialize', side_effect=create_db_mock)
+    async def get_application(self, pool_mock):
         """Retrieve web Application for test."""
         token, public_key = generate_token('something')
         self.env = EnvironmentVarGuard()
         self.env.set('PUBLIC_KEY', str(public_key.decode('utf-8')))
         self.env.set('TOKEN', token.decode('utf-8'))
-        with asynctest.mock.patch('beacon_api.app.initialize', side_effect=create_db_mock):
-            return init()
+        return init()
 
     def tearDown(self):
         """Finish up tests."""

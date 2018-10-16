@@ -30,15 +30,15 @@ class MockBeaconDB:
         """Mimic create_tables."""
         pass
 
-    async def insert_variants(self, dataset_id, variants):
+    async def insert_variants(self, dataset_id, variants, len_samples):
         """Mimic insert_variants."""
         pass
 
-    async def load_metadata(self, metafile, datafile):
+    async def load_metadata(self, vcf, metafile, datafile):
         """Mimic load_metadata."""
         pass
 
-    async def load_datafile(self, datafile, datasetId):
+    async def load_datafile(self, vcf, datafile, datasetId):
         """Mimic load_datafile."""
         return ["datasetId", "variants"]
 
@@ -70,7 +70,8 @@ class TestBasicFunctions(asynctest.TestCase):
 
     @asynctest.mock.patch('beacon_api.utils.db_load.LOG')
     @asynctest.mock.patch('beacon_api.utils.db_load.BeaconDB')
-    async def test_init_beacon_db(self, db_mock, mock_log):
+    @asynctest.mock.patch('beacon_api.utils.db_load.VCF')
+    async def test_init_beacon_db(self, mock_vcf, db_mock, mock_log):
         """Test beacon_init call."""
         db_mock.return_value = MockBeaconDB()
         metadata = """{"name": "DATASET1",
@@ -82,7 +83,7 @@ class TestBasicFunctions(asynctest.TestCase):
                     "accessType": "PUBLIC"}"""
         metafile = self._dir.write('data.json', metadata.encode('utf-8'))
         data = """MOCK VCF file"""
-        datafile = self._dir.write('data.csv', data.encode('utf-8'))
+        datafile = self._dir.write('data.vcf', data.encode('utf-8'))
         await init_beacon_db([datafile, metafile])
         mock_log.info.mock_calls = ['Mark the database connection to be closed',
                                     'The database connection has been closed']

@@ -127,21 +127,25 @@ class DatabaseTestCase(asynctest.TestCase):
 
     @asynctest.mock.patch('beacon_api.utils.db_load.LOG')
     @asynctest.mock.patch('beacon_api.utils.db_load.asyncpg.connect')
-    async def test_load_metadata(self, db_mock, mock_log):
+    @asynctest.mock.patch('beacon_api.utils.db_load.VCF')
+    async def test_load_metadata(self, mock_vcf, db_mock, mock_log):
         """Test load metadata."""
-        metadata = """{"name": "DATASET1",
-                    "datasetId": "urn:hg:exampleid",
-                    "description": "example dataset number 1",
-                    "assemblyId": "GRCh38",
-                    "version": "v1",
-                    "sampleCount": 2504,
-                    "externalUrl": "https://datasethost.org/dataset1",
-                    "accessType": "PUBLIC"}"""
+        metadata = """{"name": "ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf",
+            "datasetId": "urn:hg:exampleid",
+            "description": "Mitochondrial genome from the 1000 Genomes project",
+            "assemblyId": "GRCh38",
+            "createDateTime": "2013-05-02 12:00:00",
+            "updateDateTime": "2013-05-02 12:00:00",
+            "version": "v0.4",
+            "externalUrl": "smth",
+            "accessType": "PUBLIC"}"""
         db_mock.return_value = Connection()
         await self._db.connection()
         db_mock.assert_called_with(self._db_url)
         metafile = self._dir.write('data.json', metadata.encode('utf-8'))
-        await self._db.load_metadata(metafile, self.datafile)
+        vcf = asynctest.mock.MagicMock(name='samples')
+        vcf.samples.return_value = [1, 2, 3]
+        await self._db.load_metadata(vcf, metafile, self.datafile)
         # Should assert logs
         mock_log.info.mock_calls = [f'Parsing metadata from {metafile}',
                                     'Metadata has been parsed']
@@ -151,9 +155,11 @@ class DatabaseTestCase(asynctest.TestCase):
     async def test_load_datafile(self, db_mock, mock_log):
         """Test load_datafile."""
         db_mock.return_value = Connection()
+        vcf = asynctest.mock.MagicMock(name='samples')
+        vcf.samples.return_value = [1, 2, 3]
         await self._db.connection()
         db_mock.assert_called_with(self._db_url)
-        await self._db.load_datafile(self.datafile, 'DATASET1')
+        await self._db.load_datafile(vcf, self.datafile, 'DATASET1')
         # Should assert logs
         mock_log.info.mock_calls = [f'Read data from {self.datafile}']
 
@@ -164,7 +170,7 @@ class DatabaseTestCase(asynctest.TestCase):
         db_mock.return_value = Connection()
         await self._db.connection()
         db_mock.assert_called_with(self._db_url)
-        await self._db.insert_variants('DATASET1', ['C'])
+        await self._db.insert_variants('DATASET1', ['C'], 20)
         # Should assert logs
         mock_log.info.mock_calls = [f'Received 1 variants for insertion to DATASET1',
                                     'Insert variants into the database',
