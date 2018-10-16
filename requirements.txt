@@ -3,4 +3,5 @@ asyncpg
 pyjwt
 cryptography
 jsonschema==3.0.0a3
-git+https://github.com/teemukataja/PyVCF
+Cython
+cyvcf2
