@@ -90,6 +90,16 @@ async def fetch_dataset_metadata(db_pool, datasets=None, access_type=None):
                 raise BeaconServerError(f'DB error: {e}')
 
 
+def handle_wildcard(sequence):
+    """Construct PostgreSQL friendly wildcard string."""
+    if 'N' in sequence:
+        # Wildcard(s) found, use wildcard notation
+        return f" LIKE '%{sequence.replace('N', '_')}%'"
+    else:
+        # No wildcard(s) found, use standard notation
+        return f"='{sequence}'"
+
+
 async def fetch_filtered_dataset(db_pool, position, chromosome, reference, alternate, datasets=None, access_type=None, misses=False):
     """Execute filter datasets.
 
@@ -112,8 +122,8 @@ async def fetch_filtered_dataset(db_pool, position, chromosome, reference, alter
             endMax_pos = "TRUE" if position[5] == 0 else f"a.end<={position[5]}"
 
             variant = 'TRUE' if not alternate[0] else 'a.variantType=\'' + alternate[0] + '\''
-            altbase = 'TRUE' if not alternate[1] else 'a.alternate=\'' + alternate[1] + '\''
-            refbase = 'TRUE' if not reference else 'a.reference=\'' + reference + '\''
+            altbase = 'TRUE' if not alternate[1] else 'a.alternate' + handle_wildcard(alternate[1])
+            refbase = 'TRUE' if not reference else 'a.reference' + handle_wildcard(reference)
             try:
 
                 # UBER QUERY - TBD if it is what we need
