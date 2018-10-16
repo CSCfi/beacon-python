@@ -75,13 +75,14 @@ class BeaconDB:
                     aaf = [float(v) / (variant.call_rate * len_samples)]
                     ac = [int(v)]
                 else:
-                    raise KeyError
+                    LOG.error(f'Unsupported allele count and frequency value {v}')
+                    pass
             # TO DO TRANSLATE this to proper Variant type
             elif k == 'VT':
                 vt = v.split(',')
             else:
-                # TO DO unsupported
-                raise KeyError
+                LOG.error(f'Unsupported INFO value {k}')
+                pass
 
         return (aaf, ac, vt)
 
