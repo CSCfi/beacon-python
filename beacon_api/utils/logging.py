@@ -1,12 +1,10 @@
 """Logging formatting."""
 
 import logging
-# import inspect
 
-# TO DO: do some proper logs
-# callerframe = inspect.stack()[1][0]
-# name = callerframe.f_globals["__name__"]
-formatting = '[%(asctime)s][%(name)s][%(process)d %(processName)s][%(levelname)-8s] (L:%(lineno)s) %(funcName)s: %(message)s'
-logging.basicConfig(level=logging.DEBUG, format=formatting)
+# Keeping it simple with the logging formatting
 
-LOG = logging.getLogger("testing")
+formatting = '[%(asctime)s][%(name)s][%(process)d %(processName)s][%(levelname)-8s] (L:%(lineno)s) %(module)s | %(funcName)s: %(message)s'
+logging.basicConfig(level=logging.INFO, format=formatting)
+
+LOG = logging.getLogger("beacon")

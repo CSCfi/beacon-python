@@ -20,37 +20,41 @@ as additional information, that cannot be extracted from ``*.vcf`` files, is req
           we make use of the same query structure, exemplified below.
 
 
-For ``HIT`` results:
+For ``HIT`` results, example query below searches in all datasets:
 
 .. code-block:: sql
 
-    SELECT DISTINCT ON (a.dataset_id) a.dataset_id as "datasetId", b.accessType as "accessType",
-                                b.externalUrl as "externalUrl", b.description as "note",
-                                a.variantcount as "variantCount",
-                                a.callcount as "callCount", a.samplecount as "sampleCount",
-                                a.frequency, TRUE as "exists"
-                                FROM beacon_data_table a, beacon_dataset_table b
-                                WHERE a.dataset_id=b.dataset_id
-                                AND  (a.start=3056601 AND TRUE
-                                AND TRUE AND TRUE
-                                AND TRUE AND TRUE
-                                AND TRUE AND a.reference='T' AND a.alternate='C')
-                                AND b.accesstype IN ('REGISTERED', 'PUBLIC') AND TRUE ;
+    SELECT  a.datasetId as "datasetId", b.accessType as "accessType",
+                        a.chromosome as "referenceName",
+                        b.externalUrl as "externalUrl", b.description as "note",
+                        a.variantCount as "variantCount",
+                        a.callCount as "callCount", b.sampleCount as "sampleCount",
+                        a.frequency, TRUE as "exists"
+                        FROM beacon_data_table a, beacon_dataset_table b
+                        WHERE a.dataset_id=b.dataset_id
+                        AND  (a.start=3056601 AND TRUE
+                        AND TRUE AND TRUE
+                        AND TRUE AND TRUE
+                        AND TRUE AND a.reference='T' AND TRUE  AND a.alternate='C')
+                        AND a.chromosome='Y'
+                        AND b.accesstype IN ('REGISTERED', 'PUBLIC') AND TRUE ;
 
-For ``MISS`` results:
+For ``MISS`` results, example query below searches in all ``DATASET2``:
 
 .. code-block:: sql
 
-    SELECT DISTINCT ON (a.dataset_id) a.dataset_id as "datasetId", b.accessType as "accessType",
-                                b.externalUrl as "externalUrl", b.description as "note",
-                                a.variantcount as "variantCount",
-                                a.callcount as "callCount", a.samplecount as "sampleCount",
-                                a.frequency, FALSE as "exists"
-                                FROM beacon_data_table a, beacon_dataset_table b
-                                WHERE a.dataset_id=b.dataset_id
-                                AND NOT (a.start=3056601 AND TRUE
-                                AND TRUE AND TRUE
-                                AND TRUE AND TRUE
-                                AND TRUE AND a.reference='T' AND a.alternate='C')
-                                AND b.accesstype IN ('REGISTERED', 'PUBLIC')
-                                <> a.dataset_id IN ('DATASET2') ;
+    SELECT DISTINCT ON (a.dataset_id) a.datasetId as "datasetId", b.accessType as "accessType",
+                        a.chromosome as "referenceName",
+                        b.externalUrl as "externalUrl", b.description as "note",
+                        a.variantCount as "variantCount",
+                        a.callCount as "callCount", b.sampleCount as "sampleCount",
+                        a.frequency, FALSE as "exists"
+                        FROM beacon_data_table a, beacon_dataset_table b
+                        WHERE a.dataset_id=b.dataset_id
+                        AND NOT (a.start=3056601 AND TRUE
+                        AND TRUE AND TRUE
+                        AND TRUE AND TRUE
+                        AND TRUE AND a.reference='T' AND TRUE AND a.alternate='C')
+                        AND a.chromosome='Y'
+                        AND b.accesstype IN ('REGISTERED', 'PUBLIC')
+                        <> a.dataset_id IN ('DATASET2') ;

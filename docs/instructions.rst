@@ -123,5 +123,4 @@ For loading data into the database we can proceed as follows:
 .. code-block:: console
 
     $ wget ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz
-    $ gunzip ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz
     $ beacon_init ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz data/example_metadata.json

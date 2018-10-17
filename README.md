@@ -39,7 +39,7 @@ For installing `beacon-python` do the following:
 pip install .
 ```
 
-For loading `*.vcf` files into the database we provide the `beacon_init` utility:
+For loading `*.vcf`/`*.vcf.gz` files into the database we provide the `beacon_init` utility:
 ```shell
 ╰─$ beacon_init --help             
 usage: beacon_init [-h] datafile metadata

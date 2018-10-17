@@ -25,7 +25,7 @@ async def parse_request_object(request):
     For POST request parse the body, while for the GET request parse the query parameters.
     """
     if request.method == 'POST':
-        LOG.debug('Parsed POST request body.')
+        LOG.info('Parsed POST request body.')
         return request.method, await request.json()  # we are always expecting JSON
 
     if request.method == 'GET':
@@ -35,7 +35,7 @@ async def parse_request_object(request):
         if 'datasetIds' in items:
             items['datasetIds'] = request.rel_url.query.get('datasetIds').split(',')
         obj = json.dumps(items)
-        LOG.debug('Parsed GET request parameters.')
+        LOG.info('Parsed GET request parameters.')
         return request.method, json.loads(obj)
 
 
@@ -85,7 +85,7 @@ def validate(schema):
                 raise BeaconServerError("Could not properly parse the provided Request Body as JSON.")
             try:
                 # jsonschema.validate(obj, schema)
-                LOG.debug('Validate agains JSON schema.')
+                LOG.info('Validate agains JSON schema.')
                 DefaultValidatingDraft7Validator(schema).validate(obj)
             except ValidationError as e:
                 # TO DO verify match response as in OpenAPI

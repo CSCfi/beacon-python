@@ -6,7 +6,10 @@ The Beacon API consists of the following endpoints:
 * ``/`` beacon information endpoint;
 * ``/query`` - retrieving and filtering information from the beacon.
 
-For the full specification consult: `Beacon API specification <https://github.com/ga4gh-beacon/specification>`_.
+For the full specification consult: `Beacon API 1.0.0+ specification <https://github.com/ga4gh-beacon/specification>`_.
+
+The requests are validated against a JSON schema, while for the responses we validate (via unit tests)
+that they adhere to the required format.
 
 Info Endpoint
 -------------
@@ -131,8 +134,7 @@ Example Response:
         ],
         "info": [
             {
-                "key": "string",
-                "value": "string"
+                "key": "value"
             }
         ]
     }
@@ -155,7 +157,6 @@ Example Response:
     "beaconId": "localhost:5050",
     "apiVersion": "1.0.0",
     "exists": true,
-    "error": null,
     "alleleRequest": {
         "referenceName": "1",
         "start": 0,
@@ -199,7 +200,6 @@ Example Response:
     "beaconId": "localhost:5050",
     "apiVersion": "1.0.0",
     "exists": true,
-    "error": null,
     "alleleRequest": {
         "referenceName": "1",
         "start": 3056601,
@@ -229,7 +229,6 @@ Example Response:
                     "accessType": "PUBLIC"
                 }
             ],
-            "error": null
         },
         {
             "datasetId": "DATASET1",
@@ -245,7 +244,6 @@ Example Response:
                     "accessType": "PUBLIC"
                 }
             ],
-            "error": null
         }
     ]
     }

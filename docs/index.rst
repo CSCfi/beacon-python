@@ -14,11 +14,19 @@ Python-based Beacon API Server
 
     -- https://github.com/ga4gh-beacon/specification
 
-``beacon-python`` Web Server aims to implement the `Beacon API specification <https://github.com/ga4gh-beacon/specification>`_
+``beacon-python`` Web Server implements the `Beacon API 1.0.0+ specification <https://github.com/ga4gh-beacon/specification>`_
 by providing an easy to use and configure web application.
 
-In order to facilitate loading data, we provide out of the box a ``*.vcf`` data loader into
+In order to facilitate loading data, we provide out of the box a ``*.vcf``/``*.vcf.gz`` data loader into
 the Beacon :ref:`database`.
+
+Out of the box the ``beacon-python`` offers:
+
+* adhere to Beacon API 1.0.0+ specification;
+* processing and loading VCF files based on `cyvf2 <http://brentp.github.io/cyvcf2/>`_ ;
+* asynchronous server;
+* token validation for ELIXIR AAI, retrieving researcher bona fide status;
+* deployment Docker container.
 
 ----
 

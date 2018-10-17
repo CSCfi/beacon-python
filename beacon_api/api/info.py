@@ -3,7 +3,7 @@
 Querying the info endpoint reveals information about existing datasets in this beacon
 and their associated metadata.
 
-.. note:: In this file is where one would change information about their beacon.
+.. note:: See ``beacon_api`` root folder ``__init__.py`` for changing values used here.
 """
 
 from .. import __apiVersion__, __title__, __version__, __description__, __url__, __alturl__

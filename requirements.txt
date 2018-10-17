@@ -1,4 +1,4 @@
-aiohttp==3.4.3
+aiohttp
 asyncpg
 pyjwt
 cryptography

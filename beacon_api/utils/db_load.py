@@ -7,7 +7,9 @@ Datafiles ``*.vcf`` are denoted as ``datafile`` in the script parameters.
 Metadata for a datafile is given in a ``*.json`` file, denoted as ``metafile`` in the script parameters.
 
 .. note:: Future releases are expected to drop the additional ``metafile``
-parameter in favour of simplifying the database loading process, reading metadata from the datafile directly.
+        parameter in favour of simplifying the database loading process,
+        reading metadata from the datafile directly.
+
 
 Environment Setup
 -----------------
@@ -29,6 +31,7 @@ Below are the two ways of running this module (pip installed and uninstalled).
 
     $ beacon_init [datafile] [metafile]
     $ python -m beacon_api.utils.db_load [datafile] [metafile]
+
 
 .. note:: This script has been tested with VCF specification v4.2.
 """
@@ -66,23 +69,25 @@ class BeaconDB:
         aaf = []
         ac = []
         vt = []
-        for k, v in variant.INFO:
-            if k == 'AC':
-                if isinstance(v, tuple):
-                    aaf = [float(i) / (variant.call_rate * len_samples) for i in v]
-                    ac = [int(i) for i in v]
-                elif isinstance(v, int):
-                    aaf = [float(v) / (variant.call_rate * len_samples)]
-                    ac = [int(v)]
+        # TO DO we need to grow this list
+        if variant.var_type in ['snp', 'indel', 'mnp']:
+            for k, v in variant.INFO:
+                if k == 'AC':
+                    if isinstance(v, tuple):
+                        aaf = [float(i) / (variant.call_rate * len_samples) for i in v]
+                        ac = [int(i) for i in v]
+                    elif isinstance(v, int):
+                        aaf = [float(v) / (variant.call_rate * len_samples)]
+                        ac = [int(v)]
+                    else:
+                        LOG.debug(f'Unsupported allele count and frequency value {v}')
+                        pass
+                # TO DO TRANSLATE this to proper Variant type
+                elif k == 'VT':
+                    vt = v.split(',')
                 else:
-                    LOG.error(f'Unsupported allele count and frequency value {v}')
+                    LOG.debug(f'Unsupported INFO value {k}')
                     pass
-            # TO DO TRANSLATE this to proper Variant type
-            elif k == 'VT':
-                vt = v.split(',')
-            else:
-                LOG.error(f'Unsupported INFO value {k}')
-                pass
 
         return (aaf, ac, vt)
 
