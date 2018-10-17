@@ -22,4 +22,9 @@ setup(name='beacon_api',
               'beacon_init=beacon_api.utils.db_load:main'
           ]
       },
-      platforms='any',)
+      platforms='any',
+      extras_require={
+          'docs': [
+              'sphinx >= 1.4',
+              'sphinx_rtd_theme']}
+      )
