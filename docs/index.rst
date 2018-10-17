@@ -40,6 +40,7 @@ Table of Contents
    Database           <db>
    Deployment         <deploy>
    API Examples       <example>
+   Python Modules     <code>
 
 Indices and tables
 ==================
