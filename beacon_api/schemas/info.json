@@ -115,7 +115,7 @@
           },
           "assemblyId": {
             "type": "string",
-            "pattern": "^(.*)$"
+            "pattern": "^(GRCh[0-9]+([.]p[0-9]+)?)$"
           },
           "createDateTime": {
             "type": "string",
@@ -815,7 +815,7 @@
           },
           "assemblyId": {
             "type": "string",
-            "pattern": "^(GRC.+)$"
+            "pattern": "^(GRCh[0-9]+([.]p[0-9]+)?)$"
           },
           "datasetIds": {
             "type": "array",
