@@ -2,6 +2,7 @@
 
 [![Build Status](https://travis-ci.org/CSCfi/beacon-python.svg?branch=master)](https://travis-ci.org/CSCfi/beacon-python)
 [![Coverage Status](https://coveralls.io/repos/github/CSCfi/beacon-python/badge.svg?branch=master)](https://coveralls.io/github/CSCfi/beacon-python?branch=master)
+[![Documentation Status](https://readthedocs.org/projects/beacon-python/badge/?version=latest)](https://beacon-python.readthedocs.io/en/latest/?badge=latest)
 
 Documentation: https://beacon-python.readthedocs.io
 
