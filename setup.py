@@ -43,7 +43,7 @@ setup(name='beacon_api',
           'Programming Language :: Python :: 3.6',
       ],
       install_requires=['aiohttp', 'asyncpg', 'pyjwt', 'cryptography',
-                        'jsonschema==3.0.0a3', 'Cython', 'cyvcf2'],
+                        'jsonschema==3.0.0a3'],
       extras_require={
           'test': ['coverage', 'pytest', 'pytest-cov',
                    'coveralls', 'testfixtures', 'tox',

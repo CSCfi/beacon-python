@@ -7,8 +7,8 @@ RUN apk add --update \
     && apk add --no-cache py-setuptools supervisor \
     && rm -rf /var/cache/apk/*
 
-RUN pip install -r https://raw.githubusercontent.com/CSCfi/beacon-python/feature/aio/requirements.txt
-RUN pip install git+https://github.com/CSCfi/beacon-python.git@feature/aio
+RUN pip install -r https://raw.githubusercontent.com/CSCfi/beacon-python/master/requirements.txt
+RUN pip install git+https://github.com/CSCfi/beacon-python.git@master
 
 RUN mkdir -p /app
 
