@@ -1,274 +1,126 @@
-Example usage
-==============
+Instructions
+============
 
-The API has two endpoints, the info endpoint ``/`` and the query end
-point ``/query``. The info end point gives the user general info about
-the Beacon and it’s datasets, while the query end point
+.. note:: In order to run ``beacon-python`` Web Server requirements are as specified below:
 
-Info endpoint
-~~~~~~~~~~~~~
-
-Request
-^^^^^^^
-
-- URL: ``/``
+  * Python 3.6+;
+  * running DB `PostgreSQL Server <https://www.postgresql.org/>`_  9.6+.
 
 
-- HTTP method: ``GET``
+Environment Setup
+-----------------
 
+The application requires some environmental arguments in order to run properly, these are illustrated in
+the table below.
 
-- Parameters: ``None``
++---------------------+-------------------------------+--------------------------------------------------+
+| ENV                 | Default                       | Description                                      |
++---------------------+-------------------------------+--------------------------------------------------+
+| `DATABASE_URL`      | `postgresql://localhost:5432` | The URL for the PostgreSQL server.               |
++---------------------+-------------------------------+--------------------------------------------------+
+| `DATABASE_NAME`     | `beacondb`                    | Name of the database.                            |
++---------------------+-------------------------------+--------------------------------------------------+
+| `DATABASE_USER`     | `beacon`                      | Database username.                               |
++---------------------+-------------------------------+--------------------------------------------------+
+| `DATABASE_PASSWORD` | `beacon`                      | Database password.                               |
++---------------------+-------------------------------+--------------------------------------------------+
+| `HOST`              | `0.0.0.0`                     | Default Host for the Web Server.                 |
++---------------------+-------------------------------+--------------------------------------------------+
+| `PORT`              | `5050`                        | Default port for the Web Server.                 |
++---------------------+-------------------------------+--------------------------------------------------+
+| `DEBUG`             | `True`                        | If set to `True`, Standard Output.               |
++---------------------+-------------------------------+--------------------------------------------------+
+| `PUBLIC_KEY`        | `\n`                          | Public key, armored, for validating the token.   |
++---------------------+-------------------------------+--------------------------------------------------+
 
+Setting the necessary environment variables can be done  e.g. via the command line:
 
-Response
-^^^^^^^^
+.. code-block:: console
 
-Content-type:\ ``application/json``
+    $ export DATABASE_URL=postgresql://localhost:5432
+    $ export DATABASE_NAME=beacondb
+    $ export DATABASE_USER=beacon
+    $ export DATABASE_PASSWORD=beacon
+    $ export HOST=0.0.0.0
+    $ export PORT=5050
+    $ export DEBUG=True
+    $ export PUBLIC_KEY=armored_key
 
+.. _app-setup:
 
-Payload: ``Beacon object``
+beacon-python Setup
+-------------------
 
+For installing `beacon-python` do the following:
 
-Examples
-^^^^^^^^
+.. code-block:: console
 
-An example ``GET`` request and response to the info endpoint:
+    $ git clone https://github.com/CSCfi/beacon-python
+    $ pip install -r requirements.txt
+    $ cd beacon-python
+    $ pip install .
 
-.. code:: shell
+Before running the application proceed with the :ref:`database-setup`.
 
-   $ curl -v 'http//localhost'
+.. code-block:: console
 
+    $ beacon
 
+.. _database-setup:
 
-   *   Trying 127.0.0.1...
-   * TCP_NODELAY set
-   * Connected to http://localhost (127.0.0.1) port 5000 (#0)
-   > GET / HTTP/1.1
-   > Host: http//localhost
-   > User-Agent: curl/7.54.0
-   > Accept: */*
-   >
-   < HTTP/1.1 200 OK
-   < Server: gunicorn/19.9.0
-   < Date: Tue, 31 Jul 2018 12:10:53 GMT
-   < Content-Type: application/json
-   < Content-Length: 2391
-   < Set-Cookie: eeadd1720fcd75b91205443a24cfbacf=97f5c3f4c5d9d73de00e92277c49a74f; path=/; HttpOnly
-   < Cache-control: private
-   <
-   {
-       "id": "ega-beacon",
-       "name": "EGA Beacon",
-       "apiVersion": "1.0.0",
-       "organization": {
-           "id": "EGA",
-           "name": "European Genome-Phenome Archive (EGA)",
-           "description": "The European Genome-phenome Archive (EGA) is a service for permanent archiving and sharing of all types of personally identifiable genetic and phenotypic data resulting from biomedical research projects.",
-           "address": "",
-           "welcomeUrl": "https://ega-archive.org/",
-           "contactUrl": "mailto:beacon.ega@crg.eu",
-           "logoUrl": "https://ega-archive.org/images/logo.png",
-           "info": null
-       },
-       "description": "This <a href=\"http://ga4gh.org/#/beacon\">Beacon</a> is based on the GA4GH Beacon <a href=\"https://github.com/ga4gh/beacon-team/blob/develop/src/main/resources/avro/beacon.avdl\">API 0.4</a>",
-       "version": "v1",
-       "welcomeUrl": "https://ega-archive.org/beacon_web/",
-       "alternativeUrl": "https://ega-archive.org/beacon_web/",
-       "createDateTime": "2018-07-25T00:00.000Z",
-       "updateDateTime": null,
-       "dataset": [
-           {
-               "id": 1,
-               "name": "DATASET1",
-               "description": "example dataset number 1",
-               "assemblyId": "GRCh38",
-               "createDateTime": null,
-               "updateDateTime": null,
-               "version": null,
-               "variantCount": 6966,
-               "callCount": 360576,
-               "sampleCount": 1,
-               "externalUrl": null,
-               "info": {
-                   "accessType": "PUBLIC"
-               }
-           },
-           {
-               "id": 3,
-               "name": "DATASET3",
-               "description": "example dataset number 3",
-               "assemblyId": "GRCh38",
-               "createDateTime": null,
-               "updateDateTime": null,
-               "version": null,
-               "variantCount": 20952,
-               "callCount": 1206928,
-               "sampleCount": 1,
-               "externalUrl": null,
-               "info": {
-                   "accessType": "PUBLIC"
-               }
-           },
-           {
-               "id": 2,
-               "name": "DATASET2",
-               "description": "example dataset number 2",
-               "assemblyId": "GRCh38",
-               "createDateTime": null,
-               "updateDateTime": null,
-               "version": null,
-               "variantCount": 16023,
-               "callCount": 445712,
-               "sampleCount": 1,
-               "externalUrl": null,
-               "info": {
-                   "accessType": "REGISTERED"
-               }
-           }
-       ],
-       "sampleAlleleRequests": [
-           {
-               "alternateBases": "A",
-               "referenceBases": "C",
-               "referenceName": "17",
-               "start": 6689,
-               "assemblyId": "GRCh37",
-               "datasetIds": null,
-               "includeDatasetResponses": false
-           },
-           {
-               "alternateBases": "G",
-               "referenceBases": "A",
-               "referenceName": "1",
-               "start": 14929,
-               "assemblyId": "GRCh37",
-               "datasetIds": [
-                   "EGAD00000000028"
-               ],
-               "includeDatasetResponses": "ALL"
-           },
-           {
-               "alternateBases": "CCCCT",
-               "referenceBases": "C",
-               "referenceName": "1",
-               "start": 866510,
-               "assemblyId": "GRCh37",
-               "datasetIds": [
-                   "EGAD00001000740",
-                   "EGAD00001000741"
-               ],
-               "includeDatasetResponses": "HIT"
-           }
-       ],
-       "info": {
-           "size": ""
-       }
-   }
-   * Connection #0 to host http://localhost left intact
+Database Setup
+--------------
 
+Full information about the database schema and the queries performed against it
+see: :ref:`database`.
 
-Query endpoint
-~~~~~~~~~~~~~~
+Starting PostgreSQL using Docker:
 
-Request
-^^^^^^^
+.. code-block:: console
 
-- URL: ``/query``
+    cd beacon-python
+    docker run -e POSTGRES_USER=beacon \
+               -e POSTGRES_PASSWORD=beacon \
+               -e POSTGRES_DB=beacondb \
+               -v "$PWD/data":/docker-entrypoint-initdb.d
+               -p 5432:5432 postgres:9.6
 
+For loading example database we provide the ``beacon_init`` utility:
 
-- HTTP method: ``GET``, ``POST``
+.. code-block:: console
 
+    ╰─$ beacon_init --help
+    usage: beacon_init [-h] datafile metadata
 
-- Content-Type: ``application/x-www-form-urlencoded``\ (POST)
+    Load datafiles with associated metadata into the beacon database. See example
+    data and metadata files in the /data directory.
 
+    positional arguments:
+      datafile    .vcf file containing variant information
+      metadata    .json file containing metadata associated to datafile
 
-- Parameters: ``BeaconAlleleRequest``
+    optional arguments:
+      -h, --help  show this help message and exit
 
+Dataset metadata format is as follows:
 
-Response
-^^^^^^^^
+.. code-block:: javascript
 
-Content-type:\ ``application/json``
-
-
-Payload: ``Beacon Allele Response object``
-
-
-Examples
-^^^^^^^^
-
-Example of how to use the GET method in the ``/query`` endpoint:
-
-.. code:: shell
-
-    $ curl -v 'http://localhost/query?referenceName=1&start=2947892&referenceBases=A&alternateBases=G&variantType=SNP&assemblyId=GRCh37&includeDatasetResponses=ALL'
-
-
-    *   Trying 127.0.0.1...
-    * TCP_NODELAY set
-    * Connected to http://localhost (127.0.0.1) port 5000 (#0)
-    > GET /query?referenceName=1&start=2947892&referenceBases=A&alternateBases=G&variantType=SNP&assemblyId=GRCh37&includeDatasetResponses=ALL HTTP/1.1
-    > Host: http://localhost
-    > User-Agent: curl/7.54.0
-    > Accept: */*
-    >
-    < HTTP/1.1 200 OK
-    < Server: gunicorn/19.9.0
-    < Date: Tue, 31 Jul 2018 12:14:49 GMT
-    < Content-Type: application/json
-    < Content-Length: 828
-    < Set-Cookie: eeadd1720fcd75b91205443a24cfbacf=97f5c3f4c5d9d73de00e92277c49a74f; path=/; HttpOnly
-    < Cache-control: private
-    <
     {
-        "beaconId": "ega-beacon",
-        "apiVersion": "1.0.0",
-        "exists": true,
-        "error": null,
-        "allelRequest": {
-            "referenceName": "1",
-            "start": 2947892,
-            "startMin": 0,
-            "startMax": 0,
-            "end": 0,
-            "endMin": 0,
-            "endMax": 0,
-            "referenceBases": "A",
-            "alternateBases": "G",
-            "variantType": "SNP",
-            "assemblyId": "GRCh37",
-            "datasetIds": [],
-            "includeDatasetResponses": "ALL"
-        },
-        "datasetAllelResponses": [
-            {
-                "datasetId": "DATASET1",
-                "exists": true,
-                "frequency": 0.0081869,
-                "variantCount": 41,
-                "callCount": 5008,
-                "sampleCount": 2504,
-                "note": "example dataset number 1",
-                "externalUrl": null,
-                "info": {
-                    "accessType": "PUBLIC"
-                },
-                "error": null
-            },
-            {
-                "datasetId": "DATASET3",
-                "exists": false,
-                "frequency": 0,
-                "variantCount": 0,
-                "callCount": 0,
-                "sampleCount": 0,
-                "note": "example dataset number 3",
-                "externalUrl": null,
-                "info": {
-                    "accessType": "PUBLIC"
-                },
-                "error": null
-            }
-        ]
+    "name": "ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf",
+    "datasetId": "urn:hg:exampleid",
+    "description": "Mitochondrial genome from the 1000 Genomes project",
+    "assemblyId": "GRCh38",
+    "createDateTime": "2013-05-02 12:00:00",
+    "updateDateTime": "2013-05-02 12:00:00",
+    "version": "v0.4",
+    "externalUrl": "ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz",
+    "accessType": "PUBLIC"
     }
-    * Connection #0 to host http://localhost left intact
+
+For loading data into the database we can proceed as follows:
+
+.. code-block:: console
+
+    $ wget ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz
+    $ beacon_init ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz data/example_metadata.json
