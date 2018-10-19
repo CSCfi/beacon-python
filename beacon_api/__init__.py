@@ -14,7 +14,7 @@ __copyright__ = 'CSC - IT Center for Science'
 
 __apiVersion__ = "1.0.0"
 __beaconId__ = "ega-beacon"
-__description__ = f'This Beacon is based on the GA4GH Beacon API {__apiVersion__}'
+__description__ = f'Beacon API Web Server based on the GA4GH Beacon API {__apiVersion__}'
 __url__ = 'https://ega-archive.org/'
 __alturl__ = 'https://ega-archive.org/beacon/#/'
 __createtime__ = '2018-07-25T00:00:00Z'  # Fixed date, based when the beacon was first created

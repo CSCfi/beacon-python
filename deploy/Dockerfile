@@ -1,5 +1,7 @@
 FROM python:3.6-alpine
 
+LABEL maintainer "CSC Developers"
+
 RUN apk add --update \
     && apk add --no-cache build-base libressl-dev curl-dev linux-headers bash git libffi-dev\
     && apk add --no-cache py-setuptools supervisor \
