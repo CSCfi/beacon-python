@@ -4,6 +4,19 @@ from testfixtures import TempDirectory
 from beacon_api.utils.db_load import BeaconDB
 
 
+class Variant:
+    """Variant Class.
+
+    Mock this for Variant caculations.
+    """
+
+    def __init__(self, INFO, call_rate, var_type):
+        """Initialize class."""
+        self.INFO = INFO.items()
+        self.call_rate = call_rate
+        self.var_type = var_type
+
+
 class Transaction:
     """Class Transaction.
 
@@ -156,12 +169,14 @@ class DatabaseTestCase(asynctest.TestCase):
         """Test load_datafile."""
         db_mock.return_value = Connection()
         vcf = asynctest.mock.MagicMock(name='samples')
-        vcf.samples.return_value = [1, 2, 3]
+        vcf.return_value = [{'record': 1}, {'record': 2}, {'records': 3}]
+        vcf.samples.return_value = [{'record': 1}, {'record': 2}, {'records': 3}]
         await self._db.connection()
         db_mock.assert_called_with(self._db_url)
         await self._db.load_datafile(vcf, self.datafile, 'DATASET1')
         # Should assert logs
-        mock_log.info.mock_calls = [f'Read data from {self.datafile}']
+        mock_log.info.mock_calls = [f'Read data from {self.datafile}',
+                                    f'{self.datafile} has been processed']
 
     @asynctest.mock.patch('beacon_api.utils.db_load.LOG')
     @asynctest.mock.patch('beacon_api.utils.db_load.asyncpg.connect')
@@ -170,11 +185,10 @@ class DatabaseTestCase(asynctest.TestCase):
         db_mock.return_value = Connection()
         await self._db.connection()
         db_mock.assert_called_with(self._db_url)
-        await self._db.insert_variants('DATASET1', ['C'], 20)
+        await self._db.insert_variants('DATASET1', ['C'], 1)
         # Should assert logs
         mock_log.info.mock_calls = [f'Received 1 variants for insertion to DATASET1',
-                                    'Insert variants into the database',
-                                    'Variants have been inserted']
+                                    'Insert variants into the database']
 
     def test_bad_init(self):
         """Capture error in case of anything wrong with initializing BeaconDB."""
@@ -184,12 +198,38 @@ class DatabaseTestCase(asynctest.TestCase):
     @asynctest.mock.patch('beacon_api.utils.db_load.LOG')
     @asynctest.mock.patch('beacon_api.utils.db_load.asyncpg.connect')
     async def test_close(self, db_mock, mock_log):
-        """Test database URL fetching."""
+        """Test database URL close."""
         db_mock.return_value = Connection()
         await self._db.connection()
         await self._db.close()
         mock_log.info.mock_calls = ['Mark the database connection to be closed',
                                     'The database connection has been closed']
+
+    @asynctest.mock.patch('beacon_api.utils.db_load.LOG')
+    @asynctest.mock.patch('beacon_api.utils.db_load.asyncpg.connect')
+    async def test_unpack(self, db_mock, mock_log):
+        """Test database URL fetching."""
+        db_mock.return_value = Connection()
+        await self._db.connection()
+        variant = Variant({'AC': (1, 2), 'VT': 'MM,SNP'}, 0.7, 'snp')
+        result = self._db._unpack(variant, 1)
+        self.assertEqual(([1.4285714285714286, 2.857142857142857], [1, 2], ['MM', 'SNP']), result)
+        variant = Variant({'AC': 1, 'VT': 'SNP'}, 0.7, 'snp')
+        result = self._db._unpack(variant, 1)
+        self.assertEqual(([1.4285714285714286], [1], ['SNP']), result)
+
+    @asynctest.mock.patch('beacon_api.utils.db_load.LOG')
+    @asynctest.mock.patch('beacon_api.utils.db_load.asyncpg.connect')
+    async def test_chunks(self, db_mock, mock_log):
+        """Test database URL fetching."""
+        db_mock.return_value = Connection()
+        await self._db.connection()
+        variant = [(1, 2), (2, 3)]
+        result = self._db._chunks(variant, 1)
+        lines = []
+        for i in result:
+            lines.append(list(i))
+        self.assertEqual([[(1, 2)], [(2, 3)]], lines)
 
 
 if __name__ == '__main__':

@@ -39,6 +39,7 @@ Below are the two ways of running this module (pip installed and uninstalled).
 import os
 import argparse
 import json
+import itertools
 
 import asyncio
 import asyncpg
@@ -57,12 +58,9 @@ class BeaconDB:
         """Start database routines."""
         LOG.info('Start database routines')
         self._conn = None
-        try:
-            LOG.info('Fetch database URL from config')
-            self._db_url = db_url
-            LOG.info('Database URL has been set -> Connections can now be made')
-        except Exception as e:
-            LOG.error(f'ERROR FETCHING DB URL -> {e}')
+        LOG.info('Fetch database URL from config')
+        self._db_url = db_url
+        LOG.info('Database URL has been set -> Connections can now be made')
 
     def _unpack(self, variant, len_samples):
         """Unpack variant type, allele frequency and count."""
@@ -163,24 +161,24 @@ class BeaconDB:
             LOG.error(f'AN ERROR OCCURRED WHILE ATTEMPTING TO PARSE METADATA -> {e}')
         return metadata['datasetId']
 
+    def _chunks(self, iterable, size):
+        """Generate record.
+
+        Encountered at: https://stackoverflow.com/a/24527424/10143238
+        """
+        iterator = iter(iterable)
+        for first in iterator:
+            yield itertools.chain([first], itertools.islice(iterator, size - 1))
+
     async def load_datafile(self, vcf, datafile, dataset_id, n=1000):
         """Parse data from datafile and send it to be inserted."""
         LOG.info(f'Read data from {datafile}')
-        db_queue = []
         len_samples = len(vcf.samples)
         try:
             LOG.info('Generate database queue(s)')
-            for record in vcf:
-                db_queue.append(record)
-                if len(db_queue) == n:
-                    LOG.info(f'Send {len(db_queue)} variants for insertion')
-                    # Pause VCF parsing and send variants to be inserted
-                    await self.insert_variants(dataset_id, db_queue, len_samples)
-                    db_queue = []
-            if len(db_queue) < n:
-                # Insert stragglers
-                LOG.info(f'Send final {len(db_queue)} variants for insertion')
-                await self.insert_variants(dataset_id, db_queue, len_samples)
+            data = self._chunks(vcf, n)
+            for record in data:
+                await self.insert_variants(dataset_id, list(record), len_samples)
             LOG.info(f'{datafile} has been processed')
         except Exception as e:
             LOG.error(f'AN ERROR OCCURRED WHILE GENERATING DB QUEUE -> {e}')
