@@ -56,7 +56,7 @@ optional arguments:
   -h, --help  show this help message and exit
 ```
 
-Run the `beacon-python` Web Server from the command simply using:
+Run the `beacon-python` Web Server from the command line simply using:
 ```shell
 beacon
 ```

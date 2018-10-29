@@ -62,6 +62,8 @@ For installing `beacon-python` do the following:
 
 Before running the application proceed with the :ref:`database-setup`.
 
+To run the application from command line use:
+
 .. code-block:: console
 
     $ beacon

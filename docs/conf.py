@@ -4,7 +4,6 @@
 import os
 import sys
 import datetime
-from unittest.mock import MagicMock
 
 import beacon_api
 
@@ -13,19 +12,8 @@ sys.path.insert(0, os.path.abspath('..'))
 
 # -- General configuration ------------------------------------------------
 
-
-class Mock(MagicMock):
-    """Mock some of the packages."""
-
-    @classmethod
-    def __getattr__(cls, name):
-        """Get attributes."""
-        return MagicMock()
-
-
 # List modules need to be mocked
-MOCK_MODULES = ['aiohttp', 'asyncpg', 'cyvcf2', 'cryptography', 'Cython', 'numpy']
-sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
+autodoc_mock_imports = ['aiohttp', 'asyncpg', 'cyvcf2', 'cryptography', 'Cython', 'numpy', 'jwt']
 
 # If your documentation needs a minimal Sphinx version, state it here.
 #
@@ -58,9 +46,9 @@ master_doc = 'index'
 current_year = str(datetime.date.today().year)
 
 # General information about the project.
-project = 'beacon_api'
-copyright = f'{current_year}, CSC - IT Center for Science'
-author = 'CSC developers'
+project = 'beacon-python'
+copyright = f'{current_year}, {beacon_api.__copyright__}'
+author = beacon_api.__author__
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -98,21 +86,11 @@ html_title = 'Beacon-python API'
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-#
-# html_theme = 'alabaster'
-# html_theme_options = {
-#     'fixed_sidebar': True,
-#     'show_powered_by': False,
-#     #'badge_branch': 'dev',
-#     'github_repo': '',
-#     'github_button': True,
-# }
 
 html_theme = 'sphinx_rtd_theme'
 html_theme_options = {
     'collapse_navigation': True,
     'sticky_navigation': True,
-    # 'navigation_depth': 4,
     'display_version': True,
     'prev_next_buttons_location': 'bottom'}
 
@@ -138,13 +116,13 @@ html_sidebars = {
 
 today_fmt = '%B %d, %Y'
 
-#
+
 # def setup(app):
 #     """Add custom stylesheet."""
 #     app.add_stylesheet('custom.css')
 
 
 # -- Other stuff ----------------------------------------------------------
-htmlhelp_basename = 'beacon_api'
-man_pages = [(master_doc, 'beacon_api', [author], 1)]
-texinfo_documents = [(master_doc, 'beacon_api', author, 'Miscellaneous')]
+htmlhelp_basename = 'beacon-python'
+man_pages = [(master_doc, 'beacon-python', [author], 1)]
+texinfo_documents = [(master_doc, 'beacon-python', author, 'Miscellaneous')]
