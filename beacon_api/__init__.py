@@ -28,4 +28,4 @@ __org_address__ = 'empty'
 __org_welcomeUrl__ = 'https://www.csc.fi/'
 __org_contactUrl__ = 'empty'
 __org_logoUrl__ = 'https://www.csc.fi/documents/10180/161914/CSC_2012_LOGO_RGB_72dpi.jpg'
-__org_info__ = [{'author': __author__}]
+__org_info__ = {'author': __author__}
