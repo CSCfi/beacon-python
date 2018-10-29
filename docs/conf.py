@@ -8,10 +8,9 @@ import datetime
 import beacon_api
 
 # Get the project root dir, which is the parent dir of this
-sys.path.insert(0, os.path.abspath('../beacon_api'))
+sys.path.insert(0, os.path.abspath('..'))
 
 # -- General configuration ------------------------------------------------
-
 
 # List modules need to be mocked
 autodoc_mock_imports = ['aiohttp', 'asyncpg', 'cyvcf2', 'cryptography', 'Cython', 'numpy', 'jwt']

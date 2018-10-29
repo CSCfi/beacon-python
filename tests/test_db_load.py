@@ -36,6 +36,17 @@ class Transaction:
         pass
 
 
+class Statement(Transaction):
+    """Class Transaction.
+
+    Mock this from asyncpg.
+    """
+
+    def __init__(self, query):
+        """Initialize class."""
+        pass
+
+
 class Connection:
     """Class Connection.
 
@@ -58,9 +69,17 @@ class Connection:
         """Mimic close."""
         pass
 
+    async def __aenter__(self):
+        """Initialize class."""
+        pass
+
+    async def __aexit__(self, *args):
+        """Initialize class."""
+        pass
+
     async def prepare(self, query):
         """Mimic prepare."""
-        pass
+        return Statement(self, query)
 
     def transaction(self, *args, **kwargs):
         """Mimic execute."""

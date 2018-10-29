@@ -4,6 +4,7 @@ from beacon_api.utils.data_query import transform_misses, transform_metadata, fi
 from datetime import datetime
 # from beacon_api.utils.data_query import fetch_dataset_metadata
 from beacon_api.utils.data_query import handle_wildcard
+# from .test_db_load import Connection
 
 
 class Record:
@@ -112,7 +113,8 @@ class TestDataQueryFunctions(asynctest.TestCase):
     # async def test_fetch_metadata(self):
     #     """Test fetch_metadata."""
     #     pool = asynctest.CoroutineMock()
-    #     pool.connection.prepare.return_value = asynctest.CoroutineMock()
+    #     pool.acquire.return_value = Connection()
+    #     # pool.connection.prepare.return_value = asynctest.CoroutineMock()
     #     result = await fetch_dataset_metadata(pool)
     #     print(result)
     #     self.assertTrue(False)
