@@ -19,6 +19,8 @@ def sql_tuple(array):
 def transform_record(record):
     """Format the record we got from the database to adhere to the response schema."""
     response = dict(record)
+    response["referenceBases"] = response.pop("referenceBases")
+    response["alternateBases"] = response.pop("alternateBases")
     response["frequency"] = round(response.pop("frequency"), 9)
     response["info"] = [{"accessType": response.pop("accessType")}]
     # Error is not required and should not be shown
@@ -31,6 +33,8 @@ def transform_record(record):
 def transform_misses(record):
     """Format the missed datasets record we got from the database to adhere to the response schema."""
     response = dict(record)
+    response["referenceBases"] = ''
+    response["alternateBases"] = ''
     response["frequency"] = 0
     response["variantCount"] = 0
     response["callCount"] = 0
@@ -128,7 +132,7 @@ async def fetch_filtered_dataset(db_pool, position, chromosome, reference, alter
 
                 # UBER QUERY - TBD if it is what we need
                 query = f"""SELECT {"DISTINCT ON (a.datasetId)" if misses else ''} a.datasetId as "datasetId", b.accessType as "accessType",
-                            a.chromosome as "referenceName",
+                            a.chromosome as "referenceName", a.reference as "referenceBases", a.alternate as "alternateBases",
                             b.externalUrl as "externalUrl", b.description as "note",
                             a.variantCount as "variantCount",
                             a.callCount as "callCount", b.sampleCount as "sampleCount",

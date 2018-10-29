@@ -110,6 +110,14 @@
           "exists": {
             "type": "boolean"
           },
+          "referenceBases": {
+            "type": "string",
+            "pattern": "^([ACGT]+)$"
+          },
+          "alternateBases": {
+            "type": "string",
+            "pattern": "^([ACGT]+)$"
+          },
           "error": {
             "type": "object",
             "required": [
