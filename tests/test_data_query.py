@@ -13,14 +13,17 @@ class Record:
     Mimic asyncpg Record object.
     """
 
-    def __init__(self, accessType, frequency=None, createDateTime=None, updateDateTime=None):
+    def __init__(self, accessType, frequency=None, createDateTime=None, updateDateTime=None, referenceBases=None, alternateBases=None):
         """Initialise things."""
         self.data = {"accessType": accessType}
+        if referenceBases:
+            self.data.update({"referenceBases": referenceBases})
+        if alternateBases:
+            self.data.update({"alternateBases": alternateBases})
         if frequency:
             self.data.update({"frequency": frequency})
         if createDateTime:
             self.data.update({"createDateTime": createDateTime})
-
         if updateDateTime:
             self.data.update({"updateDateTime": updateDateTime})
 
@@ -77,14 +80,16 @@ class TestDataQueryFunctions(asynctest.TestCase):
 
     def test_transform_record(self):
         """Test transform DB record."""
-        response = {"frequency": 0.009112876, "info": [{"accessType": "PUBLIC"}]}
-        record = Record("PUBLIC", 0.009112875989879)
+        response = {"frequency": 0.009112876, "info": [{"accessType": "PUBLIC"}],
+                    "referenceBases": "CT", "alternateBases": "AT"}
+        record = Record("PUBLIC", 0.009112875989879, referenceBases="CT", alternateBases="AT")
         result = transform_record(record)
         self.assertEqual(result, response)
 
     def test_transform_misses(self):
         """Test transform misses record."""
-        response = {"frequency": 0, "callCount": 0, "sampleCount": 0, "variantCount": 0,
+        response = {"referenceBases": '', "alternateBases": '',
+                    "frequency": 0, "callCount": 0, "sampleCount": 0, "variantCount": 0,
                     "info": [{"accessType": "PUBLIC"}]}
         record = Record("PUBLIC")
         result = transform_misses(record)
