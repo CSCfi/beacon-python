@@ -22,7 +22,7 @@ def transform_record(record):
     response["referenceBases"] = response.pop("referenceBases")
     response["alternateBases"] = response.pop("alternateBases")
     response["frequency"] = round(response.pop("frequency"), 9)
-    response["info"] = [{"accessType": response.pop("accessType")}]
+    response["info"] = {"accessType": response.pop("accessType")}
     # Error is not required and should not be shown
     # otherwise schema validation will fail
     # response["error"] = None
@@ -39,7 +39,7 @@ def transform_misses(record):
     response["variantCount"] = 0
     response["callCount"] = 0
     response["sampleCount"] = 0
-    response["info"] = [{"accessType": response.pop("accessType")}]
+    response["info"] = {"accessType": response.pop("accessType")}
     # Error is not required and should not be shown
     # otherwise schema validation will fail
     # response["error"] = None
@@ -50,7 +50,7 @@ def transform_misses(record):
 def transform_metadata(record):
     """Format the metadata record we got from the database to adhere to the response schema."""
     response = dict(record)
-    response["info"] = [{"accessType": response.pop("accessType")}]
+    response["info"] = {"accessType": response.pop("accessType")}
     # TO DO test with null date
     if 'createDateTime' in response and isinstance(response["createDateTime"], datetime):
         response["createDateTime"] = response.pop("createDateTime").strftime('%Y-%m-%dT%H:%M:%SZ')

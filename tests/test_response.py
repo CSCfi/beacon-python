@@ -20,7 +20,7 @@ mock_dataset_metadata = {"id": "id1",
                          "callCount": 0,
                          "sampleCount": 2534,
                          "version": "v0.4",
-                         "info": [{"accessType": "PUBLIC"}],
+                         "info": {"accessType": "PUBLIC"},
                          "createDateTime": "2013-05-02T12:00:00Z",
                          "updateDateTime": "2013-05-02T12:00:00Z"}
 
@@ -34,7 +34,7 @@ mock_data = [{"datasetId": "id1",
               "sampleCount": 2534,
               "exists": True,
               "frequency": 0.001183899,
-              "info": [{"accessType": "PUBLIC"}]},
+              "info": {"accessType": "PUBLIC"}},
              {"datasetId": "id1",
               "referenceName": "MT",
               "externalUrl": "url",
@@ -44,7 +44,7 @@ mock_data = [{"datasetId": "id1",
               "sampleCount": 0,
               "exists": False,
               "frequency": 0,
-              "info": [{"accessType": "REGISTERED"}]}]
+              "info": {"accessType": "REGISTERED"}}]
 
 
 class TestBasicFunctions(asynctest.TestCase):
