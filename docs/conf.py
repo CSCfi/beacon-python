@@ -6,14 +6,28 @@ import sys
 import datetime
 
 import beacon_api
+from unittest.mock import MagicMock
+
 
 # Get the project root dir, which is the parent dir of this
-sys.path.insert(0, os.path.abspath('..'))
+sys.path.insert(0, os.path.abspath('../beacon_api'))
 
 # -- General configuration ------------------------------------------------
 
+
+class Mock(MagicMock):
+    """Mock some of the packages."""
+
+    @classmethod
+    def __getattr__(cls, name):
+        """Get attributes."""
+        return MagicMock()
+
+
 # List modules need to be mocked
-autodoc_mock_imports = ['aiohttp', 'asyncpg', 'cyvcf2', 'cryptography', 'Cython', 'numpy', 'jwt']
+MOCK_MODULES = ['aiohttp', 'asyncpg', 'cyvcf2', 'cryptography.hazmat', 'cryptography.hazmat.primitives', 'cryptography.hazmat.backends',
+                'Cython', 'numpy', 'jwt', 'cryptography.hazmat.primitives.asymmetric', 'cryptography.hazmat.primitives.asymmetric.rsa']
+sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 
 # If your documentation needs a minimal Sphinx version, state it here.
 #
