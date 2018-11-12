@@ -76,22 +76,17 @@ async def destroy(app):
 
 def set_cors(server):
     """Set CORS rules."""
-    # In the future, domains are fetched from Beacon registry API
-    # For testing purposes, here are a few aggregator instances
-    domains = ['https://beacon-aggregator-beacon.rahtiapp.fi/', 'https://aggregator-beacon-test-utils.rahtiapp.fi/']
-    cors_domains = {}
-    # Write CORS rules
-    for domain in domains:
-        cors_domains[domain] = aiohttp_cors.ResourceOptions(
-                                    allow_credentials=True,
-                                    expose_headers="*",
-                                    allow_headers="*",
-                                )
-    cors = aiohttp_cors.setup(server, defaults=cors_domains)
-    # Apply CORS rule to endpoints
+    # Configure CORS settings
+    cors = aiohttp_cors.setup(server, defaults={
+        "*": aiohttp_cors.ResourceOptions(
+            allow_credentials=True,
+            expose_headers="*",
+            allow_headers="*",
+        )
+    })
+    # Apply CORS to endpoints
     for route in list(server.router.routes()):
         cors.add(route)
-
 
 
 def init():
@@ -110,7 +105,6 @@ def main():
     At start also initialize a PostgreSQL connection pool.
     """
     # TO DO make it HTTPS and request certificate
-    # TO DO allow CORS ?
     # sslcontext.load_cert_chain(ssl_certfile, ssl_keyfile)
     # sslcontext = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
     # sslcontext.check_hostname = False
