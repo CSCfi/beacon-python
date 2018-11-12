@@ -218,7 +218,8 @@ class TestBasicFunctionsApp(asynctest.TestCase):
         server = init()
         self.assertIs(type(server), web.Application)
 
-    async def test_initialize(self):
+    @asynctest.mock.patch('beacon_api.app.set_cors')
+    async def test_initialize(self, mock_cors):
         """Test create db pool, should just return the result of init_db_pool.
 
         We will mock the init_db_pool, thus we assert we just call it.

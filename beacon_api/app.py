@@ -6,6 +6,7 @@ Server was designed with aync/await mindset and with at aim at performance (TBD)
 from aiohttp import web
 import os
 import sys
+import aiohttp_cors
 
 from .api.info import beacon_info
 from .api.query import query_request_handler
@@ -66,11 +67,27 @@ async def initialize(app):
     # and maybe exit gracefully or at lease wait for a bit
     LOG.debug('Create PostgreSQL connection pool.')
     app['pool'] = await init_db_pool()
+    set_cors(app)
 
 
 async def destroy(app):
     """Upon server close, close the DB connection pool."""
     await app['pool'].close()
+
+
+def set_cors(server):
+    """Set CORS rules."""
+    # Configure CORS settings
+    cors = aiohttp_cors.setup(server, defaults={
+        "*": aiohttp_cors.ResourceOptions(
+            allow_credentials=True,
+            expose_headers="*",
+            allow_headers="*",
+        )
+    })
+    # Apply CORS to endpoints
+    for route in list(server.router.routes()):
+        cors.add(route)
 
 
 def init():
@@ -88,7 +105,6 @@ def main():
     At start also initialize a PostgreSQL connection pool.
     """
     # TO DO make it HTTPS and request certificate
-    # TO DO allow CORS ?
     # sslcontext.load_cert_chain(ssl_certfile, ssl_keyfile)
     # sslcontext = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
     # sslcontext.check_hostname = False
