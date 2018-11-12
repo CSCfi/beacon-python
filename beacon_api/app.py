@@ -6,6 +6,7 @@ Server was designed with aync/await mindset and with at aim at performance (TBD)
 from aiohttp import web
 import os
 import sys
+import aiohttp_cors
 
 from .api.info import beacon_info
 from .api.query import query_request_handler
@@ -73,10 +74,31 @@ async def destroy(app):
     await app['pool'].close()
 
 
+def set_cors(server):
+    """Set CORS rules."""
+    # In the future, domains are fetched from Beacon registry API
+    # For testing purposes, here are a few aggregator instances
+    domains = ['https://beacon-aggregator-beacon.rahtiapp.fi/', 'https://aggregator-beacon-test-utils.rahtiapp.fi/']
+    cors_domains = {}
+    # Write CORS rules
+    for domain in domains:
+        cors_domains[domain] = aiohttp_cors.ResourceOptions(
+                                    allow_credentials=True,
+                                    expose_headers="*",
+                                    allow_headers="*",
+                                )
+    cors = aiohttp_cors.setup(server, defaults=cors_domains)
+    # Apply CORS rule to endpoints
+    for route in list(server.router.routes()):
+        cors.add(route)
+
+
+
 def init():
     """Initialise server."""
     beacon = web.Application(middlewares=[token_auth()])
     beacon.router.add_routes(routes)
+    set_cors(beacon)
     beacon.on_startup.append(initialize)
     beacon.on_cleanup.append(destroy)
     return beacon
