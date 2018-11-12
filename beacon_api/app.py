@@ -67,6 +67,7 @@ async def initialize(app):
     # and maybe exit gracefully or at lease wait for a bit
     LOG.debug('Create PostgreSQL connection pool.')
     app['pool'] = await init_db_pool()
+    set_cors(app)
 
 
 async def destroy(app):
@@ -93,7 +94,6 @@ def init():
     """Initialise server."""
     beacon = web.Application(middlewares=[token_auth()])
     beacon.router.add_routes(routes)
-    set_cors(beacon)
     beacon.on_startup.append(initialize)
     beacon.on_cleanup.append(destroy)
     return beacon
