@@ -160,7 +160,11 @@
             "pattern": "^(.*)$"
           },
           "info": {
-            "type": "object"
+            "type": "array",
+            "default": [],	
+            "items": {	
+              "type": "object"	
+            }
           }
         }
       }

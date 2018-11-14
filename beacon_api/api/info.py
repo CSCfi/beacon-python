@@ -71,7 +71,7 @@ async def beacon_info(host, pool):
         'updateDateTime': __updatetime__,
         'datasets': beacon_dataset,
         'sampleAlleleRequests': sample_allele_request,
-        'info': {}
+        'info': [{"key": "value"}]
     }
 
     return beacon_info
