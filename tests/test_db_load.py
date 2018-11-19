@@ -230,10 +230,10 @@ class DatabaseTestCase(asynctest.TestCase):
         """Test database URL fetching."""
         db_mock.return_value = Connection()
         await self._db.connection()
-        variant = Variant({'AC': (1, 2), 'VT': 'MM,SNP'}, 0.7, 'snp')
+        variant = Variant({'AC': (1, 2), 'VT': 'M,S'}, 0.7, 'snp')
         result = self._db._unpack(variant, 1)
-        self.assertEqual(([1.4285714285714286, 2.857142857142857], [1, 2], ['MM', 'SNP']), result)
-        variant = Variant({'AC': 1, 'VT': 'SNP'}, 0.7, 'snp')
+        self.assertEqual(([1.4285714285714286, 2.857142857142857], [1, 2], ['MNP', 'SNP']), result)
+        variant = Variant({'AC': 1, 'VT': 'S'}, 0.7, 'snp')
         result = self._db._unpack(variant, 1)
         self.assertEqual(([1.4285714285714286], [1], ['SNP']), result)
 

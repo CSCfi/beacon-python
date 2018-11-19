@@ -62,13 +62,26 @@ class BeaconDB:
         self._db_url = db_url
         LOG.info('Database URL has been set -> Connections can now be made')
 
+    def _transform_vt(self, vt, variant):
+        """Transform variant types."""
+        if vt == 's':
+            return 'SNP'
+        elif vt == 'm':
+            return 'MNP'
+        elif vt == 'i':
+            return 'INS' if len(variant.ALT) > len(variant.REF) else 'DEL'
+        else:
+            # LOG.debug(f'Unsupported variantType value {vt}')
+            pass
+
     def _unpack(self, variant, len_samples):
         """Unpack variant type, allele frequency and count."""
         aaf = []
         ac = []
         vt = []
+        supported_vt = ['snp', 'indel', 'mnp', 'dup', 'inv', 'ins', 'cnv', 'del', 'dup:tandem', 'del:me', 'ins:me']
         # TO DO we need to grow this list
-        if variant.var_type in ['snp', 'indel', 'mnp']:
+        if variant.var_type in supported_vt:
             for k, v in variant.INFO:
                 if k == 'AC':
                     if isinstance(v, tuple):
@@ -82,7 +95,7 @@ class BeaconDB:
                         pass
                 # TO DO TRANSLATE this to proper Variant type
                 elif k == 'VT':
-                    vt = v.split(',')
+                    vt = [self._transform_vt(var_type.lower(), variant) for var_type in v.split(',')]
                 else:
                     LOG.debug(f'Unsupported INFO value {k}')
                     pass
@@ -148,7 +161,9 @@ class BeaconDB:
                                          createDateTime, updateDateTime, version,
                                          sampleCount, externalUrl, accessType)
                                          VALUES
-                                         ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)""",
+                                         ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+                                         ON CONFLICT (name, datasetId)
+                                         DO NOTHING""",
                                          metadata['name'], metadata['datasetId'],
                                          metadata['description'], metadata['assemblyId'],
                                          datetime.strptime(metadata['createDateTime'], '%Y-%m-%d %H:%M:%S'),
@@ -195,15 +210,15 @@ class BeaconDB:
                     params = self._unpack(variant, len_samples)
                     await self._conn.execute("""INSERT INTO beacon_data_table
                                              (datasetId, chromosome, start, reference, alternate,
-                                             "end", variantType, variantCount, callCount, frequency)
-                                             SELECT ($1), ($2), ($3), ($4), t.alt, ($6), ($7), t.ac, ($9), t.freq
+                                             "end", aggregatedVariantType, variantCount, callCount, frequency, variantType)
+                                             SELECT ($1), ($2), ($3), ($4), t.alt, ($6), ($7), t.ac, ($9), t.freq, t.vt
                                              FROM (SELECT unnest($5::varchar[]) alt, unnest($8::integer[]) ac,
-                                             unnest($10::float[]) freq) t
+                                             unnest($10::float[]) freq, unnest($11::varchar[]) as vt) t
                                              ON CONFLICT (datasetId, chromosome, start, reference, alternate)
                                              DO NOTHING""",
                                              dataset_id, variant.CHROM, variant.start + 1, variant.REF,
                                              variant.ALT, variant.end + 1, variant.var_type.upper(),
-                                             params[1], variant.num_called, params[0])
+                                             params[1], variant.num_called, params[0], params[2])
                 LOG.info('Variants have been inserted')
         except Exception as e:
             LOG.error(f'AN ERROR OCCURRED WHILE ATTEMPTING TO INSERT VARIANTS -> {e}')

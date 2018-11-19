@@ -21,17 +21,21 @@ CREATE TABLE IF NOT EXISTS beacon_data_table (
     reference VARCHAR(8192),
     alternate VARCHAR(8192),
     "end" INTEGER,
-    variantType VARCHAR(16),
+    aggregatedVariantType VARCHAR(16),
     variantCount INTEGER,
     callCount INTEGER,
     frequency REAL,
+    variantType VARCHAR(16),
     PRIMARY KEY (index)
 );
 
-CREATE UNIQUE INDEX conflict_manager ON beacon_data_table (datasetId, chromosome, start, reference, alternate);
+CREATE UNIQUE INDEX data_conflict ON beacon_data_table (datasetId, chromosome, start, reference, alternate);
+CREATE UNIQUE INDEX metadata_conflict ON beacon_dataset_table (name, datasetId);
 
 CREATE OR REPLACE VIEW dataset_metadata(name, datasetId, description, assemblyId, createDateTime, updateDateTime, version, callCount, variantCount, sampleCount, externalUrl, accessType)
-AS SELECT a.name, a.datasetId, a.description, a.assemblyId, a.createDateTime, a.updateDateTime, a.version, 0 as callCount, 0 as variantCount, a.sampleCount, a.externalUrl, a.accessType
+AS SELECT a.name, a.datasetId, a.description, a.assemblyId, a.createDateTime, a.updateDateTime, a.version, COUNT(DISTINCT(b.reference, b.start)) as callCount,
+          COUNT(b.alternate) as variantCount,
+          a.sampleCount, a.externalUrl, a.accessType
 FROM beacon_dataset_table a, beacon_data_table b
 WHERE a.datasetId=b.datasetId
 GROUP BY a.name, a.datasetId, a.description, a.assemblyId, a.createDateTime, a.updateDateTime, a.version, a.sampleCount, a.externalUrl, a.accessType;
