@@ -60,6 +60,24 @@ def transform_metadata(record):
     return response
 
 
+async def fetch_controlled_datasets(db_pool, datasets):
+    """Retrieve CONTROLLED datasets."""
+    async with db_pool.acquire() as connection:
+        async with connection.transaction():
+            datasets_query = "TRUE" if not datasets else f"a.datasetId IN {sql_tuple(datasets)}"
+            try:
+                query = f"""SELECT datasetId FROM dataset_metadata as a
+                            WHERE a.accesstype IN ('CONTROLLED') AND ({datasets_query});"""
+                statement = await connection.prepare(query)
+                db_response = await statement.fetch()
+                datasets = []
+                for record in list(db_response):
+                    datasets.append(record)
+                return datasets
+            except Exception as e:
+                raise BeaconServerError(f'DB error: {e}')
+
+
 async def fetch_dataset_metadata(db_pool, datasets=None, access_type=None):
     """Execute query for returning dataset metadata.
 
@@ -71,7 +89,7 @@ async def fetch_dataset_metadata(db_pool, datasets=None, access_type=None):
         async with connection.transaction():
             # Fetch dataset metadata according to user request
             # TO DO Test that datasets=[] and access_type=[] work with 1..n items
-            datasets_query = "TRUE" if not datasets else f"a.dataset_id IN {sql_tuple(datasets)}"
+            datasets_query = "TRUE" if not datasets else f"a.datasetId IN {sql_tuple(datasets)}"
             access_query = "TRUE" if not access_type else f"b.accesstype IN {sql_tuple(access_type)}"
             try:
                 query = f"""SELECT  datasetId as "id", name as "name", accessType as "accessType",
@@ -172,14 +190,13 @@ def filter_exists(include_dataset, datasets):
         return [d for d in datasets if d['exists'] is False]
 
 
-async def find_datasets(db_pool, position, chromosome, reference, alternate, dataset_ids, token):
+async def find_datasets(db_pool, position, chromosome, reference, alternate, dataset_ids, access_type):
     """Find datasets based on filter parameters.
 
     This also takes into consideration the token value as to establish permissions.
     """
     # TO DO wait for info on the actual permissions
     # TO DO return forbidden if a specific forbidden dataset is requested
-    access_type = ["REGISTERED", "PUBLIC", "CONTROLLED"] if token["bona_fide_status"] else ["PUBLIC"]
     hit_datasets = await fetch_filtered_dataset(db_pool, position, chromosome, reference, alternate,
                                                 dataset_ids, access_type)
     miss_datasets = await fetch_filtered_dataset(db_pool, position, chromosome, reference, alternate,

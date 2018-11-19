@@ -24,6 +24,7 @@ mock_dataset_metadata = {"id": "id1",
                          "createDateTime": "2013-05-02T12:00:00Z",
                          "updateDateTime": "2013-05-02T12:00:00Z"}
 
+mock_controlled = []
 
 mock_data = [{"datasetId": "id1",
               "referenceName": "MT",
@@ -62,9 +63,11 @@ class TestBasicFunctions(asynctest.TestCase):
         db_metadata.assert_called()
 
     @asynctest.mock.patch('beacon_api.api.query.find_datasets')
-    async def test_beacon_query(self, data_find):
+    @asynctest.mock.patch('beacon_api.api.query.fetch_controlled_datasets')
+    async def test_beacon_query(self, fetch_controlled, data_find):
         """Test query data response."""
         data_find.return_value = mock_data
+        fetch_controlled.return_value = mock_controlled
         pool = asynctest.CoroutineMock()
         request = {"assemblyId": "GRCh38",
                    "referenceName": "MT",
@@ -74,7 +77,7 @@ class TestBasicFunctions(asynctest.TestCase):
                    "includeDatasetResponses": "ALL",
                    "datasetIds": []}
 
-        params = pool, 'POST', request, {'bona_fide_status': True}, "localhost"
+        params = pool, 'POST', request, {'bona_fide_status': True, 'permissions': None}, "localhost"
         result = await query_request_handler(params)
         self.assertEqual(jsonschema.validate(json.loads(
             json.dumps(result)), load_schema('response')), None)
