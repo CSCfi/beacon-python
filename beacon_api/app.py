@@ -14,6 +14,8 @@ from .conf.config import init_db_pool
 from .schemas import load_schema
 from .utils.logging import LOG
 from .utils.validate import validate, token_auth, parse_request_object
+import uvloop
+import asyncio
 
 routes = web.RouteTableDef()
 
@@ -115,4 +117,5 @@ def main():
 
 if __name__ == '__main__':
     assert sys.version_info >= (3, 6), "beacon-python requires python3.6"
+    asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
     main()

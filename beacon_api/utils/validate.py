@@ -175,7 +175,7 @@ def token_auth():
                     LOG.info('Identified as ELIXIR AAI user.')
                     # for now the permissions just reflect that the data can be decoded from token
                     # the bona fide status for now is set to True
-                    # permissions key will hold the actual permissions found in the token
+                    # permissions key will hold the actual permissions found in the token e.g. REMS permissions
 
                     request["token"] = {"bona_fide_status": True if await check_bona_fide_status(token) else False,
                                         "permissions": None}
@@ -184,6 +184,7 @@ def token_auth():
                     _, obj = await parse_request_object(request)
                     raise BeaconForbidden(obj, request.host, 'Token is not validated by an ELIXIR AAI authorized issuer.')
         else:
-            request["token"] = {"bona_fide_status": False}
+            request["token"] = {"bona_fide_status": False,
+                                "permissions": None}
             return await handler(request)
     return token_middleware

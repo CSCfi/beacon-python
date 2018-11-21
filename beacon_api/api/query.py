@@ -68,6 +68,7 @@ async def query_request_handler(params):
                        "apiVersion": __apiVersion__,
                        "exists": any([x['exists'] for x in datasets]),
                        # Error is not required and should not be shown
+                       # If error key is set to null it will still not validate as it has a required key errorCode
                        # otherwise schema validation will fail
                        # "error": None,
                        "alleleRequest": alleleRequest,

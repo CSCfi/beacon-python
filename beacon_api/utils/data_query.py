@@ -24,6 +24,7 @@ def transform_record(record):
     response["frequency"] = round(response.pop("frequency"), 9)
     response["info"] = [{"accessType": response.pop("accessType")}]
     # Error is not required and should not be shown
+    # If error key is set to null it will still not validate as it has a required key errorCode
     # otherwise schema validation will fail
     # response["error"] = None
 
@@ -41,6 +42,7 @@ def transform_misses(record):
     response["sampleCount"] = 0
     response["info"] = [{"accessType": response.pop("accessType")}]
     # Error is not required and should not be shown
+    # If error key is set to null it will still not validate as it has a required key errorCode
     # otherwise schema validation will fail
     # response["error"] = None
 
@@ -92,7 +94,7 @@ async def fetch_dataset_metadata(db_pool, datasets=None, access_type=None):
             datasets_query = "TRUE" if not datasets else f"a.datasetId IN {sql_tuple(datasets)}"
             access_query = "TRUE" if not access_type else f"b.accesstype IN {sql_tuple(access_type)}"
             try:
-                query = f"""SELECT  datasetId as "id", name as "name", accessType as "accessType",
+                query = f"""SELECT datasetId as "id", name as "name", accessType as "accessType",
                             externalUrl as "externalUrl", description as "description",
                             assemblyId as "assemblyId", variantCount as "variantCount",
                             callCount as "callCount", sampleCount as "sampleCount",
