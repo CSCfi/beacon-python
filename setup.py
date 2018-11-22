@@ -15,7 +15,7 @@ setup(name='beacon_api',
       long_description="",
       packages=['beacon_api', 'beacon_api/utils', 'beacon_api/conf', 'beacon_api/schemas', 'beacon_api/api'],
       # If any package contains *.json, include them:
-      package_data={'': ['*.json']},
+      package_data={'': ['*.json', '*.ini']},
       entry_points={
           'console_scripts': [
               'beacon=beacon_api.app:main',

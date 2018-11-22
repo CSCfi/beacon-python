@@ -8,7 +8,6 @@ At this point we also initialize a conection pool that the API is going to use t
 import os
 import asyncpg
 
-
 URL = os.environ.get('DATABASE_URL', 'postgresql://localhost:5432').split('/')[2]
 POSTGRES = {
     'user': os.environ.get('DATABASE_USER', 'beacon'),
