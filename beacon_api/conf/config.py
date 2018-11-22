@@ -14,7 +14,7 @@ import asyncpg
 
 
 def parse_configuration_file(path):
-    """Parses configuration file."""
+    """Parse configuration file."""
     config = ConfigParser()
     config.read(path)
     config_vars = {
