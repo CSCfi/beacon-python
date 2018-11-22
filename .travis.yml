@@ -13,9 +13,11 @@ services: docker
 
 stages:
   - name: unittests
-    if: type IN (push, pull_request)
+    if: type IN (push)
+  - name: inttests
+    if: type IN (pull_request)
   - name: image
-    if: type IN (push, pull_request)
+    if: type IN (push)
 
 
 jobs:
@@ -27,6 +29,19 @@ jobs:
         - sudo apt-get install libcurl4-openssl-dev
         - pip install tox-travis
       script: tox
+    - stage: inttests
+      python: 3.6
+      before_script:
+        - wget https://github.com/openshift/source-to-image/releases/download/v1.1.12/source-to-image-v1.1.12-2a783420-linux-amd64.tar.gz
+        - tar -xvf source-to-image-v1.1.12-2a783420-linux-amd64.tar.gz
+        - sudo cp s2i /usr/local/bin
+        - s2i build . centos/python-36-centos7 cscfi/beacon-python
+        - cd deploy
+        - docker-compose up -d
+        - sleep 10
+        - docker-compose exec beacon beacon_init data/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz data/example_metadata.json
+      script:
+        - curl -X GET http://127.0.0.1:5050/
     - stage: image
       script:
         - if [[ "$TRAVIS_BRANCH" == "master" && "$TRAVIS_PULL_REQUEST" == "false" ]]; then
