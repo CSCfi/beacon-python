@@ -10,9 +10,11 @@ class Variant:
     Mock this for Variant caculations.
     """
 
-    def __init__(self, INFO, call_rate, var_type):
+    def __init__(self, ALT, REF, INFO, call_rate, var_type):
         """Initialize class."""
         self.INFO = INFO.items()
+        self.ALT = ALT
+        self.REF = REF
         self.call_rate = call_rate
         self.var_type = var_type
 
@@ -230,10 +232,10 @@ class DatabaseTestCase(asynctest.TestCase):
         """Test database URL fetching."""
         db_mock.return_value = Connection()
         await self._db.connection()
-        variant = Variant({'AC': (1, 2), 'VT': 'M,S'}, 0.7, 'snp')
+        variant = Variant('TC', 'T', {'AC': (1, 2), 'VT': 'M,S,I'}, 0.7, 'snp')
         result = self._db._unpack(variant, 1)
-        self.assertEqual(([1.4285714285714286, 2.857142857142857], [1, 2], ['MNP', 'SNP']), result)
-        variant = Variant({'AC': 1, 'VT': 'S'}, 0.7, 'snp')
+        self.assertEqual(([1.4285714285714286, 2.857142857142857], [1, 2], ['MNP', 'SNP', 'INS']), result)
+        variant = Variant('TC', 'T', {'AC': 1, 'VT': 'S'}, 0.7, 'snp')
         result = self._db._unpack(variant, 1)
         self.assertEqual(([1.4285714285714286], [1], ['SNP']), result)
 
