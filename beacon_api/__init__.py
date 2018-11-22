@@ -7,7 +7,7 @@ import datetime
 
 from .conf.config import parse_configuration_file
 
-CONFIG = parse_configuration_file(os.environ.get('CONFIG_FILE', './beacon_api/conf/config.ini'))
+CONFIG = parse_configuration_file(os.environ.get('CONFIG_FILE', os.path.join(os.path.dirname(__file__), 'conf/config.ini')))
 
 __title__ = CONFIG.title
 __version__ = CONFIG.version
