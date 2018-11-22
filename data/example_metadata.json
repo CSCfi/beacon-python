@@ -1,6 +1,6 @@
 {
     "name": "1000 genomoe",
-    "datasetId": "urn:hg:100genome",
+    "datasetId": "urn:hg:1000genome",
     "description": "Data from 1000 genome project",
     "assemblyId": "GRCh38",
     "createDateTime": "2013-05-02 12:00:00",
