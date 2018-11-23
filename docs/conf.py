@@ -27,7 +27,7 @@ class Mock(MagicMock):
 # List modules need to be mocked
 MOCK_MODULES = ['aiohttp', 'asyncpg', 'cyvcf2', 'cryptography.hazmat', 'cryptography.hazmat.primitives', 'cryptography.hazmat.backends',
                 'Cython', 'numpy', 'jwt', 'cryptography.hazmat.primitives.asymmetric', 'cryptography.hazmat.primitives.asymmetric.rsa',
-                'uvloop']
+                'uvloop', 'aiocache']
 sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 
 # If your documentation needs a minimal Sphinx version, state it here.

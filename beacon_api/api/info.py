@@ -10,8 +10,11 @@ from .. import __apiVersion__, __title__, __version__, __description__, __url__,
 from .. import __createtime__, __updatetime__, __org_id__, __org_name__, __org_description__
 from .. import __org_address__, __org_logoUrl__, __org_welcomeUrl__, __org_info__, __org_contactUrl__
 from ..utils.data_query import fetch_dataset_metadata
+from aiocache import cached
+from aiocache.serializers import JsonSerializer
 
 
+@cached(key="info_key", serializer=JsonSerializer())
 async def beacon_info(host, pool):
     """Construct the `Beacon` app information dict.
 

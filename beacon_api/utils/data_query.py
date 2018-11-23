@@ -53,7 +53,7 @@ def transform_metadata(record):
     """Format the metadata record we got from the database to adhere to the response schema."""
     response = dict(record)
     response["info"] = [{"accessType": response.pop("accessType")}]
-    # TO DO test with null date
+    # TO DO test with null date in Database
     if 'createDateTime' in response and isinstance(response["createDateTime"], datetime):
         response["createDateTime"] = response.pop("createDateTime").strftime('%Y-%m-%dT%H:%M:%SZ')
     if 'updateDateTime' in record and isinstance(response["updateDateTime"], datetime):
@@ -72,10 +72,7 @@ async def fetch_controlled_datasets(db_pool, datasets):
                             WHERE a.accesstype IN ('CONTROLLED') AND ({datasets_query});"""
                 statement = await connection.prepare(query)
                 db_response = await statement.fetch()
-                datasets = []
-                for record in list(db_response):
-                    datasets.append(record)
-                return datasets
+                return list(db_response)
             except Exception as e:
                 raise BeaconServerError(f'DB error: {e}')
 
@@ -90,7 +87,6 @@ async def fetch_dataset_metadata(db_pool, datasets=None, access_type=None):
         # Start a new session with the connection
         async with connection.transaction():
             # Fetch dataset metadata according to user request
-            # TO DO Test that datasets=[] and access_type=[] work with 1..n items
             datasets_query = "TRUE" if not datasets else f"a.datasetId IN {sql_tuple(datasets)}"
             access_query = "TRUE" if not access_type else f"b.accesstype IN {sql_tuple(access_type)}"
             try:
