@@ -14,7 +14,7 @@ from aiocache import cached
 from aiocache.serializers import JsonSerializer
 
 
-@cached(key="info_key", serializer=JsonSerializer())
+@cached(ttl=60, key="info_key", serializer=JsonSerializer())
 async def beacon_info(host, pool):
     """Construct the `Beacon` app information dict.
 

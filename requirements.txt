@@ -9,3 +9,5 @@ cyvcf2
 tox
 uvloop
 aiocache
+ujson
+aiomcache
