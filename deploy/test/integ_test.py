@@ -8,11 +8,17 @@ import aiohttp
 import sys
 import asyncio
 import json
+import logging
+
+FORMAT = '[%(asctime)s][%(name)s][%(process)d %(processName)s][%(levelname)-8s] (L:%(lineno)s) %(funcName)s: %(message)s'
+logging.basicConfig(format=FORMAT, datefmt='%Y-%m-%d %H:%M:%S')
+LOG = logging.getLogger(__name__)
+LOG.setLevel(logging.DEBUG)
 
 
 async def test_info():
     """Test the info endpoint."""
-    print('[1/7] Test info endpoint')
+    LOG.debug('[1/7] Test info endpoint')
     async with aiohttp.ClientSession() as session:
         async with session.get('http://localhost:5050/') as resp:
             data = await resp.json()
@@ -24,7 +30,7 @@ async def test_info():
 
 async def test_get_query_1():
     """Test query GET endpoint."""
-    print('[2/7] Test get query')
+    LOG.debug('[2/7] Test get query')
     params = {'assemblyId': 'GRCh38', 'referenceName': 'MT',
               'start': 10, 'referenceBases': 'T', 'alternateBases': 'C',
               'includeDatasetResponses': 'HIT'}
@@ -42,7 +48,7 @@ async def test_get_query_1():
 
 async def test_get_query_2():
     """Test query GET endpoint."""
-    print('[3/7] Test get query')
+    LOG.debug('[3/7] Test get query')
     params = {'assemblyId': 'GRCh38', 'referenceName': 'MT',
               'start': 10, 'referenceBases': 'T', 'variantType': 'SNP',
               'includeDatasetResponses': 'HIT'}
@@ -60,7 +66,7 @@ async def test_get_query_2():
 
 async def test_get_query_3():
     """Test query GET endpoint."""
-    print('[4/7] Test get query')
+    LOG.debug('[4/7] Test get query')
     params = {'assemblyId': 'GRCh38',
               'start': 10, 'referenceBases': 'T', 'alternateBases': 'C',
               'includeDatasetResponses': 'HIT'}
@@ -77,7 +83,7 @@ async def test_get_query_3():
 
 async def test_post_query_1():
     """Test query POST endpoint."""
-    print('[5/7] Test post query')
+    LOG.debug('[5/7] Test post query')
     payload = {"referenceName": "MT",
                "start": 10,
                "startMax": 0,
@@ -102,7 +108,7 @@ async def test_post_query_1():
 
 async def test_post_query_2():
     """Test query POST endpoint."""
-    print('[6/7] Test post query')
+    LOG.debug('[6/7] Test post query')
     payload = {"referenceName": "MT",
                "start": 10,
                "startMax": 0,
@@ -127,7 +133,7 @@ async def test_post_query_2():
 
 async def test_post_query_3():
     """Test query POST endpoint."""
-    print('[7/7] Test post query')
+    LOG.debug('[7/7] Test post query')
     payload = {"start": 10,
                "startMax": 0,
                "end": 0,
@@ -150,7 +156,7 @@ async def test_post_query_3():
 
 async def main():
     """Run the tests."""
-    print('Start integration tests')
+    LOG.debug('Start integration tests')
     await test_info()
     await test_get_query_1()
     await test_get_query_2()
@@ -158,7 +164,7 @@ async def main():
     await test_post_query_1()
     await test_post_query_2()
     await test_post_query_3()
-    print('All integration tests have passed')
+    LOG.debug('All integration tests have passed')
 
 
 if __name__ == '__main__':

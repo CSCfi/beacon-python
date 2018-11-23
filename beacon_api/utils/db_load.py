@@ -71,8 +71,8 @@ class BeaconDB:
         elif vt == 'i':
             return 'INS' if len(variant.ALT) > len(variant.REF) else 'DEL'
         else:
-            # LOG.debug(f'Unsupported variantType value {vt}')
-            pass
+            LOG.debug(f'Other variantType value {variant.var_type.upper()}')
+            return variant.var_type.upper()
 
     def _unpack(self, variant, len_samples):
         """Unpack variant type, allele frequency and count."""
