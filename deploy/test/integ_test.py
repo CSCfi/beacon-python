@@ -85,7 +85,7 @@ async def test_get_query_4():
     """Test query GET endpoint."""
     LOG.debug('[5/8] Test get query')
     params = {'assemblyId': 'GRCh38', 'referenceName': 'MT',
-              'start': 10, 'referenceBases': 'CT', 'alternateBases': 'NN',
+              'start': 64, 'referenceBases': 'CT', 'alternateBases': 'NN',
               'includeDatasetResponses': 'HIT'}
     async with aiohttp.ClientSession() as session:
         async with session.get('http://localhost:5050/query', params=params) as resp:
@@ -179,6 +179,7 @@ async def main():
     await test_get_query_1()
     await test_get_query_2()
     await test_get_query_3()
+    await test_get_query_4()
     await test_post_query_1()
     await test_post_query_2()
     await test_post_query_3()
