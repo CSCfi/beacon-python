@@ -210,7 +210,7 @@ class BeaconDB:
                     params = self._unpack(variant, len_samples)
                     await self._conn.execute("""INSERT INTO beacon_data_table
                                              (datasetId, chromosome, start, reference, alternate,
-                                             "end", aggregatedVariantType, variantCount, callCount, frequency, variantType)
+                                             "end", aggregatedVariantType, alleleCount, callCount, frequency, variantType)
                                              SELECT ($1), ($2), ($3), ($4), t.alt, ($6), ($7), t.ac, ($9), t.freq, t.vt
                                              FROM (SELECT unnest($5::varchar[]) alt, unnest($8::integer[]) ac,
                                              unnest($10::float[]) freq, unnest($11::varchar[]) as vt) t

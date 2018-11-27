@@ -13,9 +13,10 @@ class Record:
     Mimic asyncpg Record object.
     """
 
-    def __init__(self, accessType, frequency=None, createDateTime=None, updateDateTime=None, referenceBases=None, alternateBases=None):
+    def __init__(self, accessType, frequency=None, createDateTime=None, updateDateTime=None, referenceBases=None, alternateBases=None, variantCount=0):
         """Initialise things."""
         self.data = {"accessType": accessType}
+        self.variantCount = variantCount
         if referenceBases:
             self.data.update({"referenceBases": referenceBases})
         if alternateBases:
@@ -81,9 +82,9 @@ class TestDataQueryFunctions(asynctest.TestCase):
     def test_transform_record(self):
         """Test transform DB record."""
         response = {"frequency": 0.009112876, "info": [{"accessType": "PUBLIC"}],
-                    "referenceBases": "CT", "alternateBases": "AT"}
-        record = Record("PUBLIC", 0.009112875989879, referenceBases="CT", alternateBases="AT")
-        result = transform_record(record)
+                    "referenceBases": "CT", "alternateBases": "AT", "variantCount": 3}
+        record = Record("PUBLIC", 0.009112875989879, referenceBases="CT", alternateBases="AT", variantCount=3)
+        result = transform_record(record, 3)
         self.assertEqual(result, response)
 
     def test_transform_misses(self):
