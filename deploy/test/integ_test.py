@@ -18,7 +18,7 @@ LOG.setLevel(logging.DEBUG)
 
 async def test_info():
     """Test the info endpoint."""
-    LOG.debug('[1/7] Test info endpoint')
+    LOG.debug('[1/8] Test info endpoint')
     async with aiohttp.ClientSession() as session:
         async with session.get('http://localhost:5050/') as resp:
             data = await resp.json()
@@ -30,7 +30,7 @@ async def test_info():
 
 async def test_get_query_1():
     """Test query GET endpoint."""
-    LOG.debug('[2/7] Test get query')
+    LOG.debug('[2/8] Test get query')
     params = {'assemblyId': 'GRCh38', 'referenceName': 'MT',
               'start': 10, 'referenceBases': 'T', 'alternateBases': 'C',
               'includeDatasetResponses': 'HIT'}
@@ -39,7 +39,7 @@ async def test_get_query_1():
             data = await resp.json()
             if 'datasetAlleleResponses' in data and len(data['datasetAlleleResponses']) > 0:
                 assert data['datasetAlleleResponses'][0]['datasetId'] == 'urn:hg:1000genome', 'DatasetID Error'
-                assert data['datasetAlleleResponses'][0]['variantCount'] == 3, 'Variant count Error'
+                assert data['datasetAlleleResponses'][0]['variantCount'] == 1, 'Variant count Error'
                 assert data['datasetAlleleResponses'][0]['frequency'] == 0.001183899, 'frequency Error'
                 assert data['datasetAlleleResponses'][0]['exists'] is True, 'Inconsistent, exists is False, but all other pass'
             else:
@@ -48,7 +48,7 @@ async def test_get_query_1():
 
 async def test_get_query_2():
     """Test query GET endpoint."""
-    LOG.debug('[3/7] Test get query')
+    LOG.debug('[3/8] Test get query')
     params = {'assemblyId': 'GRCh38', 'referenceName': 'MT',
               'start': 10, 'referenceBases': 'T', 'variantType': 'SNP',
               'includeDatasetResponses': 'HIT'}
@@ -57,7 +57,7 @@ async def test_get_query_2():
             data = await resp.json()
             if 'datasetAlleleResponses' in data and len(data['datasetAlleleResponses']) > 0:
                 assert data['datasetAlleleResponses'][0]['datasetId'] == 'urn:hg:1000genome', 'DatasetID Error'
-                assert data['datasetAlleleResponses'][0]['variantCount'] == 3, 'Variant count Error'
+                assert data['datasetAlleleResponses'][0]['variantCount'] == 1, 'Variant count Error'
                 assert data['datasetAlleleResponses'][0]['frequency'] == 0.001183899, 'frequency Error'
                 assert data['datasetAlleleResponses'][0]['exists'] is True, 'Inconsistent, exists is False, but all other pass'
             else:
@@ -66,7 +66,7 @@ async def test_get_query_2():
 
 async def test_get_query_3():
     """Test query GET endpoint."""
-    LOG.debug('[4/7] Test get query')
+    LOG.debug('[4/8] Test get query')
     params = {'assemblyId': 'GRCh38',
               'start': 10, 'referenceBases': 'T', 'alternateBases': 'C',
               'includeDatasetResponses': 'HIT'}
@@ -81,9 +81,27 @@ async def test_get_query_3():
                 sys.exit('Query GET Endpoint Error!')
 
 
+async def test_get_query_4():
+    """Test query GET endpoint."""
+    LOG.debug('[5/8] Test get query')
+    params = {'assemblyId': 'GRCh38', 'referenceName': 'MT',
+              'start': 10, 'referenceBases': 'CT', 'alternateBases': 'NN',
+              'includeDatasetResponses': 'HIT'}
+    async with aiohttp.ClientSession() as session:
+        async with session.get('http://localhost:5050/query', params=params) as resp:
+            data = await resp.json()
+            if 'datasetAlleleResponses' in data and len(data['datasetAlleleResponses']) > 0:
+                assert data['datasetAlleleResponses'][0]['datasetId'] == 'urn:hg:1000genome', 'DatasetID Error'
+                assert data['datasetAlleleResponses'][0]['variantCount'] == 3, 'Variant count Error'
+                assert data['datasetAlleleResponses'][0]['frequency'] == 0.000394945, 'frequency Error'
+                assert data['datasetAlleleResponses'][0]['exists'] is True, 'Inconsistent, exists is False, but all other pass'
+            else:
+                sys.exit('Query GET Endpoint Error!')
+
+
 async def test_post_query_1():
     """Test query POST endpoint."""
-    LOG.debug('[5/7] Test post query')
+    LOG.debug('[6/8] Test post query')
     payload = {"referenceName": "MT",
                "start": 10,
                "startMax": 0,
@@ -99,7 +117,7 @@ async def test_post_query_1():
             data = await resp.json()
             if 'datasetAlleleResponses' in data and len(data['datasetAlleleResponses']) > 0:
                 assert data['datasetAlleleResponses'][0]['datasetId'] == 'urn:hg:1000genome', 'DatasetID Error'
-                assert data['datasetAlleleResponses'][0]['variantCount'] == 3, 'Variant count Error'
+                assert data['datasetAlleleResponses'][0]['variantCount'] == 1, 'Variant count Error'
                 assert data['datasetAlleleResponses'][0]['frequency'] == 0.001183899, 'frequency Error'
                 assert data['datasetAlleleResponses'][0]['exists'] is True, 'Inconsistent, exists is False, but all other pass'
             else:
@@ -108,7 +126,7 @@ async def test_post_query_1():
 
 async def test_post_query_2():
     """Test query POST endpoint."""
-    LOG.debug('[6/7] Test post query')
+    LOG.debug('[7/8] Test post query')
     payload = {"referenceName": "MT",
                "start": 10,
                "startMax": 0,
@@ -124,7 +142,7 @@ async def test_post_query_2():
             data = await resp.json()
             if 'datasetAlleleResponses' in data and len(data['datasetAlleleResponses']) > 0:
                 assert data['datasetAlleleResponses'][0]['datasetId'] == 'urn:hg:1000genome', 'DatasetID Error'
-                assert data['datasetAlleleResponses'][0]['variantCount'] == 3, 'Variant count Error'
+                assert data['datasetAlleleResponses'][0]['variantCount'] == 1, 'Variant count Error'
                 assert data['datasetAlleleResponses'][0]['frequency'] == 0.001183899, 'frequency Error'
                 assert data['datasetAlleleResponses'][0]['exists'] is True, 'Inconsistent, exists is False, but all other pass'
             else:
@@ -133,7 +151,7 @@ async def test_post_query_2():
 
 async def test_post_query_3():
     """Test query POST endpoint."""
-    LOG.debug('[7/7] Test post query')
+    LOG.debug('[8/8] Test post query')
     payload = {"start": 10,
                "startMax": 0,
                "end": 0,
