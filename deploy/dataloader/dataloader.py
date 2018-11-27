@@ -2,7 +2,6 @@
 
 import urllib.request
 import logging
-import sys
 import os
 import time
 
@@ -18,7 +17,6 @@ LOG = logging.getLogger("DATALOADER")
 
 def main():
     """Run data loader."""
-
     start_time = time.time()  # runtime start
 
     # FTP details
