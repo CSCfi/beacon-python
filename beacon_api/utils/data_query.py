@@ -67,7 +67,7 @@ def transform_metadata(record):
 
 async def fetch_controlled_datasets(db_pool, datasets):
     """Retrieve CONTROLLED datasets."""
-    async with db_pool.acquire() as connection:
+    async with db_pool.acquire(timeout=20) as connection:
         async with connection.transaction():
             datasets_query = "TRUE" if not datasets else f"a.datasetId IN {sql_tuple(datasets)}"
             try:
@@ -86,7 +86,7 @@ async def fetch_dataset_metadata(db_pool, datasets=None, access_type=None):
     We use a DB View for this.
     """
     # Take one connection from the database pool
-    async with db_pool.acquire() as connection:
+    async with db_pool.acquire(timeout=20) as connection:
         # Start a new session with the connection
         async with connection.transaction():
             # Fetch dataset metadata according to user request
@@ -129,7 +129,7 @@ async def fetch_filtered_dataset(db_pool, position, chromosome, reference, alter
     There is an Uber query that aims to be all inclusive.
     """
     # Take one connection from the database pool
-    async with db_pool.acquire() as connection:
+    async with db_pool.acquire(timeout=20) as connection:
         # Start a new session with the connection
         async with connection.transaction():
             # Fetch dataset metadata according to user request
