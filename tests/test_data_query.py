@@ -92,7 +92,7 @@ class TestDataQueryFunctions(asynctest.TestCase):
 
     def test_transform_misses(self):
         """Test transform misses record."""
-        response = {"referenceBases": '', "alternateBases": '', "variantType": "MNP",
+        response = {"referenceBases": '', "alternateBases": '', "variantType": "",
                     "frequency": 0, "callCount": 0, "sampleCount": 0, "variantCount": 0,
                     "info": [{"accessType": "PUBLIC"}]}
         record = Record("PUBLIC")
