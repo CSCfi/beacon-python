@@ -163,16 +163,17 @@ Dataset metadata format is as follows:
 .. code-block:: javascript
 
     {
-    "name": "ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf",
-    "datasetId": "urn:hg:exampleid",
-    "description": "Mitochondrial genome from the 1000 Genomes project",
-    "assemblyId": "GRCh38",
-    "createDateTime": "2013-05-02 12:00:00",
-    "updateDateTime": "2013-05-02 12:00:00",
-    "version": "v0.4",
-    "externalUrl": "ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz",
-    "accessType": "PUBLIC"
+        "name": "1000 genomoe",
+        "datasetId": "urn:hg:1000genome",
+        "description": "Data from 1000 genome project",
+        "assemblyId": "GRCh38",
+        "createDateTime": "2013-05-02 12:00:00",
+        "updateDateTime": "2013-05-02 12:00:00",
+        "version": "v0.4",
+        "externalUrl": "ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/",
+        "accessType": "PUBLIC"
     }
+
 
 For loading data into the database we can proceed as follows:
 
@@ -180,3 +181,5 @@ For loading data into the database we can proceed as follows:
 
     $ wget ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz
     $ beacon_init ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz data/example_metadata.json
+
+.. note:: One dataset can have multiple file, in order to add more files to one dataset, repeat the instructions above.

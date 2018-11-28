@@ -7,3 +7,7 @@ jsonschema==3.0.0a3
 Cython
 cyvcf2
 tox
+uvloop
+aiocache
+ujson
+aiomcache

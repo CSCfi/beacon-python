@@ -27,4 +27,4 @@ async def init_db_pool():
 
     As we will have frequent requests to the database it is recommended to create a connection pool.
     """
-    return await asyncpg.create_pool(dsn=DB_URL)
+    return await asyncpg.create_pool(dsn=DB_URL, max_cached_statement_lifetime=0, command_timeout=120)

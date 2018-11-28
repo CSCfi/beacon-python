@@ -141,7 +141,7 @@ async def get_key():
 def token_auth():
     """Check if token if valid and authenticate.
 
-    Decided not to use: https://github.com/hzlmn/aiohttp-jwt, as we need to verify
+    Decided against: https://github.com/hzlmn/aiohttp-jwt, as we need to verify
     ELIXIR AAI issuer and bona_fide_status.
     """
     @web.middleware
@@ -163,7 +163,6 @@ def token_auth():
             if token is not None:
                 key = await get_key()
                 try:
-                    # TO DO algorithm should be retrieved from the header and
                     # checked against the JSON Web Key
                     decodedData = jwt.decode(token, key, algorithms=['RS256'])
                     LOG.info('Auth Token Decoded.')
@@ -171,18 +170,21 @@ def token_auth():
                     _, obj = await parse_request_object(request)
                     raise BeaconUnauthorised(obj, request.host, f'Invalid authorization token: {e}')
 
-                # Validate the issuer is Elixir AAI
+                # Validate the issuer is Elixir AAI, for now
                 if decodedData['iss'] in ["https://login.elixir-czech.org/oidc/"] and decodedData['sub'].endswith("@elixir-europe.org"):
                     LOG.info('Identified as ELIXIR AAI user.')
-                    # for now the permissions just reflect the decoded data
+                    # for now the permissions just reflect that the data can be decoded from token
                     # the bona fide status for now is set to True
+                    # permissions key will hold the actual permissions found in the token e.g. REMS permissions
 
-                    request["token"] = {"bona_fide_status": True if await check_bona_fide_status(token) else False}
+                    request["token"] = {"bona_fide_status": True if await check_bona_fide_status(token) else False,
+                                        "permissions": None}
                     return await handler(request)
                 else:
                     _, obj = await parse_request_object(request)
                     raise BeaconForbidden(obj, request.host, 'Token is not validated by an ELIXIR AAI authorized issuer.')
         else:
-            request["token"] = {"bona_fide_status": False}
+            request["token"] = {"bona_fide_status": False,
+                                "permissions": None}
             return await handler(request)
     return token_middleware

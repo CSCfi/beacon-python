@@ -16,14 +16,17 @@ def sql_tuple(array):
         return "(\'" + array[0] + "\')"
 
 
-def transform_record(record):
+def transform_record(record, variantCount):
     """Format the record we got from the database to adhere to the response schema."""
     response = dict(record)
     response["referenceBases"] = response.pop("referenceBases")
     response["alternateBases"] = response.pop("alternateBases")
+    response["variantType"] = response.pop("variantType")
     response["frequency"] = round(response.pop("frequency"), 9)
+    response["variantCount"] = variantCount
     response["info"] = [{"accessType": response.pop("accessType")}]
     # Error is not required and should not be shown
+    # If error key is set to null it will still not validate as it has a required key errorCode
     # otherwise schema validation will fail
     # response["error"] = None
 
@@ -35,12 +38,14 @@ def transform_misses(record):
     response = dict(record)
     response["referenceBases"] = ''
     response["alternateBases"] = ''
+    response["variantType"] = ''
     response["frequency"] = 0
     response["variantCount"] = 0
     response["callCount"] = 0
     response["sampleCount"] = 0
     response["info"] = [{"accessType": response.pop("accessType")}]
     # Error is not required and should not be shown
+    # If error key is set to null it will still not validate as it has a required key errorCode
     # otherwise schema validation will fail
     # response["error"] = None
 
@@ -51,13 +56,28 @@ def transform_metadata(record):
     """Format the metadata record we got from the database to adhere to the response schema."""
     response = dict(record)
     response["info"] = [{"accessType": response.pop("accessType")}]
-    # TO DO test with null date
+    # TO DO test with null date in Database
     if 'createDateTime' in response and isinstance(response["createDateTime"], datetime):
         response["createDateTime"] = response.pop("createDateTime").strftime('%Y-%m-%dT%H:%M:%SZ')
     if 'updateDateTime' in record and isinstance(response["updateDateTime"], datetime):
         response["updateDateTime"] = response.pop("updateDateTime").strftime('%Y-%m-%dT%H:%M:%SZ')
 
     return response
+
+
+async def fetch_controlled_datasets(db_pool, datasets):
+    """Retrieve CONTROLLED datasets."""
+    async with db_pool.acquire() as connection:
+        async with connection.transaction():
+            datasets_query = "TRUE" if not datasets else f"a.datasetId IN {sql_tuple(datasets)}"
+            try:
+                query = f"""SELECT datasetId FROM dataset_metadata as a
+                            WHERE a.accesstype IN ('CONTROLLED') AND ({datasets_query});"""
+                statement = await connection.prepare(query)
+                db_response = await statement.fetch()
+                return list(db_response)
+            except Exception as e:
+                raise BeaconServerError(f'DB error: {e}')
 
 
 async def fetch_dataset_metadata(db_pool, datasets=None, access_type=None):
@@ -70,11 +90,10 @@ async def fetch_dataset_metadata(db_pool, datasets=None, access_type=None):
         # Start a new session with the connection
         async with connection.transaction():
             # Fetch dataset metadata according to user request
-            # TO DO Test that datasets=[] and access_type=[] work with 1..n items
-            datasets_query = "TRUE" if not datasets else f"a.dataset_id IN {sql_tuple(datasets)}"
+            datasets_query = "TRUE" if not datasets else f"a.datasetId IN {sql_tuple(datasets)}"
             access_query = "TRUE" if not access_type else f"b.accesstype IN {sql_tuple(access_type)}"
             try:
-                query = f"""SELECT  datasetId as "id", name as "name", accessType as "accessType",
+                query = f"""SELECT datasetId as "id", name as "name", accessType as "accessType",
                             externalUrl as "externalUrl", description as "description",
                             assemblyId as "assemblyId", variantCount as "variantCount",
                             callCount as "callCount", sampleCount as "sampleCount",
@@ -134,8 +153,8 @@ async def fetch_filtered_dataset(db_pool, position, chromosome, reference, alter
                 query = f"""SELECT {"DISTINCT ON (a.datasetId)" if misses else ''} a.datasetId as "datasetId", b.accessType as "accessType",
                             a.chromosome as "referenceName", a.reference as "referenceBases", a.alternate as "alternateBases",
                             b.externalUrl as "externalUrl", b.description as "note",
-                            a.variantCount as "variantCount",
-                            a.callCount as "callCount", b.sampleCount as "sampleCount",
+                            a.alleleCount as "sampleCount", a.variantType as "variantType",
+                            a.callCount as "callCount",
                             a.frequency, {"FALSE" if misses else "TRUE"} as "exists"
                             FROM beacon_data_table a, beacon_dataset_table b
                             WHERE a.datasetId=b.datasetId
@@ -149,8 +168,9 @@ async def fetch_filtered_dataset(db_pool, position, chromosome, reference, alter
                 statement = await connection.prepare(query)
                 db_response = await statement.fetch()
                 LOG.info(f"Query for dataset(s): {datasets} that are {access_type} matching conditions.")
+                variantCount = len(db_response)
                 for record in list(db_response):
-                    processed = transform_misses(record) if misses else transform_record(record)
+                    processed = transform_misses(record) if misses else transform_record(record, variantCount)
                     datasets.append(processed)
                 return datasets
             except Exception as e:
@@ -172,14 +192,13 @@ def filter_exists(include_dataset, datasets):
         return [d for d in datasets if d['exists'] is False]
 
 
-async def find_datasets(db_pool, position, chromosome, reference, alternate, dataset_ids, token):
+async def find_datasets(db_pool, position, chromosome, reference, alternate, dataset_ids, access_type):
     """Find datasets based on filter parameters.
 
     This also takes into consideration the token value as to establish permissions.
     """
     # TO DO wait for info on the actual permissions
     # TO DO return forbidden if a specific forbidden dataset is requested
-    access_type = ["REGISTERED", "PUBLIC", "CONTROLLED"] if token["bona_fide_status"] else ["PUBLIC"]
     hit_datasets = await fetch_filtered_dataset(db_pool, position, chromosome, reference, alternate,
                                                 dataset_ids, access_type)
     miss_datasets = await fetch_filtered_dataset(db_pool, position, chromosome, reference, alternate,

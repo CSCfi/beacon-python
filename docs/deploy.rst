@@ -17,6 +17,18 @@ Using vanilla docker in order to build the image:
     $ docker build -t cscfi/beacon-python
 
 
+Docker Compose
+--------------
+
+.. code-block:: console
+
+    $ git clone https://github.com/CSCfi/beacon-python
+    $ cd beacon-python
+    $ docker build -t cscfi/beacon-python
+    $ cd deploy
+    $ docker-compose up -d
+
+
 Source to Image
 ---------------
 
