@@ -17,6 +17,7 @@ RUN mkdir -p /app/data
 WORKDIR /app
 
 RUN wget https://raw.githubusercontent.com/CSCfi/beacon-python/master/data/example_metadata.json
+RUN wget https://raw.githubusercontent.com/CSCfi/beacon-python/master/data/init.sql
 
 COPY dataloader.py /app/dataloader.py
 

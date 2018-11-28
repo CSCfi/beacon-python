@@ -50,9 +50,6 @@ jobs:
              docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD ;
              docker build -t cscfi/beacon-python . ;
              docker push cscfi/beacon-python:latest;
-             cd dataloader ;
-             docker build -t cscfi/beacon-dataloader . ;
-             docker push cscfi/beacon-dataloader:latest;
           fi
 
 notifications:

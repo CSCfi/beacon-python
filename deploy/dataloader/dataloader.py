@@ -48,10 +48,13 @@ def main():
     for datafile in directory:
         try:
             completed_tasks += 1
-            LOG.info(f'[{completed_tasks}/{expected_tasks}] Downloading {datafile}')
-            # download datafile from repository
-            #                          address                            destination
-            urllib.request.urlretrieve('ftp://'+FTP_URL+FTP_DIR+datafile, '/app/data/'+datafile)
+            if not os.path.exists('/app/data/'+datafile):
+                LOG.info(f'[{completed_tasks}/{expected_tasks}] Downloading {datafile}')
+                # download datafile from repository
+                #                          address                            destination
+                urllib.request.urlretrieve('ftp://'+FTP_URL+FTP_DIR+datafile, '/app/data/'+datafile)
+            else:
+                LOG.info(f'{datafile} already exists, skip downloading')
         except Exception as e:
             completed_tasks -= 1
             LOG.error(f'ERROR AT DOWNLOAD :: {e}')
