@@ -13,7 +13,8 @@ class Record:
     Mimic asyncpg Record object.
     """
 
-    def __init__(self, accessType, frequency=None, createDateTime=None, updateDateTime=None, referenceBases=None, alternateBases=None, variantCount=0):
+    def __init__(self, accessType, frequency=None, createDateTime=None, updateDateTime=None,
+                 referenceBases=None, alternateBases=None, variantCount=0, variantType=None):
         """Initialise things."""
         self.data = {"accessType": accessType}
         self.variantCount = variantCount
@@ -21,6 +22,8 @@ class Record:
             self.data.update({"referenceBases": referenceBases})
         if alternateBases:
             self.data.update({"alternateBases": alternateBases})
+        if variantType:
+            self.data.update({"variantType": variantType})
         if frequency:
             self.data.update({"frequency": frequency})
         if createDateTime:
@@ -82,14 +85,14 @@ class TestDataQueryFunctions(asynctest.TestCase):
     def test_transform_record(self):
         """Test transform DB record."""
         response = {"frequency": 0.009112876, "info": [{"accessType": "PUBLIC"}],
-                    "referenceBases": "CT", "alternateBases": "AT", "variantCount": 3}
-        record = Record("PUBLIC", 0.009112875989879, referenceBases="CT", alternateBases="AT", variantCount=3)
+                    "referenceBases": "CT", "alternateBases": "AT", "variantCount": 3, "variantType": "MNP"}
+        record = Record("PUBLIC", 0.009112875989879, referenceBases="CT", alternateBases="AT", variantCount=3, variantType="MNP")
         result = transform_record(record, 3)
         self.assertEqual(result, response)
 
     def test_transform_misses(self):
         """Test transform misses record."""
-        response = {"referenceBases": '', "alternateBases": '',
+        response = {"referenceBases": '', "alternateBases": '', "variantType": "MNP",
                     "frequency": 0, "callCount": 0, "sampleCount": 0, "variantCount": 0,
                     "info": [{"accessType": "PUBLIC"}]}
         record = Record("PUBLIC")

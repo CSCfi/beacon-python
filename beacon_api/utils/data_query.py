@@ -21,6 +21,7 @@ def transform_record(record, variantCount):
     response = dict(record)
     response["referenceBases"] = response.pop("referenceBases")
     response["alternateBases"] = response.pop("alternateBases")
+    response["variantType"] = response.pop("variantType")
     response["frequency"] = round(response.pop("frequency"), 9)
     response["variantCount"] = variantCount
     response["info"] = [{"accessType": response.pop("accessType")}]
@@ -37,6 +38,7 @@ def transform_misses(record):
     response = dict(record)
     response["referenceBases"] = ''
     response["alternateBases"] = ''
+    response["variantType"] = ''
     response["frequency"] = 0
     response["variantCount"] = 0
     response["callCount"] = 0
@@ -151,7 +153,7 @@ async def fetch_filtered_dataset(db_pool, position, chromosome, reference, alter
                 query = f"""SELECT {"DISTINCT ON (a.datasetId)" if misses else ''} a.datasetId as "datasetId", b.accessType as "accessType",
                             a.chromosome as "referenceName", a.reference as "referenceBases", a.alternate as "alternateBases",
                             b.externalUrl as "externalUrl", b.description as "note",
-                            a.alleleCount as "sampleCount",
+                            a.alleleCount as "sampleCount", a.variantType as "variantType",
                             a.callCount as "callCount",
                             a.frequency, {"FALSE" if misses else "TRUE"} as "exists"
                             FROM beacon_data_table a, beacon_dataset_table b
