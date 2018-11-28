@@ -119,8 +119,7 @@
             "pattern": "^([ACGT]+)$"
           },
           "variantType": {
-            "type": "string",
-            "enum": ["DEL", "INS", "DUP", "INV", "CNV", "SNP", "DUP:TANDEM", "DEL:ME", "INS:ME"]
+            "type": "string"
           },
           "error": {
             "type": "object",
