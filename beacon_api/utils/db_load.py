@@ -64,11 +64,11 @@ class BeaconDB:
 
     def _transform_vt(self, vt, variant):
         """Transform variant types."""
-        if vt == 's':
+        if vt in ['s', 'snp']:
             return 'SNP'
-        elif vt == 'm':
+        elif vt in ['m', 'mnp']:
             return 'MNP'
-        elif vt == 'i':
+        elif vt in ['i', 'indel']:
             return 'INS' if len(variant.ALT) > len(variant.REF) else 'DEL'
         else:
             LOG.debug(f'Other variantType value {variant.var_type.upper()}')

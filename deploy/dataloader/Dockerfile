@@ -4,7 +4,7 @@ LABEL maintainer "CSC Developers"
 
 RUN apk add --update \
     && apk add --no-cache build-base libressl-dev curl-dev linux-headers bash git libffi-dev\
-    && apk add --no-cache py-setuptools supervisor \
+    && apk add --no-cache py-setuptools lftp \
     && rm -rf /var/cache/apk/*
 
 RUN pip install -r https://raw.githubusercontent.com/CSCfi/beacon-python/master/requirements.txt
@@ -19,6 +19,6 @@ WORKDIR /app
 RUN wget https://raw.githubusercontent.com/CSCfi/beacon-python/master/data/example_metadata.json
 RUN wget https://raw.githubusercontent.com/CSCfi/beacon-python/master/data/init.sql
 
-COPY dataloader.py /app/dataloader.py
+COPY dataloader.sh /app/dataloader.sh
 
-ENTRYPOINT ["python", "/app/dataloader.py"]
+ENTRYPOINT ["/bin/sh", "-c", "/app/dataloader.sh"]
