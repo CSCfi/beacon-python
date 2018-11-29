@@ -36,7 +36,7 @@ Load Testing scenarios
 
 * Scenario 1 ``GET /info``
 * Scenario 2 ``GET /query`` and ``POST /query`` (all, miss, hit)
-* Scenario 3 ``GET /query`` and ``POST /query`` (all, miss, hit and (REGISTERED)
+* Scenario 3 ``GET /query`` and ``POST /query`` (all, miss, hit and (REGISTERED))
 * Scenario 4 ``GET /query`` and ``POST /query`` that has multiple parameters for a more complex query (e.g. startMin, startMax and others) also test with (all, miss, hit) and (REGISTERED)
 
 Example testing with `locust.io <http://locust.io/>`_
