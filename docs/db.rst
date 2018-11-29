@@ -27,8 +27,8 @@ For ``HIT`` results, example query below searches in all datasets:
     SELECT  a.datasetId as "datasetId", b.accessType as "accessType",
                         a.chromosome as "referenceName",
                         b.externalUrl as "externalUrl", b.description as "note",
-                        a.variantCount as "variantCount",
-                        a.callCount as "callCount", b.sampleCount as "sampleCount",
+                        a.alleleCount as "sampleCount", a.variantType as "variantType",
+                        a.callCount as "callCount",
                         a.frequency, TRUE as "exists"
                         FROM beacon_data_table a, beacon_dataset_table b
                         WHERE a.dataset_id=b.dataset_id
@@ -46,8 +46,8 @@ For ``MISS`` results, example query below searches in all ``DATASET2``:
     SELECT DISTINCT ON (a.dataset_id) a.datasetId as "datasetId", b.accessType as "accessType",
                         a.chromosome as "referenceName",
                         b.externalUrl as "externalUrl", b.description as "note",
-                        a.variantCount as "variantCount",
-                        a.callCount as "callCount", b.sampleCount as "sampleCount",
+                        a.alleleCount as "sampleCount", a.variantType as "variantType",
+                        a.callCount as "callCount",
                         a.frequency, FALSE as "exists"
                         FROM beacon_data_table a, beacon_dataset_table b
                         WHERE a.dataset_id=b.dataset_id

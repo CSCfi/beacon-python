@@ -6,6 +6,7 @@ Instructions
   * Python 3.6+;
   * running DB `PostgreSQL Server <https://www.postgresql.org/>`_  9.6+.
 
+.. _env-setup:
 
 Environment Setup
 -----------------
@@ -34,6 +35,8 @@ the table below.
 +---------------------+-------------------------------+--------------------------------------------------+
 | `CONFIG_FILE`       | `./beacon_api/conf/config.ini`| Provide specific :ref:`beacon-info`.             |
 +---------------------+-------------------------------+--------------------------------------------------+
+| `TABLES_SCHEMA`     | `data/init.sql`               | Provide ``beacon_init`` SQL fallback schema.     |
++---------------------+-------------------------------+--------------------------------------------------+
 
 Setting the necessary environment variables can be done  e.g. via the command line:
 
@@ -52,6 +55,10 @@ Setting the necessary environment variables can be done  e.g. via the command li
 
 Beacon Information
 ~~~~~~~~~~~~~~~~~~
+
+By default the beacon contains preset information about the beacon service.
+The information can be changed in a configuration file that has the structure specified below, and
+pointing to the location of the file using `CONFIG_FILE` environment variable.
 
 .. code-block:: python
 
@@ -179,7 +186,8 @@ For loading data into the database we can proceed as follows:
 
 .. code-block:: console
 
-    $ wget ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz
-    $ beacon_init ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz data/example_metadata.json
+    $ beacon_init data/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz data/example_metadata.json
 
 .. note:: One dataset can have multiple file, in order to add more files to one dataset, repeat the instructions above.
+
+.. note:: For loading 1000 genome dataset see: :ref:`genome-dataset` instructions.
