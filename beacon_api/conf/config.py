@@ -34,7 +34,7 @@ async def init_db_pool():
                                      # for now limiting the number of connections in the pool
                                      max_size=20,
                                      max_queries=50000,
-                                     timeout=5,
-                                     command_timeout=10,
+                                     timeout=120,
+                                     command_timeout=180,
                                      max_cached_statement_lifetime=0,
                                      max_inactive_connection_lifetime=180)
