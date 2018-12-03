@@ -19,8 +19,8 @@ def sql_tuple(array):
 def transform_record(record, variantCount):
     """Format the record we got from the database to adhere to the response schema."""
     response = dict(record)
-    response["referenceBases"] = response.pop("referenceBases")
-    response["alternateBases"] = response.pop("alternateBases")
+    response["referenceBases"] = response.pop("referenceBases")  # NOT part of beacon specification
+    response["alternateBases"] = response.pop("alternateBases")  # NOT part of beacon specification
     response["variantType"] = response.pop("variantType")
     response["frequency"] = round(response.pop("frequency"), 9)
     response["variantCount"] = variantCount
@@ -36,8 +36,8 @@ def transform_record(record, variantCount):
 def transform_misses(record):
     """Format the missed datasets record we got from the database to adhere to the response schema."""
     response = dict(record)
-    response["referenceBases"] = ''
-    response["alternateBases"] = ''
+    response["referenceBases"] = ''  # NOT part of beacon specification
+    response["alternateBases"] = ''  # NOT part of beacon specification
     response["variantType"] = ''
     response["frequency"] = 0
     response["variantCount"] = 0
@@ -71,7 +71,7 @@ async def fetch_controlled_datasets(db_pool, datasets):
         async with connection.transaction():
             datasets_query = "TRUE" if not datasets else f"a.datasetId IN {sql_tuple(datasets)}"
             try:
-                query = f"""SELECT datasetId FROM dataset_metadata as a
+                query = f"""SELECT datasetId FROM beacon_dataset_table as a
                             WHERE a.accesstype IN ('CONTROLLED') AND ({datasets_query});"""
                 statement = await connection.prepare(query)
                 db_response = await statement.fetch()
@@ -150,6 +150,7 @@ async def fetch_filtered_dataset(db_pool, position, chromosome, reference, alter
             try:
 
                 # UBER QUERY - TBD if it is what we need
+                # variantType field NOT part of beacon specification
                 query = f"""SELECT {"DISTINCT ON (a.datasetId)" if misses else ''} a.datasetId as "datasetId", b.accessType as "accessType",
                             a.chromosome as "referenceName", a.reference as "referenceBases", a.alternate as "alternateBases",
                             b.externalUrl as "externalUrl", b.description as "note",

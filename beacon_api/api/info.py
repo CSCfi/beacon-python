@@ -37,7 +37,7 @@ async def beacon_info(host, pool):
         "start": 7600,
         "assemblyId": "GRCh38",
         "datasetIds": [
-            "urn:hg:exampleid-mt"
+            "urn:hg:1000genome"
         ],
         "includeDatasetResponses": "HIT"},
         {
