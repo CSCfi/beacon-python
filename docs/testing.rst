@@ -9,7 +9,7 @@ Unit Testing
 
 In order to run the unit tests and flake8 we are using tox:
 
-.. code-block:: python
+.. code-block:: console
 
     $ tox
 
