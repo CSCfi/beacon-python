@@ -28,6 +28,7 @@ Docker Compose
     $ cd deploy
     $ docker-compose up -d
 
+.. _s2i-build:
 
 Source to Image
 ---------------

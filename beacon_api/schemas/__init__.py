@@ -1,9 +1,10 @@
 """Load JSON Schemas.
 
-The schemas represent a good way of checking the endpoint requests/responses that
-it adheres to the API specification.
+The JSON schemas represent a good method of checking that an endpoint's
+requests/responses adhere to the API specification.
 Schemas available:
 
+* ``info.json`` - for the ``/info`` endpoint response;
 * ``query.json`` - for the ``/query`` endpoint request;
 * ``response.json`` - beacon API JSON response.
 """

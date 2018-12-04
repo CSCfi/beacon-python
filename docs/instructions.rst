@@ -188,6 +188,6 @@ For loading data into the database we can proceed as follows:
 
     $ beacon_init data/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz data/example_metadata.json
 
-.. note:: One dataset can have multiple file, in order to add more files to one dataset, repeat the instructions above.
+.. note:: One dataset can have multiple files, in order to add more files to one dataset, repeat the command above.
 
 .. note:: For loading 1000 genome dataset see: :ref:`genome-dataset` instructions.

@@ -7,9 +7,10 @@ Testing
 Unit Testing
 ------------
 
-In order to run the unit tests and flake8 we are using tox:
+In order to run the unit tests and `flake8 <http://flake8.pycqa.org/en/latest/>`_ (coding style guide)
+we are using `tox <http://tox.readthedocs.io/>`_:
 
-.. code-block:: python
+.. code-block:: console
 
     $ tox
 
@@ -17,7 +18,7 @@ In order to run the unit tests and flake8 we are using tox:
 Integration Testing
 -------------------
 
-In order to run the integration tests:
+In order to run the integration tests, makes use of :ref:`s2i-build`:
 
 .. code-block:: console
 
@@ -26,7 +27,13 @@ In order to run the integration tests:
     $ s2i build . centos/python-36-centos7 cscfi/beacon-python
     $ cd deploy
     $ docker-compose up -d
+    $ docker-compose exec beacon beacon_init data/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz data/example_metadata.json
+    $ docker-compose exec postgres psql -U beacon beacondb -c "INSERT INTO beacon_dataset_counts_table (datasetId, callCount, variantCount) VALUES ('urn:hg:1000genome', 1, 1)"
     $ python test/integ_test.py
+
+The integration tests will build a docker image of the ``beacon-python`` and make use of
+`docker compose <https://docs.docker.com/compose/>`_ to deploy the Web Server and an associated
+PostgreSQL Database. Next step is to load mock data and last step is to run the integration tests.
 
 
 Load Testing

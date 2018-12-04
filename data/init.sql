@@ -13,6 +13,23 @@ CREATE TABLE IF NOT EXISTS beacon_dataset_table (
     PRIMARY KEY (index)
 );
 
+/*
+The values in this table take a long time to compute on large datasets
+Most likely these values do not change once the dataset is loaded so one
+could compute the values and UPDATE the table once the all dataset is inserted
+
+callcount: SELECT count(*) FROM (SELECT distinct(reference, start)
+                                FROM beacon_data_table) t;
+
+variantcount: SELECT count(*) FROM beacon_data_table;
+*/
+
+CREATE TABLE IF NOT EXISTS beacon_dataset_counts_table (
+    datasetId VARCHAR(128),
+    callCount INTEGER DEFAULT NULL,
+    variantCount INTEGER DEFAULT NULL
+);
+
 CREATE TABLE IF NOT EXISTS beacon_data_table (
     index SERIAL,
     datasetId VARCHAR(128),
@@ -32,10 +49,14 @@ CREATE TABLE IF NOT EXISTS beacon_data_table (
 CREATE UNIQUE INDEX data_conflict ON beacon_data_table (datasetId, chromosome, start, reference, alternate);
 CREATE UNIQUE INDEX metadata_conflict ON beacon_dataset_table (name, datasetId);
 
-CREATE OR REPLACE VIEW dataset_metadata(name, datasetId, description, assemblyId, createDateTime, updateDateTime, version, callCount, variantCount, sampleCount, externalUrl, accessType)
-AS SELECT a.name, a.datasetId, a.description, a.assemblyId, a.createDateTime, a.updateDateTime, a.version, COUNT(DISTINCT(b.reference, b.start)) as callCount,
-          COUNT(b.alternate) as variantCount,
+CREATE OR REPLACE VIEW dataset_metadata(name, datasetId, description, assemblyId,
+                                        createDateTime, updateDateTime, version,
+                                        callCount, variantCount, sampleCount, externalUrl, accessType)
+AS SELECT a.name, a.datasetId, a.description, a.assemblyId, a.createDateTime,
+          a.updateDateTime, a.version, b.callCount,
+          b.variantCount,
           a.sampleCount, a.externalUrl, a.accessType
-FROM beacon_dataset_table a, beacon_data_table b
+FROM beacon_dataset_table a, beacon_dataset_counts_table b
 WHERE a.datasetId=b.datasetId
-GROUP BY a.name, a.datasetId, a.description, a.assemblyId, a.createDateTime, a.updateDateTime, a.version, a.sampleCount, a.externalUrl, a.accessType;
+GROUP BY a.name, a.datasetId, a.description, a.assemblyId, a.createDateTime,
+         a.updateDateTime, a.version, a.sampleCount, a.externalUrl, a.accessType, b.callCount, b.variantCount;
