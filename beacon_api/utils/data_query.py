@@ -21,7 +21,7 @@ def transform_record(record, variantCount):
     response = dict(record)
     response["referenceBases"] = response.pop("referenceBases")  # NOT part of beacon specification
     response["alternateBases"] = response.pop("alternateBases")  # NOT part of beacon specification
-    response["variantType"] = response.pop("variantType")
+    response["variantType"] = response.pop("variantType")  # NOT part of beacon specification
     response["frequency"] = round(response.pop("frequency"), 9)
     response["variantCount"] = variantCount
     response["info"] = [{"accessType": response.pop("accessType")}]
