@@ -38,7 +38,7 @@ def transform_misses(record):
     response = dict(record)
     response["referenceBases"] = ''  # NOT part of beacon specification
     response["alternateBases"] = ''  # NOT part of beacon specification
-    response["variantType"] = ''
+    response["variantType"] = ''  # NOT part of beacon specification
     response["frequency"] = 0
     response["variantCount"] = 0
     response["callCount"] = 0
@@ -150,7 +150,7 @@ async def fetch_filtered_dataset(db_pool, position, chromosome, reference, alter
             try:
 
                 # UBER QUERY - TBD if it is what we need
-                # variantType field NOT part of beacon specification
+                # referenceBases, alternateBases and variantType fields are NOT part of beacon specification example response
                 query = f"""SELECT {"DISTINCT ON (a.datasetId)" if misses else ''} a.datasetId as "datasetId", b.accessType as "accessType",
                             a.chromosome as "referenceName", a.reference as "referenceBases", a.alternate as "alternateBases",
                             b.externalUrl as "externalUrl", b.description as "note",
