@@ -22,7 +22,7 @@ as additional information, that cannot be extracted from ``*.vcf`` files, is req
 
 .. literalinclude:: /../data/init.sql
    :language: sql
-   :lines: 1-63
+   :lines: 1-62
 
 .. note:: In order to retrieve bot HIT and MISS (according) to the API specification,
           we make use of the same query structure, exemplified below.

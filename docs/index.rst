@@ -23,7 +23,7 @@ the Beacon :ref:`database`.
 Out of the box the ``beacon-python`` offers:
 
 * adhere to Beacon API 1.0.0+ specification;
-* processing and loading VCF files based on `cyvf2 <http://brentp.github.io/cyvcf2/>`_ ;
+* processing and loading VCF files based on `cyvcf2 <http://brentp.github.io/cyvcf2/>`_ ;
 * asynchronous server;
 * token validation for ELIXIR AAI, retrieving researcher bona fide status;
 * 1000 genome dataset loader - see :ref:`genome-dataset` instructions;

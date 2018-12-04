@@ -8,8 +8,16 @@ The Beacon API consists of the following endpoints:
 
 For the full specification consult: `Beacon API 1.0.0+ specification <https://github.com/ga4gh-beacon/specification>`_.
 
+The Beacon API specification allows for additional properties, thus we add the following fields to
+``/query`` endpoint to handle wildcard responses:
+
+* ``referenceBases``
+* ``alternateBases``
+* ``variantType``
+
 The requests are validated against a JSON schema, while for the responses we validate (via unit tests)
 that they adhere to the required format.
+
 
 Info Endpoint
 -------------
@@ -23,120 +31,68 @@ Example Response:
 .. code-block:: javascript
 
     {
-        "id": "localhost:5050",
-        "name": "EGA Beacon",
-        "apiVersion": "1.0.0",
-        "organization": {
-            "id": "EGA",
-            "name": "European Genome-Phenome Archive (EGA)",
-            "description": "The European Genome-phenome Archive (EGA) is a service for permanent archiving and sharing of all types of personally identifiable         genetic and phenotypic data resulting from biomedical research projects.",
-            "address": "",
-            "welcomeUrl": "https://ega-archive.org/",
-            "contactUrl": "mailto:beacon.ega@crg.eu",
-            "logoUrl": "https://ega-archive.org/images/logo.png",
-            "info": null
-        },
-        "description": "This <a href=\"http://ga4gh.org/#/beacon\">Beacon</a> is based on the GA4GH Beacon         <a href=\"https://github.com/ga4gh/beacon-team/blob/develop/src/main/resources/avro/beacon.avdl\">API 0.4</a>",
-        "version": "1.0.0",
-        "welcomeUrl": "https://ega-archive.org/beacon_web/",
-        "alternativeUrl": "https://ega-archive.org/beacon_web/",
-        "createDateTime": "2018-07-25T00:00.000Z",
-        "updateDateTime": null,
-        "dataset": [
-            {
-                "id": "DATASET2",
-                "name": "DATASET2",
-                "externalUrl": "https://datasethost.org/dataset2",
-                "description": "example dataset number 2",
-                "assemblyId": "GRCh38",
-                "variantCount": 16023,
-                "callCount": 445712,
-                "sampleCount": 1,
-                "version": "v1",
-                "info": [
-                    {
-                        "accessType": "PUBLIC"
-                    }
-                ],
-                "createDateTime": "2018-10-08T17:31:16Z",
-                "updateDateTime": "2018-10-08T17:31:16Z"
-            },
-            {
-                "id": "DATASET3",
-                "name": "DATASET3",
-                "externalUrl": "https://datasethost.org/dataset3",
-                "description": "example dataset number 3",
-                "assemblyId": "GRCh38",
-                "variantCount": 20952,
-                "callCount": 1206928,
-                "sampleCount": 1,
-                "version": "v1",
-                "info": [
-                    {
-                        "accessType": "REGISTERED"
-                    }
-                ],
-                "createDateTime": "2018-10-08T17:31:21Z",
-                "updateDateTime": "2018-10-08T17:31:21Z"
-            },
-            {
-                "id": "DATASET1",
-                "name": "DATASET1",
-                "externalUrl": "https://datasethost.org/dataset1",
-                "description": "example dataset number 1",
-                "assemblyId": "GRCh38",
-                "variantCount": 6966,
-                "callCount": 360576,
-                "sampleCount": 2504,
-                "version": "v1",
-                "info": [
-                    {
-                        "accessType": "PUBLIC"
-                    }
-                ],
-                "createDateTime": "2018-10-08T17:31:08Z",
-                "updateDateTime": "2018-10-08T17:31:08Z"
-            }
-        ],
-        "sampleAlleleRequests": [
-            {
-                "alternateBases": "A",
-                "referenceBases": "C",
-                "referenceName": "17",
-                "start": 6689,
-                "assemblyId": "GRCh37",
-                "datasetIds": null,
-                "includeDatasetResponses": "NONE"
-            },
-            {
-                "alternateBases": "G",
-                "referenceBases": "A",
-                "referenceName": "1",
-                "start": 14929,
-                "assemblyId": "GRCh37",
-                "datasetIds": [
-                    "DATASET1"
-                ],
-                "includeDatasetResponses": "ALL"
-            },
-            {
-                "alternateBases": "CCCCT",
-                "referenceBases": "C",
-                "referenceName": "1",
-                "start": 866510,
-                "assemblyId": "GRCh37",
-                "datasetIds": [
-                    "DATASET2",
-                    "DATASET3"
-                ],
-                "includeDatasetResponses": "HIT"
-            }
-        ],
-        "info": [
-            {
-                "key": "value"
-            }
-        ]
+      "id": "localhost:5050",
+      "name": "EGA Beacon",
+      "apiVersion": "1.0.0",
+      "organization": {
+        "id": "CSC",
+        "name": "CSC - IT Center for Science",
+        "description": "Finnish expertise in ICT for research, education, culture and public administration",
+        "address": "Keilaranta 14, Espoo, finland",
+        "welcomeUrl": "https://www.csc.fi/",
+        "contactUrl": "https://www.csc.fi/contact-info",
+        "logoUrl": "https://www.csc.fi/documents/10180/161914/CSC_2012_LOGO_RGB_72dpi.jpg",
+        "info": [{
+          "orgInfo": "CSC represents Finland in the ELIXIR partner nodes"
+        }]
+      },
+      "description": "Beacon API Web Server based on the GA4GH Beacon API",
+      "version": "1.0.0",
+      "welcomeUrl": "https://ega-archive.org/",
+      "alternativeUrl": "https://ega-archive.org/",
+      "createDateTime": "2018-07-25T00:00:00Z",
+      "updateDateTime": "2018-12-01T10:28:07Z",
+      "datasets": [{
+        "id": "urn:hg:1000genome",
+        "name": "1000 genomoe",
+        "externalUrl": "ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/",
+        "description": "Data from 1000 genome project",
+        "assemblyId": "GRCh38",
+        "variantCount": 84360986,
+        "callCount": 79423363,
+        "sampleCount": 2504,
+        "version": "v0.4",
+        "info": [{
+          "accessType": "PUBLIC"
+        }],
+        "createDateTime": "2013-05-02T12:00:00Z",
+        "updateDateTime": "2013-05-02T12:00:00Z"
+      }],
+      "sampleAlleleRequests": [{
+        "alternateBases": "C",
+        "referenceBases": "T",
+        "referenceName": "MT",
+        "start": 10,
+        "assemblyId": "GRCh38",
+        "includeDatasetResponses": "ALL"
+      }, {
+        "alternateBases": "A",
+        "referenceBases": "G",
+        "referenceName": "MT",
+        "start": 7600,
+        "assemblyId": "GRCh38",
+        "datasetIds": ["urn:hg:exampleid-mt"],
+        "includeDatasetResponses": "HIT"
+      }, {
+        "variantType": "SNP",
+        "referenceBases": "T",
+        "referenceName": "Y",
+        "start": 7267244,
+        "assemblyId": "GRCh38"
+      }],
+      "info": [{
+        "key": "value"
+      }]
     }
 
 Query Endpoint
@@ -147,31 +103,31 @@ An example ``GET`` request and response to the ``query`` endpoint:
 .. code-block:: console
 
     $ curl -X GET \
-      'http://localhost:5050/query?referenceName=1&referenceBases=C&start=0&assemblyId=GRCh38&alternateBases=T'
+      'http://localhost:5050/query?referenceName=MT&referenceBases=A&start=14037&assemblyId=GRCh38&alternateBases=G'
 
 Example Response:
 
 .. code-block:: javascript
 
     {
-    "beaconId": "localhost:5050",
-    "apiVersion": "1.0.0",
-    "exists": true,
-    "alleleRequest": {
-        "referenceName": "1",
-        "start": 0,
+      "beaconId": "localhost:5050",
+      "apiVersion": "1.0.0",
+      "exists": true,
+      "alleleRequest": {
+        "referenceName": "MT",
+        "start": 14037,
         "startMin": 0,
         "startMax": 0,
         "end": 0,
         "endMin": 0,
         "endMax": 0,
-        "referenceBases": "C",
+        "referenceBases": "A",
         "assemblyId": "GRCh38",
         "datasetIds": [],
         "includeDatasetResponses": "NONE",
-        "alternateBases": "T"
-    },
-    "datasetAlleleResponses": []
+        "alternateBases": "G"
+      },
+      "datasetAlleleResponses": []
     }
 
 
@@ -181,69 +137,54 @@ An example ``POST`` request and response to the ``query`` endpoint:
 
     $ curl -X POST \
       'http://localhost:5050/query' \
-      -d '{"referenceName": "1", \
-      "start": 3056601, \
+      -d '{"referenceName": "MT", \
+      "start": 14037, \
       "startMax": 0, \
       "end": 0, \
       "endMin": 0, \
       "endMax": 0, \
-      "referenceBases": "C", \
-      "alternateBases": "T", \
+      "referenceBases": "A", \
+      "alternateBases": "G", \
       "assemblyId": "GRCh38", \
-      "includeDatasetResponses": "ALL"}'
+      "includeDatasetResponses": "HIT"}'
 
 Example Response:
 
 .. code-block:: javascript
 
     {
-    "beaconId": "localhost:5050",
-    "apiVersion": "1.0.0",
-    "exists": true,
-    "alleleRequest": {
-        "referenceName": "1",
-        "start": 3056601,
+      "beaconId": "localhost:5050",
+      "apiVersion": "1.0.0",
+      "exists": true,
+      "alleleRequest": {
+        "referenceName": "MT",
+        "start": 14037,
         "startMin": 0,
         "startMax": 0,
         "end": 0,
         "endMin": 0,
         "endMax": 0,
-        "referenceBases": "C",
+        "referenceBases": "A",
         "assemblyId": "GRCh38",
         "datasetIds": [],
-        "includeDatasetResponses": "ALL",
-        "alternateBases": "T"
-    },
-    "datasetAlleleResponses": [
-        {
-            "datasetId": "DATASET2",
-            "externalUrl": "https://datasethost.org/dataset2",
-            "note": "example dataset number 2",
-            "variantCount": 63,
-            "callCount": 5008,
-            "sampleCount": 2504,
-            "exists": true,
-            "frequency": 0.0125799,
-            "info": [
-                {
-                    "accessType": "PUBLIC"
-                }
-            ],
-        },
-        {
-            "datasetId": "DATASET1",
-            "externalUrl": "https://datasethost.org/dataset1",
-            "note": "example dataset number 1",
-            "variantCount": 0,
-            "callCount": 0,
-            "sampleCount": 0,
-            "frequency": 0,
-            "exists": false,
-            "info": [
-                {
-                    "accessType": "PUBLIC"
-                }
-            ],
-        }
-    ]
+        "includeDatasetResponses": "HIT",
+        "alternateBases": "G"
+      },
+      "datasetAlleleResponses": [{
+        "datasetId": "urn:hg:1000genome",
+        "referenceName": "MT",
+        "externalUrl": "ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/",
+        "note": "Data from 1000 genome project",
+        "sampleCount": 2,
+        "callCount": 2534,
+        "exists": true,
+        "referenceBases": "A",
+        "alternateBases": "G",
+        "variantType": "SNP",
+        "frequency": 0.000789266,
+        "variantCount": 1,
+        "info": [{
+          "accessType": "PUBLIC"
+        }]
+      }]
     }
