@@ -10,13 +10,15 @@ class Variant:
     Mock this for Variant caculations.
     """
 
-    def __init__(self, ALT, REF, INFO, call_rate, var_type):
+    def __init__(self, ALT, REF, INFO, call_rate, var_type, num_called):
         """Initialize class."""
         self.INFO = INFO.items()
         self.ALT = ALT
         self.REF = REF
         self.call_rate = call_rate
         self.var_type = var_type
+        self.num_called = num_called
+        self.is_sv = False
 
 
 class Transaction:
@@ -232,12 +234,12 @@ class DatabaseTestCase(asynctest.TestCase):
         """Test database URL fetching."""
         db_mock.return_value = Connection()
         await self._db.connection()
-        variant = Variant('TC', 'T', {'AC': (1, 2), 'VT': 'M,S,I'}, 0.7, 'snp')
+        variant = Variant('TC', 'T', {'AC': (1, 2), 'VT': 'M,S,I', 'AN': 3}, 0.7, 'snp', 3)
         result = self._db._unpack(variant, 1)
-        self.assertEqual(([1.4285714285714286, 2.857142857142857], [1, 2], ['MNP', 'SNP', 'INS']), result)
-        variant = Variant('TC', 'T', {'AC': 1, 'VT': 'S'}, 0.7, 'snp')
+        self.assertEqual(([0.3333333333333333, 0.6666666666666666], [1, 2], ['MNP', 'SNP', 'INS'], 'TC', 3), result)
+        variant = Variant('TC', 'T', {'AC': 1, 'VT': 'S', 'AN': 3}, 0.7, 'snp', 3)
         result = self._db._unpack(variant, 1)
-        self.assertEqual(([1.4285714285714286], [1], ['SNP']), result)
+        self.assertEqual(([0.3333333333333333], [1], ['SNP'], 'TC', 3), result)
 
     @asynctest.mock.patch('beacon_api.utils.db_load.LOG')
     @asynctest.mock.patch('beacon_api.utils.db_load.asyncpg.connect')

@@ -39,8 +39,8 @@ async def test_get_query_1():
             data = await resp.json()
             if 'datasetAlleleResponses' in data and len(data['datasetAlleleResponses']) > 0:
                 assert data['datasetAlleleResponses'][0]['datasetId'] == 'urn:hg:1000genome', 'DatasetID Error'
-                assert data['datasetAlleleResponses'][0]['variantCount'] == 1, 'Variant count Error'
-                assert data['datasetAlleleResponses'][0]['frequency'] == 0.001183899, 'frequency Error'
+                assert data['datasetAlleleResponses'][0]['variantCount'] == 3, 'Variant count Error'
+                assert data['datasetAlleleResponses'][0]['frequency'] == 0.00059195, 'frequency Error'
                 assert data['datasetAlleleResponses'][0]['exists'] is True, 'Inconsistent, exists is False, but all other pass'
             else:
                 sys.exit('Query GET Endpoint Error!')
@@ -57,8 +57,8 @@ async def test_get_query_2():
             data = await resp.json()
             if 'datasetAlleleResponses' in data and len(data['datasetAlleleResponses']) > 0:
                 assert data['datasetAlleleResponses'][0]['datasetId'] == 'urn:hg:1000genome', 'DatasetID Error'
-                assert data['datasetAlleleResponses'][0]['variantCount'] == 1, 'Variant count Error'
-                assert data['datasetAlleleResponses'][0]['frequency'] == 0.001183899, 'frequency Error'
+                assert data['datasetAlleleResponses'][0]['variantCount'] == 3, 'Variant count Error'
+                assert data['datasetAlleleResponses'][0]['frequency'] == 0.00059195, 'frequency Error'
                 assert data['datasetAlleleResponses'][0]['exists'] is True, 'Inconsistent, exists is False, but all other pass'
             else:
                 sys.exit('Query GET Endpoint Error!')
@@ -92,8 +92,8 @@ async def test_get_query_4():
             data = await resp.json()
             if 'datasetAlleleResponses' in data and len(data['datasetAlleleResponses']) > 0:
                 assert data['datasetAlleleResponses'][0]['datasetId'] == 'urn:hg:1000genome', 'DatasetID Error'
-                assert data['datasetAlleleResponses'][0]['variantCount'] == 3, 'Variant count Error'
-                assert data['datasetAlleleResponses'][0]['frequency'] == 0.000394945, 'frequency Error'
+                assert data['datasetAlleleResponses'][0]['variantCount'] == 1, 'Variant count Error'
+                assert data['datasetAlleleResponses'][0]['frequency'] == 0.000197316, 'frequency Error'
                 assert data['datasetAlleleResponses'][0]['exists'] is True, 'Inconsistent, exists is False, but all other pass'
             else:
                 sys.exit('Query GET Endpoint Error!')
@@ -117,8 +117,8 @@ async def test_post_query_1():
             data = await resp.json()
             if 'datasetAlleleResponses' in data and len(data['datasetAlleleResponses']) > 0:
                 assert data['datasetAlleleResponses'][0]['datasetId'] == 'urn:hg:1000genome', 'DatasetID Error'
-                assert data['datasetAlleleResponses'][0]['variantCount'] == 1, 'Variant count Error'
-                assert data['datasetAlleleResponses'][0]['frequency'] == 0.001183899, 'frequency Error'
+                assert data['datasetAlleleResponses'][0]['variantCount'] == 3, 'Variant count Error'
+                assert data['datasetAlleleResponses'][0]['frequency'] == 0.00059195, 'frequency Error'
                 assert data['datasetAlleleResponses'][0]['exists'] is True, 'Inconsistent, exists is False, but all other pass'
             else:
                 sys.exit('Query POST Endpoint Error!')
@@ -142,8 +142,8 @@ async def test_post_query_2():
             data = await resp.json()
             if 'datasetAlleleResponses' in data and len(data['datasetAlleleResponses']) > 0:
                 assert data['datasetAlleleResponses'][0]['datasetId'] == 'urn:hg:1000genome', 'DatasetID Error'
-                assert data['datasetAlleleResponses'][0]['variantCount'] == 1, 'Variant count Error'
-                assert data['datasetAlleleResponses'][0]['frequency'] == 0.001183899, 'frequency Error'
+                assert data['datasetAlleleResponses'][0]['variantCount'] == 3, 'Variant count Error'
+                assert data['datasetAlleleResponses'][0]['frequency'] == 0.00059195, 'frequency Error'
                 assert data['datasetAlleleResponses'][0]['exists'] is True, 'Inconsistent, exists is False, but all other pass'
             else:
                 sys.exit('Query POST Endpoint Error!')

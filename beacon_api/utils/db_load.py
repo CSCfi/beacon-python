@@ -74,33 +74,52 @@ class BeaconDB:
             LOG.debug(f'Other variantType value {variant.var_type.upper()}')
             return variant.var_type.upper()
 
+    def _handle_type(self, value, type):
+        """."""
+        ar = []
+        if isinstance(value, tuple):
+            ar = [type(i) for i in value]
+        elif isinstance(value, type):
+            ar = [type(value)]
+
+        return ar
+
+    def _rchop(self, thestring, ending):
+        """."""
+        if thestring.endswith(ending):
+            return thestring[:-len(ending)]
+        return thestring
+
     def _unpack(self, variant, len_samples):
         """Unpack variant type, allele frequency and count."""
         aaf = []
         ac = []
         vt = []
-        supported_vt = ['snp', 'indel', 'mnp', 'dup', 'inv', 'ins', 'cnv', 'del', 'dup:tandem', 'del:me', 'ins:me']
-        # TO DO we need to grow this list
-        if variant.var_type in supported_vt:
-            for k, v in variant.INFO:
-                if k == 'AC':
-                    if isinstance(v, tuple):
-                        aaf = [float(i) / (variant.call_rate * len_samples) for i in v]
-                        ac = [int(i) for i in v]
-                    elif isinstance(v, int):
-                        aaf = [float(v) / (variant.call_rate * len_samples)]
-                        ac = [int(v)]
-                    else:
-                        LOG.debug(f'Unsupported allele count and frequency value {v}')
-                        pass
-                # TO DO TRANSLATE this to proper Variant type
-                elif k == 'VT':
+        alt = variant.ALT
+        an = variant.num_called*2
+        me_type = ['dup:tandem', 'del:me', 'ins:me']
+        # sv_type = ['dup', 'inv', 'ins', 'del', 'cnv']
+        # supported_vt = ['snp', 'indel', 'mnp', 'dup', 'inv', 'ins', 'del']
+        for k, v in variant.INFO:
+            if k == 'AC':
+                ac = self._handle_type(v, int)
+            if k == 'AF':
+                aaf = self._handle_type(v, float)
+            if k == 'AN':
+                an = v
+                aaf = [float(ac_value) / float(an) for ac_value in ac]
+            else:
+                an = len_samples * 2
+                aaf = [float(ac_value) / float(an) for ac_value in ac]
+            if variant.is_sv:
+                alt = [elem.strip("<>") for elem in variant.ALT]
+                if k == 'SVTYPE':
+                    vt = [self._rchop(e, ":"+v) if e.lower().startswith(tuple(me_type)) else v for e in alt]
+            else:
+                if k == 'VT':
                     vt = [self._transform_vt(var_type.lower(), variant) for var_type in v.split(',')]
-                else:
-                    LOG.debug(f'Unsupported INFO value {k}')
-                    pass
 
-        return (aaf, ac, vt)
+        return (aaf, ac, vt, alt, an)
 
     async def connection(self):
         """Connect to the database."""
@@ -207,19 +226,20 @@ class BeaconDB:
                 LOG.info('Insert variants into the database')
                 for variant in variants:
                     # params = (frequency, count, actual variant Type)
-                    params = self._unpack(variant, len_samples)
-                    await self._conn.execute("""INSERT INTO beacon_data_table
-                                             (datasetId, chromosome, start, reference, alternate,
-                                             "end", aggregatedVariantType, alleleCount, callCount, frequency, variantType)
-                                             SELECT ($1), ($2), ($3), ($4), t.alt, ($6), ($7), t.ac, ($9), t.freq, t.vt
-                                             FROM (SELECT unnest($5::varchar[]) alt, unnest($8::integer[]) ac,
-                                             unnest($10::float[]) freq, unnest($11::varchar[]) as vt) t
-                                             ON CONFLICT (datasetId, chromosome, start, reference, alternate)
-                                             DO NOTHING""",
-                                             dataset_id, variant.CHROM, variant.start + 1, variant.REF,
-                                             variant.ALT, variant.end + 1, variant.var_type.upper(),
-                                             params[1], variant.num_called, params[0], params[2])
-                LOG.info('Variants have been inserted')
+                    if variant.aaf > 0:
+                        params = self._unpack(variant, len_samples)
+                        await self._conn.execute("""INSERT INTO beacon_data_table
+                                                 (datasetId, chromosome, start, reference, alternate,
+                                                 "end", aggregatedVariantType, alleleCount, callCount, frequency, variantType)
+                                                 SELECT ($1), ($2), ($3), ($4), t.alt, ($6), ($7), t.ac, ($9), t.freq, t.vt
+                                                 FROM (SELECT unnest($5::varchar[]) alt, unnest($8::integer[]) ac,
+                                                 unnest($10::float[]) freq, unnest($11::varchar[]) as vt) t
+                                                 ON CONFLICT (datasetId, chromosome, start, reference, alternate)
+                                                 DO NOTHING""",
+                                                 dataset_id, variant.CHROM, variant.start + 1, variant.REF,
+                                                 params[3], variant.end + 1, variant.var_type.upper(),
+                                                 params[1], params[4], params[0], params[2])
+                        LOG.debug('Variants have been inserted')
         except Exception as e:
             LOG.error(f'AN ERROR OCCURRED WHILE ATTEMPTING TO INSERT VARIANTS -> {e}')
 

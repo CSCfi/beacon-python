@@ -17,7 +17,9 @@ class Record:
                  referenceBases=None, alternateBases=None, variantCount=0, variantType=None):
         """Initialise things."""
         self.data = {"accessType": accessType}
-        self.variantCount = variantCount
+        # self.variantCount = variantCount
+        if variantCount:
+            self.data.update({"variantCount": variantCount})
         if referenceBases:
             self.data.update({"referenceBases": referenceBases})
         if alternateBases:
@@ -84,17 +86,17 @@ class TestDataQueryFunctions(asynctest.TestCase):
 
     def test_transform_record(self):
         """Test transform DB record."""
-        response = {"frequency": 0.009112876, "info": [{"accessType": "PUBLIC"}],
+        response = {"frequency": 0.009112876, "info": {"accessType": "PUBLIC"},
                     "referenceBases": "CT", "alternateBases": "AT", "variantCount": 3, "variantType": "MNP"}
         record = Record("PUBLIC", 0.009112875989879, referenceBases="CT", alternateBases="AT", variantCount=3, variantType="MNP")
-        result = transform_record(record, 3)
+        result = transform_record(record)
         self.assertEqual(result, response)
 
     def test_transform_misses(self):
         """Test transform misses record."""
         response = {"referenceBases": '', "alternateBases": '', "variantType": "",
                     "frequency": 0, "callCount": 0, "sampleCount": 0, "variantCount": 0,
-                    "info": [{"accessType": "PUBLIC"}]}
+                    "info": {"accessType": "PUBLIC"}}
         record = Record("PUBLIC")
         result = transform_misses(record)
         print(result)
@@ -103,7 +105,7 @@ class TestDataQueryFunctions(asynctest.TestCase):
     def test_transform_metadata(self):
         """Test transform medata record."""
         response = {"createDateTime": "2018-10-20T20:33:40Z", "updateDateTime": "2018-10-20T20:33:40Z",
-                    "info": [{"accessType": "PUBLIC"}]}
+                    "info": {"accessType": "PUBLIC"}}
         record = Record("PUBLIC", createDateTime=datetime.strptime("2018-10-20 20:33:40+00", '%Y-%m-%d %H:%M:%S+00'),
                         updateDateTime=datetime.strptime("2018-10-20 20:33:40+00", '%Y-%m-%d %H:%M:%S+00'))
         result = transform_metadata(record)
