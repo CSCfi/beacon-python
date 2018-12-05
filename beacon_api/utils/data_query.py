@@ -16,14 +16,14 @@ def sql_tuple(array):
         return "(\'" + array[0] + "\')"
 
 
-def transform_record(record, variantCount):
+# def transform_record(record, variantCount):
+def transform_record(record):
     """Format the record we got from the database to adhere to the response schema."""
     response = dict(record)
     response["referenceBases"] = response.pop("referenceBases")  # NOT part of beacon specification
     response["alternateBases"] = response.pop("alternateBases")  # NOT part of beacon specification
     response["variantType"] = response.pop("variantType")  # NOT part of beacon specification
     response["frequency"] = round(response.pop("frequency"), 9)
-    response["variantCount"] = variantCount
     response["info"] = {"accessType": response.pop("accessType")}
     # Error is not required and should not be shown
     # If error key is set to null it will still not validate as it has a required key errorCode
@@ -154,8 +154,8 @@ async def fetch_filtered_dataset(db_pool, position, chromosome, reference, alter
                 query = f"""SELECT {"DISTINCT ON (a.datasetId)" if misses else ''} a.datasetId as "datasetId", b.accessType as "accessType",
                             a.chromosome as "referenceName", a.reference as "referenceBases", a.alternate as "alternateBases",
                             b.externalUrl as "externalUrl", b.description as "note",
-                            a.alleleCount as "sampleCount", a.variantType as "variantType",
-                            a.callCount as "callCount",
+                            a.alleleCount as "variantCount", a.variantType as "variantType",
+                            a.callCount as "callCount", b.sampleCount as "sampleCount",
                             a.frequency, {"FALSE" if misses else "TRUE"} as "exists"
                             FROM beacon_data_table a, beacon_dataset_table b
                             WHERE a.datasetId=b.datasetId
@@ -169,9 +169,8 @@ async def fetch_filtered_dataset(db_pool, position, chromosome, reference, alter
                 statement = await connection.prepare(query)
                 db_response = await statement.fetch()
                 LOG.info(f"Query for dataset(s): {datasets} that are {access_type} matching conditions.")
-                variantCount = len(db_response)
                 for record in list(db_response):
-                    processed = transform_misses(record) if misses else transform_record(record, variantCount)
+                    processed = transform_misses(record) if misses else transform_record(record)
                     datasets.append(processed)
                 return datasets
             except Exception as e:

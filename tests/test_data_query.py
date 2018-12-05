@@ -17,7 +17,9 @@ class Record:
                  referenceBases=None, alternateBases=None, variantCount=0, variantType=None):
         """Initialise things."""
         self.data = {"accessType": accessType}
-        self.variantCount = variantCount
+        # self.variantCount = variantCount
+        if variantCount:
+            self.data.update({"variantCount": variantCount})
         if referenceBases:
             self.data.update({"referenceBases": referenceBases})
         if alternateBases:
@@ -87,7 +89,7 @@ class TestDataQueryFunctions(asynctest.TestCase):
         response = {"frequency": 0.009112876, "info": {"accessType": "PUBLIC"},
                     "referenceBases": "CT", "alternateBases": "AT", "variantCount": 3, "variantType": "MNP"}
         record = Record("PUBLIC", 0.009112875989879, referenceBases="CT", alternateBases="AT", variantCount=3, variantType="MNP")
-        result = transform_record(record, 3)
+        result = transform_record(record)
         self.assertEqual(result, response)
 
     def test_transform_misses(self):
