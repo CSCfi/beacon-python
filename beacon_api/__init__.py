@@ -28,4 +28,4 @@ __org_address__ = CONFIG_INFO.org_address
 __org_welcomeUrl__ = CONFIG_INFO.org_welcomeUrl
 __org_contactUrl__ = CONFIG_INFO.org_contactUrl
 __org_logoUrl__ = CONFIG_INFO.org_logoUrl
-__org_info__ = [{'orgInfo': CONFIG_INFO.org_info}]
+__org_info__ = {'orgInfo': CONFIG_INFO.org_info}

@@ -24,7 +24,7 @@ def transform_record(record, variantCount):
     response["variantType"] = response.pop("variantType")  # NOT part of beacon specification
     response["frequency"] = round(response.pop("frequency"), 9)
     response["variantCount"] = variantCount
-    response["info"] = [{"accessType": response.pop("accessType")}]
+    response["info"] = {"accessType": response.pop("accessType")}
     # Error is not required and should not be shown
     # If error key is set to null it will still not validate as it has a required key errorCode
     # otherwise schema validation will fail
@@ -43,7 +43,7 @@ def transform_misses(record):
     response["variantCount"] = 0
     response["callCount"] = 0
     response["sampleCount"] = 0
-    response["info"] = [{"accessType": response.pop("accessType")}]
+    response["info"] = {"accessType": response.pop("accessType")}
     # Error is not required and should not be shown
     # If error key is set to null it will still not validate as it has a required key errorCode
     # otherwise schema validation will fail
@@ -55,7 +55,7 @@ def transform_misses(record):
 def transform_metadata(record):
     """Format the metadata record we got from the database to adhere to the response schema."""
     response = dict(record)
-    response["info"] = [{"accessType": response.pop("accessType")}]
+    response["info"] = {"accessType": response.pop("accessType")}
     # TO DO test with null date in Database
     if 'createDateTime' in response and isinstance(response["createDateTime"], datetime):
         response["createDateTime"] = response.pop("createDateTime").strftime('%Y-%m-%dT%H:%M:%SZ')

@@ -58,10 +58,7 @@
           "pattern": "^(.*)$"
         },
         "info": {
-          "type": "array",
-          "items": {	
-            "type": "object"	
-          }
+          "type": "object"
         }
       }
     },
@@ -146,10 +143,7 @@
             "pattern": "^(.*)$"
           },
           "info": {
-            "type": "array",
-            "items": {	
-              "type": "object"	
-            }
+            "type": "object"
           },
           "dataUseConditions": {
             "type": "object",
@@ -831,10 +825,7 @@
       }
     },
     "info": {
-      "type": "array",
-      "items": {	
-        "type": "object"	
-      }
+      "type": "object"
     }
   }
 }
