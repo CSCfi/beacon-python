@@ -79,7 +79,7 @@ class BeaconDB:
         ar = []
         if isinstance(value, tuple):
             ar = [type(i) for i in value]
-        elif isinstance(value, int):
+        elif isinstance(value, type):
             ar = [type(value)]
 
         return ar
@@ -239,7 +239,7 @@ class BeaconDB:
                                                  dataset_id, variant.CHROM, variant.start + 1, variant.REF,
                                                  params[3], variant.end + 1, variant.var_type.upper(),
                                                  params[1], params[4], params[0], params[2])
-                        LOG.info('Variants have been inserted')
+                        LOG.debug('Variants have been inserted')
         except Exception as e:
             LOG.error(f'AN ERROR OCCURRED WHILE ATTEMPTING TO INSERT VARIANTS -> {e}')
 
