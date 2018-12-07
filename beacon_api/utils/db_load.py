@@ -75,7 +75,7 @@ class BeaconDB:
             return variant.var_type.upper()
 
     def _handle_type(self, value, type):
-        """."""
+        """Determine if values are in a tuple and also convert them to specific type."""
         ar = []
         if isinstance(value, tuple):
             ar = [type(i) for i in value]
@@ -85,7 +85,13 @@ class BeaconDB:
         return ar
 
     def _rchop(self, thestring, ending):
-        """."""
+        """Chop SV type if any SV is in the ``me_type`` list.
+
+        If a ``SV=LINE1`` is not supported thus we meed to used the ALT base
+        ``INS:ME:LINE1`` but removing the ``:LINE1`` from the end.
+
+        .. warning:: This data transformation might only be valid for 1000genome.
+        """
         if thestring.endswith(ending):
             return thestring[:-len(ending)]
         return thestring

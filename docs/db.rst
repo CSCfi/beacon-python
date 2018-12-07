@@ -3,7 +3,7 @@
 Database
 ========
 
-We use a PostgreSQL database (version 9.6+) for working beacon data.
+We use a PostgreSQL database (version 9.6+) for working with beacon data.
 For more information on setting up the database consult :ref:`database-setup`.
 
 .. warning:: Database tables are subject to change as we tune the performance.
@@ -12,6 +12,14 @@ For more information on setting up the database consult :ref:`database-setup`.
 
              e.g. for PostgreSQL running on 8GB of RAM setting ``shared_buffers = 2GB``
              ``effective_cache_size = 6GB`` can improve query performance.
+
+.. hint:: Additional indexes can be added to improve query time performance
+
+          .. code-block:: sql
+
+              CREATE INDEX data_needed ON beacon_data_table
+                USING btree(datasetId, chromosome, start, reference, alternate, varianttype,
+                            frequency, "end");
 
 
 We use the DB schema below as a means for providing data contained in ``*.vcf`` file and making

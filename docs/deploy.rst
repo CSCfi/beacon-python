@@ -113,18 +113,18 @@ For use with Kubernetes we provide ``YAML`` configuration.
 .. note:: We use data from: `1000 Genome FTP <ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/>`_.
 
 For use with loading the whole 1000 genome dataset we provide a docker image ``cscfi/beacon-dataloader``
-that downloads the whole 1000 genome ``vcf.gz`` files (>18GB) and a ``YAML`` configuration
-illustrated below.
+that downloads the whole 1000 genome ``vcf.gz`` files (>18GB disk space) and a ``YAML`` configuration
+for Kubernetes illustrated below.
 
 The container uses the same Environment Variables specified at: :ref:`env-setup` and adds two more:
 
-+---------------------+-------------------------------+--------------------------------------------------+
-| ENV                 | Default                       | Description                                      |
-+---------------------+-------------------------------+--------------------------------------------------+
-| `FTP_URL`           | `ftp.1000genomes.ebi.ac.uk`   | The URL for the FTP server.                      |
-+---------------------+-------------------------------+--------------------------------------------------+
-| `FTP_DIR`           | `/vol1/ftp/release/20130502/` | Name of the directory.                           |
-+---------------------+-------------------------------+--------------------------------------------------+
++---------------------+-----------------------------------+--------------------------------------------------+
+| ENV                 | Default                           | Description                                      |
++---------------------+-----------------------------------+--------------------------------------------------+
+| `FTP_URL`           | `ftp://ftp.1000genomes.ebi.ac.uk` | The URL for the FTP server.                      |
++---------------------+-----------------------------------+--------------------------------------------------+
+| `FTP_DIR`           | `/vol1/ftp/release/20130502/`     | Name of the directory.                           |
++---------------------+-----------------------------------+--------------------------------------------------+
 
 .. code-block:: yaml
 

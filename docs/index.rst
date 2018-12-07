@@ -27,7 +27,7 @@ Out of the box the ``beacon-python`` offers:
 * asynchronous server;
 * token validation for ELIXIR AAI, retrieving researcher bona fide status;
 * 1000 genome dataset loader - see :ref:`genome-dataset` instructions;
-* deployment Docker container.
+* deployment `Docker container <https://hub.docker.com/r/cscfi/beacon-python/>`_.
 
 ----
 

@@ -22,7 +22,6 @@ async def beacon_info(host, pool):
     """
     beacon_dataset = await fetch_dataset_metadata(pool)
 
-    # TO DO provide more meaninful example specific to the endpoint data
     sample_allele_request = [{
         "alternateBases": "C",
         "referenceBases": "T",
@@ -61,7 +60,7 @@ async def beacon_info(host, pool):
     }
 
     beacon_info = {
-        # TO DO implement some faillback mechanism for ID
+        # TO DO implement some fallback mechanism for ID
         'id': '.'.join(reversed(host.split('.'))),
         'name': __title__,
         'apiVersion': __apiVersion__,

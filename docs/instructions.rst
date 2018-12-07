@@ -57,7 +57,7 @@ Beacon Information
 ~~~~~~~~~~~~~~~~~~
 
 By default the beacon contains preset information about the beacon service.
-The information can be changed in a configuration file that has the structure specified below, and
+The information can be changed in a configuration file that has the structure specified below, by
 pointing to the location of the file using `CONFIG_FILE` environment variable.
 
 .. code-block:: python

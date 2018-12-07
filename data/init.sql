@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS beacon_data_table (
     alternate VARCHAR(8192),
     "end" INTEGER,
     aggregatedVariantType VARCHAR(16),
-    alleleCount INTEGER, /* This is represented by allele count which is sample count in the API */
+    alleleCount INTEGER,
     callCount INTEGER, /*Number of people tested callRate*sampleCount */
     frequency REAL,
     variantType VARCHAR(16),

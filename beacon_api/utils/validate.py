@@ -81,14 +81,12 @@ def validate(schema):
             try:
                 _, obj = await parse_request_object(request)
             except Exception:
-                # TO DO verify match response as in OpenAPI
                 raise BeaconServerError("Could not properly parse the provided Request Body as JSON.")
             try:
                 # jsonschema.validate(obj, schema)
-                LOG.info('Validate agains JSON schema.')
+                LOG.info('Validate against JSON schema.')
                 DefaultValidatingDraft7Validator(schema).validate(obj)
             except ValidationError as e:
-                # TO DO verify match response as in OpenAPI
                 raise BeaconBadRequest(obj, request.host, e.message)
 
             return await func(*args)

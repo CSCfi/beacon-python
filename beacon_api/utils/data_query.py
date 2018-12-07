@@ -101,7 +101,6 @@ async def fetch_dataset_metadata(db_pool, datasets=None, access_type=None):
                             updateDateTime as "updateDateTime"
                             FROM dataset_metadata WHERE
                             ({datasets_query}) AND ({access_query});"""
-                # TO DO test if use of prepare this gives inconsistent results on database change
                 statement = await connection.prepare(query)
                 db_response = await statement.fetch()
                 metadata = []
@@ -198,7 +197,7 @@ async def find_datasets(db_pool, position, chromosome, reference, alternate, dat
     This also takes into consideration the token value as to establish permissions.
     """
     # TO DO wait for info on the actual permissions
-    # TO DO return forbidden if a specific forbidden dataset is requested
+    # TO DO return forbidden if a specific forbidden dataset is requested ?
     hit_datasets = await fetch_filtered_dataset(db_pool, position, chromosome, reference, alternate,
                                                 dataset_ids, access_type)
     miss_datasets = await fetch_filtered_dataset(db_pool, position, chromosome, reference, alternate,

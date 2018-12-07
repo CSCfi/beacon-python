@@ -1,8 +1,8 @@
 """DB Configuration.
 
-Specify the url and the necessary info for the PostgreSQL server from the environmental variables and packs it into one
+Specify the URL and the necessary info for the PostgreSQL server from the environmental variables and packs it into one
 variable called DB_URL. The variable is then used to configure the application to connect to that database using asyncpg.
-At this point we also initialize a conection pool that the API is going to use throughout its endpoints.
+At this point we also initialize a conection pool that the API is going to use on all its endpoints.
 """
 
 import os
