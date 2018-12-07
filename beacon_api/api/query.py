@@ -1,7 +1,8 @@
 """Query Endpoint.
 
-Querying the infor endpoint reveals information about existing datasets in this beacon
-and their associated metadata.
+The query endpoint provides means of retrieving information about specific
+reference + alternate bases/variant type combination, as well as matching
+start or end position.
 """
 
 from ..utils.logging import LOG
