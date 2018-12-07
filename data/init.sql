@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS beacon_data_table (
     "end" INTEGER,
     aggregatedVariantType VARCHAR(16),
     alleleCount INTEGER,
-    callCount INTEGER, /*Number of people tested callRate*sampleCount */
+    callCount INTEGER,
     frequency REAL,
     variantType VARCHAR(16),
     PRIMARY KEY (index)
