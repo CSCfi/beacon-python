@@ -11,6 +11,7 @@ import os
 from functools import wraps
 from .logging import LOG
 from ..api.exceptions import BeaconUnauthorised, BeaconBadRequest, BeaconForbidden, BeaconServerError
+from ..conf import OAUTH2_CONFIG
 # Draft7Validator should be kept an eye on as this might change
 from jsonschema import Draft7Validator, validators
 from jsonschema.exceptions import ValidationError
@@ -116,13 +117,13 @@ def base64_to_long(data):
 
 
 async def get_key():
-    """Get Elixir public key and transform it to usable pem key."""
+    """Get OAuth2 public key and transform it to usable pem key."""
     existing_key = os.environ.get('PUBLIC_KEY', None)
     if existing_key is not None:
         return existing_key
     try:
         async with aiohttp.ClientSession() as session:
-            async with session.get("https://login.elixir-czech.org/oidc/jwk") as r:
+            async with session.get(OAUTH2_CONFIG.server) as r:
                 jwk = await r.json()
                 exponent = base64_to_long(jwk['keys'][0]['e'])
                 modulus = base64_to_long(jwk['keys'][0]['n'])
@@ -133,14 +134,14 @@ async def get_key():
                 LOG.info('Got the public key for validating the token.')
                 return pem.decode('utf-8')
     except Exception:
-        raise BeaconServerError("Could not retrieve ELIXIR AAI public key.")
+        raise BeaconServerError("Could not retrieve OAuth2 public key.")
 
 
 def token_auth():
     """Check if token if valid and authenticate.
 
     Decided against: https://github.com/hzlmn/aiohttp-jwt, as we need to verify
-    ELIXIR AAI issuer and bona_fide_status.
+    token issuer and bona_fide_status.
     """
     @web.middleware
     async def token_middleware(request, handler):
@@ -168,9 +169,11 @@ def token_auth():
                     _, obj = await parse_request_object(request)
                     raise BeaconUnauthorised(obj, request.host, f'Invalid authorization token: {e}')
 
-                # Validate the issuer is Elixir AAI, for now
-                if decodedData['iss'] in ["https://login.elixir-czech.org/oidc/"] and decodedData['sub'].endswith("@elixir-europe.org"):
-                    LOG.info('Identified as ELIXIR AAI user.')
+                # Validate the issuer from list of authenticated issuers
+                issuers = OAUTH2_CONFIG.issuers.split(',')
+                affiliations = tuple(OAUTH2_CONFIG.affiliations.split(','))
+                if decodedData['iss'] in issuers and decodedData['sub'].endswith(affiliations):
+                    LOG.info(f'Identified as {decodedData["sub"][1]} user by {decodedData["iss"]}.')
                     # for now the permissions just reflect that the data can be decoded from token
                     # the bona fide status for now is set to True
                     # permissions key will hold the actual permissions found in the token e.g. REMS permissions
@@ -180,7 +183,7 @@ def token_auth():
                     return await handler(request)
                 else:
                     _, obj = await parse_request_object(request)
-                    raise BeaconForbidden(obj, request.host, 'Token is not validated by an ELIXIR AAI authorized issuer.')
+                    raise BeaconForbidden(obj, request.host, 'Token is not validated by an authorized issuer.')
         else:
             request["token"] = {"bona_fide_status": False,
                                 "permissions": None}
