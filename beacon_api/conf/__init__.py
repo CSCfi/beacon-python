@@ -35,6 +35,7 @@ def parse_config_file(path):
 
 CONFIG_INFO = parse_config_file(os.environ.get('CONFIG_FILE', os.path.join(os.path.dirname(__file__), 'config.ini')))
 
+
 def parse_oauth2_config_file(path):
     """Parse configuration file."""
     config = ConfigParser()
