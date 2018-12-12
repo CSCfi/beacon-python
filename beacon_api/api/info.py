@@ -26,14 +26,14 @@ async def beacon_info(host, pool):
         "alternateBases": "C",
         "referenceBases": "T",
         "referenceName": "MT",
-        "start": 10,
+        "start": 9,
         "assemblyId": "GRCh38",
         "includeDatasetResponses": "ALL"
     }, {
         "alternateBases": "A",
         "referenceBases": "G",
         "referenceName": "MT",
-        "start": 7600,
+        "start": 7599,
         "assemblyId": "GRCh38",
         "datasetIds": [
             "urn:hg:1000genome"
@@ -43,7 +43,7 @@ async def beacon_info(host, pool):
         "variantType": "SNP",
         "referenceBases": "T",
         "referenceName": "Y",
-        "start": 7267244,
+        "start": 7267243,
         "assemblyId": "GRCh38"
     }
     ]

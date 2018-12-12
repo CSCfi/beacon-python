@@ -32,7 +32,7 @@ async def test_get_query_1():
     """Test query GET endpoint."""
     LOG.debug('[2/8] Test get query')
     params = {'assemblyId': 'GRCh38', 'referenceName': 'MT',
-              'start': 10, 'referenceBases': 'T', 'alternateBases': 'C',
+              'start': 9, 'referenceBases': 'T', 'alternateBases': 'C',
               'includeDatasetResponses': 'HIT'}
     async with aiohttp.ClientSession() as session:
         async with session.get('http://localhost:5050/query', params=params) as resp:
@@ -50,7 +50,7 @@ async def test_get_query_2():
     """Test query GET endpoint."""
     LOG.debug('[3/8] Test get query')
     params = {'assemblyId': 'GRCh38', 'referenceName': 'MT',
-              'start': 10, 'referenceBases': 'T', 'variantType': 'SNP',
+              'start': 9, 'referenceBases': 'T', 'variantType': 'SNP',
               'includeDatasetResponses': 'HIT'}
     async with aiohttp.ClientSession() as session:
         async with session.get('http://localhost:5050/query', params=params) as resp:
@@ -68,7 +68,7 @@ async def test_get_query_3():
     """Test query GET endpoint."""
     LOG.debug('[4/8] Test get query')
     params = {'assemblyId': 'GRCh38',
-              'start': 10, 'referenceBases': 'T', 'alternateBases': 'C',
+              'start': 9, 'referenceBases': 'T', 'alternateBases': 'C',
               'includeDatasetResponses': 'HIT'}
     async with aiohttp.ClientSession() as session:
         async with session.get('http://localhost:5050/query', params=params) as resp:
@@ -85,7 +85,7 @@ async def test_get_query_4():
     """Test query GET endpoint."""
     LOG.debug('[5/8] Test get query')
     params = {'assemblyId': 'GRCh38', 'referenceName': 'MT',
-              'start': 64, 'referenceBases': 'CT', 'alternateBases': 'NN',
+              'start': 63, 'referenceBases': 'CT', 'alternateBases': 'NN',
               'includeDatasetResponses': 'HIT'}
     async with aiohttp.ClientSession() as session:
         async with session.get('http://localhost:5050/query', params=params) as resp:
@@ -103,7 +103,7 @@ async def test_post_query_1():
     """Test query POST endpoint."""
     LOG.debug('[6/8] Test post query')
     payload = {"referenceName": "MT",
-               "start": 10,
+               "start": 9,
                "startMax": 0,
                "end": 0,
                "endMin": 0,
@@ -128,7 +128,7 @@ async def test_post_query_2():
     """Test query POST endpoint."""
     LOG.debug('[7/8] Test post query')
     payload = {"referenceName": "MT",
-               "start": 10,
+               "start": 9,
                "startMax": 0,
                "end": 0,
                "endMin": 0,
@@ -152,7 +152,7 @@ async def test_post_query_2():
 async def test_post_query_3():
     """Test query POST endpoint."""
     LOG.debug('[8/8] Test post query')
-    payload = {"start": 10,
+    payload = {"start": 9,
                "startMax": 0,
                "end": 0,
                "endMin": 0,
