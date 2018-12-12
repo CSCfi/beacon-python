@@ -99,7 +99,6 @@ class TestDataQueryFunctions(asynctest.TestCase):
                     "info": {"accessType": "PUBLIC"}}
         record = Record("PUBLIC")
         result = transform_misses(record)
-        print(result)
         self.assertEqual(result, response)
 
     def test_transform_metadata(self):
@@ -109,7 +108,6 @@ class TestDataQueryFunctions(asynctest.TestCase):
         record = Record("PUBLIC", createDateTime=datetime.strptime("2018-10-20 20:33:40+00", '%Y-%m-%d %H:%M:%S+00'),
                         updateDateTime=datetime.strptime("2018-10-20 20:33:40+00", '%Y-%m-%d %H:%M:%S+00'))
         result = transform_metadata(record)
-        print(result)
         self.assertEqual(result, response)
 
     @asynctest.mock.patch('beacon_api.utils.data_query.fetch_filtered_dataset')
@@ -127,7 +125,6 @@ class TestDataQueryFunctions(asynctest.TestCase):
     #     pool.acquire.return_value = Connection()
     #     # pool.connection.prepare.return_value = asynctest.CoroutineMock()
     #     result = await fetch_dataset_metadata(pool)
-    #     print(result)
     #     self.assertTrue(False)
 
     def test_handle_wildcard(self):

@@ -129,6 +129,14 @@ To run the application from command line use:
 
     $ beacon
 
+By default the application will run a simple aiohttp web server, and best solution in most cases.
+For other options see ` aiohttp Server Deployment<https://aiohttp.readthedocs.io/en/stable/deployment.html>`_
+we recommend ``gunicorn``.
+
+.. code-block:: console
+
+    $ gunicorn beacon_api.app:init --bind $THE_HOST:$THE_PORT --worker-class aiohttp.GunicornUVLoopWebWorker --workers 4
+
 .. _database-setup:
 
 Database Setup
