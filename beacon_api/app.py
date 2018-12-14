@@ -18,6 +18,7 @@ import uvloop
 import asyncio
 
 routes = web.RouteTableDef()
+asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -92,7 +93,7 @@ def set_cors(server):
         cors.add(route)
 
 
-def init():
+async def init():
     """Initialise server."""
     beacon = web.Application(middlewares=[token_auth()])
     beacon.router.add_routes(routes)
@@ -117,5 +118,4 @@ def main():
 
 if __name__ == '__main__':
     assert sys.version_info >= (3, 6), "beacon-python requires python3.6"
-    asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
     main()

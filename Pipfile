@@ -1,0 +1,18 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[dev-packages]
+
+[packages]
+aiohttp = "*"
+asyncpg = "*"
+cryptography = "*"
+jsonschema = "==3.0.0a3"
+"cyvcf2" = "*"
+PyJWT = "*"
+Cython = "*"
+
+[requires]
+python_version = "3.6"
