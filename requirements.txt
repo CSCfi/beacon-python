@@ -11,3 +11,4 @@ uvloop
 aiocache
 ujson
 aiomcache
+gunicorn
