@@ -171,6 +171,7 @@ For loading example database we provide the ``beacon_init`` utility:
       metadata    .json file containing metadata associated to datafile
 
     optional arguments:
+      --samples   comma separated string of samples to process
       -h, --help  show this help message and exit
 
 Dataset metadata format is as follows:
@@ -195,6 +196,12 @@ For loading data into the database we can proceed as follows:
 .. code-block:: console
 
     $ beacon_init data/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz data/example_metadata.json
+
+For loading data into the database from selected samples only we can proceed as follows:
+
+.. code-block:: console
+
+    $ beacon_init data/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz data/example_metadata.json --samples HG0001,HG0002,HG0003
 
 .. note:: One dataset can have multiple files, in order to add more files to one dataset, repeat the command above.
 
