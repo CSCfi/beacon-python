@@ -270,8 +270,9 @@ async def init_beacon_db(arguments=None):
 
     # Connect to the database
     await db.connection()
-    # LOG.info(args.datafile)
-    vcf = VCF(args.datafile)
+
+    # Get sample list if it's set
+    vcf = VCF(args.datafile, samples=args.samples.split(',') if args.samples else None)
 
     # Check that desired tables exist (missing tables are returned)
     tables = await db.check_tables(['beacon_dataset_table', 'beacon_data_table'])
@@ -299,6 +300,8 @@ def parse_arguments(arguments):
                         help='.vcf file containing variant information')
     parser.add_argument('metadata',
                         help='.json file containing metadata associated to datafile')
+    parser.add_argument('--samples', default=None,
+                        help='comma separated string of samples to process')
     return parser.parse_args(arguments)
 
 
