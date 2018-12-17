@@ -72,7 +72,7 @@ class TestBasicFunctions(asynctest.TestCase):
     @asynctest.mock.patch('beacon_api.utils.db_load.BeaconDB')
     @asynctest.mock.patch('beacon_api.utils.db_load.VCF')
     async def test_init_beacon_db(self, mock_vcf, db_mock, mock_log):
-        """Test beacon_init call."""
+        """Test beacon_init db call."""
         db_mock.return_value = MockBeaconDB()
         metadata = """{"name": "DATASET1",
                     "description": "example dataset number 1",

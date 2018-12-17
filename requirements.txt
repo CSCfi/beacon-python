@@ -10,3 +10,4 @@ aiocache
 ujson
 aiomcache
 python-jose[cryptography]
+gunicorn

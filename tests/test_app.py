@@ -57,7 +57,7 @@ class AppTestCase(AioHTTPTestCase):
         self.env = EnvironmentVarGuard()
         self.env.set('PUBLIC_KEY', json.dumps(public_key))
         self.env.set('TOKEN', token)
-        return init()
+        return await init()
 
     @unittest_run_loop
     async def tearDown(self):
@@ -146,8 +146,6 @@ class AppTestCase(AioHTTPTestCase):
         params = '?assemblyId=GRCh38&referenceName=1&start=10000&referenceBases=A&alternateBases=T'
         with asynctest.mock.patch('beacon_api.app.initialize', side_effect=create_db_mock):
             resp = await self.client.request("GET", f"/query{params}")
-        print(resp.text)
-        print(dir(resp))
         assert 200 == resp.status
 
     @asynctest.mock.patch('beacon_api.app.parse_request_object', side_effect=mock_parse_request_object)
@@ -172,7 +170,7 @@ class AppTestCaseForbidden(AioHTTPTestCase):
         self.env = EnvironmentVarGuard()
         self.env.set('PUBLIC_KEY', json.dumps(public_key))
         self.env.set('TOKEN', token)
-        return init()
+        return await init()
 
     @unittest_run_loop
     async def tearDown(self):
@@ -213,9 +211,9 @@ class TestBasicFunctionsApp(asynctest.TestCase):
         main()
         mock_webapp.run_app.assert_called()
 
-    def test_init(self):
+    async def test_init(self):
         """Test init type."""
-        server = init()
+        server = await init()
         self.assertIs(type(server), web.Application)
 
     @asynctest.mock.patch('beacon_api.app.set_cors')

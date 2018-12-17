@@ -234,6 +234,7 @@ class BeaconDB:
                     # params = (frequency, count, actual variant Type)
                     if variant.aaf > 0:
                         params = self._unpack(variant, len_samples)
+                        # Coordinates that are read from VCF are 1-based, cyvcf2 reads them as 0-based, and they are inserted into the DB as such
                         await self._conn.execute("""INSERT INTO beacon_data_table
                                                  (datasetId, chromosome, start, reference, alternate,
                                                  "end", aggregatedVariantType, alleleCount, callCount, frequency, variantType)
@@ -242,8 +243,8 @@ class BeaconDB:
                                                  unnest($10::float[]) freq, unnest($11::varchar[]) as vt) t
                                                  ON CONFLICT (datasetId, chromosome, start, reference, alternate)
                                                  DO NOTHING""",
-                                                 dataset_id, variant.CHROM, variant.start + 1, variant.REF,
-                                                 params[3], variant.end + 1, variant.var_type.upper(),
+                                                 dataset_id, variant.CHROM, variant.start, variant.REF,
+                                                 params[3], variant.end, variant.var_type.upper(),
                                                  params[1], params[4], params[0], params[2])
                         LOG.debug('Variants have been inserted')
         except Exception as e:
@@ -269,8 +270,9 @@ async def init_beacon_db(arguments=None):
 
     # Connect to the database
     await db.connection()
-    # LOG.info(args.datafile)
-    vcf = VCF(args.datafile)
+
+    # Get sample list if it's set
+    vcf = VCF(args.datafile, samples=args.samples.split(',') if args.samples else None)
 
     # Check that desired tables exist (missing tables are returned)
     tables = await db.check_tables(['beacon_dataset_table', 'beacon_data_table'])
@@ -298,6 +300,8 @@ def parse_arguments(arguments):
                         help='.vcf file containing variant information')
     parser.add_argument('metadata',
                         help='.json file containing metadata associated to datafile')
+    parser.add_argument('--samples', default=None,
+                        help='comma separated string of samples to process')
     return parser.parse_args(arguments)
 
 
