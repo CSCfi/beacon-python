@@ -6,12 +6,10 @@ from unittest import mock
 import asyncpg
 import asynctest
 import json
-import jwt
+from jose import jwt
 import os
-from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives.asymmetric import rsa
-from cryptography.hazmat.primitives import serialization
 from test.support import EnvironmentVarGuard
+from aiocache import caches
 
 
 PARAMS = {'assemblyId': 'GRCh38',
@@ -23,18 +21,16 @@ PARAMS = {'assemblyId': 'GRCh38',
 
 def generate_token(issuer):
     """Mock ELIXIR AAI token."""
-    private_key = rsa.generate_private_key(public_exponent=65537,
-                                           key_size=2048, backend=default_backend())
-    pem = private_key.private_bytes(encoding=serialization.Encoding.PEM,
-                                    format=serialization.PrivateFormat.PKCS8,
-                                    encryption_algorithm=serialization.NoEncryption())
+    pem = {"kty": "oct",
+           "kid": "018c0ae5-4d9b-471b-bfd6-eef314bc7037",
+           "use": "sig",
+           "alg": "HS256",
+           "k": "hJtXIZ2uSN5kbQfbtTNWbpdmhkV8FJG-Onbc6mxCcYg"
+           }
     token = jwt.encode({'iss': issuer, 'sub': 'smth@elixir-europe.org'},
-                       pem, algorithm='RS256')
+                       pem)
 
-    public_key = private_key.public_key()
-    pem_pub = public_key.public_bytes(encoding=serialization.Encoding.PEM,
-                                      format=serialization.PublicFormat.SubjectPublicKeyInfo)
-    return token, pem_pub
+    return token, pem
 
 
 async def create_db_mock(app):
@@ -59,14 +55,16 @@ class AppTestCase(AioHTTPTestCase):
         """Retrieve web Application for test."""
         token, public_key = generate_token('https://login.elixir-czech.org/oidc/')
         self.env = EnvironmentVarGuard()
-        self.env.set('PUBLIC_KEY', str(public_key.decode('utf-8')))
-        self.env.set('TOKEN', token.decode('utf-8'))
+        self.env.set('PUBLIC_KEY', json.dumps(public_key))
+        self.env.set('TOKEN', token)
         return init()
 
-    def tearDown(self):
+    @unittest_run_loop
+    async def tearDown(self):
         """Finish up tests."""
         self.env.unset('PUBLIC_KEY')
         self.env.unset('TOKEN')
+        await caches.get('default').delete("jwk_key")
 
     @unittest_run_loop
     async def test_info(self):
@@ -172,14 +170,16 @@ class AppTestCaseForbidden(AioHTTPTestCase):
         """Retrieve web Application for test."""
         token, public_key = generate_token('something')
         self.env = EnvironmentVarGuard()
-        self.env.set('PUBLIC_KEY', str(public_key.decode('utf-8')))
-        self.env.set('TOKEN', token.decode('utf-8'))
+        self.env.set('PUBLIC_KEY', json.dumps(public_key))
+        self.env.set('TOKEN', token)
         return init()
 
-    def tearDown(self):
+    @unittest_run_loop
+    async def tearDown(self):
         """Finish up tests."""
         self.env.unset('PUBLIC_KEY')
         self.env.unset('TOKEN')
+        await caches.get('default').delete("jwk_key")
 
     @asynctest.mock.patch('beacon_api.app.parse_request_object', side_effect=mock_parse_request_object)
     @asynctest.mock.patch('beacon_api.app.query_request_handler', side_effect=json.dumps(PARAMS))

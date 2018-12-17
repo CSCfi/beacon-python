@@ -1,23 +1,21 @@
 """JSON Request/Response Validation and Token authentication."""
 
 from aiohttp import web
-import jwt
+from jose import jwt
+from jose.exceptions import JWTError, ExpiredSignatureError, JWTClaimsError
 import json
 import re
 import aiohttp
-import base64
-import struct
 import os
 from functools import wraps
 from .logging import LOG
+from aiocache import cached
+from aiocache.serializers import JsonSerializer
 from ..api.exceptions import BeaconUnauthorised, BeaconBadRequest, BeaconForbidden, BeaconServerError
 from ..conf import OAUTH2_CONFIG
 # Draft7Validator should be kept an eye on as this might change
 from jsonschema import Draft7Validator, validators
 from jsonschema.exceptions import ValidationError
-from cryptography.hazmat.primitives.asymmetric.rsa import RSAPublicNumbers
-from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives import serialization
 
 
 async def parse_request_object(request):
@@ -100,7 +98,7 @@ async def check_bona_fide_status(token):
     headers = {"Authorization": f"Bearer {token}"}
     try:
         async with aiohttp.ClientSession(headers=headers) as session:
-            async with session.get("https://login.elixir-czech.org/oidc/userinfo") as r:
+            async with session.get(OAUTH2_CONFIG.bona_fide) as r:
                 json_body = await r.json()
                 LOG.info('Retrieve a user\'s bona_fide_status.')
                 return json_body.get("bona_fide_status", None)
@@ -108,14 +106,8 @@ async def check_bona_fide_status(token):
         raise BeaconServerError("Could not retrieve ELIXIR AAI bona fide status.")
 
 
-def base64_to_long(data):
-    """Convert JSON Web Key to armored key."""
-    _decoded = base64.urlsafe_b64decode(bytes(data.encode("ascii")) + b'==')
-    unpacked = struct.unpack('%sB' % len(_decoded), _decoded)
-    converted = int(''.join(["%02x" % byte for byte in unpacked]), 16)
-    return converted
-
-
+# This can be something that lives longer as it is unlikely to change
+@cached(ttl=3600, key="jwk_key", serializer=JsonSerializer())
 async def get_key():
     """Get OAuth2 public key and transform it to usable pem key."""
     existing_key = os.environ.get('PUBLIC_KEY', None)
@@ -124,15 +116,8 @@ async def get_key():
     try:
         async with aiohttp.ClientSession() as session:
             async with session.get(OAUTH2_CONFIG.server) as r:
-                jwk = await r.json()
-                exponent = base64_to_long(jwk['keys'][0]['e'])
-                modulus = base64_to_long(jwk['keys'][0]['n'])
-                numbers = RSAPublicNumbers(exponent, modulus)
-                public_key = numbers.public_key(backend=default_backend())
-                pem = public_key.public_bytes(encoding=serialization.Encoding.PEM,
-                                              format=serialization.PublicFormat.SubjectPublicKeyInfo)
-                LOG.info('Got the public key for validating the token.')
-                return pem.decode('utf-8')
+                # This can be a single key or a set of JWK
+                return await r.json()
     except Exception:
         raise BeaconServerError("Could not retrieve OAuth2 public key.")
 
@@ -159,31 +144,29 @@ def token_auth():
                 _, obj = await parse_request_object(request)
                 raise BeaconUnauthorised(obj, request.host, 'Invalid token scheme.')
 
-            if token is not None:
-                key = await get_key()
-                try:
-                    # checked against the JSON Web Key
-                    decodedData = jwt.decode(token, key, algorithms=['RS256'])
-                    LOG.info('Auth Token Decoded.')
-                except jwt.InvalidTokenError as e:
-                    _, obj = await parse_request_object(request)
-                    raise BeaconUnauthorised(obj, request.host, f'Invalid authorization token: {e}')
+            assert token is not None, BeaconUnauthorised(obj, request.host, f'Token cannot be empty.')
+            key = await get_key()
+            issuers = OAUTH2_CONFIG.issuers.split(',')
+            try:
+                decodedData = jwt.decode(token, key, issuer=issuers)
+                LOG.info('Auth Token Decoded.')
+                LOG.info(f'Identified as {decodedData["sub"]} user by {decodedData["iss"]}.')
+                # for now the permissions just reflect that the data can be decoded from token
+                # the bona fide status for now is set to True
+                # permissions key will hold the actual permissions found in the token e.g. REMS permissions
 
-                # Validate the issuer from list of authenticated issuers
-                issuers = OAUTH2_CONFIG.issuers.split(',')
-                affiliations = tuple(OAUTH2_CONFIG.affiliations.split(','))
-                if decodedData['iss'] in issuers and decodedData['sub'].endswith(affiliations):
-                    LOG.info(f'Identified as {decodedData["sub"][1]} user by {decodedData["iss"]}.')
-                    # for now the permissions just reflect that the data can be decoded from token
-                    # the bona fide status for now is set to True
-                    # permissions key will hold the actual permissions found in the token e.g. REMS permissions
-
-                    request["token"] = {"bona_fide_status": True if await check_bona_fide_status(token) else False,
-                                        "permissions": None}
-                    return await handler(request)
-                else:
-                    _, obj = await parse_request_object(request)
-                    raise BeaconForbidden(obj, request.host, 'Token is not validated by an authorized issuer.')
+                request["token"] = {"bona_fide_status": True if await check_bona_fide_status(token) else False,
+                                    "permissions": None}
+                return await handler(request)
+            except ExpiredSignatureError as e:
+                _, obj = await parse_request_object(request)
+                raise BeaconForbidden(obj, request.host, f'Expired signature: {e}')
+            except JWTClaimsError as e:
+                _, obj = await parse_request_object(request)
+                raise BeaconForbidden(obj, request.host, f'Token info not corresponding with claim: {e}')
+            except JWTError as e:
+                _, obj = await parse_request_object(request)
+                raise BeaconUnauthorised(obj, request.host, f'Invalid authorization token: {e}')
         else:
             request["token"] = {"bona_fide_status": False,
                                 "permissions": None}

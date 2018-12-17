@@ -122,14 +122,13 @@ The configuration variables reside in the same `CONFIG_FILE` as described above 
     server=https://login.elixir-czech.org/oidc/jwk
     # Authenticated Bearer token issuers, separated by commas if multiple
     issuers=https://login.elixir-czech.org/oidc/
-    # Authenticated affiliations, separated by commas if multiple
-    affiliations=@elixir-europe.org
+    # Where to check the bona_fide_status (ELIXIR specific, for now)
+    bona_fide=https://login.elixir-czech.org/oidc/userinfo
 
 ``server`` should point to an API that returns a public key which can be used to validate the received Bearer token.
-``issuers`` is a string of comma separated values, e.g. `one,two,three` without spaces. The issuers string contains 
+``issuers`` is a string of comma separated values, e.g. `one,two,three` without spaces. The issuers string contains
 a list of entities that are viewed as trusted organisations.
-``affiliations`` is a string of comma separated values, e.g. `one,two,three` without spaces. The affiliations string contains 
-a list of eppn-style affiliations, which tell the user's host organisation.
+``bona_fide`` should point to an API that returns the bona_fide_status for now ELIXIR specific.
 
 
 .. _app-setup:

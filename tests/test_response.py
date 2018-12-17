@@ -7,9 +7,8 @@ import jsonschema
 import json
 import aiohttp
 from aioresponses import aioresponses
-from cryptography.hazmat.primitives.serialization import load_pem_public_key
-from cryptography.hazmat.primitives.asymmetric import rsa
-from cryptography.hazmat.backends import default_backend
+from aiocache import caches
+# from jose import jwk
 
 mock_dataset_metadata = {"id": "id1",
                          "name": "name",
@@ -100,6 +99,7 @@ class TestBasicFunctions(asynctest.TestCase):
     @aioresponses()
     async def test_get_key(self, m):
         """Test retrieve get_key."""
+        await caches.get('default').delete("jwk_key")
         data = {
             "keys": [
                 {
@@ -107,19 +107,19 @@ class TestBasicFunctions(asynctest.TestCase):
                     "kty": "RSA",
                     "use": "sig",
                     "n": "yeNlzlub94YgerT030codqEztjfU_S6X4DbDA_iVKkjAWtYfPHDzz_sPCT1Axz6isZdf3lHpq_gYX4Sz-cbe4rjmigxUxr-FgKHQy3HeCdK6hNq9ASQvMK9LBOpXDNn\
-                    7mei6RZWom4wo3CMvvsY1w8tjtfLb-yQwJPltHxShZq5-ihC9irpLI9xEBTgG12q5lGIFPhTl_7inA1PFK97LuSLnTJzW0bj096v_TMDg7pOWm_zHtF53qbVsI0e3v5nmdKXdF\
-                    f9BjIARRfVrbxVxiZHjU6zL6jY5QJdh1QCmENoejj_ytspMmGW7yMRxzUqgxcAqOBpVm0b-_mW3HoBdjQ",
+7mei6RZWom4wo3CMvvsY1w8tjtfLb-yQwJPltHxShZq5-ihC9irpLI9xEBTgG12q5lGIFPhTl_7inA1PFK97LuSLnTJzW0bj096v_TMDg7pOWm_zHtF53qbVsI0e3v5nmdKXdF\
+f9BjIARRfVrbxVxiZHjU6zL6jY5QJdh1QCmENoejj_ytspMmGW7yMRxzUqgxcAqOBpVm0b-_mW3HoBdjQ",
                     "e": "AQAB"
                 }
             ]}
         m.get("https://login.elixir-czech.org/oidc/jwk", payload=data)
         result = await get_key()
-        key = load_pem_public_key(result.encode('utf-8'), backend=default_backend())
-        self.assertTrue(isinstance(key, rsa.RSAPublicKey))
+        # key = load_pem_public_key(result.encode('utf-8'), backend=default_backend())
+        self.assertTrue(isinstance(result, dict))
+        self.assertTrue(result["keys"][0]['alg'], 'RSA256')
 
-    @aioresponses()
-    async def test_bad_get_key(self, m):
+    @asynctest.mock.patch('beacon_api.utils.validate.OAUTH2_CONFIG', return_value={'server': None})
+    async def test_bad_get_key(self, oauth_none):
         """Test bad test_get_key."""
-        m.get("https://login.elixir-czech.org/oidc/jwk", status=400)
         with self.assertRaises(aiohttp.web_exceptions.HTTPInternalServerError):
             await get_key()
