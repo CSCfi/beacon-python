@@ -25,7 +25,7 @@ Out of the box the ``beacon-python`` offers:
 * adhere to Beacon API 1.0.0+ specification;
 * processing and loading VCF files based on `cyvcf2 <http://brentp.github.io/cyvcf2/>`_ ;
 * asynchronous server;
-* token validation for ELIXIR AAI, retrieving researcher bona fide status;
+* OAuth2 JWT token validation, by default for ELIXIR AAI, with retrieving researcher bona fide status, but can be extended;
 * 1000 genome dataset loader - see :ref:`genome-dataset` instructions;
 * deployment `Docker container <https://hub.docker.com/r/cscfi/beacon-python/>`_.
 
