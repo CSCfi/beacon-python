@@ -28,9 +28,24 @@ def parse_config_file(path):
         'org_welcomeUrl': config.get('organisation_info', 'org_welcomeUrl'),
         'org_contactUrl': config.get('organisation_info', 'org_contactUrl'),
         'org_logoUrl': config.get('organisation_info', 'org_logoUrl'),
-        'org_info': config.get('organisation_info', 'org_info'),
+        'org_info': config.get('organisation_info', 'org_info')
     }
     return namedtuple("Config", config_vars.keys())(*config_vars.values())
 
 
 CONFIG_INFO = parse_config_file(os.environ.get('CONFIG_FILE', os.path.join(os.path.dirname(__file__), 'config.ini')))
+
+
+def parse_oauth2_config_file(path):
+    """Parse configuration file."""
+    config = ConfigParser()
+    config.read(path)
+    config_vars = {
+        'server': config.get('oauth2', 'server'),
+        'issuers': config.get('oauth2', 'issuers'),
+        'bona_fide': config.get('oauth2', 'bona_fide')
+    }
+    return namedtuple("Config", config_vars.keys())(*config_vars.values())
+
+
+OAUTH2_CONFIG = parse_oauth2_config_file(os.environ.get('CONFIG_FILE', os.path.join(os.path.dirname(__file__), 'config.ini')))

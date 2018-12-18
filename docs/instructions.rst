@@ -107,6 +107,30 @@ pointing to the location of the file using `CONFIG_FILE` environment variable.
     org_info=CSC represents Finland in the ELIXIR partner nodes
 
 
+.. _oauth2:
+
+OAuth2 Configuration
+~~~~~~~~~~~~~~~~~~~~
+
+Beacon utilises OAuth2 (JWT) Bearer tokens to authenticate users when they are accessing registered datasets.
+The configuration variables reside in the same `CONFIG_FILE` as described above in the ``oauth2`` section.
+
+.. code-block:: python
+
+    [oauth2]
+    # OAuth2 server that returns public key for JWT Bearer token validation
+    server=https://login.elixir-czech.org/oidc/jwk
+    # Authenticated Bearer token issuers, separated by commas if multiple
+    issuers=https://login.elixir-czech.org/oidc/
+    # Where to check the bona_fide_status (ELIXIR specific, for now)
+    bona_fide=https://login.elixir-czech.org/oidc/userinfo
+
+``server`` should point to an API that returns a public key which can be used to validate the received Bearer token.
+``issuers`` is a string of comma separated values, e.g. `one,two,three` without spaces. The issuers string contains
+a list of entities that are viewed as trusted organisations.
+``bona_fide`` should point to an API that returns the bona_fide_status for now ELIXIR specific.
+
+
 .. _app-setup:
 
 beacon-python Setup

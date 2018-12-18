@@ -1,8 +1,6 @@
 aiohttp
 aiohttp_cors
 asyncpg
-pyjwt
-cryptography
 jsonschema==3.0.0a3
 Cython
 cyvcf2
@@ -11,4 +9,5 @@ uvloop
 aiocache
 ujson
 aiomcache
+python-jose[cryptography]
 gunicorn
