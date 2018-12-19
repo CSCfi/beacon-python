@@ -63,7 +63,7 @@ async def query_request_handler(params):
     access_type, accessible_datasets = access_resolution(request, params[3], controlled_datasets, request.get("datasetIds"))
 
     datasets = await find_datasets(params[0], position, request.get("referenceName"), request.get("referenceBases"),
-                                   alternate, accessible_datasets, access_type)
+                                   alternate, accessible_datasets, access_type, request.get("includeDatasetResponses", "NONE"))
 
     beacon_response = {"beaconId": '.'.join(reversed(params[4].split('.'))),
                        "apiVersion": __apiVersion__,
