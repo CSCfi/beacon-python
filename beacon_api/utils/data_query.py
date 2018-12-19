@@ -191,18 +191,25 @@ def filter_exists(include_dataset, datasets):
         return [d for d in datasets if d['exists'] is False]
 
 
-async def find_datasets(db_pool, position, chromosome, reference, alternate, dataset_ids, access_type):
+async def find_datasets(db_pool, position, chromosome, reference, alternate, dataset_ids, access_type, include_dataset):
     """Find datasets based on filter parameters.
 
     This also takes into consideration the token value as to establish permissions.
     """
     # TO DO wait for info on the actual permissions
     # TO DO return forbidden if a specific forbidden dataset is requested ?
+    hit_datasets = []
+    miss_datasets = []
+    response = []
+    # if include_dataset != 'NONE':
     hit_datasets = await fetch_filtered_dataset(db_pool, position, chromosome, reference, alternate,
                                                 dataset_ids, access_type)
-    miss_datasets = await fetch_filtered_dataset(db_pool, position, chromosome, reference, alternate,
-                                                 [item["datasetId"] for item in hit_datasets],
-                                                 access_type, misses=True)
+    if include_dataset in ['ALL', 'MISS']:
+        miss_datasets = await fetch_filtered_dataset(db_pool, position, chromosome, reference, alternate,
+                                                     [item["datasetId"] for item in hit_datasets],
+                                                     access_type, misses=True)
+    # if include_dataset == 'MISS':
+    #     hit_datasets = []
 
     response = hit_datasets + miss_datasets
     return response
