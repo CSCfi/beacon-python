@@ -17,7 +17,9 @@ the table below.
 +---------------------+-------------------------------+--------------------------------------------------+
 | ENV                 | Default                       | Description                                      |
 +---------------------+-------------------------------+--------------------------------------------------+
-| `DATABASE_URL`      | `postgresql://localhost:5432` | The URL for the PostgreSQL server.               |
+| `DATABASE_URL`      | `localhost`                   | The URL for the PostgreSQL server.               |
++---------------------+-------------------------------+--------------------------------------------------+
+| `DATABASE_PORT`     | `5432`                        | The port for the PostgreSQL server.              |
 +---------------------+-------------------------------+--------------------------------------------------+
 | `DATABASE_NAME`     | `beacondb`                    | Name of the database.                            |
 +---------------------+-------------------------------+--------------------------------------------------+
@@ -42,7 +44,8 @@ Setting the necessary environment variables can be done  e.g. via the command li
 
 .. code-block:: console
 
-    $ export DATABASE_URL=postgresql://localhost:5432
+    $ export DATABASE_URL=localhost
+    $ export DATABASE_PORT=5434
     $ export DATABASE_NAME=beacondb
     $ export DATABASE_USER=beacon
     $ export DATABASE_PASSWORD=beacon
