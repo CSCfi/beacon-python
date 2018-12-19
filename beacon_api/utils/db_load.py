@@ -47,7 +47,6 @@ from cyvcf2 import VCF
 
 from datetime import datetime
 
-from ..conf.config import DB_URL
 from .logging import LOG
 
 
@@ -58,9 +57,6 @@ class BeaconDB:
         """Start database routines."""
         LOG.info('Start database routines')
         self._conn = None
-        LOG.info('Fetch database URL from config')
-        self._db_url = db_url
-        LOG.info('Database URL has been set -> Connections can now be made')
 
     def _transform_vt(self, vt, variant):
         """Transform variant types."""
@@ -131,7 +127,11 @@ class BeaconDB:
         """Connect to the database."""
         LOG.info('Establish a connection to database')
         try:
-            self._conn = await asyncpg.connect(self._db_url)
+            self._conn = await asyncpg.connect(host=os.environ.get('DATABASE_URL', 'localhost'),
+                                               port=os.environ.get('DATABASE_PORT', '5432'),
+                                               user=os.environ.get('DATABASE_USER', 'beacon'),
+                                               password=os.environ.get('DATABASE_PASSWORD', 'beacon'),
+                                               database=os.environ.get('DATABASE_NAME', 'beacondb'))
             LOG.info('Database connection has been established')
         except Exception as e:
             LOG.error(f'AN ERROR OCCURRED WHILE ATTEMPTING TO CONNECT TO DATABASE -> {e}')
@@ -266,7 +266,7 @@ async def init_beacon_db(arguments=None):
     args = parse_arguments(arguments)
 
     # Initialise the database connection
-    db = BeaconDB(DB_URL)
+    db = BeaconDB()
 
     # Connect to the database
     await db.connection()
