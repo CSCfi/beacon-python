@@ -212,10 +212,11 @@ class DatabaseTestCase(asynctest.TestCase):
         mock_log.info.mock_calls = [f'Received 1 variants for insertion to DATASET1',
                                     'Insert variants into the database']
 
-    def test_bad_init(self):
-        """Capture error in case of anything wrong with initializing BeaconDB."""
-        with self.assertRaises(TypeError):
-            BeaconDB()
+    # This was the case when BeaconDB() was initiated with a URL parameter, now it happens with environment variables
+    # def test_bad_init(self):
+    #     """Capture error in case of anything wrong with initializing BeaconDB."""
+    #     with self.assertRaises(TypeError):
+    #         BeaconDB()
 
     @asynctest.mock.patch('beacon_api.utils.db_load.LOG')
     @asynctest.mock.patch('beacon_api.utils.db_load.asyncpg.connect')
