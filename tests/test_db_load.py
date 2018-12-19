@@ -139,7 +139,7 @@ class DatabaseTestCase(asynctest.TestCase):
         """Test checking tables."""
         db_mock.return_value = Connection()
         await self._db.connection()
-        db_mock.connect.assert_called()
+        db_mock.assert_called()
         result = await self._db.check_tables(['DATATSET1', 'DATATSET2'])
         # No Missing tables
         assert result == []
@@ -154,7 +154,7 @@ class DatabaseTestCase(asynctest.TestCase):
             PRIMARY KEY (id));"""
         db_mock.return_value = Connection()
         await self._db.connection()
-        db_mock.connect.assert_called()
+        db_mock.assert_called()
         sql_file = self._dir.write('sql.init', sql.encode('utf-8'))
         await self._db.create_tables(sql_file)
         # Should assert logs
@@ -176,7 +176,7 @@ class DatabaseTestCase(asynctest.TestCase):
             "accessType": "PUBLIC"}"""
         db_mock.return_value = Connection()
         await self._db.connection()
-        db_mock.connect.assert_called()
+        db_mock.assert_called()
         metafile = self._dir.write('data.json', metadata.encode('utf-8'))
         vcf = asynctest.mock.MagicMock(name='samples')
         vcf.samples.return_value = [1, 2, 3]
@@ -194,7 +194,7 @@ class DatabaseTestCase(asynctest.TestCase):
         vcf.return_value = [{'record': 1}, {'record': 2}, {'records': 3}]
         vcf.samples.return_value = [{'record': 1}, {'record': 2}, {'records': 3}]
         await self._db.connection()
-        db_mock.connect.assert_called()
+        db_mock.assert_called()
         await self._db.load_datafile(vcf, self.datafile, 'DATASET1')
         # Should assert logs
         mock_log.info.mock_calls = [f'Read data from {self.datafile}',
@@ -206,7 +206,7 @@ class DatabaseTestCase(asynctest.TestCase):
         """Test load_datafile."""
         db_mock.return_value = Connection()
         await self._db.connection()
-        db_mock.connect.assert_called()
+        db_mock.assert_called()
         await self._db.insert_variants('DATASET1', ['C'], 1)
         # Should assert logs
         mock_log.info.mock_calls = [f'Received 1 variants for insertion to DATASET1',
