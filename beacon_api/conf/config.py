@@ -21,6 +21,9 @@ DB_URL = 'postgresql://{user}:{pw}@{url}/{db}'.format(user=POSTGRES['user'],
                                                       url=POSTGRES['host'],
                                                       db=POSTGRES['database'])
 
+DB_SCHEMA = os.environ.get('DATABASE_SCHEMA', '')
+DB_SCHEMA += '.' if DB_SCHEMA else ''
+
 
 async def init_db_pool():
     """Create a connection pool.
