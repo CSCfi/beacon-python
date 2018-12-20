@@ -18,7 +18,7 @@ services:
     depends_on:
       - postgres
     environment:
-      DATABASE_URL: postgresql://postgres:5432
+      DATABASE_URL: postgres
     links:
     - postgres:postgres
     ports:
