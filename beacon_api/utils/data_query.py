@@ -3,6 +3,7 @@
 from datetime import datetime
 from .logging import LOG
 from ..api.exceptions import BeaconServerError
+from ..conf.config import DB_SCHEMA
 
 
 def sql_tuple(array):
@@ -71,7 +72,7 @@ async def fetch_controlled_datasets(db_pool, datasets):
         async with connection.transaction():
             datasets_query = "TRUE" if not datasets else f"a.datasetId IN {sql_tuple(datasets)}"
             try:
-                query = f"""SELECT datasetId FROM beacon_dataset_table as a
+                query = f"""SELECT datasetId FROM {DB_SCHEMA}beacon_dataset_table as a
                             WHERE a.accesstype IN ('CONTROLLED') AND ({datasets_query});"""
                 statement = await connection.prepare(query)
                 db_response = await statement.fetch()
@@ -99,7 +100,7 @@ async def fetch_dataset_metadata(db_pool, datasets=None, access_type=None):
                             callCount as "callCount", sampleCount as "sampleCount",
                             version as "version", createDateTime as "createDateTime",
                             updateDateTime as "updateDateTime"
-                            FROM dataset_metadata WHERE
+                            FROM {DB_SCHEMA}dataset_metadata WHERE
                             ({datasets_query}) AND ({access_query});"""
                 statement = await connection.prepare(query)
                 db_response = await statement.fetch()
@@ -156,7 +157,7 @@ async def fetch_filtered_dataset(db_pool, position, chromosome, reference, alter
                             a.alleleCount as "variantCount", a.variantType as "variantType",
                             a.callCount as "callCount", b.sampleCount as "sampleCount",
                             a.frequency, {"FALSE" if misses else "TRUE"} as "exists"
-                            FROM beacon_data_table a, beacon_dataset_table b
+                            FROM {DB_SCHEMA}beacon_data_table a, {DB_SCHEMA}beacon_dataset_table b
                             WHERE a.datasetId=b.datasetId
                             AND {"NOT" if misses else ''} ({start_pos} AND {end_pos}
                             AND {startMax_pos} AND {startMin_pos}
