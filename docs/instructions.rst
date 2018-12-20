@@ -27,13 +27,15 @@ the table below.
 +---------------------+-------------------------------+--------------------------------------------------+
 | `DATABASE_PASSWORD` | `beacon`                      | Database password.                               |
 +---------------------+-------------------------------+--------------------------------------------------+
+| `DATABASE_SCHEMA`   | `-`                           | Database Schema if one is used.                  |
++---------------------+-------------------------------+--------------------------------------------------+
 | `HOST`              | `0.0.0.0`                     | Default Host for the Web Server.                 |
 +---------------------+-------------------------------+--------------------------------------------------+
 | `PORT`              | `5050`                        | Default port for the Web Server.                 |
 +---------------------+-------------------------------+--------------------------------------------------+
 | `DEBUG`             | `True`                        | If set to `True`, Standard Output.               |
 +---------------------+-------------------------------+--------------------------------------------------+
-| `PUBLIC_KEY`        | `\n`                          | Public key, armored, for validating the token.   |
+| `PUBLIC_KEY`        | `-`                           | Public key, armored, for validating the token.   |
 +---------------------+-------------------------------+--------------------------------------------------+
 | `CONFIG_FILE`       | `./beacon_api/conf/config.ini`| Provide specific :ref:`beacon-info`.             |
 +---------------------+-------------------------------+--------------------------------------------------+
@@ -156,13 +158,18 @@ To run the application from command line use:
 
     $ beacon
 
+Gunicorn Setup
+~~~~~~~~~~~~~~
+
 By default the application will run a simple aiohttp web server, and best solution in most cases.
-For other options see ` aiohttp Server Deployment<https://aiohttp.readthedocs.io/en/stable/deployment.html>`_
+For other options see `aiohttp Server Deployment <https://aiohttp.readthedocs.io/en/stable/deployment.html>`_
 we recommend ``gunicorn``.
 
 .. code-block:: console
 
-    $ gunicorn beacon_api.app:init --bind $THE_HOST:$THE_PORT --worker-class aiohttp.GunicornUVLoopWebWorker --workers 4
+    $ gunicorn beacon_api.app:init --bind $THE_HOST:$THE_PORT \
+                                   --worker-class aiohttp.GunicornUVLoopWebWorker \
+                                   --workers 4
 
 .. _database-setup:
 
