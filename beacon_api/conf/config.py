@@ -8,6 +8,8 @@ At this point we also initialize a connection pool that the API is going to use 
 import os
 import asyncpg
 
+DB_SCHEMA = os.environ.get('DATABASE_SCHEMA', '')
+DB_SCHEMA += '.' if DB_SCHEMA else ''
 
 async def init_db_pool():
     """Create a connection pool.
