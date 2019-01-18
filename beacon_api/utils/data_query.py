@@ -123,7 +123,8 @@ def handle_wildcard(sequence):
         return f"='{sequence}'"
 
 
-async def fetch_filtered_dataset(db_pool, position, chromosome, reference, alternate, datasets=None, access_type=None, misses=False):
+async def fetch_filtered_dataset(db_pool, assembly_id, position, chromosome, reference, alternate,
+                                 datasets=None, access_type=None, misses=False):
     """Execute filter datasets.
 
     There is an Uber query that aims to be all inclusive.
@@ -159,6 +160,7 @@ async def fetch_filtered_dataset(db_pool, position, chromosome, reference, alter
                             a.frequency, {"FALSE" if misses else "TRUE"} as "exists"
                             FROM {DB_SCHEMA}beacon_data_table a, {DB_SCHEMA}beacon_dataset_table b
                             WHERE a.datasetId=b.datasetId
+                            AND b.assemblyId='{assembly_id}'
                             AND {"NOT" if misses else ''} ({start_pos} AND {end_pos}
                             AND {startMax_pos} AND {startMin_pos}
                             AND {endMin_pos} AND {endMax_pos}
@@ -192,7 +194,7 @@ def filter_exists(include_dataset, datasets):
         return [d for d in datasets if d['exists'] is False]
 
 
-async def find_datasets(db_pool, position, chromosome, reference, alternate, dataset_ids, access_type, include_dataset):
+async def find_datasets(db_pool, assembly_id, position, chromosome, reference, alternate, dataset_ids, access_type, include_dataset):
     """Find datasets based on filter parameters.
 
     This also takes into consideration the token value as to establish permissions.
@@ -203,10 +205,10 @@ async def find_datasets(db_pool, position, chromosome, reference, alternate, dat
     miss_datasets = []
     response = []
     # if include_dataset != 'NONE':
-    hit_datasets = await fetch_filtered_dataset(db_pool, position, chromosome, reference, alternate,
+    hit_datasets = await fetch_filtered_dataset(db_pool, assembly_id, position, chromosome, reference, alternate,
                                                 dataset_ids, access_type)
     if include_dataset in ['ALL', 'MISS']:
-        miss_datasets = await fetch_filtered_dataset(db_pool, position, chromosome, reference, alternate,
+        miss_datasets = await fetch_filtered_dataset(db_pool, assembly_id, position, chromosome, reference, alternate,
                                                      [item["datasetId"] for item in hit_datasets],
                                                      access_type, misses=True)
     # if include_dataset == 'MISS':
