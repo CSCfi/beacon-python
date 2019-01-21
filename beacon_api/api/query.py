@@ -52,7 +52,7 @@ async def query_request_handler(params):
                      'endMin': position[4],
                      'endMax': position[5],
                      'referenceBases': request.get("referenceBases"),
-                     'assemblyId': request.get("assemblyId", "GRCh38"),
+                     'assemblyId': request.get("assemblyId"),
                      'datasetIds': request.get("datasetIds", []),
                      'includeDatasetResponses': request.get("includeDatasetResponses", "NONE")}
     required_alternative = ["alternateBases", "variantType"]
@@ -62,8 +62,9 @@ async def query_request_handler(params):
     controlled_datasets = await fetch_controlled_datasets(params[0], request.get("datasetIds"))
     access_type, accessible_datasets = access_resolution(request, params[3], controlled_datasets, request.get("datasetIds"))
 
-    datasets = await find_datasets(params[0], position, request.get("referenceName"), request.get("referenceBases"),
-                                   alternate, accessible_datasets, access_type, request.get("includeDatasetResponses", "NONE"))
+    datasets = await find_datasets(params[0], request.get("assemblyId"), position, request.get("referenceName"),
+                                   request.get("referenceBases"), alternate,
+                                   accessible_datasets, access_type, request.get("includeDatasetResponses", "NONE"))
 
     beacon_response = {"beaconId": '.'.join(reversed(params[4].split('.'))),
                        "apiVersion": __apiVersion__,

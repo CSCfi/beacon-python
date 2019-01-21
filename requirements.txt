@@ -3,7 +3,7 @@ aiohttp_cors
 asyncpg
 jsonschema==3.0.0a3
 Cython
-cyvcf2
+cyvcf2==0.10.1
 tox
 uvloop
 aiocache

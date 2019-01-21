@@ -53,7 +53,7 @@
     },
     "assemblyId": {
       "type": "string",
-      "pattern": "^(GRCh[0-9]+([.]p[0-9]+)?)$"
+      "pattern": "^((GRCh|hg)[0-9]+([.]p[0-9]+)?)$"
     },
     "datasetIds": {
       "type": "array",

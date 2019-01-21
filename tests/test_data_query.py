@@ -116,7 +116,7 @@ class TestDataQueryFunctions(asynctest.TestCase):
         mock_filtered.return_value = []
         token = dict()
         token["bona_fide_status"] = False
-        result = await find_datasets(None, None, 'Y', 'T', 'C', [], token, "NONE")
+        result = await find_datasets(None, 'GRCh38', None, 'Y', 'T', 'C', [], token, "NONE")
         self.assertEqual(result, [])
 
     # async def test_fetch_metadata(self):
