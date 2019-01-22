@@ -13,7 +13,8 @@ setup(name='beacon_api',
       author_email='',
       description=__description__,
       long_description="",
-      packages=['beacon_api', 'beacon_api/utils', 'beacon_api/conf', 'beacon_api/schemas', 'beacon_api/api'],
+      packages=['beacon_api', 'beacon_api/utils', 'beacon_api/conf',
+                'beacon_api/schemas', 'beacon_api/api', 'beacon_api/permissions'],
       # If any package contains *.json, include them:
       package_data={'': ['*.json', '*.ini']},
       entry_points={

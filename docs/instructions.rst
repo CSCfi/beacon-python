@@ -69,6 +69,7 @@ pointing to the location of the file using `CONFIG_FILE` environment variable.
 
     # This file is used to configure the Beacon info endpoint
     # This file's default location is /beacon-python/beacon_api/conf/config.ini
+
     [beacon_general_info]
     # Name of the Beacon service
     title=EGA Beacon
@@ -80,6 +81,7 @@ pointing to the location of the file using `CONFIG_FILE` environment variable.
     license=Apache 2.0
     # Copyright holder for this software
     copyright=CSC - IT Center for Science
+
     [beacon_api_info]
     # Version of the Beacon API specification this implementation adheres to
     apiVersion=1.0.0
@@ -93,6 +95,7 @@ pointing to the location of the file using `CONFIG_FILE` environment variable.
     alturl=https://ega-archive.org/
     # Datetime when this Beacon was created
     createtime=2018-07-25T00:00:00Z
+
     [organisation_info]
     # Globally unique identifier for organisation that hosts this Beacon service
     org_id=CSC
@@ -133,7 +136,10 @@ The configuration variables reside in the same `CONFIG_FILE` as described above 
 ``server`` should point to an API that returns a public key which can be used to validate the received Bearer token.
 ``issuers`` is a string of comma separated values, e.g. `one,two,three` without spaces. The issuers string contains
 a list of entities that are viewed as trusted organisations.
-``bona_fide`` should point to an API that returns the bona_fide_status for now ELIXIR specific.
+``bona_fide`` should point to an API that returns the `bona_fide_status` for now
+`ELIXIR <https://www.elixir-europe.org/services/compute/aai>`_ specific.
+
+.. note:: For implementing `CONTROLLED` dataset permissions see :ref:`permissions`.
 
 
 .. _app-setup:
