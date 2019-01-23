@@ -24,7 +24,7 @@ def access_resolution(request, token, controlled_data, dataset_ids):
     if 'permissions' in token and token['permissions']:
         # The idea is to return only accessible datasets
         # TO DO test the logic of these set operations
-        access = list(set(controlled_data).difference(set(token['permission'])).union(set(dataset_ids)))
+        access = list(set(controlled_data).difference(set(token['permissions'])).union(set(dataset_ids)))
         if access:
             permissions.append("CONTROLLED")
         else:

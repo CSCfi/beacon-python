@@ -13,6 +13,7 @@ from aiocache import cached
 from aiocache.serializers import JsonSerializer
 from ..api.exceptions import BeaconUnauthorised, BeaconBadRequest, BeaconForbidden, BeaconServerError
 from ..conf import OAUTH2_CONFIG
+from ..permissions.rems import get_rems_controlled
 # Draft7Validator should be kept an eye on as this might change
 from jsonschema import Draft7Validator, validators
 from jsonschema.exceptions import ValidationError
@@ -152,11 +153,17 @@ def token_auth():
                 LOG.info('Auth Token Decoded.')
                 LOG.info(f'Identified as {decodedData["sub"]} user by {decodedData["iss"]}.')
                 # for now the permissions just reflect that the data can be decoded from token
-                # the bona fide status for now is set to True
+                # the bona fide status checked against ELIXIR
+                # the bona_fide_status is specific to ELIXIR Tokens
                 # permissions key will hold the actual permissions found in the token e.g. REMS permissions
+                controlled_datasets = set()
+                # currently we parse only REMS, but multiple claims and provides can be utilised
+                # by updating the set, replicating the line below with the permissions function and its associated claim
+                controlled_datasets.update(get_rems_controlled(decodedData["permissions_rems"]) if "permissions_rems" in decodedData else {})
+                all_controlled = list(controlled_datasets) if bool(controlled_datasets) else None
 
                 request["token"] = {"bona_fide_status": True if await check_bona_fide_status(token) else False,
-                                    "permissions": None}
+                                    "permissions": all_controlled}
                 return await handler(request)
             except ExpiredSignatureError as e:
                 _, obj = await parse_request_object(request)
