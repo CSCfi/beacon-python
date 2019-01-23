@@ -9,6 +9,7 @@ Python Modules
 
     beacon_api.schemas
     beacon_api.api
+    beacon_api.permissions
     beacon_api.utils
     beacon_api.conf
 
@@ -58,6 +59,17 @@ Utility Functions
     beacon_api.utils.db_load
     beacon_api.utils.validate
     beacon_api.utils.data_query
+
+******************
+Permissions Addons
+******************
+
+.. automodule:: beacon_api.permissions
+
+.. autosummary::
+   :toctree: beacon_api.permissions
+
+    beacon_api.permissions.rems
 
 *************
 Configuration

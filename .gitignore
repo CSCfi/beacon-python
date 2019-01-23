@@ -79,6 +79,7 @@ docs/_build/
 docs/beacon_api.api/
 docs/beacon_api.utils/
 docs/beacon_api.conf/
+docs/beacon_api.permissions/
 
 # PyBuilder
 target/

@@ -65,55 +65,9 @@ By default the beacon contains preset information about the beacon service.
 The information can be changed in a configuration file that has the structure specified below, by
 pointing to the location of the file using `CONFIG_FILE` environment variable.
 
-.. code-block:: python
-
-    # This file is used to configure the Beacon info endpoint
-    # This file's default location is /beacon-python/beacon_api/conf/config.ini
-
-    [beacon_general_info]
-    # Name of the Beacon service
-    title=EGA Beacon
-    # Version of the Beacon implementation
-    version=1.0.0
-    # Author of this software
-    author=CSC developers
-    # Software license for this distribution
-    license=Apache 2.0
-    # Copyright holder for this software
-    copyright=CSC - IT Center for Science
-
-    [beacon_api_info]
-    # Version of the Beacon API specification this implementation adheres to
-    apiVersion=1.0.0
-    # Globally unique identifier for this Beacon instance
-    beaconId=elixir-finland
-    # Description of this Beacon service
-    description=Beacon API Web Server based on the GA4GH Beacon API
-    # Homepage for Beacon service
-    url=https://ega-archive.org/
-    # Alternative URL for Beacon service for e.g. internal use cases
-    alturl=https://ega-archive.org/
-    # Datetime when this Beacon was created
-    createtime=2018-07-25T00:00:00Z
-
-    [organisation_info]
-    # Globally unique identifier for organisation that hosts this Beacon service
-    org_id=CSC
-    # Name of organisation that hosts this Beacon service
-    org_name=CSC - IT Center for Science
-    # Description for organisation
-    org_description=Finnish expertise in ICT for research, education, culture and public administration
-    # Visit address of organisation
-    org_address=Keilaranta 14, Espoo, finland
-    # Homepage of organisation
-    org_welcomeUrl=https://www.csc.fi/
-    # URL for contacting organisation
-    org_contactUrl=https://www.csc.fi/contact-info
-    # URL for organisation logo
-    org_logoUrl=https://www.csc.fi/documents/10180/161914/CSC_2012_LOGO_RGB_72dpi.jpg
-    # Other organisational information
-    org_info=CSC represents Finland in the ELIXIR partner nodes
-
+.. literalinclude:: /../beacon_api/conf/config.ini
+   :language: python
+   :lines: 1-65
 
 .. _oauth2:
 
@@ -123,15 +77,9 @@ OAuth2 Configuration
 Beacon utilises OAuth2 (JWT) Bearer tokens to authenticate users when they are accessing registered datasets.
 The configuration variables reside in the same `CONFIG_FILE` as described above in the ``oauth2`` section.
 
-.. code-block:: python
-
-    [oauth2]
-    # OAuth2 server that returns public key for JWT Bearer token validation
-    server=https://login.elixir-czech.org/oidc/jwk
-    # Authenticated Bearer token issuers, separated by commas if multiple
-    issuers=https://login.elixir-czech.org/oidc/
-    # Where to check the bona_fide_status (ELIXIR specific, for now)
-    bona_fide=https://login.elixir-czech.org/oidc/userinfo
+.. literalinclude:: /../beacon_api/conf/config.ini
+   :language: python
+   :lines: 68-76
 
 ``server`` should point to an API that returns a public key which can be used to validate the received Bearer token.
 ``issuers`` is a string of comma separated values, e.g. `one,two,three` without spaces. The issuers string contains
