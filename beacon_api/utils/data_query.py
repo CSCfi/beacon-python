@@ -66,17 +66,24 @@ def transform_metadata(record):
     return response
 
 
-async def fetch_controlled_datasets(db_pool, datasets):
+async def fetch_requested_datasets_access(db_pool, datasets):
     """Retrieve CONTROLLED datasets."""
+    public = []
+    registered = []
+    controlled = []
     async with db_pool.acquire(timeout=180) as connection:
         async with connection.transaction():
             datasets_query = "TRUE" if not datasets else f"a.datasetId IN {sql_tuple(datasets)}"
             try:
-                query = f"""SELECT datasetId FROM {DB_SCHEMA}beacon_dataset_table as a
-                            WHERE a.accesstype IN ('CONTROLLED') AND ({datasets_query});"""
+                query = f"""SELECT accessType, datasetId FROM {DB_SCHEMA}beacon_dataset_table
+                            WHERE ({datasets_query});"""
                 statement = await connection.prepare(query)
                 db_response = await statement.fetch()
-                return list(db_response)
+                for record in list(db_response):
+                    public.append(dict(record)['datasetId']) if dict(record)['accessType'] == 'PUBLIC'
+                    registered.append(dict(record)['datasetId']) if dict(record)['accessType'] == 'REGISTERED'
+                    controlled.append(dict(record)['datasetId']) if dict(record)['accessType'] == 'CONTROLLED'
+                return public, registered, controlled
             except Exception as e:
                 raise BeaconServerError(f'DB error: {e}')
 

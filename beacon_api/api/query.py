@@ -10,22 +10,31 @@ from .. import __apiVersion__
 from ..utils.data_query import filter_exists, find_datasets, fetch_controlled_datasets
 
 
-def access_resolution(request, token, controlled_data, dataset_ids):
+def access_resolution(request, token, public_data, registered_data, controlled_data):
     """Determine the access level for a user.
 
     Depends on user bona_fide_status, and by default it should be PUBLIC.
     """
     permissions = ["PUBLIC"]  # all should have access to PUBLIC datasets
-    access = dataset_ids  # empty if no datasets are given
+    # access = dataset_ids  # empty if no datasets are given
+    access = set(public_data)  # empty if no datasets are given
     # TO DO check if the permissions reflect actual datasets
     # for now we are expecting that the permissions are a list of datasets
     if token["bona_fide_status"]:
         permissions.append("REGISTERED")
+        access = access.union(set(registered_data))
     if 'permissions' in token and token['permissions']:
         # The idea is to return only accessible datasets
         # TO DO test the logic of these set operations
-        access = set(controlled_data).intersection(set(token['permissions'])).union(set(dataset_ids))
-        if access:
+        # Default event, when user doesn't specify dataset ids
+        # Contains only dataset ids from token that are present at beacon
+        controlled_access = set(controlled_data).intersection(set(token['permissions']))
+        access = access.union(controlled_access)
+        # if dataset_ids:
+        #     # Specific event, when user specified dataset ids
+        #     # Discard controlled datasets that weren't requested
+        #     access = set(access).intersection(set(dataset_ids))
+        if controlled_access:
             permissions.append("CONTROLLED")
         else:
             pass
@@ -59,8 +68,11 @@ async def query_request_handler(params):
     alleleRequest.update({k: request.get(k) for k in required_alternative if k in request})
     alternate = alleleRequest.get("variantType"), alleleRequest.get("alternateBases")
 
-    controlled_datasets = await fetch_controlled_datasets(params[0], request.get("datasetIds"))
-    access_type, accessible_datasets = access_resolution(request, params[3], controlled_datasets, request.get("datasetIds"))
+    # Get dataset ids that were requested, sort by access level
+    # If request is empty (default case) the three dataset variables contain all datasets by access level
+    # Datasets are further filtered using permissions from token
+    public_datasets, registered_datasets, controlled_datasets = await fetch_requested_datasets_access(params[0], request.get("datasetIds"))
+    access_type, accessible_datasets = access_resolution(request, params[3], public_datasets, registered_datasets, controlled_datasets)
 
     datasets = await find_datasets(params[0], request.get("assemblyId"), position, request.get("referenceName"),
                                    request.get("referenceBases"), alternate,
