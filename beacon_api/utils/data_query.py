@@ -136,6 +136,7 @@ async def fetch_filtered_dataset(db_pool, assembly_id, position, chromosome, ref
             # Fetch dataset metadata according to user request
             # TO DO Test that datasets=[] and access_type=[] work with 1..n items
             datasets_query = "TRUE" if not datasets else f"a.datasetId IN {sql_tuple(datasets)}"
+            # acess type will always default to PUBLIC
             access_query = "TRUE" if not access_type else f"b.accessType IN {sql_tuple(access_type)}"
 
             start_pos = "TRUE" if position[0] == 0 or (position[2] > 0 and position[3] > 0) else f"a.start={position[0]}"

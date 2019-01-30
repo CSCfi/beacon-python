@@ -15,22 +15,22 @@ def access_resolution(request, token, controlled_data, dataset_ids):
 
     Depends on user bona_fide_status, and by default it should be PUBLIC.
     """
-    permissions = ["PUBLIC"]
-    access = dataset_ids
+    permissions = ["PUBLIC"]  # all should have access to PUBLIC datasets
+    access = dataset_ids  # empty if no datasets are given
     # TO DO check if the permissions reflect actual datasets
-    # for now we are expecting that eh permissions are a list of datasets
+    # for now we are expecting that the permissions are a list of datasets
     if token["bona_fide_status"]:
         permissions.append("REGISTERED")
     if 'permissions' in token and token['permissions']:
         # The idea is to return only accessible datasets
         # TO DO test the logic of these set operations
-        access = list(set(controlled_data).difference(set(token['permissions'])).union(set(dataset_ids)))
+        access = set(controlled_data).intersection(set(token['permissions'])).union(set(dataset_ids))
         if access:
             permissions.append("CONTROLLED")
         else:
             pass
             # raise BeaconForbidden(obj, request.host, 'One or more requested datasets are not available for this user.')
-    return permissions, access
+    return permissions, list(access)
 
 
 async def query_request_handler(params):
