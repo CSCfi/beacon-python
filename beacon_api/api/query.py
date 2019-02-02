@@ -7,7 +7,7 @@ start or end position.
 
 from ..utils.logging import LOG
 from .. import __apiVersion__
-from ..utils.data_query import filter_exists, find_datasets, fetch_controlled_datasets
+from ..utils.data_query import filter_exists, find_datasets, fetch_requested_datasets_access
 
 
 def access_resolution(request, token, public_data, registered_data, controlled_data):

@@ -80,9 +80,12 @@ async def fetch_requested_datasets_access(db_pool, datasets):
                 statement = await connection.prepare(query)
                 db_response = await statement.fetch()
                 for record in list(db_response):
-                    public.append(dict(record)['datasetId']) if dict(record)['accessType'] == 'PUBLIC'
-                    registered.append(dict(record)['datasetId']) if dict(record)['accessType'] == 'REGISTERED'
-                    controlled.append(dict(record)['datasetId']) if dict(record)['accessType'] == 'CONTROLLED'
+                    if record['accesstype'] == 'PUBLIC':
+                        public.append(record['datasetid'])
+                    if record['accesstype'] == 'REGISTERED':
+                        registered.append(record['datasetid'])
+                    if record['accesstype'] == 'CONTROLLED':
+                        controlled.append(record['datasetid'])
                 return public, registered, controlled
             except Exception as e:
                 raise BeaconServerError(f'DB error: {e}')
