@@ -8,7 +8,7 @@ Metadata for a datafile is given in a ``*.json`` file, denoted as ``metafile`` i
 
 .. note:: Future releases are expected to drop the additional ``metafile``
         parameter in favour of simplifying the database loading process,
-        reading metadata from the datafile directly.
+        reading metadata from the datafile(s) directly.
 
 
 Environment Setup
@@ -195,6 +195,12 @@ class BeaconDB:
                                          datetime.strptime(metadata['updateDateTime'], '%Y-%m-%d %H:%M:%S'),
                                          metadata['version'], len_samples,
                                          metadata['externalUrl'], metadata['accessType'])
+                await self._conn.execute("""INSERT INTO beacon_dataset_counts_table
+                                         (datasetId, callCount, variantCount)
+                                         VALUES
+                                         ($1, $2, $3)""",
+                                         metadata['datasetId'], metadata['callCount'],
+                                         metadata['variantCount'])
             except Exception as e:
                 LOG.error(f'AN ERROR OCCURRED WHILE ATTEMPTING TO INSERT METADATA -> {e}')
         except Exception as e:
@@ -275,7 +281,7 @@ async def init_beacon_db(arguments=None):
     vcf = VCF(args.datafile, samples=args.samples.split(',') if args.samples else None)
 
     # Check that desired tables exist (missing tables are returned)
-    tables = await db.check_tables(['beacon_dataset_table', 'beacon_data_table'])
+    tables = await db.check_tables(['beacon_dataset_table', 'beacon_data_table', 'beacon_dataset_counts_table'])
 
     # If some tables are missing, run init.sql to recover them
     if len(tables) > 0:

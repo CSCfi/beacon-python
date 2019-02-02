@@ -175,7 +175,9 @@ Dataset metadata format is as follows:
         "updateDateTime": "2013-05-02 12:00:00",
         "version": "v0.4",
         "externalUrl": "ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/",
-        "accessType": "PUBLIC"
+        "accessType": "PUBLIC",
+        "callCount": 3892,
+        "variantCount": 4242
     }
 
 
@@ -192,5 +194,8 @@ For loading data into the database from selected samples only we can proceed as 
     $ beacon_init data/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz data/example_metadata.json --samples HG0001,HG0002,HG0003
 
 .. note:: One dataset can have multiple files, in order to add more files to one dataset, repeat the command above.
+          The parameters ``callCount`` and ``variantCount`` from the metdata file reflect values of the entire dataset.
+          These values can be initialised with ``0`` if they are not known and updated in ``beacon_dataset_counts_table`` table.
+          As of this moment we do not provide an option for bulk upload of files from a dataset.
 
 .. note:: For loading 1000 genome dataset see: :ref:`genome-dataset` instructions.
