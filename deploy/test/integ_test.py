@@ -10,7 +10,7 @@ import asyncio
 import json
 import logging
 
-FORMAT = '[%(asctime)s][%(name)s][%(process)d %(processName)s][%(levelname)-8s] (L:%(lineno)s) %(funcName)s: %(message)s'
+FORMAT = '[%(asctime)s][%(name)s][%(process)d %(processName)s][%(levelname)-8s] %(funcName)s: %(message)s'
 logging.basicConfig(format=FORMAT, datefmt='%Y-%m-%d %H:%M:%S')
 LOG = logging.getLogger(__name__)
 LOG.setLevel(logging.DEBUG)
@@ -19,7 +19,7 @@ LOG.setLevel(logging.DEBUG)
 TESTS_NUMBER = 9
 
 
-async def test_info():
+async def test_1():
     """Test the info endpoint."""
     LOG.debug(f'[1/{TESTS_NUMBER}] Test info endpoint')
     async with aiohttp.ClientSession() as session:
@@ -31,7 +31,7 @@ async def test_info():
                 sys.exit('Info Endpoint Error!')
 
 
-async def test_get_query_1():
+async def test_2():
     """Test query GET endpoint."""
     LOG.debug(f'[2/{TESTS_NUMBER}] Test get query')
     params = {'assemblyId': 'GRCh38', 'referenceName': 'MT',
@@ -49,7 +49,7 @@ async def test_get_query_1():
                 sys.exit('Query GET Endpoint Error!')
 
 
-async def test_get_query_2():
+async def test_3():
     """Test query GET endpoint."""
     LOG.debug(f'[3/{TESTS_NUMBER}] Test get query')
     params = {'assemblyId': 'GRCh38', 'referenceName': 'MT',
@@ -67,7 +67,7 @@ async def test_get_query_2():
                 sys.exit('Query GET Endpoint Error!')
 
 
-async def test_get_query_3():
+async def test_4():
     """Test query GET endpoint."""
     LOG.debug(f'[4/{TESTS_NUMBER}] Test get query')
     params = {'assemblyId': 'GRCh38',
@@ -84,7 +84,7 @@ async def test_get_query_3():
                 sys.exit('Query GET Endpoint Error!')
 
 
-async def test_get_query_4():
+async def test_5():
     """Test query GET endpoint."""
     LOG.debug(f'[5/{TESTS_NUMBER}] Test get query')
     params = {'assemblyId': 'GRCh38', 'referenceName': 'MT',
@@ -102,7 +102,7 @@ async def test_get_query_4():
                 sys.exit('Query GET Endpoint Error!')
 
 
-async def test_post_query_1():
+async def test_6():
     """Test query POST endpoint."""
     LOG.debug(f'[6/{TESTS_NUMBER}] Test post query')
     payload = {"referenceName": "MT",
@@ -127,7 +127,7 @@ async def test_post_query_1():
                 sys.exit('Query POST Endpoint Error!')
 
 
-async def test_post_query_2():
+async def test_7():
     """Test query POST endpoint."""
     LOG.debug(f'[7/{TESTS_NUMBER}] Test post query')
     payload = {"referenceName": "MT",
@@ -152,7 +152,7 @@ async def test_post_query_2():
                 sys.exit('Query POST Endpoint Error!')
 
 
-async def test_post_query_3():
+async def test_8():
     """Test query POST endpoint."""
     LOG.debug(f'[8/{TESTS_NUMBER}] Test post query')
     payload = {"start": 9,
@@ -175,7 +175,7 @@ async def test_post_query_3():
                 sys.exit('Query POST Endpoint Error!')
 
 
-async def test_get_query_bad_1():
+async def test_9():
     """Test query GET endpoint."""
     LOG.debug(f'[9/{TESTS_NUMBER}] Test get query')
     params = {'assemblyId': 'GRCh99', 'referenceName': 'MT',
@@ -184,22 +184,21 @@ async def test_get_query_bad_1():
     async with aiohttp.ClientSession() as session:
         async with session.get('http://localhost:5050/query', params=params) as resp:
             data = await resp.json()
-            print(data)
             assert data['exists'] is False, sys.exit('Query GET Endpoint Error!')
 
 
 async def main():
     """Run the tests."""
     LOG.debug('Start integration tests')
-    await test_info()
-    await test_get_query_1()
-    await test_get_query_2()
-    await test_get_query_3()
-    await test_get_query_4()
-    await test_post_query_1()
-    await test_post_query_2()
-    await test_post_query_3()
-    await test_get_query_bad_1()
+    await test_1()
+    await test_2()
+    await test_3()
+    await test_4()
+    await test_5()
+    await test_6()
+    await test_7()
+    await test_8()
+    await test_9()
     LOG.debug('All integration tests have passed')
 
 
