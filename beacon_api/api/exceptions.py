@@ -52,7 +52,7 @@ class BeaconBadRequest(BeaconError):
         data = super().__init__(request, host, 400, error)
 
         LOG.error(f'400 ERROR MESSAGE: {error}')
-        raise web.HTTPBadRequest(content_type="application/json", body=json.dumps(data).encode('utf-8'))
+        raise web.HTTPBadRequest(content_type="application/json", text=json.dumps(data))
 
 
 class BeaconUnauthorised(BeaconError):
@@ -67,7 +67,7 @@ class BeaconUnauthorised(BeaconError):
         data = super().__init__(request, host, 401, error)
 
         LOG.error(f'401 ERROR MESSAGE: {error}')
-        raise web.HTTPUnauthorized(content_type="application/json", body=json.dumps(data).encode('utf-8'))
+        raise web.HTTPUnauthorized(content_type="application/json", text=json.dumps(data))
 
 
 class BeaconForbidden(BeaconError):
@@ -83,7 +83,7 @@ class BeaconForbidden(BeaconError):
         data = super().__init__(request, host, 403, error)
 
         LOG.error(f'403 ERROR MESSAGE: {error}')
-        raise web.HTTPForbidden(content_type="application/json", body=json.dumps(data).encode('utf-8'))
+        raise web.HTTPForbidden(content_type="application/json", text=json.dumps(data))
 
 
 class BeaconServerError(BeaconError):
@@ -98,4 +98,4 @@ class BeaconServerError(BeaconError):
                 'errorMessage': error}
 
         LOG.error(f'500 ERROR MESSAGE: {error}')
-        raise web.HTTPInternalServerError(content_type="application/json", body=json.dumps(data).encode('utf-8'))
+        raise web.HTTPInternalServerError(content_type="application/json", text=json.dumps(data))
