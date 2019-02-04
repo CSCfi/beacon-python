@@ -153,11 +153,11 @@ def token_auth():
                 LOG.info('Auth Token Decoded.')
                 LOG.info(f'Identified as {decodedData["sub"]} user by {decodedData["iss"]}.')
                 # for now the permissions just reflect that the data can be decoded from token
-                # the bona fide status checked against ELIXIR
+                # the bona fide status is checked against ELIXIR AAI
                 # the bona_fide_status is specific to ELIXIR Tokens
                 # permissions key will hold the actual permissions found in the token e.g. REMS permissions
                 controlled_datasets = set()
-                # currently we parse only REMS, but multiple claims and provides can be utilised
+                # currently we parse only REMS, but multiple claims and providers can be utilised
                 # by updating the set, replicating the line below with the permissions function and its associated claim
                 controlled_datasets.update(get_rems_controlled(decodedData["permissions_rems"]) if "permissions_rems" in decodedData else {})
                 all_controlled = list(controlled_datasets) if bool(controlled_datasets) else None

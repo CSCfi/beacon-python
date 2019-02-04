@@ -22,7 +22,7 @@ the Beacon :ref:`database`.
 
 Out of the box the ``beacon-python`` offers:
 
-* adhere to Beacon API 1.1.0+ specification;
+* adhere to Beacon API 1.0.1+ specification;
 * processing and loading VCF files based on `cyvcf2 <http://brentp.github.io/cyvcf2/>`_ ;
 * asynchronous server;
 * OAuth2 JWT token validation, by default for ELIXIR AAI, with retrieving researcher bona fide status;

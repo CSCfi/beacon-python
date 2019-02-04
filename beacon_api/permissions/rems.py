@@ -33,7 +33,7 @@ from ..utils.logging import LOG
 
 def get_rems_controlled(permissions_claim):
     """Retrieve datasets from REMS permissions JWT claim."""
-    # We only one to get similar datasets once, thus the set
+    # We only want to get unique datasets once, thus the set which prevents duplicates
     LOG.info("Parsing REMS permissions.")
     datasets = set()
     for permission in permissions_claim:
