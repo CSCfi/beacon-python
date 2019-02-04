@@ -73,7 +73,7 @@ async def fetch_requested_datasets_access(db_pool, datasets):
     controlled = []
     async with db_pool.acquire(timeout=180) as connection:
         async with connection.transaction():
-            datasets_query = "TRUE" if not datasets else f"a.datasetId IN {sql_tuple(datasets)}"
+            datasets_query = "TRUE" if not datasets else f"datasetId IN {sql_tuple(datasets)}"
             try:
                 query = f"""SELECT accessType, datasetId FROM {DB_SCHEMA}beacon_dataset_table
                             WHERE ({datasets_query});"""
@@ -88,7 +88,7 @@ async def fetch_requested_datasets_access(db_pool, datasets):
                         controlled.append(record['datasetid'])
                 return public, registered, controlled
             except Exception as e:
-                raise BeaconServerError(f'DB error: {e}')
+                raise BeaconServerError(f'Query available datasets DB error: {e}')
 
 
 async def fetch_dataset_metadata(db_pool, datasets=None, access_type=None):
@@ -120,7 +120,7 @@ async def fetch_dataset_metadata(db_pool, datasets=None, access_type=None):
                     metadata.append(transform_metadata(record))
                 return metadata
             except Exception as e:
-                raise BeaconServerError(f'DB error: {e}')
+                raise BeaconServerError(f'Query metadata DB error: {e}')
 
 
 def handle_wildcard(sequence):
@@ -144,10 +144,8 @@ async def fetch_filtered_dataset(db_pool, assembly_id, position, chromosome, ref
         # Start a new session with the connection
         async with connection.transaction():
             # Fetch dataset metadata according to user request
-            # TO DO Test that datasets=[] and access_type=[] work with 1..n items
-            datasets_query = "TRUE" if not datasets else f"a.datasetId IN {sql_tuple(datasets)}"
-            # acess type will always default to PUBLIC
-            access_query = "TRUE" if not access_type else f"b.accessType IN {sql_tuple(access_type)}"
+            datasets_query = "a.datasetId IN ('')" if not datasets else f"a.datasetId IN {sql_tuple(datasets)}"
+            access_query = "b.accessType IN ('')" if not access_type else f"b.accessType IN {sql_tuple(access_type)}"
 
             start_pos = "TRUE" if position[0] == 0 or (position[2] > 0 and position[3] > 0) else f"a.start={position[0]}"
             end_pos = "TRUE" if position[1] == 0 or (position[4] > 0 and position[5] > 0) else f"a.end={position[1]}"
@@ -187,7 +185,7 @@ async def fetch_filtered_dataset(db_pool, assembly_id, position, chromosome, ref
                     datasets.append(processed)
                 return datasets
             except Exception as e:
-                raise BeaconServerError(f'DB error: {e}')
+                raise BeaconServerError(f'Query dataset DB error: {e}')
 
 
 def filter_exists(include_dataset, datasets):

@@ -8,24 +8,33 @@ start or end position.
 from ..utils.logging import LOG
 from .. import __apiVersion__
 from ..utils.data_query import filter_exists, find_datasets, fetch_requested_datasets_access
+from .exceptions import BeaconUnauthorised, BeaconForbidden
 
 
-def access_resolution(request, token, public_data, registered_data, controlled_data):
+def access_resolution(request, token, host, public_data, registered_data, controlled_data):
     """Determine the access level for a user.
 
     Depends on user bona_fide_status, and by default it should be PUBLIC.
     """
-    permissions = ["PUBLIC"]  # all should have access to PUBLIC datasets
+    permissions = []
+    # all should have access to PUBLIC datasets
+    # unless the request is for specific datasets
+    if public_data:
+        permissions.append("PUBLIC")
     # access = dataset_ids  # empty if no datasets are given
     access = set(public_data)  # empty if no datasets are given
-    # TO DO check if the permissions reflect actual datasets
+
     # for now we are expecting that the permissions are a list of datasets
-    if token["bona_fide_status"]:
+    if registered_data and token["bona_fide_status"]:
         permissions.append("REGISTERED")
         access = access.union(set(registered_data))
-    if 'permissions' in token and token['permissions']:
+    # if user requests public datasets do not throw an error
+    # if both registered and controlled datasets are request this will be shown first
+    elif registered_data and not public_data:
+        raise BeaconUnauthorised(request, host, 'One or more requested datasets are not available.')
+    if controlled_data and 'permissions' in token and token['permissions']:
         # The idea is to return only accessible datasets
-        # TO DO test the logic of these set operations
+
         # Default event, when user doesn't specify dataset ids
         # Contains only dataset ids from token that are present at beacon
         controlled_access = set(controlled_data).intersection(set(token['permissions']))
@@ -36,9 +45,10 @@ def access_resolution(request, token, public_data, registered_data, controlled_d
         #     access = set(access).intersection(set(dataset_ids))
         if controlled_access:
             permissions.append("CONTROLLED")
-        else:
-            pass
-            # raise BeaconForbidden(obj, request.host, 'One or more requested datasets are not available for this user.')
+    # if user requests public datasets do not throw an error
+    elif controlled_data and not public_data:
+        raise BeaconForbidden(request, host, 'One or more requested datasets are not available.')
+    LOG.info(f"Accesible datasets are: {list(access)}.")
     return permissions, list(access)
 
 
@@ -72,20 +82,22 @@ async def query_request_handler(params):
     # If request is empty (default case) the three dataset variables contain all datasets by access level
     # Datasets are further filtered using permissions from token
     public_datasets, registered_datasets, controlled_datasets = await fetch_requested_datasets_access(params[0], request.get("datasetIds"))
-    access_type, accessible_datasets = access_resolution(request, params[3], public_datasets, registered_datasets, controlled_datasets)
+
+    access_type, accessible_datasets = access_resolution(request, params[3], params[4], public_datasets,
+                                                         registered_datasets, controlled_datasets)
 
     datasets = await find_datasets(params[0], request.get("assemblyId"), position, request.get("referenceName"),
                                    request.get("referenceBases"), alternate,
                                    accessible_datasets, access_type, request.get("includeDatasetResponses", "NONE"))
 
-    beacon_response = {"beaconId": '.'.join(reversed(params[4].split('.'))),
-                       "apiVersion": __apiVersion__,
-                       "exists": any([x['exists'] for x in datasets]),
+    beacon_response = {'beaconId': '.'.join(reversed(params[4].split('.'))),
+                       'apiVersion': __apiVersion__,
+                       'exists': any([x['exists'] for x in datasets]),
                        # Error is not required and should not be shown
                        # If error key is set to null it will still not validate as it has a required key errorCode
                        # otherwise schema validation will fail
                        # "error": None,
-                       "alleleRequest": alleleRequest,
-                       "datasetAlleleResponses": filter_exists(request.get("includeDatasetResponses", "NONE"), datasets)}
+                       'alleleRequest': alleleRequest,
+                       'datasetAlleleResponses': filter_exists(request.get("includeDatasetResponses", "NONE"), datasets)}
 
     return beacon_response
