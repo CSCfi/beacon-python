@@ -30,7 +30,7 @@ def access_resolution(request, token, host, public_data, registered_data, contro
     # if user requests public datasets do not throw an error
     # if both registered and controlled datasets are request this will be shown first
     elif registered_data and not public_data:
-        if not token["bona_fide_status"]:
+        if token["authenticated"] is False:
             # token is not provided (user not authed)
             raise BeaconUnauthorised(request, host, 'Unauthorized access to dataset(s).')
         # token is present, but is missing perms (user authed but no access)
@@ -46,7 +46,7 @@ def access_resolution(request, token, host, public_data, registered_data, contro
             permissions.append("CONTROLLED")
     # if user requests public datasets do not throw an error
     elif controlled_data and not public_data:
-        if not token['permissions']:
+        if token["authenticated"] is False:
             # token is not provided (user not authed)
             raise BeaconUnauthorised(request, host, 'Unauthorized access to dataset(s).')
         # token is present, but is missing perms (user authed but no access)

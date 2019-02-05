@@ -162,7 +162,8 @@ def token_auth():
                 controlled_datasets.update(get_rems_controlled(decodedData["permissions_rems"]) if "permissions_rems" in decodedData else {})
                 all_controlled = list(controlled_datasets) if bool(controlled_datasets) else None
                 request["token"] = {"bona_fide_status": True if await check_bona_fide_status(token, obj, request.host) else False,
-                                    "permissions": all_controlled}
+                                    "permissions": all_controlled,
+                                    "authenticated": True}
                 return await handler(request)
             except ExpiredSignatureError as e:
                 raise BeaconUnauthorised(obj, request.host, f'Expired signature: {e}')
@@ -172,6 +173,7 @@ def token_auth():
                 raise BeaconUnauthorised(obj, request.host, f'Invalid authorization token: {e}')
         else:
             request["token"] = {"bona_fide_status": False,
-                                "permissions": None}
+                                "permissions": None,
+                                "authenticated": False}
             return await handler(request)
     return token_middleware
