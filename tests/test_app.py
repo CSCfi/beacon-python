@@ -10,6 +10,7 @@ from jose import jwt
 import os
 from test.support import EnvironmentVarGuard
 from aiocache import caches
+# from aioresponses import aioresponses
 
 
 PARAMS = {'assemblyId': 'GRCh38',
@@ -121,10 +122,11 @@ class AppTestCase(AioHTTPTestCase):
                                          headers={'Authorization': "SMTH x"})
         assert 401 == resp.status
 
+    @asynctest.mock.patch('beacon_api.utils.validate.check_bona_fide_status', side_effect={'bona_fide_status': "ftw"})
     @asynctest.mock.patch('beacon_api.app.parse_request_object', side_effect=mock_parse_request_object)
     @asynctest.mock.patch('beacon_api.app.query_request_handler', side_effect=json.dumps(PARAMS))
     @unittest_run_loop
-    async def test_valid_token_get_query(self, mock_handler, mock_object):
+    async def test_valid_token_get_query(self, mock_handler, mock_object, bona_fide):
         """Test valid token GET query endpoint, invalid scheme."""
         token = os.environ.get('TOKEN')
         resp = await self.client.request("POST", "/query",

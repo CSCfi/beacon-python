@@ -17,7 +17,8 @@ LOG.setLevel(logging.DEBUG)
 
 
 TESTS_NUMBER = 14
-DATASET_IDS_LIST = ['urn:hg:1000genome', 'urn:hg:1000genome:registered', 'urn:hg:1000genome:controlled']
+DATASET_IDS_LIST = ['urn:hg:1000genome', 'urn:hg:1000genome:registered',
+                    'urn:hg:1000genome:controlled', 'urn:hg:1000genome:controlled1']
 
 
 TOKEN = "eyJraWQiOiJyc2ExIiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiJyZXF1ZXN0ZXJAZWxpeGlyL\
@@ -222,7 +223,7 @@ async def test_10():
         async with session.post('http://localhost:5050/query', data=json.dumps(payload)) as resp:
             data = await resp.json()
             assert data['exists'] is None, sys.exit('Query GET Endpoint Error!')
-            assert resp.status == 401, 'HTTP Status code error'
+            assert resp.status == 403, 'HTTP Status code error'
 
 
 async def test_11():
@@ -243,7 +244,7 @@ async def test_11():
         async with session.post('http://localhost:5050/query', data=json.dumps(payload)) as resp:
             data = await resp.json()
             assert data['exists'] is None, sys.exit('Query GET Endpoint Error!')
-            assert resp.status == 403, 'HTTP Status code error'
+            assert resp.status == 401, 'HTTP Status code error'
 
 
 async def test_12():

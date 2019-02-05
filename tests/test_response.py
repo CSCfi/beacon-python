@@ -86,7 +86,7 @@ class TestBasicFunctions(asynctest.TestCase):
     async def test_get_bona_fide(self, m):
         """Test retrieve bona_fide_status."""
         m.get("https://login.elixir-czech.org/oidc/userinfo", payload=dict(bona_fide_status="smth"))
-        result = await check_bona_fide_status("token")
+        result = await check_bona_fide_status("token", {}, 'localhost')
         self.assertEqual(result, "smth")
 
     @aioresponses()
@@ -94,7 +94,7 @@ class TestBasicFunctions(asynctest.TestCase):
         """Test bad retrieve bona_fide_status."""
         m.get("https://login.elixir-czech.org/oidc/userinfo", status=400)
         with self.assertRaises(aiohttp.web_exceptions.HTTPInternalServerError):
-            await check_bona_fide_status("token")
+            await check_bona_fide_status("token", {}, 'localhost')
 
     @aioresponses()
     async def test_get_key(self, m):
