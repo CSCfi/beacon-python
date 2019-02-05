@@ -129,8 +129,7 @@
             ],
             "properties": {
               "errorCode": {
-                "type": "string",
-                "pattern": "^(.*)$"
+                "type": "integer"
               },
               "errorMessage": {
                 "type": "string",
@@ -176,8 +175,7 @@
       ],
       "properties": {
         "errorCode": {
-          "type": "string",
-          "pattern": "^(.*)$"
+          "type": "integer"
         },
         "errorMessage": {
           "type": "string",

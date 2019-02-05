@@ -13,6 +13,7 @@ from aiocache import cached
 from aiocache.serializers import JsonSerializer
 from ..api.exceptions import BeaconUnauthorised, BeaconBadRequest, BeaconForbidden, BeaconServerError
 from ..conf import OAUTH2_CONFIG
+from ..permissions.rems import get_rems_controlled
 # Draft7Validator should be kept an eye on as this might change
 from jsonschema import Draft7Validator, validators
 from jsonschema.exceptions import ValidationError
@@ -93,7 +94,7 @@ def validate(schema):
     return wrapper
 
 
-async def check_bona_fide_status(token):
+async def check_bona_fide_status(token, obj, host):
     """Check user details bona_fide_status."""
     headers = {"Authorization": f"Bearer {token}"}
     try:
@@ -101,7 +102,8 @@ async def check_bona_fide_status(token):
             async with session.get(OAUTH2_CONFIG.bona_fide) as r:
                 json_body = await r.json()
                 LOG.info('Retrieve a user\'s bona_fide_status.')
-                return json_body.get("bona_fide_status", None)
+                if 'bona_fide_status' in json_body:
+                    return json_body.get("bona_fide_status", None)
     except Exception:
         raise BeaconServerError("Could not retrieve ELIXIR AAI bona fide status.")
 
@@ -132,16 +134,15 @@ def token_auth():
     async def token_middleware(request, handler):
         assert isinstance(request, web.Request)
         if request.path in ['/query'] and 'Authorization' in request.headers:
+            _, obj = await parse_request_object(request)
             try:
                 # The second item is the token.
                 scheme, token = request.headers.get('Authorization').split(' ')
                 LOG.info('Auth Token Received.')
             except Exception as e:
-                _, obj = await parse_request_object(request)
                 raise BeaconUnauthorised(obj, request.host, str(e))
 
             if not re.match('Bearer', scheme):
-                _, obj = await parse_request_object(request)
                 raise BeaconUnauthorised(obj, request.host, 'Invalid token scheme.')
 
             assert token is not None, BeaconUnauthorised(obj, request.host, f'Token cannot be empty.')
@@ -152,23 +153,27 @@ def token_auth():
                 LOG.info('Auth Token Decoded.')
                 LOG.info(f'Identified as {decodedData["sub"]} user by {decodedData["iss"]}.')
                 # for now the permissions just reflect that the data can be decoded from token
-                # the bona fide status for now is set to True
+                # the bona fide status is checked against ELIXIR AAI
+                # the bona_fide_status is specific to ELIXIR Tokens
                 # permissions key will hold the actual permissions found in the token e.g. REMS permissions
-
-                request["token"] = {"bona_fide_status": True if await check_bona_fide_status(token) else False,
-                                    "permissions": None}
+                controlled_datasets = set()
+                # currently we parse only REMS, but multiple claims and providers can be utilised
+                # by updating the set, replicating the line below with the permissions function and its associated claim
+                controlled_datasets.update(get_rems_controlled(decodedData["permissions_rems"]) if "permissions_rems" in decodedData else {})
+                all_controlled = list(controlled_datasets) if bool(controlled_datasets) else None
+                request["token"] = {"bona_fide_status": True if await check_bona_fide_status(token, obj, request.host) else False,
+                                    "permissions": all_controlled,
+                                    "authenticated": True}
                 return await handler(request)
             except ExpiredSignatureError as e:
-                _, obj = await parse_request_object(request)
-                raise BeaconForbidden(obj, request.host, f'Expired signature: {e}')
+                raise BeaconUnauthorised(obj, request.host, f'Expired signature: {e}')
             except JWTClaimsError as e:
-                _, obj = await parse_request_object(request)
                 raise BeaconForbidden(obj, request.host, f'Token info not corresponding with claim: {e}')
             except JWTError as e:
-                _, obj = await parse_request_object(request)
                 raise BeaconUnauthorised(obj, request.host, f'Invalid authorization token: {e}')
         else:
             request["token"] = {"bona_fide_status": False,
-                                "permissions": None}
+                                "permissions": None,
+                                "authenticated": False}
             return await handler(request)
     return token_middleware

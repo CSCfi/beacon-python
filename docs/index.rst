@@ -22,10 +22,11 @@ the Beacon :ref:`database`.
 
 Out of the box the ``beacon-python`` offers:
 
-* adhere to Beacon API 1.0.0+ specification;
+* adhere to Beacon API 1.0.1+ specification;
 * processing and loading VCF files based on `cyvcf2 <http://brentp.github.io/cyvcf2/>`_ ;
 * asynchronous server;
-* OAuth2 JWT token validation, by default for ELIXIR AAI, with retrieving researcher bona fide status, but can be extended;
+* OAuth2 JWT token validation, by default for ELIXIR AAI, with retrieving researcher bona fide status;
+* Handling REMS permissions for ``CONTROLLED`` datasets, but can be extended - see :ref:`permissions`;
 * 1000 genome dataset loader - see :ref:`genome-dataset` instructions;
 * deployment `Docker container <https://hub.docker.com/r/cscfi/beacon-python/>`_.
 
@@ -38,11 +39,12 @@ Table of Contents
    :maxdepth: 2
 
    Setup Instructions <instructions>
-   Database           <db>
-   Deployment         <deploy>
-   API Examples       <example>
-   Python Modules     <code>
-   Testing            <testing>
+   Database               <db>
+   Deployment             <deploy>
+   API Examples           <example>
+   Handling Permissions   <permissions>
+   Python Modules         <code>
+   Testing                <testing>
 
 Indices and tables
 ==================

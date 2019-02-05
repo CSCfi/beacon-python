@@ -16,6 +16,7 @@ from .utils.logging import LOG
 from .utils.validate import validate, token_auth, parse_request_object
 import uvloop
 import asyncio
+import json
 
 routes = web.RouteTableDef()
 asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
@@ -51,7 +52,7 @@ async def beacon_get_query(request):
     method, processed_request = await parse_request_object(request)
     params = request.app['pool'], method, processed_request, request["token"], request.host
     response = await query_request_handler(params)
-    return web.json_response(response)
+    return web.json_response(response, content_type='application/json', dumps=json.dumps)
 
 
 @routes.post('/query')
@@ -61,7 +62,7 @@ async def beacon_post_query(request):
     method, processed_request = await parse_request_object(request)
     params = request.app['pool'], method, processed_request, request["token"], request.host
     response = await query_request_handler(params)
-    return web.json_response(response)
+    return web.json_response(response, content_type='application/json', dumps=json.dumps)
 
 
 async def initialize(app):

@@ -65,52 +65,9 @@ By default the beacon contains preset information about the beacon service.
 The information can be changed in a configuration file that has the structure specified below, by
 pointing to the location of the file using `CONFIG_FILE` environment variable.
 
-.. code-block:: python
-
-    # This file is used to configure the Beacon info endpoint
-    # This file's default location is /beacon-python/beacon_api/conf/config.ini
-    [beacon_general_info]
-    # Name of the Beacon service
-    title=EGA Beacon
-    # Version of the Beacon implementation
-    version=1.0.0
-    # Author of this software
-    author=CSC developers
-    # Software license for this distribution
-    license=Apache 2.0
-    # Copyright holder for this software
-    copyright=CSC - IT Center for Science
-    [beacon_api_info]
-    # Version of the Beacon API specification this implementation adheres to
-    apiVersion=1.0.0
-    # Globally unique identifier for this Beacon instance
-    beaconId=elixir-finland
-    # Description of this Beacon service
-    description=Beacon API Web Server based on the GA4GH Beacon API
-    # Homepage for Beacon service
-    url=https://ega-archive.org/
-    # Alternative URL for Beacon service for e.g. internal use cases
-    alturl=https://ega-archive.org/
-    # Datetime when this Beacon was created
-    createtime=2018-07-25T00:00:00Z
-    [organisation_info]
-    # Globally unique identifier for organisation that hosts this Beacon service
-    org_id=CSC
-    # Name of organisation that hosts this Beacon service
-    org_name=CSC - IT Center for Science
-    # Description for organisation
-    org_description=Finnish expertise in ICT for research, education, culture and public administration
-    # Visit address of organisation
-    org_address=Keilaranta 14, Espoo, finland
-    # Homepage of organisation
-    org_welcomeUrl=https://www.csc.fi/
-    # URL for contacting organisation
-    org_contactUrl=https://www.csc.fi/contact-info
-    # URL for organisation logo
-    org_logoUrl=https://www.csc.fi/documents/10180/161914/CSC_2012_LOGO_RGB_72dpi.jpg
-    # Other organisational information
-    org_info=CSC represents Finland in the ELIXIR partner nodes
-
+.. literalinclude:: /../beacon_api/conf/config.ini
+   :language: python
+   :lines: 1-65
 
 .. _oauth2:
 
@@ -120,20 +77,17 @@ OAuth2 Configuration
 Beacon utilises OAuth2 (JWT) Bearer tokens to authenticate users when they are accessing registered datasets.
 The configuration variables reside in the same `CONFIG_FILE` as described above in the ``oauth2`` section.
 
-.. code-block:: python
-
-    [oauth2]
-    # OAuth2 server that returns public key for JWT Bearer token validation
-    server=https://login.elixir-czech.org/oidc/jwk
-    # Authenticated Bearer token issuers, separated by commas if multiple
-    issuers=https://login.elixir-czech.org/oidc/
-    # Where to check the bona_fide_status (ELIXIR specific, for now)
-    bona_fide=https://login.elixir-czech.org/oidc/userinfo
+.. literalinclude:: /../beacon_api/conf/config.ini
+   :language: python
+   :lines: 68-76
 
 ``server`` should point to an API that returns a public key which can be used to validate the received Bearer token.
 ``issuers`` is a string of comma separated values, e.g. `one,two,three` without spaces. The issuers string contains
 a list of entities that are viewed as trusted organisations.
-``bona_fide`` should point to an API that returns the bona_fide_status for now ELIXIR specific.
+``bona_fide`` should point to an API that returns the `bona_fide_status` for now
+`ELIXIR <https://www.elixir-europe.org/services/compute/aai>`_ specific.
+
+.. note:: For implementing `CONTROLLED` dataset permissions see :ref:`permissions`.
 
 
 .. _app-setup:
@@ -221,7 +175,9 @@ Dataset metadata format is as follows:
         "updateDateTime": "2013-05-02 12:00:00",
         "version": "v0.4",
         "externalUrl": "ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/",
-        "accessType": "PUBLIC"
+        "accessType": "PUBLIC",
+        "callCount": 3892,
+        "variantCount": 4242
     }
 
 
@@ -238,5 +194,8 @@ For loading data into the database from selected samples only we can proceed as 
     $ beacon_init data/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz data/example_metadata.json --samples HG0001,HG0002,HG0003
 
 .. note:: One dataset can have multiple files, in order to add more files to one dataset, repeat the command above.
+          The parameters ``callCount`` and ``variantCount`` from the metdata file reflect values of the entire dataset.
+          These values can be initialised with ``0`` if they are not known and updated in ``beacon_dataset_counts_table`` table.
+          As of this moment we do not provide an option for bulk upload of files from a dataset.
 
 .. note:: For loading 1000 genome dataset see: :ref:`genome-dataset` instructions.

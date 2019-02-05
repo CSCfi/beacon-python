@@ -23,7 +23,7 @@ mock_dataset_metadata = {"id": "id1",
                          "createDateTime": "2013-05-02T12:00:00Z",
                          "updateDateTime": "2013-05-02T12:00:00Z"}
 
-mock_controlled = []
+mock_controlled = ['id1'], ['id2'], []
 
 mock_data = [{"datasetId": "id1",
               "referenceName": "MT",
@@ -35,7 +35,7 @@ mock_data = [{"datasetId": "id1",
               "exists": True,
               "frequency": 0.001183899,
               "info": {"accessType": "PUBLIC"}},
-             {"datasetId": "id1",
+             {"datasetId": "id2",
               "referenceName": "MT",
               "externalUrl": "url",
               "note": "info",
@@ -62,11 +62,11 @@ class TestBasicFunctions(asynctest.TestCase):
         db_metadata.assert_called()
 
     @asynctest.mock.patch('beacon_api.api.query.find_datasets')
-    @asynctest.mock.patch('beacon_api.api.query.fetch_controlled_datasets')
-    async def test_beacon_query(self, fetch_controlled, data_find):
+    @asynctest.mock.patch('beacon_api.api.query.fetch_datasets_access')
+    async def test_beacon_query(self, fetch_req_datasets, data_find):
         """Test query data response."""
         data_find.return_value = mock_data
-        fetch_controlled.return_value = mock_controlled
+        fetch_req_datasets.return_value = mock_controlled
         pool = asynctest.CoroutineMock()
         request = {"assemblyId": "GRCh38",
                    "referenceName": "MT",
@@ -86,7 +86,7 @@ class TestBasicFunctions(asynctest.TestCase):
     async def test_get_bona_fide(self, m):
         """Test retrieve bona_fide_status."""
         m.get("https://login.elixir-czech.org/oidc/userinfo", payload=dict(bona_fide_status="smth"))
-        result = await check_bona_fide_status("token")
+        result = await check_bona_fide_status("token", {}, 'localhost')
         self.assertEqual(result, "smth")
 
     @aioresponses()
@@ -94,7 +94,7 @@ class TestBasicFunctions(asynctest.TestCase):
         """Test bad retrieve bona_fide_status."""
         m.get("https://login.elixir-czech.org/oidc/userinfo", status=400)
         with self.assertRaises(aiohttp.web_exceptions.HTTPInternalServerError):
-            await check_bona_fide_status("token")
+            await check_bona_fide_status("token", {}, 'localhost')
 
     @aioresponses()
     async def test_get_key(self, m):

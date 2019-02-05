@@ -26,7 +26,7 @@ We use the DB schema below as a means for providing data contained in ``*.vcf`` 
 it accessible via the Beacon API specification.
 
 Information for the metadata table, currently needs to be provided by the data submitter,
-as additional information, that cannot be extracted from ``*.vcf`` files, is required.
+as such information cannot be extracted from ``*.vcf`` files.
 
 .. literalinclude:: /../data/init.sql
    :language: sql
