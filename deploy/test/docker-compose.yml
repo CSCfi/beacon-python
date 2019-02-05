@@ -1,0 +1,38 @@
+version: '3.2'
+
+services:
+  postgres:
+    hostname: postgres
+    image: postgres:9.6
+    environment:
+      POSTGRES_USER: beacon
+      POSTGRES_DB: beacondb
+      POSTGRES_PASSWORD: beacon
+    ports:
+      - 5432:5432
+    volumes:
+      - ../../data/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+  beacon:
+    hostname: beacon
+    image: cscfi/beacon-python
+    volumes:
+      - ./auth_test.ini:/auth_test.ini
+    depends_on:
+      - postgres
+    environment:
+      DATABASE_URL: postgres
+      CONFIG_FILE: /auth_test.ini
+    links:
+      - postgres:postgres
+      - mockauth:mockauth
+    ports:
+      - 5050:5050
+    restart: on-failure
+  mockauth:
+    hostname: mockauth
+    image: cscfi/beacon-python
+    ports:
+      - 8000:8000
+    volumes:
+      - ./mock_auth.py:/mock_auth.py
+    entrypoint: ["python", "/mock_auth.py", "0.0.0.0", "8000"]

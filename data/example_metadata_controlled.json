@@ -1,0 +1,13 @@
+{
+    "name": "1000 genomoe",
+    "datasetId": "urn:hg:1000genome:controlled",
+    "description": "Data from the 1000 Genomes Project. The 1000 Genomes Project ran between 2008 and 2015, creating the largest public catalogue of human variation and genotype data. As the project ended, the Data Coordination Centre at EMBL-EBI has received continued funding from the Wellcome Trust to maintain and expand the resource.",
+    "assemblyId": "GRCh38",
+    "createDateTime": "2013-05-02 12:00:00",
+    "updateDateTime": "2013-05-02 12:00:00",
+    "version": "v0.4",
+    "externalUrl": "ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/",
+    "accessType": "CONTROLLED",
+    "callCount": 3892,
+    "variantCount": 4242
+}
