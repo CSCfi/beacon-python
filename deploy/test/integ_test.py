@@ -57,7 +57,8 @@ async def test_1():
 async def test_2():
     """Test query GET endpoint.
 
-    Send a query with alternateBases. Expect data to be found (200)."""
+    Send a query with alternateBases. Expect data to be found (200).
+    """
     LOG.debug(f'[2/{TESTS_NUMBER}] Test get query (normal query with alternateBases)')
     params = {'assemblyId': 'GRCh38', 'referenceName': 'MT',
               'start': 9, 'referenceBases': 'T', 'alternateBases': 'C',
@@ -77,7 +78,8 @@ async def test_2():
 async def test_3():
     """Test query GET endpoint.
 
-    Send a query with variantType. Expect data to be found (200)."""
+    Send a query with variantType. Expect data to be found (200).
+    """
     LOG.debug(f'[3/{TESTS_NUMBER}] Test get query (normal query with variantType)')
     params = {'assemblyId': 'GRCh38', 'referenceName': 'MT',
               'start': 9, 'referenceBases': 'T', 'variantType': 'SNP',
@@ -97,7 +99,8 @@ async def test_3():
 async def test_4():
     """Test query GET endpoint.
 
-    Send a query with missing required params. Expect a bad request (400)."""
+    Send a query with missing required params. Expect a bad request (400).
+    """
     LOG.debug(f'[4/{TESTS_NUMBER}] Test get query (missing params)')
     params = {'assemblyId': 'GRCh38',
               'start': 9, 'referenceBases': 'T', 'alternateBases': 'C',
@@ -117,7 +120,8 @@ async def test_4():
 async def test_5():
     """Test query GET endpoint.
 
-    Send a query with wildcard alternateBases. Expect data to be found (200)."""
+    Send a query with wildcard alternateBases. Expect data to be found (200).
+    """
     LOG.debug(f'[5/{TESTS_NUMBER}] Test get query (wildcards)')
     params = {'assemblyId': 'GRCh38', 'referenceName': 'MT',
               'start': 63, 'referenceBases': 'CT', 'alternateBases': 'NN',
@@ -137,7 +141,8 @@ async def test_5():
 async def test_6():
     """Test query POST endpoint.
 
-    Send a query with alternateBases. Expect data to be found (200)."""
+    Send a query with alternateBases. Expect data to be found (200).
+    """
     LOG.debug(f'[6/{TESTS_NUMBER}] Test post query (normal query with alternateBases)')
     payload = {"referenceName": "MT",
                "start": 9,
@@ -164,7 +169,8 @@ async def test_6():
 async def test_7():
     """Test query POST endpoint.
 
-    Send a query with variantType. Expect data to be found (200)."""
+    Send a query with variantType. Expect data to be found (200).
+    """
     LOG.debug(f'[7/{TESTS_NUMBER}] Test post query (normal query with variantType)')
     payload = {"referenceName": "MT",
                "start": 9,
@@ -191,7 +197,8 @@ async def test_7():
 async def test_8():
     """Test query POST endpoint.
 
-    Send a query with missing required params. Expect a bad request (400)."""
+    Send a query with missing required params. Expect a bad request (400).
+    """
     LOG.debug(f'[8/{TESTS_NUMBER}] Test post query (missing params)')
     payload = {"start": 9,
                "startMax": 0,
@@ -216,7 +223,8 @@ async def test_8():
 async def test_9():
     """Test query GET endpoint.
 
-    Send a query with wildcard alternateBases. Expect no data to be found exists=false, but query was good (200)."""
+    Send a query with wildcard alternateBases. Expect no data to be found exists=false, but query was good (200).
+    """
     LOG.debug(f'[9/{TESTS_NUMBER}] Test get query (good query, empty response)')
     params = {'assemblyId': 'GRCh99', 'referenceName': 'MT',
               'start': 63, 'referenceBases': 'CT', 'alternateBases': 'NN',
@@ -230,7 +238,8 @@ async def test_9():
 async def test_10():
     """Test query POST endpoint.
 
-    Send a query targeted to a REGISTERED dataset without bona_fide_status. Expect failure (401)."""
+    Send a query targeted to a REGISTERED dataset without bona_fide_status. Expect failure (401).
+    """
     LOG.debug(f'[10/{TESTS_NUMBER}] Test post query (fail to access registered data (no token))')
     payload = {"referenceName": "MT",
                "start": 9,
@@ -253,7 +262,8 @@ async def test_10():
 async def test_11():
     """Test query POST endpoint.
 
-    Send a query targeted to a CONTROLLED dataset without token perms. Expect failure (401)."""
+    Send a query targeted to a CONTROLLED dataset without token perms. Expect failure (401).
+    """
     LOG.debug(f'[11/{TESTS_NUMBER}] Test post query (fail to access controlled data (no token))')
     payload = {"referenceName": "MT",
                "start": 9,
@@ -276,7 +286,8 @@ async def test_11():
 async def test_12():
     """Test query POST endpoint.
 
-    Send a multiquery targeting PUBLIC and CONTROLLED datasets without token perms. Expect only public data to be shown (200)."""
+    Send a multiquery targeting PUBLIC and CONTROLLED datasets without token perms. Expect only public data to be shown (200).
+    """
     LOG.debug(f'[12/{TESTS_NUMBER}] Test post query (public data (success) and controlled data without token (failure))')
     payload = {"referenceName": "MT",
                "start": 9,
@@ -299,7 +310,8 @@ async def test_12():
 async def test_13():
     """Test query POST endpoint.
 
-    Send a multiquery targeting PUBLIC and REGISTERED datasets with bona_fide_status. Expect data to be found (200)."""
+    Send a multiquery targeting PUBLIC and REGISTERED datasets with bona_fide_status. Expect data to be found (200).
+    """
     LOG.debug(f'[13/{TESTS_NUMBER}] Test post query (public and registered with bona_fide_status)')
     payload = {"referenceName": "MT",
                "start": 9,
@@ -323,7 +335,8 @@ async def test_13():
 async def test_14():
     """Test query POST endpoint.
 
-    Send a multiquery targeting REGISTERED and CONTROLLED datasets with bona_fide_status and token perms. Expect data to be found (200)."""
+    Send a multiquery targeting REGISTERED and CONTROLLED datasets with bona_fide_status and token perms. Expect data to be found (200).
+    """
     LOG.debug(f'[14/{TESTS_NUMBER}] Test post query (registered and controlled (bona fide + token perms))')
     payload = {"referenceName": "MT",
                "start": 9,
@@ -347,7 +360,8 @@ async def test_14():
 async def test_15():
     """Test query POST endpoint.
 
-    Send a query targeting CONTROLLED dataset without token perms. Expect failure (403)."""
+    Send a query targeting CONTROLLED dataset without token perms. Expect failure (403).
+    """
     LOG.debug(f'[15/{TESTS_NUMBER}] Test post query (fail to access controlled data (token, but no perms))')
     payload = {"referenceName": "MT",
                "start": 9,
@@ -368,12 +382,11 @@ async def test_15():
             assert resp.status == 403, 'HTTP Status code error'
 
 
-
-
 async def test_16():
     """Test query POST endpoint.
 
-    Send a query targeting REGISTERED dataset with token, but no bona fide. Expect failure (403)."""
+    Send a query targeting REGISTERED dataset with token, but no bona fide. Expect failure (403).
+    """
     #################################################################
     #                                                               #
     # MOCK BONA FIDE ALWAYS GIVES TRUE, SO CAN'T TEST THIS CASE YET #
@@ -385,16 +398,16 @@ async def test_16():
     else:
         LOG.debug(f'[16/{TESTS_NUMBER}] Test post query (fail to access registered data (token, but no bona fide))')
         payload = {"referenceName": "MT",
-                "start": 9,
-                "startMax": 0,
-                "end": 0,
-                "endMin": 0,
-                "endMax": 0,
-                "referenceBases": "T",
-                "alternateBases": "C",
-                "assemblyId": "GRCh38",
-                "datasetIds": ['urn:hg:1000genome:registered'],
-                "includeDatasetResponses": "HIT"}
+                   "start": 9,
+                   "startMax": 0,
+                   "end": 0,
+                   "endMin": 0,
+                   "endMax": 0,
+                   "referenceBases": "T",
+                   "alternateBases": "C",
+                   "assemblyId": "GRCh38",
+                   "datasetIds": ['urn:hg:1000genome:registered'],
+                   "includeDatasetResponses": "HIT"}
         headers = {"Authorization": f"Bearer {TOKEN_EMPTY}"}
         async with aiohttp.ClientSession(headers=headers) as session:
             async with session.post('http://localhost:5050/query', data=json.dumps(payload)) as resp:
@@ -406,7 +419,8 @@ async def test_16():
 async def test_17():
     """Test query POST endpoint.
 
-    Send a query targeting two CONTROLLED dataset with token perms, having access only to one of them. Expect data to be found (200)."""
+    Send a query targeting two CONTROLLED dataset with token perms, having access only to one of them. Expect data to be found (200).
+    """
     LOG.debug(f'[17/{TESTS_NUMBER}] Test post query (request two controlled, having access to one)')
     payload = {"referenceName": "MT",
                "start": 9,
