@@ -30,7 +30,7 @@ def access_resolution(request, token, host, public_data, registered_data, contro
     # if user requests public datasets do not throw an error
     # if both registered and controlled datasets are request this will be shown first
     elif registered_data and not public_data:
-        raise BeaconForbidden(request, host, 'Unauthorized access to dataset(s).')
+        raise BeaconForbidden(request, host, 'Access to dataset(s) is forbidden.')
     if controlled_data and 'permissions' in token and token['permissions']:
         # The idea is to return only accessible datasets
 
@@ -77,7 +77,6 @@ async def query_request_handler(params):
     # If request is empty (default case) the three dataset variables contain all datasets by access level
     # Datasets are further filtered using permissions from token
     public_datasets, registered_datasets, controlled_datasets = await fetch_datasets_access(params[0], request.get("datasetIds"))
-    print(public_datasets, registered_datasets, controlled_datasets)
     access_type, accessible_datasets = access_resolution(request, params[3], params[4], public_datasets,
                                                          registered_datasets, controlled_datasets)
 
