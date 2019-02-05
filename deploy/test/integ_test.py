@@ -230,7 +230,7 @@ async def test_9():
 async def test_10():
     """Test query POST endpoint.
 
-    Send a query targeted to a REGISTERED dataset without bona_fide_status. Expect failure (403)."""
+    Send a query targeted to a REGISTERED dataset without bona_fide_status. Expect failure (401)."""
     LOG.debug(f'[10/{TESTS_NUMBER}] Test post query (fail to access registered data (no token))')
     payload = {"referenceName": "MT",
                "start": 9,
@@ -368,40 +368,39 @@ async def test_15():
             assert resp.status == 403, 'HTTP Status code error'
 
 
-############################################################
-#                                                          #
-# BONA FIDE ALWAYS GIVES TRUE, SO CAN'T TEST THIS CASE YET #
-#                                                          #
-############################################################
-#
-# async def test_16():
-#     """Test query POST endpoint.
-
-#     Send a query targeting REGISTERED dataset with token, but no bona fide. Expect failure (403)."""
-#     LOG.debug(f'[16/{TESTS_NUMBER}] Test post query (fail to access registered data (token, but no bona fide))')
-#     payload = {"referenceName": "MT",
-#                "start": 9,
-#                "startMax": 0,
-#                "end": 0,
-#                "endMin": 0,
-#                "endMax": 0,
-#                "referenceBases": "T",
-#                "alternateBases": "C",
-#                "assemblyId": "GRCh38",
-#                "datasetIds": ['urn:hg:1000genome:registered'],
-#                "includeDatasetResponses": "HIT"}
-#     headers = {"Authorization": f"Bearer {TOKEN_EMPTY}"}
-#     async with aiohttp.ClientSession(headers=headers) as session:
-#         async with session.post('http://localhost:5050/query', data=json.dumps(payload)) as resp:
-#             data = await resp.json()
-#             assert data['exists'] is None, sys.exit('Query POST Endpoint Error!')
-#             assert resp.status == 403, 'HTTP Status code error'
 
 
 async def test_16():
-    """Real function commented above."""
-    # Need to set up a mock server for giving false to bona fide check first
-    LOG.debug(f'[16/{TESTS_NUMBER}] !! SKIPPED - Not yet implemented !!')
+    """Test query POST endpoint.
+
+    Send a query targeting REGISTERED dataset with token, but no bona fide. Expect failure (403)."""
+    #################################################################
+    #                                                               #
+    # MOCK BONA FIDE ALWAYS GIVES TRUE, SO CAN'T TEST THIS CASE YET #
+    #                                                               #
+    #################################################################
+    if True:
+        # Need to set up a mock server for giving false to bona fide check first
+        LOG.debug(f'[16/{TESTS_NUMBER}] !! SKIPPED - Not yet implemented !!')
+    else:
+        LOG.debug(f'[16/{TESTS_NUMBER}] Test post query (fail to access registered data (token, but no bona fide))')
+        payload = {"referenceName": "MT",
+                "start": 9,
+                "startMax": 0,
+                "end": 0,
+                "endMin": 0,
+                "endMax": 0,
+                "referenceBases": "T",
+                "alternateBases": "C",
+                "assemblyId": "GRCh38",
+                "datasetIds": ['urn:hg:1000genome:registered'],
+                "includeDatasetResponses": "HIT"}
+        headers = {"Authorization": f"Bearer {TOKEN_EMPTY}"}
+        async with aiohttp.ClientSession(headers=headers) as session:
+            async with session.post('http://localhost:5050/query', data=json.dumps(payload)) as resp:
+                data = await resp.json()
+                assert data['exists'] is None, sys.exit('Query POST Endpoint Error!')
+                assert resp.status == 403, 'HTTP Status code error'
 
 
 async def test_17():
