@@ -66,7 +66,7 @@ def transform_metadata(record):
     return response
 
 
-async def fetch_requested_datasets_access(db_pool, datasets):
+async def fetch_datasets_access(db_pool, datasets):
     """Retrieve CONTROLLED datasets."""
     public = []
     registered = []

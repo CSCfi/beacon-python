@@ -7,7 +7,7 @@ start or end position.
 
 from ..utils.logging import LOG
 from .. import __apiVersion__
-from ..utils.data_query import filter_exists, find_datasets, fetch_requested_datasets_access
+from ..utils.data_query import filter_exists, find_datasets, fetch_datasets_access
 from .exceptions import BeaconUnauthorised, BeaconForbidden
 
 
@@ -81,8 +81,7 @@ async def query_request_handler(params):
     # Get dataset ids that were requested, sort by access level
     # If request is empty (default case) the three dataset variables contain all datasets by access level
     # Datasets are further filtered using permissions from token
-    public_datasets, registered_datasets, controlled_datasets = await fetch_requested_datasets_access(params[0], request.get("datasetIds"))
-
+    public_datasets, registered_datasets, controlled_datasets = await fetch_datasets_access(params[0], request.get("datasetIds"))
     access_type, accessible_datasets = access_resolution(request, params[3], params[4], public_datasets,
                                                          registered_datasets, controlled_datasets)
 

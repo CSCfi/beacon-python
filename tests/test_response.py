@@ -62,7 +62,7 @@ class TestBasicFunctions(asynctest.TestCase):
         db_metadata.assert_called()
 
     @asynctest.mock.patch('beacon_api.api.query.find_datasets')
-    @asynctest.mock.patch('beacon_api.api.query.fetch_requested_datasets_access')
+    @asynctest.mock.patch('beacon_api.api.query.fetch_datasets_access')
     async def test_beacon_query(self, fetch_req_datasets, data_find):
         """Test query data response."""
         data_find.return_value = mock_data
