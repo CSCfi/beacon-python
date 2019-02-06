@@ -389,16 +389,16 @@ async def test_16():
     """
     LOG.debug(f'[16/{TESTS_NUMBER}] Test post query (fail to access registered data (token, but no bona fide))')
     payload = {"referenceName": "MT",
-                "start": 9,
-                "startMax": 0,
-                "end": 0,
-                "endMin": 0,
-                "endMax": 0,
-                "referenceBases": "T",
-                "alternateBases": "C",
-                "assemblyId": "GRCh38",
-                "datasetIds": ['urn:hg:1000genome:registered'],
-                "includeDatasetResponses": "HIT"}
+               "start": 9,
+               "startMax": 0,
+               "end": 0,
+               "endMin": 0,
+               "endMax": 0,
+               "referenceBases": "T",
+               "alternateBases": "C",
+               "assemblyId": "GRCh38",
+               "datasetIds": ['urn:hg:1000genome:registered'],
+               "includeDatasetResponses": "HIT"}
     headers = {"Authorization": f"Bearer {TOKEN_EMPTY}"}
     async with aiohttp.ClientSession(headers=headers) as session:
         async with session.post('http://localhost:5050/query', data=json.dumps(payload)) as resp:
