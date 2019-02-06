@@ -45,7 +45,7 @@ Access Resolution
 .. role:: blue
 
 In the tables below we illustrate how the beacon server handles access to datasets.
-We have integrated tests for these use case that can be found at:
+We have integrated tests for these use cases that can be found at:
 `beacon-python Github deploy tests <https://github.com/CSCfi/beacon-python/blob/master/deploy/test/integ_test.py>`_.
 
 .. note:: Table Legend:
@@ -66,7 +66,7 @@ We have integrated tests for these use case that can be found at:
 Default cases (no dataset IDs specified)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Most queries to the beacon do not specify datasets ids meaning a request does not contain the ``datasetIds`` parameter.
+Most queries to the beacon do not specify datasets IDs meaning a request does not contain the ``datasetIds`` parameter.
 For such cases we handle permissions as illustrated below.
 
 +--------------------+----------------------+-------------------+--------------------------------------------------+-------------+-----------+----------------------------------------------+
@@ -88,7 +88,7 @@ For such cases we handle permissions as illustrated below.
 Specific cases (dataset IDs specified)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-For case in which the dataset IDs are specified we handle permissions as in the table below.
+For cases in which the dataset IDs are specified we handle permissions as in the table below.
 
 +--------------------+----------------------+-------------------+--------------------------------------------------+-------------+-----------+----------------------------------------------+
 | Requested datasets                                            | DB: :green:`1, 2`, :orange:`3, 4`, :red:`5, 6`                                                                            |
