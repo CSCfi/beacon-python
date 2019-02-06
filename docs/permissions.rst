@@ -33,8 +33,8 @@ with custom written add-on (following the example of :meth:`beacon_api.permissio
 and the specific JWT claim.
 
 .. attention:: JWT is validated against an AAI OAuth2 signing authority with the public key.
-               This public key can be provided via a JWK server or the ``PUBLIC_KEY``.
-               See also: :ref:`oauth2`.
+               This public key can be provided  either a JWK server or the environment variable
+               ``PUBLIC_KEY``. See also: :ref:`oauth2`.
 
 Access Resolution
 -----------------
@@ -48,20 +48,23 @@ In the tables below we illustrate how the beacon server handles access to datase
 We have integrated tests for these use cases that can be found at:
 `beacon-python Github deploy tests <https://github.com/CSCfi/beacon-python/blob/master/deploy/test/integ_test.py>`_.
 
-.. note:: Table Legend:
+.. admonition:: Tables Legend
 
-          * colour meaning:
+          * colours:
 
               * :green:`green` is for ``PUBLIC`` datasets;
               * :orange:`orange` is for ``REGISTERED`` datasets;
               * :red:`red` is for ``CONTROLLED`` datasets;
               * :blue:`blue` is for errors in retrieving datasets, currently done via HTTP error statuses;
-          *  ``[]`` - means all available datasets are requested;
+          *  ``[]`` - all available datasets are requested;
           * if a cell is empty it means no datasets are requested;
           * ✓ - is used to represent that:
 
-            * a ``TOKEN`` is present in the request - used for ``CONTROLLED`` datasets;
-            * a user's ``BONA FIDE`` status can be retrieved - used for ``REGISTERED`` datasets.
+            * a JWT ``TOKEN`` is present in the request - used for retrieving ``CONTROLLED`` datasets from JWT claim;
+            * a user's ``BONA FIDE`` status can be retrieved - used for ``REGISTERED`` datasets
+            * if the ✓ is not present that means (depending on the column) there is no ``TOKEN``
+              or ``BONA FIDE`` is not provided;
+          * ``PERMISSIONS`` column reflects the dataset permissions found in the JWT ``TOKEN`` claim.
 
 Default cases (no dataset IDs specified)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -8,25 +8,13 @@ In this section we illustrate some means of building and running the application
 Dockerfile
 ----------
 
-Using vanilla docker in order to build the image:
+Using vanilla docker in order to build the image - the tag can be customised:
 
 .. code-block:: console
 
     $ git clone https://github.com/CSCfi/beacon-python
     $ cd beacon-python
     $ docker build -t cscfi/beacon-python
-
-
-Docker Compose
---------------
-
-.. code-block:: console
-
-    $ git clone https://github.com/CSCfi/beacon-python
-    $ cd beacon-python
-    $ docker build -t cscfi/beacon-python
-    $ cd deploy
-    $ docker-compose up -d
 
 .. _s2i-build:
 
@@ -43,11 +31,25 @@ Using OpenShift's ``s2i`` means of building the Docker image requires
     $ s2i build . centos/python-36-centos7 cscfi/beacon-python
 
 After the image has been built one can use it with the simple Docker ``run``
+(requires connection to a connection to a DB in the same docker network)
 or as part of a docker-compose file or as illustrated below with Kubernetes.
 
 .. code-block:: console
 
     $ docker run -p 5050:5050 cscfi/beacon-python
+
+
+Docker Compose
+--------------
+
+.. code-block:: console
+
+    $ git clone https://github.com/CSCfi/beacon-python
+    $ cd beacon-python
+    $ docker build -t cscfi/beacon-python
+    $ cd deploy
+    $ docker-compose up -d
+
 
 Kubernetes Integration
 ----------------------

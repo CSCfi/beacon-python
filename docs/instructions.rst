@@ -147,13 +147,13 @@ Starting PostgreSQL using Docker:
                -v "$PWD/data":/docker-entrypoint-initdb.d
                -p 5432:5432 postgres:9.6
 
-.. hint:: If you have your own database you can skip the ``beacon_init`` utility below,
-          and use your own database by:
+.. hint:: If one has their own database the ``beacon_init`` utility can be skipped,
+          and make use of their own database by:
 
-          * creating a view that matches the DB schema for the beacon python server see: :ref:`database`
+          * creating a DB View that matches the DB schema for the beacon python server see: :ref:`database`
             for information on the database schema and queries;
-          * migrate your database to match the :ref:`database` schema and queries;
-          * keep your own database, but modify the queries in :meth:`beacon_api.utils.data_query`.
+          * migrate the database to match the :ref:`database` schema;
+          * keep own database, but modify the queries in :meth:`beacon_api.utils.data_query`.
 
 
 Loading data (Optional)

@@ -6,9 +6,8 @@ Database
 We use a PostgreSQL database (version 9.6+) for working with beacon data.
 For more information on setting up the database consult :ref:`database-setup`.
 
-.. warning:: Database tables are subject to change as we tune the performance.
-             We recommend https://pgtune.leopard.in.ua/#/ for establishing PostgreSQL
-             configuration parameters.
+.. attention:: We recommend https://pgtune.leopard.in.ua/#/ for establishing PostgreSQL
+             configuration parameters, in order to optimised database setup.
 
              e.g. for PostgreSQL running on 8GB of RAM setting ``shared_buffers = 2GB``
              ``effective_cache_size = 6GB`` can improve query performance.
@@ -22,11 +21,22 @@ For more information on setting up the database consult :ref:`database-setup`.
                             frequency, "end");
 
 
-We use the DB schema below as a means for providing data contained in ``*.vcf`` file and making
-it accessible via the Beacon API specification.
+We use the DB schema below as a means for providing making data accessible as described by
+the Beacon API specification.
+
+When designing the DB schema we also took into consideration information contained in ``*.vcf`` files.
 
 Information for the metadata table, currently needs to be provided by the data submitter,
 as such information cannot be extracted from ``*.vcf`` files.
+
+The Data Provider can use the ``beacon_init`` utility to load data, but if Data Provider has
+a previous Database we recommend to skip the ``beacon_init`` utility and set up the database
+using one of the solutions:
+
+* creating a DB view that matches the DB schema for the beacon python server as described below;
+* migrate the database to match the DB schema;
+* keep own database, but modify the queries in :meth:`beacon_api.utils.data_query`.
+
 
 .. literalinclude:: /../data/init.sql
    :language: sql

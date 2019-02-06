@@ -36,7 +36,9 @@ In order to run the integration tests, makes use of :ref:`s2i-build`:
 
 The integration tests will build a docker image of the ``beacon-python`` and make use of
 `docker compose <https://docs.docker.com/compose/>`_ to deploy the Web Server and an associated
-PostgreSQL Database. Next step is to load mock data and last step is to run the integration tests.
+PostgreSQL Database as well as a mock OAuth2 authentication server.
+Next step is to load mock data, as illustrated by the
+``docker-compose exec`` commands above, and last step is to run the integration tests.
 
 
 Load Testing
