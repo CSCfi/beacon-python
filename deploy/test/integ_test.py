@@ -387,33 +387,24 @@ async def test_16():
 
     Send a query targeting REGISTERED dataset with token, but no bona fide. Expect failure (403).
     """
-    #################################################################
-    #                                                               #
-    # MOCK BONA FIDE ALWAYS GIVES TRUE, SO CAN'T TEST THIS CASE YET #
-    #                                                               #
-    #################################################################
-    if True:
-        # Need to set up a mock server for giving false to bona fide check first
-        LOG.debug(f'[16/{TESTS_NUMBER}] !! SKIPPED - Not yet implemented !!')
-    else:
-        LOG.debug(f'[16/{TESTS_NUMBER}] Test post query (fail to access registered data (token, but no bona fide))')
-        payload = {"referenceName": "MT",
-                   "start": 9,
-                   "startMax": 0,
-                   "end": 0,
-                   "endMin": 0,
-                   "endMax": 0,
-                   "referenceBases": "T",
-                   "alternateBases": "C",
-                   "assemblyId": "GRCh38",
-                   "datasetIds": ['urn:hg:1000genome:registered'],
-                   "includeDatasetResponses": "HIT"}
-        headers = {"Authorization": f"Bearer {TOKEN_EMPTY}"}
-        async with aiohttp.ClientSession(headers=headers) as session:
-            async with session.post('http://localhost:5050/query', data=json.dumps(payload)) as resp:
-                data = await resp.json()
-                assert data['exists'] is None, sys.exit('Query POST Endpoint Error!')
-                assert resp.status == 403, 'HTTP Status code error'
+    LOG.debug(f'[16/{TESTS_NUMBER}] Test post query (fail to access registered data (token, but no bona fide))')
+    payload = {"referenceName": "MT",
+               "start": 9,
+               "startMax": 0,
+               "end": 0,
+               "endMin": 0,
+               "endMax": 0,
+               "referenceBases": "T",
+               "alternateBases": "C",
+               "assemblyId": "GRCh38",
+               "datasetIds": ['urn:hg:1000genome:registered'],
+               "includeDatasetResponses": "HIT"}
+    headers = {"Authorization": f"Bearer {TOKEN_EMPTY}"}
+    async with aiohttp.ClientSession(headers=headers) as session:
+        async with session.post('http://localhost:5050/query', data=json.dumps(payload)) as resp:
+            data = await resp.json()
+            assert data['exists'] is None, sys.exit('Query POST Endpoint Error!')
+            assert resp.status == 403, 'HTTP Status code error'
 
 
 async def test_17():
@@ -459,7 +450,7 @@ async def main():
     await test_13()
     await test_14()
     await test_15()
-    await test_16()  # skipped for now
+    await test_16()
     await test_17()
     LOG.debug('All integration tests have passed')
 

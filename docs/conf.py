@@ -62,7 +62,7 @@ current_year = str(datetime.date.today().year)
 
 # General information about the project.
 project = 'beacon-python'
-copyright = f'{current_year}, {beacon_api.__copyright__}'
+copyright = f'2018 - {current_year}, {beacon_api.__copyright__}'
 author = beacon_api.__author__
 
 # The version info for the project you're documenting, acts as replacement for
@@ -112,7 +112,7 @@ html_theme_options = {
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-# html_static_path = ['static']
+html_static_path = ['static']
 
 # Custom sidebar templates, must be a dictionary that maps document names
 # to template names.
@@ -132,9 +132,9 @@ html_sidebars = {
 today_fmt = '%B %d, %Y'
 
 
-# def setup(app):
-#     """Add custom stylesheet."""
-#     app.add_stylesheet('custom.css')
+def setup(app):
+    """Add custom stylesheet."""
+    app.add_stylesheet('custom.css')
 
 
 # -- Other stuff ----------------------------------------------------------

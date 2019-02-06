@@ -24,11 +24,14 @@ In order to run the integration tests, makes use of :ref:`s2i-build`:
 
     $ git clone https://github.com/CSCfi/beacon-python
     $ cd beacon-python
+    $ # please make sure to commit any changes before building otherwise s2i will not integrate them in build
     $ s2i build . centos/python-36-centos7 cscfi/beacon-python
-    $ cd deploy
+    $ cd deploy/test
     $ docker-compose up -d
     $ docker-compose exec beacon beacon_init data/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz data/example_metadata.json
-    $ docker-compose exec postgres psql -U beacon beacondb -c "INSERT INTO beacon_dataset_counts_table (datasetId, callCount, variantCount) VALUES ('urn:hg:1000genome', 1, 1)"
+    $ docker-compose exec beacon beacon_init data/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz /exdata/example_metadata_registered.json
+    $ docker-compose exec beacon beacon_init data/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz /exdata/example_metadata_controlled.json
+    $ docker-compose exec beacon beacon_init data/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz /exdata/example_metadata_controlled1.json
     $ python test/integ_test.py
 
 The integration tests will build a docker image of the ``beacon-python`` and make use of

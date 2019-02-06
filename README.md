@@ -40,6 +40,11 @@ For installing `beacon-python` do the following:
 pip install .
 ```
 
+If you have your own database you can skip the ``beacon_init`` utility below, and use your own database by:
+* creating a view that matches the DB schema for the beacon python server see: [Database](https://beacon-python.readthedocs.io/en/latest/db.html) documentation for information on the database schema and queries;
+* migrate your database to match the [Database](https://beacon-python.readthedocs.io/en/latest/db.html) schema and queries;
+* keep your own database, but modify the queries in [beacon_api.utils.data_query.py](beacon_api/utils/data_query.py).
+
 For loading `*.vcf`/`*.vcf.gz` files into the database we provide the `beacon_init` utility:
 ```shell
 ╰─$ beacon_init --help             

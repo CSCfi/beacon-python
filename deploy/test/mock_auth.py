@@ -2,6 +2,13 @@
 
 from aiohttp import web
 
+TOKEN_EMPTY = "eyJraWQiOiJyc2ExIiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiJyZXF1ZXN0ZXJAZWx\
+peGlyLWV1cm9wZS5vcmciLCJpc3MiOiJodHRwOi8vc29tZWJvZHkuY29tIiwiZXhwIjo5OTk5OTk5OTk5\
+OSwiaWF0IjoxNTQ3Nzk0NjU1LCJqdGkiOiI2YWQ3YWE0Mi0zZTljLTQ4MzMtYmQxNi03NjVjYjgwYzIxM\
+DIifQ.HPr3_N_4E-w_sIWS0kO7b-1VGVBuwQpgQoA2DRWj86YRt11JM_lpG58NrZwUOKXIOn4yV-HnrHe\
+4pXn07bEZ_EgcqBsNnVHE51iiKZUS3v3gkBrLJ5miogjCdxz-wNnIm45ceSIW1PSRTkKDJpwmzigfvP_l\
+GHpxwmUKAmRwFnw"
+
 
 async def jwk(request):
     """Mock JSON Web Key server."""
@@ -16,7 +23,10 @@ async def jwk(request):
 
 async def userinfo(request):
     """Mock an authentication to ELIXIR AAI bona_fide."""
-    data = {'bona_fide_status': "yes we can"}
+    if request.headers.get('Authorization').split(' ')[1] == TOKEN_EMPTY:
+        data = {}
+    else:
+        data = {'bona_fide_status': "yes we can"}
     return web.json_response(data)
 
 

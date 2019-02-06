@@ -102,8 +102,7 @@ async def check_bona_fide_status(token, obj, host):
             async with session.get(OAUTH2_CONFIG.bona_fide) as r:
                 json_body = await r.json()
                 LOG.info('Retrieve a user\'s bona_fide_status.')
-                if 'bona_fide_status' in json_body:
-                    return json_body.get("bona_fide_status", None)
+                return json_body.get("bona_fide_status", None)
     except Exception:
         raise BeaconServerError("Could not retrieve ELIXIR AAI bona fide status.")
 

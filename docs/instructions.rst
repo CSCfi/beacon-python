@@ -104,7 +104,10 @@ For installing `beacon-python` do the following:
     $ cd beacon-python
     $ pip install .
 
-Before running the application proceed with the :ref:`database-setup`.
+.. hint:: Before running the application:
+
+          * configure information related to your beacon in :ref:`beacon-info`;
+          * proceed with the :ref:`database-setup`.
 
 To run the application from command line use:
 
@@ -144,7 +147,19 @@ Starting PostgreSQL using Docker:
                -v "$PWD/data":/docker-entrypoint-initdb.d
                -p 5432:5432 postgres:9.6
 
-For loading example database we provide the ``beacon_init`` utility:
+.. hint:: If you have your own database you can skip the ``beacon_init`` utility below,
+          and use your own database by:
+
+          * creating a view that matches the DB schema for the beacon python server see: :ref:`database`
+            for information on the database schema and queries;
+          * migrate your database to match the :ref:`database` schema and queries;
+          * keep your own database, but modify the queries in :meth:`beacon_api.utils.data_query`.
+
+
+Loading data (Optional)
+~~~~~~~~~~~~~~~~~~~~~~~
+
+For loading datasets to database we provide the ``beacon_init`` utility:
 
 .. code-block:: console
 
@@ -194,7 +209,7 @@ For loading data into the database from selected samples only we can proceed as 
     $ beacon_init data/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz data/example_metadata.json --samples HG0001,HG0002,HG0003
 
 .. note:: One dataset can have multiple files, in order to add more files to one dataset, repeat the command above.
-          The parameters ``callCount`` and ``variantCount`` from the metdata file reflect values of the entire dataset.
+          The parameters ``callCount`` and ``variantCount`` from the metadata file reflect values of the entire dataset.
           These values can be initialised with ``0`` if they are not known and updated in ``beacon_dataset_counts_table`` table.
           As of this moment we do not provide an option for bulk upload of files from a dataset.
 
