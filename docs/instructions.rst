@@ -104,7 +104,10 @@ For installing `beacon-python` do the following:
     $ cd beacon-python
     $ pip install .
 
-Before running the application proceed with the :ref:`database-setup`.
+.. hint:: Before running the application:
+
+          * configure information related to your beacon in :ref:`beacon-info`;
+          * proceed with the :ref:`database-setup`.
 
 To run the application from command line use:
 
@@ -144,7 +147,19 @@ Starting PostgreSQL using Docker:
                -v "$PWD/data":/docker-entrypoint-initdb.d
                -p 5432:5432 postgres:9.6
 
-For loading example database we provide the ``beacon_init`` utility:
+.. hint:: If you have your own database you can skip the ``beacon_init`` utility below,
+          and use your own database by:
+
+          * creating a view that matches the DB schema for the beacon python server see: :ref:`database`
+            for information on the databse schema and queries;
+          * migrate your database to the match :ref:`database` schema and queries;
+          * keep your own database, but modify the queries in :meth:`beacon_api.utils.data_query`.
+
+
+Loading data (Optional)
+~~~~~~~~~~~~~~~~~~~~~~~
+
+For loading datasets to database we provide the ``beacon_init`` utility:
 
 .. code-block:: console
 
