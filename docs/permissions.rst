@@ -50,6 +50,12 @@ We have integrated tests for these use case that can be found at:
 
 .. note:: Table Legend:
 
+          * colour meaning:
+
+              * :green:`green` is for ``PUBLIC`` datasets;
+              * :orange:`orange` is for ``REGISTERED`` datasets;
+              * :red:`red` is for ``CONTROLLED`` datasets;
+              * :blue:`blue` is for errors in retrieving datasets, currently done via HTTP error statuses;
           *  ``[]`` - means all available datasets are requested;
           * if a cell is empty it means no datasets are requested;
           * ✓ - is used to represent that:
