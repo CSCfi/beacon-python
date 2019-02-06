@@ -151,7 +151,7 @@ Starting PostgreSQL using Docker:
           and use your own database by:
 
           * creating a view that matches the DB schema for the beacon python server see: :ref:`database`
-            for information on the databse schema and queries;
+            for information on the database schema and queries;
           * migrate your database to the match :ref:`database` schema and queries;
           * keep your own database, but modify the queries in :meth:`beacon_api.utils.data_query`.
 
@@ -209,7 +209,7 @@ For loading data into the database from selected samples only we can proceed as 
     $ beacon_init data/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz data/example_metadata.json --samples HG0001,HG0002,HG0003
 
 .. note:: One dataset can have multiple files, in order to add more files to one dataset, repeat the command above.
-          The parameters ``callCount`` and ``variantCount`` from the metdata file reflect values of the entire dataset.
+          The parameters ``callCount`` and ``variantCount`` from the metadata file reflect values of the entire dataset.
           These values can be initialised with ``0`` if they are not known and updated in ``beacon_dataset_counts_table`` table.
           As of this moment we do not provide an option for bulk upload of files from a dataset.
 
