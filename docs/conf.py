@@ -62,7 +62,7 @@ current_year = str(datetime.date.today().year)
 
 # General information about the project.
 project = 'beacon-python'
-copyright = f'{current_year}, {beacon_api.__copyright__}'
+copyright = f'2018 - {current_year}, {beacon_api.__copyright__}'
 author = beacon_api.__author__
 
 # The version info for the project you're documenting, acts as replacement for
