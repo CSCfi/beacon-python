@@ -98,20 +98,19 @@ class BeaconDB:
         ac = []
         vt = []
         alt = variant.ALT
-        an = variant.num_called*2
         me_type = ['dup:tandem', 'del:me', 'ins:me']
         # sv_type = ['dup', 'inv', 'ins', 'del', 'cnv']
         # supported_vt = ['snp', 'indel', 'mnp', 'dup', 'inv', 'ins', 'del']
         for k, v in variant.INFO:
             if k == 'AC':
                 ac = self._handle_type(v, int)
-            if k == 'AF':
-                aaf = self._handle_type(v, float)
             if k == 'AN':
                 an = v
-                aaf = [float(ac_value) / float(an) for ac_value in ac]
             else:
-                an = len_samples * 2
+                an = variant.num_called*2
+            if k == 'AF':
+                aaf = self._handle_type(v, float)
+            else:
                 aaf = [float(ac_value) / float(an) for ac_value in ac]
             if variant.is_sv:
                 alt = [elem.strip("<>") for elem in variant.ALT]
