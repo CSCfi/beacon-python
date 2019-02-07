@@ -92,7 +92,7 @@ class BeaconDB:
             return thestring[:-len(ending)]
         return thestring
 
-    def _unpack(self, variant, len_samples):
+    def _unpack(self, variant):
         """Unpack variant type, allele frequency and count."""
         aaf = []
         ac = []
@@ -218,17 +218,16 @@ class BeaconDB:
     async def load_datafile(self, vcf, datafile, dataset_id, n=1000):
         """Parse data from datafile and send it to be inserted."""
         LOG.info(f'Read data from {datafile}')
-        len_samples = len(vcf.samples)
         try:
             LOG.info('Generate database queue(s)')
             data = self._chunks(vcf, n)
             for record in data:
-                await self.insert_variants(dataset_id, list(record), len_samples)
+                await self.insert_variants(dataset_id, list(record))
             LOG.info(f'{datafile} has been processed')
         except Exception as e:
             LOG.error(f'AN ERROR OCCURRED WHILE GENERATING DB QUEUE -> {e}')
 
-    async def insert_variants(self, dataset_id, variants, len_samples):
+    async def insert_variants(self, dataset_id, variants):
         """Insert variant data to the database."""
         LOG.info(f'Received {len(variants)} variants for insertion to {dataset_id}')
         try:
@@ -238,7 +237,7 @@ class BeaconDB:
                 for variant in variants:
                     # params = (frequency, count, actual variant Type)
                     if variant.aaf > 0:
-                        params = self._unpack(variant, len_samples)
+                        params = self._unpack(variant)
                         # Coordinates that are read from VCF are 1-based, cyvcf2 reads them as 0-based, and they are inserted into the DB as such
                         await self._conn.execute("""INSERT INTO beacon_data_table
                                                  (datasetId, chromosome, start, reference, alternate,
