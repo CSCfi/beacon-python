@@ -207,7 +207,7 @@ class DatabaseTestCase(asynctest.TestCase):
         db_mock.return_value = Connection()
         await self._db.connection()
         db_mock.assert_called()
-        await self._db.insert_variants('DATASET1', ['C'], 1)
+        await self._db.insert_variants('DATASET1', ['C'])
         # Should assert logs
         mock_log.info.mock_calls = [f'Received 1 variants for insertion to DATASET1',
                                     'Insert variants into the database']
@@ -235,10 +235,10 @@ class DatabaseTestCase(asynctest.TestCase):
         db_mock.return_value = Connection()
         await self._db.connection()
         variant = Variant('TC', 'T', {'AC': (1, 2), 'VT': 'M,S,I', 'AN': 3}, 0.7, 'snp', 3)
-        result = self._db._unpack(variant, 1)
+        result = self._db._unpack(variant)
         self.assertEqual(([0.3333333333333333, 0.6666666666666666], [1, 2], ['MNP', 'SNP', 'INS'], 'TC', 3), result)
         variant = Variant('TC', 'T', {'AC': 1, 'VT': 'S', 'AN': 3}, 0.7, 'snp', 3)
-        result = self._db._unpack(variant, 1)
+        result = self._db._unpack(variant)
         self.assertEqual(([0.3333333333333333], [1], ['SNP'], 'TC', 3), result)
 
     @asynctest.mock.patch('beacon_api.utils.db_load.LOG')
