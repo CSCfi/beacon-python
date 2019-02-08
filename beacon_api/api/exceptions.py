@@ -7,6 +7,7 @@ import json
 from aiohttp import web
 from .. import __apiVersion__
 from ..utils.logging import LOG
+from ..conf import CONFIG_INFO
 
 
 class BeaconError(Exception):
@@ -62,12 +63,16 @@ class BeaconUnauthorised(BeaconError):
     Used in conjuction with Token authentication aiohttp middleware.
     """
 
-    def __init__(self, request, host, error):
+    def __init__(self, request, host, error, error_message):
         """Return custom unauthorized exception."""
         data = super().__init__(request, host, 401, error)
-
+        headers_401 = {"WWW-Authenticate": f"Bearer realm=\"{CONFIG_INFO.url}\"\n\
+                         error=\"{error}\"\n\
+                         error_description=\"{error_message}\""}
         LOG.error(f'401 ERROR MESSAGE: {error}')
-        raise web.HTTPUnauthorized(content_type="application/json", text=json.dumps(data))
+        raise web.HTTPUnauthorized(content_type="application/json", text=json.dumps(data),
+                                   # we use auth scheme Bearer by default
+                                   headers=headers_401)
 
 
 class BeaconForbidden(BeaconError):

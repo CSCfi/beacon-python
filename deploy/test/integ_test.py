@@ -256,6 +256,7 @@ async def test_10():
     async with aiohttp.ClientSession() as session:
         async with session.post('http://localhost:5050/query', data=json.dumps(payload)) as resp:
             data = await resp.json()
+            assert 'WWW-Authenticate' in resp.headers, 'Missing WWW-Authenticate header'
             assert data['exists'] is None, sys.exit('Query POST Endpoint Error!')
             assert resp.status == 401, 'HTTP Status code error'
 
@@ -280,6 +281,7 @@ async def test_11():
     async with aiohttp.ClientSession() as session:
         async with session.post('http://localhost:5050/query', data=json.dumps(payload)) as resp:
             data = await resp.json()
+            assert 'WWW-Authenticate' in resp.headers, 'Missing WWW-Authenticate header'
             assert data['exists'] is None, sys.exit('Query POST Endpoint Error!')
             assert resp.status == 401, 'HTTP Status code error'
 

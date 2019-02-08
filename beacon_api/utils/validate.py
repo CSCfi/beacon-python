@@ -139,12 +139,12 @@ def token_auth():
                 scheme, token = request.headers.get('Authorization').split(' ')
                 LOG.info('Auth Token Received.')
             except Exception as e:
-                raise BeaconUnauthorised(obj, request.host, str(e))
+                raise BeaconUnauthorised(obj, request.host, "invalid_token", str(e))
 
             if not re.match('Bearer', scheme):
-                raise BeaconUnauthorised(obj, request.host, 'Invalid token scheme.')
+                raise BeaconUnauthorised(obj, request.host, "invalid_token", 'Invalid token scheme, Bearer required.')
 
-            assert token is not None, BeaconUnauthorised(obj, request.host, f'Token cannot be empty.')
+            assert token is not None, BeaconUnauthorised(obj, request.host, "invalid_token", f'Token cannot be empty.')
             key = await get_key()
             issuers = OAUTH2_CONFIG.issuers.split(',')
             try:
@@ -165,11 +165,11 @@ def token_auth():
                                     "authenticated": True}
                 return await handler(request)
             except ExpiredSignatureError as e:
-                raise BeaconUnauthorised(obj, request.host, f'Expired signature: {e}')
+                raise BeaconUnauthorised(obj, request.host, "invalid_token", f'Expired signature: {e}')
             except JWTClaimsError as e:
                 raise BeaconForbidden(obj, request.host, f'Token info not corresponding with claim: {e}')
             except JWTError as e:
-                raise BeaconUnauthorised(obj, request.host, f'Invalid authorization token: {e}')
+                raise BeaconUnauthorised(obj, request.host, "invalid_token", f'Invalid authorization token: {e}')
         else:
             request["token"] = {"bona_fide_status": False,
                                 "permissions": None,
