@@ -101,24 +101,18 @@ class BeaconDB:
         me_type = ['dup:tandem', 'del:me', 'ins:me']
         # sv_type = ['dup', 'inv', 'ins', 'del', 'cnv']
         # supported_vt = ['snp', 'indel', 'mnp', 'dup', 'inv', 'ins', 'del']
-        for k, v in variant.INFO:
-            if k == 'AC':
-                ac = self._handle_type(v, int)
-            if k == 'AN':
-                an = v
-            else:
-                an = variant.num_called*2
-            if k == 'AF':
-                aaf = self._handle_type(v, float)
-            else:
-                aaf = [float(ac_value) / float(an) for ac_value in ac]
-            if variant.is_sv:
-                alt = [elem.strip("<>") for elem in variant.ALT]
-                if k == 'SVTYPE':
-                    vt = [self._rchop(e, ":"+v) if e.lower().startswith(tuple(me_type)) else v for e in alt]
-            else:
-                if k == 'VT':
-                    vt = [self._transform_vt(var_type.lower(), variant) for var_type in v.split(',')]
+        ac = self._handle_type(variant.INFO.get('AC'), int) if variant.INFO.get('AC') else []
+        an = variant.INFO.get('AN') if variant.INFO.get('AN') else variant.num_called * 2
+        aaf = self._handle_type(variant.INFO.get('AF'), float) if variant.INFO.get('AF') else [float(ac_value) / float(an) for ac_value in ac]
+        if variant.is_sv:
+            alt = [elem.strip("<>") for elem in variant.ALT]
+            if variant.INFO.get('SVTYPE'):
+                v = variant.INFO.get('SVTYPE')
+                vt = [self._rchop(e, ":"+v) if e.lower().startswith(tuple(me_type)) else v for e in alt]
+        else:
+            if variant.INFO.get('VT'):
+                v = variant.INFO.get('VT')
+                vt = [self._transform_vt(var_type.lower(), variant) for var_type in v.split(',')]
 
         return (aaf, ac, vt, alt, an)
 
@@ -235,6 +229,7 @@ class BeaconDB:
             async with self._conn.transaction():
                 LOG.info('Insert variants into the database')
                 for variant in variants:
+                    # print(variant)
                     # params = (frequency, count, actual variant Type)
                     if variant.aaf > 0:
                         params = self._unpack(variant)

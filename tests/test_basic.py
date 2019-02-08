@@ -1,6 +1,7 @@
 import asynctest
 from beacon_api.utils.db_load import parse_arguments, init_beacon_db, main
 from beacon_api.conf.config import init_db_pool
+from beacon_api.permissions.rems import get_rems_controlled
 from testfixtures import TempDirectory
 
 
@@ -93,6 +94,21 @@ class TestBasicFunctions(asynctest.TestCase):
         """Test run asyncio main beacon init."""
         main()
         mock_init.assert_called()
+
+    def test_rems_controlled(self):
+        """Test rems permissions claim parsing."""
+        claim = [{"affiliation": "",
+                  "datasets": ["EGAD01", "urn:hg:example-controlled"],
+                  "source_signature": "",
+                  "url_prefix": ""},
+                 {"affiliation": "",
+                  "datasets": ["urn:hg:example-controlled", "EGAD02",
+                               "urn:hg:example-controlled3"],
+                  "source_signature": "",
+                  "url_prefix": ""}]
+        self.assertCountEqual(get_rems_controlled(claim),
+                              ['EGAD01', 'urn:hg:example-controlled',
+                               'urn:hg:example-controlled3', 'EGAD02'])
 
 
 if __name__ == '__main__':

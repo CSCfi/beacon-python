@@ -7,18 +7,36 @@ from beacon_api.utils.db_load import BeaconDB
 class Variant:
     """Variant Class.
 
-    Mock this for Variant caculations.
+    Mock this for Variant calculations.
     """
 
-    def __init__(self, ALT, REF, INFO, call_rate, var_type, num_called):
+    def __init__(self, ALT, REF, INF, call_rate, var_type, num_called):
         """Initialize class."""
-        self.INFO = INFO.items()
+        self.INFO = INF
         self.ALT = ALT
         self.REF = REF
         self.call_rate = call_rate
         self.var_type = var_type
         self.num_called = num_called
         self.is_sv = False
+
+
+class INFO:
+    """INFO CLass.
+
+    Mock this for storing VCF info.
+    """
+
+    def __init__(self, AC, VT, AN):
+        """Initialize class."""
+        self.AC = AC
+        self.VT = VT
+        self.AN = AN
+        self.AF = 0
+
+    def get(self, key):
+        """Inside `__getitem__` method."""
+        return getattr(self, key)
 
 
 class Transaction:
@@ -234,10 +252,13 @@ class DatabaseTestCase(asynctest.TestCase):
         """Test database URL fetching."""
         db_mock.return_value = Connection()
         await self._db.connection()
-        variant = Variant('TC', 'T', {'AC': (1, 2), 'VT': 'M,S,I', 'AN': 3}, 0.7, 'snp', 3)
+        inf1 = INFO((1, 2), 'M,S,I', 3)
+        variant = Variant('TC', 'T', inf1, 0.7, 'snp', 3)
         result = self._db._unpack(variant)
         self.assertEqual(([0.3333333333333333, 0.6666666666666666], [1, 2], ['MNP', 'SNP', 'INS'], 'TC', 3), result)
-        variant = Variant('TC', 'T', {'AC': 1, 'VT': 'S', 'AN': 3}, 0.7, 'snp', 3)
+        inf2 = INFO(1, 'S', 3)
+        variant = Variant('TC', 'T', inf2, 0.7, 'snp', 3)
+        # print(variant.INFO.get('AC'))
         result = self._db._unpack(variant)
         self.assertEqual(([0.3333333333333333], [1], ['SNP'], 'TC', 3), result)
 
