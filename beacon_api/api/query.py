@@ -32,7 +32,7 @@ def access_resolution(request, token, host, public_data, registered_data, contro
     elif registered_data and not public_data:
         if token["authenticated"] is False:
             # token is not provided (user not authed)
-            raise BeaconUnauthorised(request, host, 'Unauthorized access to dataset(s).')
+            raise BeaconUnauthorised(request, host, "missing_token", 'Unauthorized access to dataset(s), missing token.')
         # token is present, but is missing perms (user authed but no access)
         raise BeaconForbidden(request, host, 'Access to dataset(s) is forbidden.')
     if controlled_data and 'permissions' in token and token['permissions']:
@@ -48,7 +48,7 @@ def access_resolution(request, token, host, public_data, registered_data, contro
     elif controlled_data and not public_data:
         if token["authenticated"] is False:
             # token is not provided (user not authed)
-            raise BeaconUnauthorised(request, host, 'Unauthorized access to dataset(s).')
+            raise BeaconUnauthorised(request, host, "missing_token", 'Unauthorized access to dataset(s), missing token.')
         # token is present, but is missing perms (user authed but no access)
         raise BeaconForbidden(request, host, 'Access to dataset(s) is forbidden.')
     LOG.info(f"Accesible datasets are: {list(access)}.")
