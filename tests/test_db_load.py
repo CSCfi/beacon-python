@@ -32,7 +32,7 @@ class INFO:
         self.AC = AC
         self.VT = VT
         self.AN = AN
-        self.AF = 0
+        self.AF = None
 
     def get(self, key):
         """Inside `__getitem__` method."""
@@ -258,7 +258,6 @@ class DatabaseTestCase(asynctest.TestCase):
         self.assertEqual(([0.3333333333333333, 0.6666666666666666], [1, 2], ['MNP', 'SNP', 'INS'], 'TC', 3), result)
         inf2 = INFO(1, 'S', 3)
         variant = Variant('TC', 'T', inf2, 0.7, 'snp', 3)
-        # print(variant.INFO.get('AC'))
         result = self._db._unpack(variant)
         self.assertEqual(([0.3333333333333333], [1], ['SNP'], 'TC', 3), result)
 
