@@ -59,7 +59,7 @@ class BeaconDB:
         self._conn = None
 
     def _alt_length_check(self, variant, i, default):
-        """Figure out if the Alt is long thatn the Reference base."""
+        """Figure out if the Alternate base is longer than the Reference base."""
         if len(variant.ALT[i]) > len(variant.REF):
             return 'INS'
         elif len(variant.ALT[i]) == len(variant.REF):
