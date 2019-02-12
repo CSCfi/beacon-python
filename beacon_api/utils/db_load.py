@@ -58,16 +58,25 @@ class BeaconDB:
         LOG.info('Start database routines')
         self._conn = None
 
-    def _transform_vt(self, vt, variant):
+    def _alt_length_check(self, variant, i, default):
+        """Figure out if the Alt is long thatn the Reference base."""
+        if len(variant.ALT[i]) > len(variant.REF):
+            return 'INS'
+        elif len(variant.ALT[i]) == len(variant.REF):
+            return default
+        else:
+            return 'DEL'
+
+    def _transform_vt(self, vt, variant, i):
         """Transform variant types."""
         if vt in ['s', 'snp']:
-            return 'SNP'
+            return self._alt_length_check(variant, i, 'SNP')
         elif vt in ['m', 'mnp']:
-            return 'MNP'
+            return self._alt_length_check(variant, i, 'MNP')
         elif vt in ['i', 'indel']:
-            return 'INS' if len(variant.ALT) > len(variant.REF) else 'DEL'
+            return self._alt_length_check(variant, i, 'SNP')
         else:
-            LOG.debug(f'Other variantType value {variant.var_type.upper()}')
+            # LOG.debug(f'Other variantType value {variant.var_type.upper()}')
             return variant.var_type.upper()
 
     def _handle_type(self, value, type):
@@ -101,21 +110,26 @@ class BeaconDB:
         me_type = ['dup:tandem', 'del:me', 'ins:me']
         # sv_type = ['dup', 'inv', 'ins', 'del', 'cnv']
         # supported_vt = ['snp', 'indel', 'mnp', 'dup', 'inv', 'ins', 'del']
-        ac = [] if variant.INFO.get('AC') is None else self._handle_type(variant.INFO.get('AC'), int)
-        an = variant.num_called * 2 if variant.INFO.get('AN') is None else variant.INFO.get('AN')
-        if variant.INFO.get('AF') is None:
-            aaf = [float(ac_value) / float(an) for ac_value in ac]
-        else:
+        ac = self._handle_type(variant.INFO.get('AC'), int) if variant.INFO.get('AC') else []
+        an = variant.INFO.get('AN') if variant.INFO.get('AN') else variant.num_called * 2
+        if variant.INFO.get('AF'):
             aaf = self._handle_type(variant.INFO.get('AF'), float)
+        else:
+            aaf = [float(ac_value) / float(an) for ac_value in ac]
+
         if variant.is_sv:
             alt = [elem.strip("<>") for elem in variant.ALT]
-            if variant.INFO.get('SVTYPE') is not None:
+            if variant.INFO.get('SVTYPE'):
                 v = variant.INFO.get('SVTYPE')
                 vt = [self._rchop(e, ":"+v) if e.lower().startswith(tuple(me_type)) else v for e in alt]
         else:
-            if variant.INFO.get('VT') is not None:
-                v = variant.INFO.get('VT')
-                vt = [self._transform_vt(var_type.lower(), variant) for var_type in v.split(',')]
+            if variant.INFO.get('VT'):
+                v = variant.INFO.get('VT').split(',')
+                if len(alt) > len(v):
+                    vt_temp = [[self._transform_vt(var_type.lower(), variant, i) for i, k in enumerate(alt)] for var_type in v]
+                    vt = vt_temp[0]
+                else:
+                    vt = [self._transform_vt(var_type.lower(), variant, i) for i, var_type in enumerate(v)]
 
         return (aaf, ac, vt, alt, an)
 
