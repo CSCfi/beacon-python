@@ -1,7 +1,16 @@
 """DB Configuration.
 
-Specify the URL and the necessary info for the PostgreSQL server from the environmental variables and pack it into one
-variable called DB_URL. The variable is then used to configure the application to connect to that database using asyncpg.
+Specify the necessary parameters for connecting to PostgreSQL server by making use of the environmental variables.
+We use:
+
+* ``DATABASE_URL`` - PostgreSQL server address
+* ``DATABASE_PORT`` - PostgreSQL server port
+* ``DATABASE_USER`` - PostgreSQL user for ``beacon-python``
+* ``DATABASE_PASSWORD`` - PostgreSQL user associated password
+* ``DATABASE_NAME`` - PostgreSQL database name/view utilised by the ``beacon-python``
+* ``DATABASE_SCHEMA`` - in case a schema is used
+
+The variable is then used to configure the application to connect to that database using asyncpg.
 At this point we also initialize a connection pool that the API is going to use on all its endpoints.
 """
 
