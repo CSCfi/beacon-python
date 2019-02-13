@@ -8,7 +8,7 @@ Handling Permissions
 
 In order to retrieve permissions for the ``CONTROLLED`` datasets via a JWT token, we added a
 permissions module :meth:`beacon_api.permissions` that aims to act as a platform where
-add-ons are place for processing different styles of permissions claims.
+add-ons are placed for processing different styles of permissions claims.
 
 The main reason for choosing such a method of handling dataset permissions, is that
 there is no standard way for delivering access to datasets via JWT Tokens

@@ -15,7 +15,7 @@ Using vanilla docker in order to build the image - the tag can be customised:
 
     $ git clone https://github.com/CSCfi/beacon-python
     $ cd beacon-python/deploy
-    $ docker build -t cscfi/beacon-python
+    $ docker build -t cscfi/beacon-python .
 
 .. _s2i-build:
 
@@ -47,7 +47,7 @@ Docker Compose
 
     $ git clone https://github.com/CSCfi/beacon-python
     $ cd beacon-python/deploy
-    $ docker build -t cscfi/beacon-python
+    $ docker build -t cscfi/beacon-python .
     $ docker-compose up -d
 
 
