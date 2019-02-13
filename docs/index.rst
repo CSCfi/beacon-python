@@ -18,13 +18,13 @@ Python-based Beacon API Server
 by providing an easy to use and configure web application, and also adds support for (e.g. wildcard search) and more.
 
 In order to facilitate loading data, we provide out of the box a ``*.vcf``/``*.vcf.gz`` data loader into
-the Beacon :ref:`database`.
+the Beacon :ref:`database`, but an existing database can be utilised as well see :ref:`database-setup`.
 
 Out of the box the ``beacon-python`` offers:
 
-* adhere to Beacon API 1.0.1+ specification;
+* Beacon API 1.0.1+ specification compliant;
 * processing and loading VCF files based on `cyvcf2 <http://brentp.github.io/cyvcf2/>`_ ;
-* asynchronous server;
+* asynchronous web server;
 * OAuth2 JWT token validation, by default for ELIXIR AAI, with retrieving researcher bona fide status;
 * Handling `REMS <https://rems2docs.rahtiapp.fi/>`_ permissions for ``CONTROLLED`` datasets,
   additional modules can be added - see :ref:`permissions`;

@@ -3,7 +3,8 @@ Deployment
 
 The recommended means of deployment for the Python based Beacon Web Server is via
 docker engine.
-In this section we illustrate some means of building and running the application.
+In this section we illustrate several means of building and running a
+``bacon-python`` application via Docker.
 
 Dockerfile
 ----------
@@ -13,7 +14,7 @@ Using vanilla docker in order to build the image - the tag can be customised:
 .. code-block:: console
 
     $ git clone https://github.com/CSCfi/beacon-python
-    $ cd beacon-python
+    $ cd beacon-python/deploy
     $ docker build -t cscfi/beacon-python
 
 .. _s2i-build:
@@ -45,9 +46,8 @@ Docker Compose
 .. code-block:: console
 
     $ git clone https://github.com/CSCfi/beacon-python
-    $ cd beacon-python
+    $ cd beacon-python/deploy
     $ docker build -t cscfi/beacon-python
-    $ cd deploy
     $ docker-compose up -d
 
 
