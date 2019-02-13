@@ -61,7 +61,7 @@ Setting the necessary environment variables can be done  e.g. via the command li
 Beacon Information
 ~~~~~~~~~~~~~~~~~~
 
-By default the beacon contains preset information about the beacon service.
+By default the beacon contains information about the beacon service.
 The information can be changed in a configuration file that has the structure specified below, by
 pointing to the location of the file using `CONFIG_FILE` environment variable.
 
@@ -95,7 +95,7 @@ a list of entities that are viewed as trusted organisations.
 beacon-python Setup
 -------------------
 
-For installing `beacon-python` do the following:
+For installing ``beacon-python`` do the following:
 
 .. code-block:: console
 
@@ -114,6 +114,8 @@ To run the application from command line use:
 .. code-block:: console
 
     $ beacon
+
+For advance setup see `Gunicorn Setup` below.
 
 Gunicorn Setup
 ~~~~~~~~~~~~~~
@@ -134,7 +136,7 @@ Database Setup
 --------------
 
 Full information about the database schema and the queries performed against it
-see: :ref:`database`.
+is available at: :ref:`database`.
 
 Starting PostgreSQL using Docker:
 

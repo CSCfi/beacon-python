@@ -90,9 +90,9 @@ Example Response:
         "start": 7267244,
         "assemblyId": "GRCh38"
       }],
-      "info": [{
+      "info": {
         "key": "value"
-      }]
+      }
     }
 
 Query Endpoint
@@ -183,8 +183,8 @@ Example Response:
         "variantType": "SNP",
         "frequency": 0.000789266,
         "variantCount": 1,
-        "info": [{
+        "info": {
           "accessType": "PUBLIC"
-        }]
+        }
       }]
     }

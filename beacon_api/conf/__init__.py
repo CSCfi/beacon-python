@@ -1,4 +1,4 @@
-"""Beacon Application Configuration."""
+"""Beacon Python Application Configuration."""
 
 import os
 from configparser import ConfigParser

@@ -1,6 +1,7 @@
-"""The beacon package contains code to start an EGA Beacon API.
+"""The ``beacon_api`` package contains code to start an EGA Beacon API.
 
-. note:: In this file is where one would register information about the ``Beacon``.
+.. note:: In this file the information about the ``Beacon`` is registered.
+         The information is parsed from :file:`beacon_api.conf.config.ini`
 """
 import datetime
 

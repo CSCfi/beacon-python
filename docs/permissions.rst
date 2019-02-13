@@ -3,34 +3,47 @@
 Handling Permissions
 ====================
 
-.. note:: See https://tools.ietf.org/html/rfc7519 for more information on claims and JWT
+.. note:: See https://tools.ietf.org/html/rfc7519 for more information on claims and JWT.
+          A short intro on the JSON Web Tokens available at: https://jwt.io/introduction/
 
-In order to retrieve permissions for ``CONTROLLED`` datasets via the JWT token, we add a
-permissions module :meth:`beacon_api.permissions` that aims to provide an add-ons for
-processing different styles of permissions claims. The main reason for choosing such a method
-for handling ``CONTROLLED`` dataset permissions, as there is no standard for how to deliver
-access to datasets via JWT and each AAI authority implements different claims.
+In order to retrieve permissions for the ``CONTROLLED`` datasets via a JWT token, we added a
+permissions module :meth:`beacon_api.permissions` that aims to act as a platform where
+add-ons are placed for processing different styles of permissions claims.
 
-We include by default :meth:`beacon_api.permissions.rems` that offers a means to retrieve
+The main reason for choosing such a method of handling dataset permissions, is that
+there is no standard way for delivering access to datasets via JWT Tokens
+and each AAI authority provides different claims with different structures.
+
+By default we include :meth:`beacon_api.permissions.rems` add-on that offers a means to retrieve
 permissions from `REMS <https://rems2docs.rahtiapp.fi/>`_ via a token provided by ELIXIR AAI.
 
-The token contains ``permissions_rems`` JWT claim with dataset permissions and these are retrieved
-as illustrated in:
+If a token contains ``permissions_rems`` JWT claim with dataset permissions, these are parsed
+and retrieved as illustrated in:
 
 .. literalinclude:: /../beacon_api/permissions/rems.py
    :language: python
    :lines: 34-42
 
-The permissions are then parsed in  :meth:`beacon_api.utils.validate` as illustrated below:
+The permissions are then passed in :meth:`beacon_api.utils.validate` as illustrated below:
 
 .. literalinclude:: /../beacon_api/utils/validate.py
    :language: python
    :dedent: 16
    :lines: 155-166
 
-Other datasets can be added to the ``controlled_datasets`` set by updating that set
-with custom written add-on (following the example of :meth:`beacon_api.permissions.rems`)
-and the specific JWT claim.
+If there is no claim for REMS permission as illustrated above, they will not be added to
+``controlled_datasets``.
+
+More datasets can be added to the ``controlled_datasets`` ``set()`` by updating:
+
+.. code-block:: python
+
+    controlled_datasets.update(custom_add_on())
+
+
+where ``custom_add_on()`` is a function one could add in :meth:`beacon_api.permissions`.
+
+An example of such a function is :meth:`beacon_api.permissions.rems` and the specific JWT claim it should parse.
 
 .. attention:: JWT is validated against an AAI OAuth2 signing authority with the public key.
                This public key can be provided  either a JWK server or the environment variable
@@ -48,7 +61,7 @@ In the tables below we illustrate how the beacon server handles access to datase
 We have integrated tests for these use cases that can be found at:
 `beacon-python Github deploy tests <https://github.com/CSCfi/beacon-python/blob/master/deploy/test/integ_test.py>`_.
 
-.. admonition:: Tables Legend
+.. admonition:: Table Legend
 
           * colours:
 
@@ -64,7 +77,8 @@ We have integrated tests for these use cases that can be found at:
             * a user's ``BONA FIDE`` status can be retrieved - used for ``REGISTERED`` datasets
             * if the ✓ is not present that means (depending on the column) there is no ``TOKEN``
               or ``BONA FIDE`` is not provided;
-          * ``PERMISSIONS`` column reflects the dataset permissions found in the JWT ``TOKEN`` claim.
+          * ``PERMISSIONS`` column reflects the dataset permissions found in the JWT ``TOKEN`` claim, if column
+            is empty no datasets are in that specific claim.
 
 Default cases (no dataset IDs specified)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
