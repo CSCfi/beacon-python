@@ -112,7 +112,7 @@
           },
           "assemblyId": {
             "type": "string",
-            "pattern": "^((GRCh|hg)[0-9]+([.]p[0-9]+)?)$"
+            "pattern": "^((GRCh|hg)[0-9]+([.]?p[0-9]+)?)$"
           },
           "createDateTime": {
             "type": "string",
@@ -805,11 +805,11 @@
           },
           "variantType": {
             "type": "string",
-            "enum": ["DEL", "INS", "DUP", "INV", "CNV", "SNP", "DUP:TANDEM", "DEL:ME", "INS:ME"]
+            "enum": ["DEL", "INS", "DUP", "INV", "CNV", "SNP", "MNP", "DUP:TANDEM", "DEL:ME", "INS:ME"]
           },
           "assemblyId": {
             "type": "string",
-            "pattern": "^(GRCh[0-9]+([.]p[0-9]+)?)$"
+            "pattern": "^((GRCh|hg)[0-9]+([.]?p[0-9]+)?)$"
           },
           "datasetIds": {
             "type": "array",
