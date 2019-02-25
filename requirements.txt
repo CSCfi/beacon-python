@@ -1,7 +1,7 @@
 aiohttp
 aiohttp_cors
 asyncpg
-jsonschema==3.0.0a3
+jsonschema==3.0.0
 Cython
 cyvcf2==0.10.1
 tox
