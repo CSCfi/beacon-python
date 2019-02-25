@@ -63,22 +63,17 @@ async def query_request_handler(params):
     LOG.info(f'{params[1]} request to beacon endpoint "/query"')
     request = params[2]
     # Fills the Beacon variable with the found data.
-    position = (request.get("start", 0), request.get("end", 0),
-                request.get("startMin", 0), request.get("startMax", 0),
-                request.get("endMin", 0), request.get("endMax", 0))
     alleleRequest = {'referenceName': request.get("referenceName"),
-                     'start': position[0],
-                     'startMin': position[2],
-                     'startMax': position[3],
-                     'end': position[1],
-                     'endMin': position[4],
-                     'endMax': position[5],
                      'referenceBases': request.get("referenceBases"),
                      'assemblyId': request.get("assemblyId"),
                      'datasetIds': request.get("datasetIds", []),
                      'includeDatasetResponses': request.get("includeDatasetResponses", "NONE")}
     required_alternative = ["alternateBases", "variantType"]
     alleleRequest.update({k: request.get(k) for k in required_alternative if k in request})
+    # We only add them in the response if they are found, as the schema does the validation
+    # for the combinations on how to add them
+    postions = ["start", "end", "startMin", "startMax", "endMin", "endMax"]
+    alleleRequest.update({k: request.get(k) for k in postions if k in request})
     alternate = alleleRequest.get("variantType"), alleleRequest.get("alternateBases")
 
     # Get dataset ids that were requested, sort by access level
@@ -87,8 +82,11 @@ async def query_request_handler(params):
     public_datasets, registered_datasets, controlled_datasets = await fetch_datasets_access(params[0], request.get("datasetIds"))
     access_type, accessible_datasets = access_resolution(request, params[3], params[4], public_datasets,
                                                          registered_datasets, controlled_datasets)
-
-    datasets = await find_datasets(params[0], request.get("assemblyId"), position, request.get("referenceName"),
+    # Initialising the values of the positions, based on what we get from request
+    requested_position = (request.get("start", 0), request.get("end", 0),
+                          request.get("startMin", 0), request.get("startMax", 0),
+                          request.get("endMin", 0), request.get("endMax", 0))
+    datasets = await find_datasets(params[0], request.get("assemblyId"), requested_position, request.get("referenceName"),
                                    request.get("referenceBases"), alternate,
                                    accessible_datasets, access_type, request.get("includeDatasetResponses", "NONE"))
 
