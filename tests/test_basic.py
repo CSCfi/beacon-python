@@ -1,8 +1,8 @@
 import asynctest
+import aiohttp
 from beacon_api.utils.db_load import parse_arguments, init_beacon_db, main
 from beacon_api.conf.config import init_db_pool
 from beacon_api.api.query import access_resolution
-import aiohttp
 from beacon_api.permissions.rems import get_rems_controlled
 from .test_app import PARAMS
 from testfixtures import TempDirectory
@@ -214,6 +214,39 @@ class TestBasicFunctions(asynctest.TestCase):
         host = 'localhost'
         result = access_resolution(request, token, host, [2], [6], [])
         assert result == (['PUBLIC'], [2])
+
+    def test_access_resolution_controlled_some(self):
+        """Test assumptions for access resolution for requested controlled some datasets.
+
+        It is based on the result of fetch_datasets_access function.
+        """
+        request = PARAMS
+        token = mock_token(False, [5], True)
+        host = 'localhost'
+        result = access_resolution(request, token, host, [], [], [5, 6])
+        assert result == (['CONTROLLED'], [5])
+
+    def test_access_resolution_controlled_no_perms_public(self):
+        """Test assumptions for access resolution for requested controlled and public, returning public only.
+
+        It is based on the result of fetch_datasets_access function.
+        """
+        request = PARAMS
+        token = mock_token(False, [], False)
+        host = 'localhost'
+        result = access_resolution(request, token, host, [1], [], [5])
+        assert result == (['PUBLIC'], [1])
+
+    def test_access_resolution_controlled_no_perms_bonafide(self):
+        """Test assumptions for access resolution for requested controlled and registered, returning registered only.
+
+        It is based on the result of fetch_datasets_access function.
+        """
+        request = PARAMS
+        token = mock_token(True, [], True)
+        host = 'localhost'
+        result = access_resolution(request, token, host, [], [4], [7])
+        assert result == (['REGISTERED'], [4])
 
     def test_rems_controlled(self):
         """Test rems permissions claim parsing."""

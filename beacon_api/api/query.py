@@ -45,7 +45,7 @@ def access_resolution(request, token, host, public_data, registered_data, contro
         if controlled_access:
             permissions.append("CONTROLLED")
     # if user requests public datasets do not throw an error
-    elif controlled_data and not public_data:
+    elif controlled_data and not (public_data or registered_data):
         if token["authenticated"] is False:
             # token is not provided (user not authed)
             raise BeaconUnauthorised(request, host, "missing_token", 'Unauthorized access to dataset(s), missing token.')
