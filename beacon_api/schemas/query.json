@@ -78,50 +78,52 @@
     ],
     "endMin": [
       "endMax"
-    ]
+    ],
+    "startMax": ["startMin"],
+    "endMax": ["endMin"]
   },
-  "oneOf": [
-    {
-      "required": [
-        "variantType"
-      ]
-    },
-    {
-      "required": [
-        "alternateBases"
-      ]
-    }
-  ],
-  "oneOf": [
-    {
-      "required": [
-        "start"
-      ],
-      "not": {
+  "allOf": [{
+    "oneOf": [{
         "required": [
-          "end"
+          "variantType"
+        ]
+      },
+      {
+        "required": [
+          "alternateBases"
         ]
       }
-    },
-    {
-      "required": [
-        "start",
-        "end"
-      ]
-    },
-    {
-      "anyOf": [
-        {
+    ]
+  }, {
+    "oneOf": [{
+        "required": [
+          "start"
+        ],
+        "not": {
           "required": [
-            "startMin"
-          ]
-        },
-        {
-          "required": [
-            "endMin"
+            "end"
           ]
         }
-      ]
-    }
-  ]
+      },
+      {
+        "required": [
+          "start",
+          "end"
+        ]
+      },
+      {
+        "anyOf": [{
+            "required": [
+              "startMin"
+            ]
+          },
+          {
+            "required": [
+              "endMin"
+            ]
+          }
+        ]
+      }
+    ]
+  }]
 }
