@@ -26,7 +26,7 @@ class BeaconError(Exception):
                      'alleleRequest': {'referenceName': request.get("referenceName", None),
                                        'referenceBases': request.get("referenceBases", None),
                                        'includeDatasetResponses': request.get("includeDatasetResponses", "NONE"),
-                                       'assemblyId': request.get("assemblyId", "")},
+                                       'assemblyId': request.get("assemblyId", None)},
                      # showing empty datasetsAlleRsponse as no datasets found
                      # A null/None would represent no data while empty array represents
                      # none found or error and corresponds with exists null/None
