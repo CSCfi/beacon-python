@@ -23,21 +23,20 @@ class BeaconError(Exception):
                      'exists': None,
                      'error': {'errorCode': error_code,
                                'errorMessage': error},
-                     # TO DO see if we still need the default values now that we take them from schema
                      'alleleRequest': {'referenceName': request.get("referenceName", None),
-                                       'start': request.get("start", 0),
-                                       'startMin': request.get("startMin", 0),
-                                       'startMax': request.get("startMax", 0),
-                                       'end': request.get("end", 0),
-                                       'endMin': request.get("endMin", 0),
-                                       'endMax': request.get("endMax", 0),
                                        'referenceBases': request.get("referenceBases", None),
-                                       'assemblyId': request.get("assemblyId", ""),
-                                       'datasetIds': request.get("datasetIds", []),
-                                       'includeDatasetResponses': request.get("includeDatasetResponses", "NONE"), },
+                                       'includeDatasetResponses': request.get("includeDatasetResponses", "NONE"),
+                                       'assemblyId': request.get("assemblyId", "")},
+                     # showing empty datasetsAlleRsponse as no datasets found
+                     # A null/None would represent no data while empty array represents
+                     # none found or error and corresponds with exists null/None
                      'datasetAlleleResponses': []}
-        required_alternative = ["alternateBases", "variantType"]
-        self.data['alleleRequest'].update({k: request.get(k) for k in required_alternative if k in request})
+        # include datasetIds only if they are specified
+        # as per specification if they don't exist all datatsets will be queried
+        # Only one of `alternateBases` or `variantType` is required, validated by schema
+        oneof_fields = ["alternateBases", "variantType", "start", "end", "startMin", "startMax",
+                        "endMin", "endMax", "datasetIds"]
+        self.data['alleleRequest'].update({k: request.get(k) for k in oneof_fields if k in request})
         return self.data
 
 

@@ -83,7 +83,19 @@
           "enum": ["ALL", "HIT", "MISS", "NONE"]
         }
       },
-      "oneOf": [{
+      "dependencies": {
+        "end": [
+          "start"
+        ],
+        "startMin": [
+          "startMax"
+        ],
+        "endMin": [
+          "endMax"
+        ]
+      },
+      "oneOf": [
+        {
           "required": [
             "variantType"
           ]
@@ -91,6 +103,38 @@
         {
           "required": [
             "alternateBases"
+          ]
+        }
+      ],
+      "oneOf": [
+        {
+          "required": [
+            "start"
+          ],
+          "not": {
+            "required": [
+              "end"
+            ]
+          }
+        },
+        {
+          "required": [
+            "start",
+            "end"
+          ]
+        },
+        {
+          "anyOf": [
+            {
+              "required": [
+                "startMin"
+              ]
+            },
+            {
+              "required": [
+                "endMin"
+              ]
+            }
           ]
         }
       ]

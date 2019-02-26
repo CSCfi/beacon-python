@@ -99,6 +99,86 @@ class AppTestCase(AioHTTPTestCase):
         assert 400 == resp.status
 
     @unittest_run_loop
+    async def test_bad_start_post_query(self):
+        """Test bad start combination POST query endpoint."""
+        bad_start = {"referenceName": "MT",
+                     "endMin": 10,
+                     "end": 20,
+                     "startMin": 10,
+                     "startMax": 10,
+                     "referenceBases": "T",
+                     "variantType": "MNP",
+                     "assemblyId": "GRCh38",
+                     "includeDatasetResponses": "HIT"}
+        resp = await self.client.request("POST", "/query", data=json.dumps(bad_start))
+        assert 400 == resp.status
+
+    @unittest_run_loop
+    async def test_bad_start2_post_query(self):
+        """Test bad start combination 2 POST query endpoint."""
+        bad_start = {"referenceName": "MT",
+                     "start": 10,
+                     "end": 20,
+                     "startMin": 10,
+                     "startMax": 10,
+                     "referenceBases": "T",
+                     "variantType": "MNP",
+                     "assemblyId": "GRCh38",
+                     "includeDatasetResponses": "HIT"}
+        resp = await self.client.request("POST", "/query", data=json.dumps(bad_start))
+        assert 400 == resp.status
+
+    @asynctest.mock.patch('beacon_api.utils.validate.check_bona_fide_status', side_effect={'bona_fide_status': "ftw"})
+    @asynctest.mock.patch('beacon_api.app.parse_request_object', side_effect=mock_parse_request_object)
+    @asynctest.mock.patch('beacon_api.app.query_request_handler')
+    @unittest_run_loop
+    async def test_good_start_post_query(self, mock_handler, mock_object, bona_fide):
+        """Test good start combination POST query endpoint."""
+        good_start = {"referenceName": "MT",
+                      "start": 10,
+                      "referenceBases": "T",
+                      "variantType": "MNP",
+                      "assemblyId": "GRCh38",
+                      "includeDatasetResponses": "HIT"}
+        mock_handler.side_effect = json.dumps(good_start)
+        resp = await self.client.request("POST", "/query", data=json.dumps(good_start))
+        assert 200 == resp.status
+
+    @asynctest.mock.patch('beacon_api.utils.validate.check_bona_fide_status', side_effect={'bona_fide_status': "ftw"})
+    @asynctest.mock.patch('beacon_api.app.parse_request_object', side_effect=mock_parse_request_object)
+    @asynctest.mock.patch('beacon_api.app.query_request_handler')
+    @unittest_run_loop
+    async def test_good_start2_post_query(self, mock_handler, mock_object, bona_fide):
+        """Test good start combination 2 POST query endpoint."""
+        good_start = {"referenceName": "MT",
+                      "start": 10,
+                      "end": 20,
+                      "referenceBases": "T",
+                      "variantType": "MNP",
+                      "assemblyId": "GRCh38",
+                      "includeDatasetResponses": "HIT"}
+        mock_handler.side_effect = json.dumps(good_start)
+        resp = await self.client.request("POST", "/query", data=json.dumps(good_start))
+        assert 200 == resp.status
+
+    @asynctest.mock.patch('beacon_api.utils.validate.check_bona_fide_status', side_effect={'bona_fide_status': "ftw"})
+    @asynctest.mock.patch('beacon_api.app.parse_request_object', side_effect=mock_parse_request_object)
+    @asynctest.mock.patch('beacon_api.app.query_request_handler')
+    @unittest_run_loop
+    async def test_good_start3_post_query(self, mock_handler, mock_object, bona_fide):
+        """Test good start combination 3 POST query endpoint."""
+        good_start = {"referenceName": "MT",
+                      "startMin": 10,
+                      "startMax": 20,
+                      "referenceBases": "T",
+                      "variantType": "MNP",
+                      "assemblyId": "GRCh38",
+                      "includeDatasetResponses": "HIT"}
+        mock_handler.side_effect = json.dumps(good_start)
+        resp = await self.client.request("POST", "/query", data=json.dumps(good_start))
+        assert 200 == resp.status
+
+    @unittest_run_loop
     async def test_unauthorized_no_token_post_query(self):
         """Test unauthorized POST query endpoint, with no token."""
         resp = await self.client.request("POST", "/query",
