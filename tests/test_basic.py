@@ -2,6 +2,7 @@ import asynctest
 from beacon_api.utils.db_load import parse_arguments, init_beacon_db, main
 from beacon_api.conf.config import init_db_pool
 from beacon_api.api.query import access_resolution
+import aiohttp
 from beacon_api.permissions.rems import get_rems_controlled
 from .test_app import PARAMS
 from testfixtures import TempDirectory
@@ -158,6 +159,61 @@ class TestBasicFunctions(asynctest.TestCase):
         host = 'localhost'
         result = access_resolution(request, token, host, [1, 2], [3, 4], [5, 6])
         assert result == (['PUBLIC', 'REGISTERED', 'CONTROLLED'], [1, 2, 3, 4, 5, 6])
+
+    def test_access_resolution_bad_registered(self):
+        """Test assumptions for access resolution for requested registered Unauthorized.
+
+        It is based on the result of fetch_datasets_access function.
+        """
+        request = PARAMS
+        token = mock_token(False, [], False)
+        host = 'localhost'
+        with self.assertRaises(aiohttp.web_exceptions.HTTPUnauthorized):
+            access_resolution(request, token, host, [], [3], [])
+
+    def test_access_resolution_no_registered2(self):
+        """Test assumptions for access resolution for requested registered Forbidden.
+
+        It is based on the result of fetch_datasets_access function.
+        """
+        request = PARAMS
+        token = mock_token(False, [], True)
+        host = 'localhost'
+        with self.assertRaises(aiohttp.web_exceptions.HTTPForbidden):
+            access_resolution(request, token, host, [], [4], [])
+
+    def test_access_resolution_controlled_forbidden(self):
+        """Test assumptions for access resolution for requested controlled Forbidden.
+
+        It is based on the result of fetch_datasets_access function.
+        """
+        request = PARAMS
+        token = mock_token(False, [7], True)
+        host = 'localhost'
+        with self.assertRaises(aiohttp.web_exceptions.HTTPForbidden):
+            access_resolution(request, token, host, [], [6], [])
+
+    def test_access_resolution_controlled_unauthorized(self):
+        """Test assumptions for access resolution for requested controlled Unauthorized.
+
+        It is based on the result of fetch_datasets_access function.
+        """
+        request = PARAMS
+        token = mock_token(False, [], False)
+        host = 'localhost'
+        with self.assertRaises(aiohttp.web_exceptions.HTTPUnauthorized):
+            access_resolution(request, token, host, [], [5], [])
+
+    def test_access_resolution_controlled_no_perms(self):
+        """Test assumptions for access resolution for requested controlled Forbidden.
+
+        It is based on the result of fetch_datasets_access function.
+        """
+        request = PARAMS
+        token = mock_token(False, [7], True)
+        host = 'localhost'
+        result = access_resolution(request, token, host, [2], [6], [])
+        assert result == (['PUBLIC'], [2])
 
     def test_rems_controlled(self):
         """Test rems permissions claim parsing."""
