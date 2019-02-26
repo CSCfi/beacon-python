@@ -45,6 +45,7 @@ def access_resolution(request, token, host, public_data, registered_data, contro
         if controlled_access:
             permissions.append("CONTROLLED")
     # if user requests public datasets do not throw an error
+    # By default permissions cannot be None, at worst empty set, thus this might never be reached
     elif controlled_data and not (public_data or registered_data):
         if token["authenticated"] is False:
             # token is not provided (user not authed)
@@ -101,7 +102,7 @@ async def query_request_handler(params):
     beacon_response = {'beaconId': '.'.join(reversed(params[4].split('.'))),
                        'apiVersion': __apiVersion__,
                        'exists': any([x['exists'] for x in datasets]),
-                       # Error is not required and should not be shown
+                       # Error is not required and should not be shown unless exists is null
                        # If error key is set to null it will still not validate as it has a required key errorCode
                        # otherwise schema validation will fail
                        # "error": None,

@@ -14,7 +14,6 @@ from aiocache.serializers import JsonSerializer
 from ..api.exceptions import BeaconUnauthorised, BeaconBadRequest, BeaconForbidden, BeaconServerError
 from ..conf import OAUTH2_CONFIG
 from ..permissions.rems import get_rems_controlled
-# Draft7Validator should be kept an eye on as this might change
 from jsonschema import Draft7Validator, validators
 from jsonschema.exceptions import ValidationError
 
@@ -117,7 +116,7 @@ async def get_key():
     try:
         async with aiohttp.ClientSession() as session:
             async with session.get(OAUTH2_CONFIG.server) as r:
-                # This can be a single key or a set of JWK
+                # This can be a single key or a list of JWK
                 return await r.json()
     except Exception:
         raise BeaconServerError("Could not retrieve OAuth2 public key.")
@@ -152,8 +151,8 @@ def token_auth():
                 LOG.info('Auth Token Decoded.')
                 LOG.info(f'Identified as {decodedData["sub"]} user by {decodedData["iss"]}.')
                 # for now the permissions just reflect that the data can be decoded from token
-                # the bona fide status is checked against ELIXIR AAI
-                # the bona_fide_status is specific to ELIXIR Tokens
+                # the bona fide status is checked against ELIXIR AAI by default
+                # the bona_fide_status is specific to ELIXIR Tokens by default
                 # permissions key will hold the actual permissions found in the token e.g. REMS permissions
                 controlled_datasets = set()
                 # currently we parse only REMS, but multiple claims and providers can be utilised
@@ -162,6 +161,8 @@ def token_auth():
                 all_controlled = list(controlled_datasets) if bool(controlled_datasets) else None
                 request["token"] = {"bona_fide_status": True if await check_bona_fide_status(token, obj, request.host) else False,
                                     "permissions": all_controlled,
+                                    # additional checks can be performed against this authenticated
+                                    # currently if a token is valid that means request is authenticated
                                     "authenticated": True}
                 return await handler(request)
             except ExpiredSignatureError as e:
