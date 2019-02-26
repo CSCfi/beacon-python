@@ -23,27 +23,27 @@ async def beacon_info(host, pool):
     beacon_dataset = await fetch_dataset_metadata(pool)
 
     sample_allele_request = [{
-        "alternateBases": "C",
-        "referenceBases": "T",
+        "alternateBases": "G",
+        "referenceBases": "A",
         "referenceName": "MT",
-        "start": 9,
+        "start": 14036,
         "assemblyId": "GRCh38",
         "includeDatasetResponses": "ALL"
     }, {
-        "alternateBases": "A",
-        "referenceBases": "G",
-        "referenceName": "MT",
-        "start": 7599,
+        "variantType": "DUP",
+        "referenceBases": "C",
+        "referenceName": "19",
+        "start": 36909436,
         "assemblyId": "GRCh38",
         "datasetIds": [
             "urn:hg:1000genome"
         ],
         "includeDatasetResponses": "HIT"},
         {
-        "variantType": "SNP",
-        "referenceBases": "T",
-        "referenceName": "Y",
-        "start": 7267243,
+        "variantType": "INS",
+        "referenceBases": "C ",
+        "referenceName": "1",
+        "start": 104431389,
         "assemblyId": "GRCh38"
     }
     ]
