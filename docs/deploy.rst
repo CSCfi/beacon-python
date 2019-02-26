@@ -4,7 +4,7 @@ Deployment
 The recommended means of deployment for the Python based Beacon Web Server is via
 docker engine.
 In this section we illustrate several means of building and running a
-``bacon-python`` application via Docker.
+``beacon-python`` application via Docker.
 
 Dockerfile
 ----------

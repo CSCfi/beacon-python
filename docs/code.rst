@@ -27,11 +27,12 @@ Example snippets from ``query.json``:
 
 .. literalinclude:: /../beacon_api/schemas/query.json
   :language: javascript
-  :lines: 42-57
+  :lines: 41-56
 
 .. literalinclude:: /../beacon_api/schemas/query.json
    :language: javascript
-   :lines: 73-83
+   :lines: 72-97
+
 
 **********
 Beacon API
