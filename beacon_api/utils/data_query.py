@@ -149,8 +149,8 @@ async def fetch_filtered_dataset(db_pool, assembly_id, position, chromosome, ref
 
             start_pos = "TRUE" if position[0] == 0 or (position[2] > 0 and position[3] > 0) else f"a.start={position[0]}"
             end_pos = "TRUE" if position[1] == 0 or (position[4] > 0 and position[5] > 0) else f"a.end={position[1]}"
-            startMax_pos = "TRUE" if position[2] == 0 else f"a.start<={position[3]}"
-            startMin_pos = "TRUE" if position[3] == 0 else f"a.start>={position[2]}"
+            startMax_pos = "TRUE" if position[3] == 0 else f"a.start<={position[3]}"
+            startMin_pos = "TRUE" if position[2] == 0 else f"a.start>={position[2]}"
             endMin_pos = "TRUE" if position[4] == 0 else f"a.end>={position[4]}"
             endMax_pos = "TRUE" if position[5] == 0 else f"a.end<={position[5]}"
 
