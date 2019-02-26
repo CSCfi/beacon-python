@@ -8,7 +8,7 @@ start or end position.
 from ..utils.logging import LOG
 from .. import __apiVersion__
 from ..utils.data_query import filter_exists, find_datasets, fetch_datasets_access
-from .exceptions import BeaconUnauthorised, BeaconForbidden
+from .exceptions import BeaconUnauthorised, BeaconForbidden, BeaconBadRequest
 
 
 def access_resolution(request, token, host, public_data, registered_data, controlled_data):
@@ -85,9 +85,15 @@ async def query_request_handler(params):
     access_type, accessible_datasets = access_resolution(request, params[3], params[4], public_datasets,
                                                          registered_datasets, controlled_datasets)
     # Initialising the values of the positions, based on what we get from request
-    requested_position = (request.get("start", 0), request.get("end", 0),
-                          request.get("startMin", 0), request.get("startMax", 0),
-                          request.get("endMin", 0), request.get("endMax", 0))
+    if request.get("end") and request.get("end") < request.get("start"):
+        raise BeaconBadRequest(request, params[4], "end value Must be greater than start value")
+    if request.get("endMin") and request.get("endMin") > request.get("endMax"):
+        raise BeaconBadRequest(request, params[4], "endMin value Must be smaller than endMax value")
+    if request.get("startMin") and request.get("startMin") > request.get("startMax"):
+        raise BeaconBadRequest(request, params[4], "startMin value Must be smaller than startMax value")
+    requested_position = (request.get("start", None), request.get("end", None),
+                          request.get("startMin", None), request.get("startMax", None),
+                          request.get("endMin", None), request.get("endMax", None))
     datasets = await find_datasets(params[0], request.get("assemblyId"), requested_position, request.get("referenceName"),
                                    request.get("referenceBases"), alternate,
                                    accessible_datasets, access_type, request.get("includeDatasetResponses", "NONE"))

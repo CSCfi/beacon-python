@@ -16,7 +16,7 @@ LOG = logging.getLogger(__name__)
 LOG.setLevel(logging.DEBUG)
 
 
-TESTS_NUMBER = 17
+TESTS_NUMBER = 20
 DATASET_IDS_LIST = ['urn:hg:1000genome', 'urn:hg:1000genome:registered',
                     'urn:hg:1000genome:controlled', 'urn:hg:1000genome:controlled1']
 
@@ -147,7 +147,7 @@ async def test_6():
     LOG.debug(f'[6/{TESTS_NUMBER}] Test post query (normal query with alternateBases)')
     payload = {"referenceName": "MT",
                "start": 9,
-               "end": 0,
+               "end": 10,
                "referenceBases": "T",
                "alternateBases": "C",
                "assemblyId": "GRCh38",
@@ -172,7 +172,7 @@ async def test_7():
     LOG.debug(f'[7/{TESTS_NUMBER}] Test post query (normal query with variantType)')
     payload = {"referenceName": "MT",
                "start": 9,
-               "end": 0,
+               "end": 10,
                "referenceBases": "T",
                "variantType": "SNP",
                "assemblyId": "GRCh38",
@@ -338,7 +338,7 @@ async def test_15():
     LOG.debug(f'[15/{TESTS_NUMBER}] Test post query (fail to access controlled data (token, but no perms))')
     payload = {"referenceName": "MT",
                "start": 9,
-               "end": 0,
+               "end": 10,
                "referenceBases": "T",
                "alternateBases": "C",
                "assemblyId": "GRCh38",
@@ -394,6 +394,66 @@ async def test_17():
             assert len(data['datasetAlleleResponses']) == 1, sys.exist('Should be able to retrieve both requested.')
 
 
+async def test_18():
+    """Test query POST endpoint.
+
+    Send a query with bad end parameter. Expect failure (400).
+    """
+    LOG.debug(f'[18/{TESTS_NUMBER}] Test post query (normal query with variantType)')
+    payload = {"referenceName": "MT",
+               "start": 9,
+               "end": 8,
+               "referenceBases": "T",
+               "variantType": "SNP",
+               "assemblyId": "GRCh38",
+               "includeDatasetResponses": "HIT"}
+    async with aiohttp.ClientSession() as session:
+        async with session.post('http://localhost:5050/query', data=json.dumps(payload)) as resp:
+            data = await resp.json()
+            assert data['exists'] is None, sys.exit('Query POST Endpoint Error!')
+            assert resp.status == 400, 'HTTP Status code error'
+
+
+async def test_19():
+    """Test query POST endpoint.
+
+    Send a query with bad start min/max parameters. Expect failure (400).
+    """
+    LOG.debug(f'[19/{TESTS_NUMBER}] Test post query (normal query with variantType)')
+    payload = {"referenceName": "MT",
+               "startMin": 21,
+               "startMax": 20,
+               "referenceBases": "T",
+               "variantType": "SNP",
+               "assemblyId": "GRCh38",
+               "includeDatasetResponses": "HIT"}
+    async with aiohttp.ClientSession() as session:
+        async with session.post('http://localhost:5050/query', data=json.dumps(payload)) as resp:
+            data = await resp.json()
+            assert data['exists'] is None, sys.exit('Query POST Endpoint Error!')
+            assert resp.status == 400, 'HTTP Status code error'
+
+
+async def test_20():
+    """Test query POST endpoint.
+
+    Send a query with bad end min/max parameters. Expect failure (400).
+    """
+    LOG.debug(f'[20/{TESTS_NUMBER}] Test post query (normal query with variantType)')
+    payload = {"referenceName": "MT",
+               "endMin": 21,
+               "endMax": 20,
+               "referenceBases": "T",
+               "variantType": "SNP",
+               "assemblyId": "GRCh38",
+               "includeDatasetResponses": "HIT"}
+    async with aiohttp.ClientSession() as session:
+        async with session.post('http://localhost:5050/query', data=json.dumps(payload)) as resp:
+            data = await resp.json()
+            assert data['exists'] is None, sys.exit('Query POST Endpoint Error!')
+            assert resp.status == 400, 'HTTP Status code error'
+
+
 async def main():
     """Run the tests."""
     LOG.debug('Start integration tests')
@@ -414,6 +474,9 @@ async def main():
     await test_15()
     await test_16()
     await test_17()
+    await test_18()
+    await test_19()
+    await test_20()
     LOG.debug('All integration tests have passed')
 
 
