@@ -10,7 +10,7 @@ import asyncio
 import json
 import logging
 
-FORMAT = '[%(asctime)s][%(name)s][%(process)d %(processName)s][%(levelname)-8s] %(funcName)s: %(message)s'
+FORMAT = '[%(asctime)s][%(name)s][%(process)d %(processName)s][%(levelname)-8s] %(funcName)-8s: %(message)s'
 logging.basicConfig(format=FORMAT, datefmt='%Y-%m-%d %H:%M:%S')
 LOG = logging.getLogger(__name__)
 LOG.setLevel(logging.DEBUG)
@@ -42,7 +42,7 @@ async def test_1():
 
     Info endpoint should respond with 4 datasets all in the list specified above.
     """
-    LOG.debug(f'[1/{TESTS_NUMBER}] Test info endpoint')
+    LOG.debug(f'[01/{TESTS_NUMBER}] Test info endpoint')
     async with aiohttp.ClientSession() as session:
         async with session.get('http://localhost:5050/') as resp:
             data = await resp.json()
@@ -59,7 +59,7 @@ async def test_2():
 
     Send a query with alternateBases. Expect data to be found (200).
     """
-    LOG.debug(f'[2/{TESTS_NUMBER}] Test get query (normal query with alternateBases)')
+    LOG.debug(f'[02/{TESTS_NUMBER}] Test get query (normal query with alternateBases)')
     params = {'assemblyId': 'GRCh38', 'referenceName': 'MT',
               'start': 9, 'referenceBases': 'T', 'alternateBases': 'C',
               'includeDatasetResponses': 'HIT'}
@@ -80,7 +80,7 @@ async def test_3():
 
     Send a query with variantType. Expect data to be found (200).
     """
-    LOG.debug(f'[3/{TESTS_NUMBER}] Test get query (normal query with variantType)')
+    LOG.debug(f'[03/{TESTS_NUMBER}] Test get query (normal query with variantType)')
     params = {'assemblyId': 'GRCh38', 'referenceName': 'MT',
               'start': 9, 'referenceBases': 'T', 'variantType': 'SNP',
               'includeDatasetResponses': 'HIT'}
@@ -101,7 +101,7 @@ async def test_4():
 
     Send a query with missing required params. Expect a bad request (400).
     """
-    LOG.debug(f'[4/{TESTS_NUMBER}] Test get query (missing params)')
+    LOG.debug(f'[04/{TESTS_NUMBER}] Test get query (missing params)')
     params = {'assemblyId': 'GRCh38',
               'start': 9, 'referenceBases': 'T', 'alternateBases': 'C',
               'includeDatasetResponses': 'HIT'}
@@ -122,7 +122,7 @@ async def test_5():
 
     Send a query with wildcard alternateBases. Expect data to be found (200).
     """
-    LOG.debug(f'[5/{TESTS_NUMBER}] Test get query (wildcards)')
+    LOG.debug(f'[05/{TESTS_NUMBER}] Test get query (wildcards)')
     params = {'assemblyId': 'GRCh38', 'referenceName': 'MT',
               'start': 63, 'referenceBases': 'CT', 'alternateBases': 'NN',
               'includeDatasetResponses': 'HIT'}
@@ -144,7 +144,7 @@ async def test_6():
 
     Send a query with alternateBases. Expect data to be found (200).
     """
-    LOG.debug(f'[6/{TESTS_NUMBER}] Test post query (normal query with alternateBases)')
+    LOG.debug(f'[06/{TESTS_NUMBER}] Test post query (normal query with alternateBases)')
     payload = {"referenceName": "MT",
                "start": 9,
                "end": 10,
@@ -169,7 +169,7 @@ async def test_7():
 
     Send a query with variantType. Expect data to be found (200).
     """
-    LOG.debug(f'[7/{TESTS_NUMBER}] Test post query (normal query with variantType)')
+    LOG.debug(f'[07/{TESTS_NUMBER}] Test post query (normal query with variantType)')
     payload = {"referenceName": "MT",
                "start": 9,
                "end": 10,
@@ -194,7 +194,7 @@ async def test_8():
 
     Send a query with missing required params. Expect a bad request (400).
     """
-    LOG.debug(f'[8/{TESTS_NUMBER}] Test post query (missing params)')
+    LOG.debug(f'[08/{TESTS_NUMBER}] Test post query (missing params)')
     payload = {"start": 9,
                "referenceBases": "T",
                "alternateBases": "C",
@@ -216,7 +216,7 @@ async def test_9():
 
     Send a query with wildcard alternateBases. Expect no data to be found exists=false, but query was good (200).
     """
-    LOG.debug(f'[9/{TESTS_NUMBER}] Test get query (good query, empty response)')
+    LOG.debug(f'[09/{TESTS_NUMBER}] Test get query (good query, empty response)')
     params = {'assemblyId': 'GRCh99', 'referenceName': 'MT',
               'start': 63, 'referenceBases': 'CT', 'alternateBases': 'NN',
               'includeDatasetResponses': 'HIT'}
@@ -399,7 +399,7 @@ async def test_18():
 
     Send a query with bad end parameter. Expect failure (400).
     """
-    LOG.debug(f'[18/{TESTS_NUMBER}] Test post query (normal query with variantType)')
+    LOG.debug(f'[18/{TESTS_NUMBER}] Test post query (end < start)')
     payload = {"referenceName": "MT",
                "start": 9,
                "end": 8,
@@ -419,7 +419,7 @@ async def test_19():
 
     Send a query with bad start min/max parameters. Expect failure (400).
     """
-    LOG.debug(f'[19/{TESTS_NUMBER}] Test post query (normal query with variantType)')
+    LOG.debug(f'[19/{TESTS_NUMBER}] Test post query (startMin > startMax)')
     payload = {"referenceName": "MT",
                "startMin": 21,
                "startMax": 20,
@@ -439,7 +439,7 @@ async def test_20():
 
     Send a query with bad end min/max parameters. Expect failure (400).
     """
-    LOG.debug(f'[20/{TESTS_NUMBER}] Test post query (normal query with variantType)')
+    LOG.debug(f'[20/{TESTS_NUMBER}] Test post query (endMin > endMax)')
     payload = {"referenceName": "MT",
                "endMin": 21,
                "endMax": 20,
@@ -474,6 +474,8 @@ async def main():
     await test_15()
     await test_16()
     await test_17()
+    # tests 18, 19 and 20 are also tested in the unit tests
+    # redundant but later we may want to valdiate agains json schema
     await test_18()
     await test_19()
     await test_20()

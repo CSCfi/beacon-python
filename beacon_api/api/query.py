@@ -78,13 +78,6 @@ async def query_request_handler(params):
     oneof_postions = ["start", "end", "startMin", "startMax", "endMin", "endMax"]
     alleleRequest.update({k: request.get(k) for k in oneof_postions if k in request})
     alternate = alleleRequest.get("variantType"), alleleRequest.get("alternateBases")
-
-    # Get dataset ids that were requested, sort by access level
-    # If request is empty (default case) the three dataset variables contain all datasets by access level
-    # Datasets are further filtered using permissions from token
-    public_datasets, registered_datasets, controlled_datasets = await fetch_datasets_access(params[0], request.get("datasetIds"))
-    access_type, accessible_datasets = access_resolution(request, params[3], params[4], public_datasets,
-                                                         registered_datasets, controlled_datasets)
     # Initialising the values of the positions, based on what we get from request
     if request.get("end") and request.get("end") < request.get("start"):
         raise BeaconBadRequest(request, params[4], "end value Must be greater than start value")
@@ -95,6 +88,13 @@ async def query_request_handler(params):
     requested_position = (request.get("start", None), request.get("end", None),
                           request.get("startMin", None), request.get("startMax", None),
                           request.get("endMin", None), request.get("endMax", None))
+    # Get dataset ids that were requested, sort by access level
+    # If request is empty (default case) the three dataset variables contain all datasets by access level
+    # Datasets are further filtered using permissions from token
+    public_datasets, registered_datasets, controlled_datasets = await fetch_datasets_access(params[0], request.get("datasetIds"))
+    access_type, accessible_datasets = access_resolution(request, params[3], params[4], public_datasets,
+                                                         registered_datasets, controlled_datasets)
+
     datasets = await find_datasets(params[0], request.get("assemblyId"), requested_position, request.get("referenceName"),
                                    request.get("referenceBases"), alternate,
                                    accessible_datasets, access_type, request.get("includeDatasetResponses", "NONE"))

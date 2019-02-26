@@ -128,6 +128,45 @@ class AppTestCase(AioHTTPTestCase):
         resp = await self.client.request("POST", "/query", data=json.dumps(bad_start))
         assert 400 == resp.status
 
+    @unittest_run_loop
+    async def test_bad_startend_post_query(self):
+        """Test end smaller than start POST query endpoint."""
+        bad_start = {"referenceName": "MT",
+                     "start": 10,
+                     "end": 9,
+                     "referenceBases": "T",
+                     "variantType": "MNP",
+                     "assemblyId": "GRCh38",
+                     "includeDatasetResponses": "HIT"}
+        resp = await self.client.request("POST", "/query", data=json.dumps(bad_start))
+        assert 400 == resp.status
+
+    @unittest_run_loop
+    async def test_bad_startminmax_post_query(self):
+        """Test start min greater than start Max POST query endpoint."""
+        bad_start = {"referenceName": "MT",
+                     "startMin": 10,
+                     "startMax": 9,
+                     "referenceBases": "T",
+                     "variantType": "MNP",
+                     "assemblyId": "GRCh38",
+                     "includeDatasetResponses": "HIT"}
+        resp = await self.client.request("POST", "/query", data=json.dumps(bad_start))
+        assert 400 == resp.status
+
+    @unittest_run_loop
+    async def test_bad_endminmax_post_query(self):
+        """Test end min greater than start Max POST query endpoint."""
+        bad_start = {"referenceName": "MT",
+                     "endMin": 10,
+                     "endMax": 9,
+                     "referenceBases": "T",
+                     "variantType": "MNP",
+                     "assemblyId": "GRCh38",
+                     "includeDatasetResponses": "HIT"}
+        resp = await self.client.request("POST", "/query", data=json.dumps(bad_start))
+        assert 400 == resp.status
+
     @asynctest.mock.patch('beacon_api.utils.validate.check_bona_fide_status', side_effect={'bona_fide_status': "ftw"})
     @asynctest.mock.patch('beacon_api.app.parse_request_object', side_effect=mock_parse_request_object)
     @asynctest.mock.patch('beacon_api.app.query_request_handler')
