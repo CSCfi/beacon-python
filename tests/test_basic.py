@@ -1,8 +1,17 @@
 import asynctest
 from beacon_api.utils.db_load import parse_arguments, init_beacon_db, main
 from beacon_api.conf.config import init_db_pool
+from beacon_api.api.query import access_resolution
 from beacon_api.permissions.rems import get_rems_controlled
+from .test_app import PARAMS
 from testfixtures import TempDirectory
+
+
+def mock_token(bona_fide, permissions, auth):
+    """Mock a processed token."""
+    return {"bona_fide_status": bona_fide,
+            "permissions": permissions,
+            "authenticated": auth}
 
 
 class MockBeaconDB:
@@ -94,6 +103,61 @@ class TestBasicFunctions(asynctest.TestCase):
         """Test run asyncio main beacon init."""
         main()
         mock_init.assert_called()
+
+    def test_access_resolution_base(self):
+        """Test assumptions for access resolution.
+
+        It is based on the result of fetch_datasets_access function.
+        """
+        request = PARAMS
+        token = mock_token(False, [], False)
+        host = 'localhost'
+        result = access_resolution(request, token, host, [1, 2], [3, 4], [5, 6])
+        assert result == (['PUBLIC'], [1, 2])
+
+    def test_access_resolution_no_controlled(self):
+        """Test assumptions for access resolution for token but no controlled datasets.
+
+        It is based on the result of fetch_datasets_access function.
+        """
+        request = PARAMS
+        token = mock_token(False, [], True)
+        host = 'localhost'
+        result = access_resolution(request, token, host, [1, 2], [3, 4], [5, 6])
+        assert result == (['PUBLIC'], [1, 2])
+
+    def test_access_resolution_registered(self):
+        """Test assumptions for access resolution for token with just bona_fide.
+
+        It is based on the result of fetch_datasets_access function.
+        """
+        request = PARAMS
+        token = mock_token(True, [], True)
+        host = 'localhost'
+        result = access_resolution(request, token, host, [1, 2], [3, 4], [5, 6])
+        assert result == (['PUBLIC', 'REGISTERED'], [1, 2, 3, 4])
+
+    def test_access_resolution_controlled_no_registered(self):
+        """Test assumptions for access resolution for token and no bona_fide.
+
+        It is based on the result of fetch_datasets_access function.
+        """
+        request = PARAMS
+        token = mock_token(False, [5, 6], True)
+        host = 'localhost'
+        result = access_resolution(request, token, host, [1, 2], [3, 4], [5, 6])
+        assert result == (['PUBLIC', 'CONTROLLED'], [1, 2, 5, 6])
+
+    def test_access_resolution_controlled_registered(self):
+        """Test assumptions for access resolution for token and bona_fide.
+
+        It is based on the result of fetch_datasets_access function.
+        """
+        request = PARAMS
+        token = mock_token(True, [5, 6], True)
+        host = 'localhost'
+        result = access_resolution(request, token, host, [1, 2], [3, 4], [5, 6])
+        assert result == (['PUBLIC', 'REGISTERED', 'CONTROLLED'], [1, 2, 3, 4, 5, 6])
 
     def test_rems_controlled(self):
         """Test rems permissions claim parsing."""

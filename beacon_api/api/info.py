@@ -41,7 +41,7 @@ async def beacon_info(host, pool):
         "includeDatasetResponses": "HIT"},
         {
         "variantType": "INS",
-        "referenceBases": "C ",
+        "referenceBases": "C",
         "referenceName": "1",
         "start": 104431389,
         "assemblyId": "GRCh38"
