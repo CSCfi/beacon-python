@@ -25,14 +25,18 @@ class BeaconError(Exception):
                                'errorMessage': error},
                      'alleleRequest': {'referenceName': request.get("referenceName", None),
                                        'referenceBases': request.get("referenceBases", None),
+                                       'includeDatasetResponses': request.get("includeDatasetResponses", "NONE"),
                                        'assemblyId': request.get("assemblyId", "")},
                      # showing empty datasetsAlleRsponse as no datasets found
                      # A null/None would represent no data while empty array represents
                      # none found or error and corresponds with exists null/None
                      'datasetAlleleResponses': []}
-        required_alternative = ["alternateBases", "variantType", "start", "end", "startMin", "startMax",
-                                "endMin", "endMax", "datasetIds", "includeDatasetResponses"]
-        self.data['alleleRequest'].update({k: request.get(k) for k in required_alternative if k in request})
+        # include datasetIds only if they are specified
+        # as per specification if they don't exist all datatsets will be queried
+        # Only one of `alternateBases` or `variantType` is required, validated by schema
+        oneof_fields = ["alternateBases", "variantType", "start", "end", "startMin", "startMax",
+                        "endMin", "endMax", "datasetIds"]
+        self.data['alleleRequest'].update({k: request.get(k) for k in oneof_fields if k in request})
         return self.data
 
 

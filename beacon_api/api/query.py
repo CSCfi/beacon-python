@@ -66,14 +66,16 @@ async def query_request_handler(params):
     alleleRequest = {'referenceName': request.get("referenceName"),
                      'referenceBases': request.get("referenceBases"),
                      'assemblyId': request.get("assemblyId"),
-                     'datasetIds': request.get("datasetIds", []),
                      'includeDatasetResponses': request.get("includeDatasetResponses", "NONE")}
-    required_alternative = ["alternateBases", "variantType"]
-    alleleRequest.update({k: request.get(k) for k in required_alternative if k in request})
+    # include datasetIds only if they are specified
+    # as per specification if they don't exist all datatsets will be queried
+    # Only one of `alternateBases` or `variantType` is required, validated by schema
+    oneof_fields = ["alternateBases", "variantType", "datasetIds"]
+    alleleRequest.update({k: request.get(k) for k in oneof_fields if k in request})
     # We only add them in the response if they are found, as the schema does the validation
     # for the combinations on how to add them
-    postions = ["start", "end", "startMin", "startMax", "endMin", "endMax"]
-    alleleRequest.update({k: request.get(k) for k in postions if k in request})
+    oneof_postions = ["start", "end", "startMin", "startMax", "endMin", "endMax"]
+    alleleRequest.update({k: request.get(k) for k in oneof_postions if k in request})
     alternate = alleleRequest.get("variantType"), alleleRequest.get("alternateBases")
 
     # Get dataset ids that were requested, sort by access level
