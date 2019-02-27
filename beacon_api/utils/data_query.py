@@ -26,7 +26,7 @@ def transform_record(record):
     response["variantType"] = response.pop("variantType")  # NOT part of beacon specification
     response["frequency"] = round(response.pop("frequency"), 9)
     response["info"] = {"accessType": response.pop("accessType")}
-    # Error is not required and should not be shown
+    # Error is not required and should not be shown unless exists is null
     # If error key is set to null it will still not validate as it has a required key errorCode
     # otherwise schema validation will fail
     # response["error"] = None
@@ -45,7 +45,7 @@ def transform_misses(record):
     response["callCount"] = 0
     response["sampleCount"] = 0
     response["info"] = {"accessType": response.pop("accessType")}
-    # Error is not required and should not be shown
+    # Error is not required and should not be shown unless exists is null
     # If error key is set to null it will still not validate as it has a required key errorCode
     # otherwise schema validation will fail
     # response["error"] = None
@@ -57,7 +57,6 @@ def transform_metadata(record):
     """Format the metadata record we got from the database to adhere to the response schema."""
     response = dict(record)
     response["info"] = {"accessType": response.pop("accessType")}
-    # TO DO test with null date in Database
     if 'createDateTime' in response and isinstance(response["createDateTime"], datetime):
         response["createDateTime"] = response.pop("createDateTime").strftime('%Y-%m-%dT%H:%M:%SZ')
     if 'updateDateTime' in record and isinstance(response["updateDateTime"], datetime):
@@ -208,20 +207,15 @@ async def find_datasets(db_pool, assembly_id, position, chromosome, reference, a
 
     This also takes into consideration the token value as to establish permissions.
     """
-    # TO DO wait for info on the actual permissions
-    # TO DO return forbidden if a specific forbidden dataset is requested ?
     hit_datasets = []
     miss_datasets = []
     response = []
-    # if include_dataset != 'NONE':
     hit_datasets = await fetch_filtered_dataset(db_pool, assembly_id, position, chromosome, reference, alternate,
                                                 dataset_ids, access_type)
     if include_dataset in ['ALL', 'MISS']:
         miss_datasets = await fetch_filtered_dataset(db_pool, assembly_id, position, chromosome, reference, alternate,
                                                      [item["datasetId"] for item in hit_datasets],
                                                      access_type, misses=True)
-    # if include_dataset == 'MISS':
-    #     hit_datasets = []
 
     response = hit_datasets + miss_datasets
     return response

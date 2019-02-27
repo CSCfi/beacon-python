@@ -3,6 +3,30 @@
 Handling Permissions
 ====================
 
+By default there are three types of permissions:
+
+* ``PUBLIC`` - data available for anyone;
+* ``REGISTERED`` - data available for users registered on a service for special credentials
+  e.g. ELIXIR bona_fide or researcher status. Requires a JWT Token;
+* ``CONTROLLED`` - data available for users that have been granted access to a protected resource by a Data Access Committee (DAC).
+
+
+Registered Data
+---------------
+
+For retrieving ``REGISTERED`` permissions the function below forwards the TOKEN to another server
+that validates the information in the token is for a registered user/token and retrieves a JSON
+message that contains a ``bona_fide_status`` key. Custom servers can be set up to mimic this functionality.
+
+.. literalinclude:: /../beacon_api/utils/validate.py
+   :language: python
+   :lines: 96-106
+
+.. note:: The ``bona_fide_status`` key is provided base on ELIXIR AAI bona fide status of a researcher.
+
+Controlled Data
+---------------
+
 .. note:: See https://tools.ietf.org/html/rfc7519 for more information on claims and JWT.
           A short intro on the JSON Web Tokens available at: https://jwt.io/introduction/
 

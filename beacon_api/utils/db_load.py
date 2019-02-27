@@ -249,7 +249,8 @@ class BeaconDB:
                     # params = (frequency, count, actual variant Type)
                     if variant.aaf > 0:
                         params = self._unpack(variant)
-                        # Coordinates that are read from VCF are 1-based, cyvcf2 reads them as 0-based, and they are inserted into the DB as such
+                        # Coordinates that are read from VCF are 1-based,
+                        # cyvcf2 reads them as 0-based, and they are inserted into the DB as such
                         await self._conn.execute("""INSERT INTO beacon_data_table
                                                  (datasetId, chromosome, start, reference, alternate,
                                                  "end", aggregatedVariantType, alleleCount, callCount, frequency, variantType)

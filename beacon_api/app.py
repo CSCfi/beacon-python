@@ -68,7 +68,7 @@ async def beacon_post_query(request):
 async def initialize(app):
     """Spin up DB a connection pool with the HTTP server."""
     # TO DO check if table and Database exist
-    # and maybe exit gracefully or at lease wait for a bit
+    # and maybe exit gracefully or at least wait for a bit
     LOG.debug('Create PostgreSQL connection pool.')
     app['pool'] = await init_db_pool()
     set_cors(app)

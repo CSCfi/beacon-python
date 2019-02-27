@@ -116,11 +116,6 @@ Example Response:
       "alleleRequest": {
         "referenceName": "MT",
         "start": 14037,
-        "startMin": 0,
-        "startMax": 0,
-        "end": 0,
-        "endMin": 0,
-        "endMax": 0,
         "referenceBases": "A",
         "assemblyId": "GRCh38",
         "datasetIds": [],
@@ -139,10 +134,6 @@ An example ``POST`` request and response to the ``query`` endpoint:
       'http://localhost:5050/query' \
       -d '{"referenceName": "MT", \
       "start": 14037, \
-      "startMax": 0, \
-      "end": 0, \
-      "endMin": 0, \
-      "endMax": 0, \
       "referenceBases": "A", \
       "alternateBases": "G", \
       "assemblyId": "GRCh38", \
@@ -159,11 +150,6 @@ Example Response:
       "alleleRequest": {
         "referenceName": "MT",
         "start": 14037,
-        "startMin": 0,
-        "startMax": 0,
-        "end": 0,
-        "endMin": 0,
-        "endMax": 0,
         "referenceBases": "A",
         "assemblyId": "GRCh38",
         "datasetIds": [],

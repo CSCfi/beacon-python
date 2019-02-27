@@ -45,6 +45,7 @@ def access_resolution(request, token, host, public_data, registered_data, contro
         if controlled_access:
             permissions.append("CONTROLLED")
     # if user requests public datasets do not throw an error
+    # By default permissions cannot be None, at worst empty set, thus this might never be reached
     elif controlled_data and not (public_data or registered_data):
         if token["authenticated"] is False:
             # token is not provided (user not authed)
@@ -77,13 +78,6 @@ async def query_request_handler(params):
     oneof_postions = ["start", "end", "startMin", "startMax", "endMin", "endMax"]
     alleleRequest.update({k: request.get(k) for k in oneof_postions if k in request})
     alternate = alleleRequest.get("variantType"), alleleRequest.get("alternateBases")
-
-    # Get dataset ids that were requested, sort by access level
-    # If request is empty (default case) the three dataset variables contain all datasets by access level
-    # Datasets are further filtered using permissions from token
-    public_datasets, registered_datasets, controlled_datasets = await fetch_datasets_access(params[0], request.get("datasetIds"))
-    access_type, accessible_datasets = access_resolution(request, params[3], params[4], public_datasets,
-                                                         registered_datasets, controlled_datasets)
     # Initialising the values of the positions, based on what we get from request
     if request.get("end") and request.get("end") < request.get("start"):
         raise BeaconBadRequest(request, params[4], "end value Must be greater than start value")
@@ -94,6 +88,13 @@ async def query_request_handler(params):
     requested_position = (request.get("start", None), request.get("end", None),
                           request.get("startMin", None), request.get("startMax", None),
                           request.get("endMin", None), request.get("endMax", None))
+    # Get dataset ids that were requested, sort by access level
+    # If request is empty (default case) the three dataset variables contain all datasets by access level
+    # Datasets are further filtered using permissions from token
+    public_datasets, registered_datasets, controlled_datasets = await fetch_datasets_access(params[0], request.get("datasetIds"))
+    access_type, accessible_datasets = access_resolution(request, params[3], params[4], public_datasets,
+                                                         registered_datasets, controlled_datasets)
+
     datasets = await find_datasets(params[0], request.get("assemblyId"), requested_position, request.get("referenceName"),
                                    request.get("referenceBases"), alternate,
                                    accessible_datasets, access_type, request.get("includeDatasetResponses", "NONE"))
@@ -101,7 +102,7 @@ async def query_request_handler(params):
     beacon_response = {'beaconId': '.'.join(reversed(params[4].split('.'))),
                        'apiVersion': __apiVersion__,
                        'exists': any([x['exists'] for x in datasets]),
-                       # Error is not required and should not be shown
+                       # Error is not required and should not be shown unless exists is null
                        # If error key is set to null it will still not validate as it has a required key errorCode
                        # otherwise schema validation will fail
                        # "error": None,

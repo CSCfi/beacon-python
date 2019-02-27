@@ -248,6 +248,30 @@ class TestBasicFunctions(asynctest.TestCase):
         result = access_resolution(request, token, host, [], [4], [7])
         assert result == (['REGISTERED'], [4])
 
+    def test_access_resolution_controlled_never_reached(self):
+        """Test assumptions for access resolution for requested controlled unauthorized.
+
+        By default permissions cannot be None, at worst empty set, thus this might never be reached.
+        It is based on the result of fetch_datasets_access function.
+        """
+        request = PARAMS
+        token = mock_token(False, None, False)
+        host = 'localhost'
+        with self.assertRaises(aiohttp.web_exceptions.HTTPUnauthorized):
+            access_resolution(request, token, host, [], [], [8])
+
+    def test_access_resolution_controlled_never_reached2(self):
+        """Test assumptions for access resolution for requested controlled forbidden.
+
+        By default permissions cannot be None, at worst empty set, thus this might never be reached.
+        It is based on the result of fetch_datasets_access function.
+        """
+        request = PARAMS
+        token = mock_token(False, None, True)
+        host = 'localhost'
+        with self.assertRaises(aiohttp.web_exceptions.HTTPForbidden):
+            access_resolution(request, token, host, [], [], [8])
+
     def test_rems_controlled(self):
         """Test rems permissions claim parsing."""
         claim = [{"affiliation": "",
