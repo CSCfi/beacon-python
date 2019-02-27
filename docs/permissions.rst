@@ -8,7 +8,7 @@ By default there are three types of permissions:
 * ``PUBLIC`` - data available for anyone;
 * ``REGISTERED`` - data available for users registered on a service for special credentials
   e.g. ELIXIR bona_fide or researcher status. Requires a JWT Token;
-* ``CONTROLLED`` - data available for specific users, e.g. behind a pay wall.
+* ``CONTROLLED`` - data available for users that have been granted access to a protected resource by a Data Access Committee (DAC).
 
 
 Registered Data

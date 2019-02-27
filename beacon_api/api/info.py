@@ -21,7 +21,7 @@ async def beacon_info(host, pool):
     :return beacon_info: A dict that contain information about the ``Beacon`` endpoint.
     """
     beacon_dataset = await fetch_dataset_metadata(pool)
-    # If ones sets up a beacon it is recommended to adjust these sample requests
+    # If one sets up a beacon it is recommended to adjust these sample requests
     sample_allele_request = [{
         "alternateBases": "G",
         "referenceBases": "A",

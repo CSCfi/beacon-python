@@ -4,7 +4,7 @@ from beacon_api import __license__, __version__, __author__, __description__
 
 setup(name='beacon_api',
       version=__version__,
-      url='http://beacon-python.rtfd.io/',
+      url='https://beacon-python.rtfd.io/',
       project_urls={
           'Source': 'https://github.com/CSCfi/beacon-python',
       },
