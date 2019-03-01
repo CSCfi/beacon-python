@@ -122,8 +122,17 @@ async def get_key():
         raise BeaconServerError("Could not retrieve OAuth2 public key.")
 
 
+def token_scheme_check(token, scheme, obj, host):
+    """Check if token has proper scheme and was provided."""
+    if not re.match('Bearer', scheme):
+        raise BeaconUnauthorised(obj, host, "invalid_token", 'Invalid token scheme, Bearer required.')
+
+    if token is None:
+        BeaconUnauthorised(obj, host, "invalid_token", f'Token cannot be empty.')
+
+
 def token_auth():
-    """Check if token if valid and authenticate.
+    """Check if token is valid and authenticate.
 
     Decided against: https://github.com/hzlmn/aiohttp-jwt, as we need to verify
     token issuer and bona_fide_status.
@@ -140,10 +149,8 @@ def token_auth():
             except Exception as e:
                 raise BeaconUnauthorised(obj, request.host, "invalid_token", str(e))
 
-            if not re.match('Bearer', scheme):
-                raise BeaconUnauthorised(obj, request.host, "invalid_token", 'Invalid token scheme, Bearer required.')
+            token_scheme_check(token, scheme, obj, request.host)
 
-            assert token is not None, BeaconUnauthorised(obj, request.host, "invalid_token", f'Token cannot be empty.')
             key = await get_key()
             issuers = OAUTH2_CONFIG.issuers.split(',')
             try:
@@ -159,9 +166,9 @@ def token_auth():
                 # by updating the set, replicating the line below with the permissions function and its associated claim
                 controlled_datasets.update(get_rems_controlled(decodedData["permissions_rems"]) if "permissions_rems" in decodedData else {})
                 all_controlled = list(controlled_datasets) if bool(controlled_datasets) else None
-                request["token"] = {"bona_fide_status": True if await check_bona_fide_status(token, obj, request.host) else False,
+                request["token"] = {"bona_fide_status": True if await check_bona_fide_status(token, obj, request.host) is not None else False,
                                     "permissions": all_controlled,
-                                    # additional checks can be performed against this authenticated
+                                    # additional checks can be performed against this authenticated key
                                     # currently if a token is valid that means request is authenticated
                                     "authenticated": True}
                 return await handler(request)
