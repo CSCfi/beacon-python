@@ -132,8 +132,8 @@ async def test_5():
             if 'datasetAlleleResponses' in data and len(data['datasetAlleleResponses']) > 0:
                 assert len(data['datasetAlleleResponses']) == 3, sys.exist('Should have three variants.')
                 assert data['datasetAlleleResponses'][0]['datasetId'] == 'urn:hg:1000genome', 'DatasetID Error'
-                assert data['datasetAlleleResponses'][0]['variantCount'] == 1, 'Variant count Error'
-                assert data['datasetAlleleResponses'][0]['frequency'] == 0.000197472, 'frequency Error'
+                assert data['datasetAlleleResponses'][0]['variantCount'] in [1, 118], 'Variant count Error'
+                assert data['datasetAlleleResponses'][0]['frequency'] in [0.000197472, 0.023301737], 'frequency Error'
                 assert data['datasetAlleleResponses'][0]['exists'] is True, 'Inconsistent, exists is False, but all other pass'
             else:
                 sys.exit('Query GET Endpoint Error!')
