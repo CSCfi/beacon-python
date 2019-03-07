@@ -61,7 +61,6 @@ async def fetch_datasets_access(db_pool, datasets):
     controlled = []
     async with db_pool.acquire(timeout=180) as connection:
         async with connection.transaction():
-            # datasets_query = "TRUE" if not datasets else f"datasetId IN {sql_tuple(datasets)}"
             datasets_query = None if not datasets else datasets
             try:
                 query = f"""SELECT accessType, datasetId FROM {DB_SCHEMA}beacon_dataset_table
@@ -90,9 +89,7 @@ async def fetch_dataset_metadata(db_pool, datasets=None, access_type=None):
         # Start a new session with the connection
         async with connection.transaction():
             # Fetch dataset metadata according to user request
-            # datasets_query = "TRUE" if not datasets else f"a.datasetId IN {sql_tuple(datasets)}"
             datasets_query = None if not datasets else datasets
-            # access_query = "TRUE" if not access_type else f"b.accesstype IN {sql_tuple(access_type)}"
             access_query = None if not access_type else access_type
             try:
                 query = f"""SELECT datasetId as "id", name as "name", accessType as "accessType",
@@ -136,17 +133,15 @@ async def fetch_filtered_dataset(db_pool, assembly_id, position, chromosome, ref
         # Start a new session with the connection
         async with connection.transaction():
             # Fetch dataset metadata according to user request
-            # datasets_query = "TRUE" if not datasets else f"a.datasetId IN {sql_tuple(datasets)}"
             datasets_query = None if not datasets else datasets
-            # access_query = "TRUE" if not access_type else f"b.accesstype IN {sql_tuple(access_type)}"
             access_query = None if not access_type else access_type
 
             start_pos = None if position[0] is None or (position[2] and position[3]) else position[0]
             end_pos = None if position[1] is None or (position[4] and position[5]) else position[1]
-            startMax_pos = None if position[3] is None else position[3]
-            startMin_pos = None if position[2] is None else position[2]
-            endMin_pos = None if position[4] is None else position[4]
-            endMax_pos = None if position[5] is None else position[5]
+            startMax_pos = position[3]
+            startMin_pos = position[2]
+            endMin_pos = position[4]
+            endMax_pos = position[5]
 
             variant = None if not alternate[0] else alternate[0]
             altbase = None if not alternate[1] else handle_wildcard(alternate[1])
