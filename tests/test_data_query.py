@@ -1,5 +1,5 @@
 import asynctest
-from beacon_api.utils.data_query import sql_tuple, filter_exists, transform_record
+from beacon_api.utils.data_query import filter_exists, transform_record
 from beacon_api.utils.data_query import transform_misses, transform_metadata, find_datasets
 from datetime import datetime
 # from beacon_api.utils.data_query import fetch_dataset_metadata
@@ -65,13 +65,6 @@ class TestDataQueryFunctions(asynctest.TestCase):
         """Close database connection after tests."""
         pass
 
-    def test_sql_tuple(self):
-        """Test sql tuple from dataset list."""
-        single_array = sql_tuple(['DATASET1'])
-        multi_array = sql_tuple(['DATASET1', 'DATASET2'])
-        self.assertEqual(single_array, "('DATASET1')")
-        self.assertEqual(multi_array, "('DATASET1', 'DATASET2')")
-
     def test_filter_exists(self):
         """Test filtering hits and miss datasets."""
         datasets = [{"exists": True, "name": "DATASET1"}, {"exists": False, "name": "DATASET2"}]
@@ -132,9 +125,9 @@ class TestDataQueryFunctions(asynctest.TestCase):
         sequence1 = 'ATCG'
         sequence2 = 'ATNG'
         sequence3 = 'NNCN'
-        self.assertEqual(handle_wildcard(sequence1), "='ATCG'")
-        self.assertEqual(handle_wildcard(sequence2), " LIKE '%AT_G%'")
-        self.assertEqual(handle_wildcard(sequence3), " LIKE '%__C_%'")
+        self.assertEqual(handle_wildcard(sequence1), ['ATCG'])
+        self.assertEqual(handle_wildcard(sequence2), ["%AT_G%"])
+        self.assertEqual(handle_wildcard(sequence3), ["%__C_%"])
 
 
 if __name__ == '__main__':

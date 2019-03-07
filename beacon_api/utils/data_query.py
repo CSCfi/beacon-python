@@ -6,17 +6,6 @@ from ..api.exceptions import BeaconServerError
 from ..conf.config import DB_SCHEMA
 
 
-def sql_tuple(array):
-    """Transform array to SQL tuple.
-
-    Special case if array is of length 1.
-    """
-    if len(array) > 1:
-        return f"{str(tuple(array))}"
-    elif len(array) == 1:
-        return "(\'" + array[0] + "\')"
-
-
 # def transform_record(record, variantCount):
 def transform_record(record):
     """Format the record we got from the database to adhere to the response schema."""
@@ -72,12 +61,13 @@ async def fetch_datasets_access(db_pool, datasets):
     controlled = []
     async with db_pool.acquire(timeout=180) as connection:
         async with connection.transaction():
-            datasets_query = "TRUE" if not datasets else f"datasetId IN {sql_tuple(datasets)}"
+            # datasets_query = "TRUE" if not datasets else f"datasetId IN {sql_tuple(datasets)}"
+            datasets_query = None if not datasets else datasets
             try:
                 query = f"""SELECT accessType, datasetId FROM {DB_SCHEMA}beacon_dataset_table
-                            WHERE ({datasets_query});"""
+                            WHERE coalesce(datasetId = any($1::varchar[]), true);"""
                 statement = await connection.prepare(query)
-                db_response = await statement.fetch()
+                db_response = await statement.fetch(datasets_query)
                 for record in list(db_response):
                     if record['accesstype'] == 'PUBLIC':
                         public.append(record['datasetid'])
@@ -100,8 +90,10 @@ async def fetch_dataset_metadata(db_pool, datasets=None, access_type=None):
         # Start a new session with the connection
         async with connection.transaction():
             # Fetch dataset metadata according to user request
-            datasets_query = "TRUE" if not datasets else f"a.datasetId IN {sql_tuple(datasets)}"
-            access_query = "TRUE" if not access_type else f"b.accesstype IN {sql_tuple(access_type)}"
+            # datasets_query = "TRUE" if not datasets else f"a.datasetId IN {sql_tuple(datasets)}"
+            datasets_query = None if not datasets else datasets
+            # access_query = "TRUE" if not access_type else f"b.accesstype IN {sql_tuple(access_type)}"
+            access_query = None if not access_type else access_type
             try:
                 query = f"""SELECT datasetId as "id", name as "name", accessType as "accessType",
                             externalUrl as "externalUrl", description as "description",
@@ -110,9 +102,10 @@ async def fetch_dataset_metadata(db_pool, datasets=None, access_type=None):
                             version as "version", createDateTime as "createDateTime",
                             updateDateTime as "updateDateTime"
                             FROM {DB_SCHEMA}dataset_metadata WHERE
-                            ({datasets_query}) AND ({access_query});"""
+                            coalesce(datasetId = any($1::varchar[]), true)
+                            AND coalesce(accessType = any($2::varchar[]), true);"""
                 statement = await connection.prepare(query)
-                db_response = await statement.fetch()
+                db_response = await statement.fetch(datasets_query, access_query)
                 metadata = []
                 LOG.info(f"Query for dataset(s): {datasets} metadata that are {access_type}.")
                 for record in list(db_response):
@@ -126,10 +119,10 @@ def handle_wildcard(sequence):
     """Construct PostgreSQL friendly wildcard string."""
     if 'N' in sequence:
         # Wildcard(s) found, use wildcard notation
-        return f" LIKE '%{sequence.replace('N', '_')}%'"
+        return [f"%{sequence.replace('N', '_')}%"]
     else:
         # No wildcard(s) found, use standard notation
-        return f"='{sequence}'"
+        return [sequence]
 
 
 async def fetch_filtered_dataset(db_pool, assembly_id, position, chromosome, reference, alternate,
@@ -143,19 +136,21 @@ async def fetch_filtered_dataset(db_pool, assembly_id, position, chromosome, ref
         # Start a new session with the connection
         async with connection.transaction():
             # Fetch dataset metadata according to user request
-            datasets_query = "a.datasetId IN ('')" if not datasets else f"a.datasetId IN {sql_tuple(datasets)}"
-            access_query = "b.accessType IN ('')" if not access_type else f"b.accessType IN {sql_tuple(access_type)}"
+            # datasets_query = "TRUE" if not datasets else f"a.datasetId IN {sql_tuple(datasets)}"
+            datasets_query = None if not datasets else datasets
+            # access_query = "TRUE" if not access_type else f"b.accesstype IN {sql_tuple(access_type)}"
+            access_query = None if not access_type else access_type
 
-            start_pos = "TRUE" if position[0] is None or (position[2] and position[3]) else f"a.start={position[0]}"
-            end_pos = "TRUE" if position[1] is None or (position[4] and position[5]) else f"a.end={position[1]}"
-            startMax_pos = "TRUE" if position[3] is None else f"a.start<={position[3]}"
-            startMin_pos = "TRUE" if position[2] is None else f"a.start>={position[2]}"
-            endMin_pos = "TRUE" if position[4] is None else f"a.end>={position[4]}"
-            endMax_pos = "TRUE" if position[5] is None else f"a.end<={position[5]}"
+            start_pos = None if position[0] is None or (position[2] and position[3]) else position[0]
+            end_pos = None if position[1] is None or (position[4] and position[5]) else position[1]
+            startMax_pos = None if position[3] is None else position[3]
+            startMin_pos = None if position[2] is None else position[2]
+            endMin_pos = None if position[4] is None else position[4]
+            endMax_pos = None if position[5] is None else position[5]
 
-            variant = 'TRUE' if not alternate[0] else 'a.variantType=\'' + alternate[0] + '\''
-            altbase = 'TRUE' if not alternate[1] else 'a.alternate' + handle_wildcard(alternate[1])
-            refbase = 'TRUE' if not reference else 'a.reference' + handle_wildcard(reference)
+            variant = None if not alternate[0] else alternate[0]
+            altbase = None if not alternate[1] else handle_wildcard(alternate[1])
+            refbase = None if not reference else handle_wildcard(reference)
             try:
 
                 # UBER QUERY - TBD if it is what we need
@@ -168,16 +163,24 @@ async def fetch_filtered_dataset(db_pool, assembly_id, position, chromosome, ref
                             a.frequency, {"FALSE" if misses else "TRUE"} as "exists"
                             FROM {DB_SCHEMA}beacon_data_table a, {DB_SCHEMA}beacon_dataset_table b
                             WHERE a.datasetId=b.datasetId
-                            AND b.assemblyId='{assembly_id}'
-                            AND {"NOT" if misses else ''} ({start_pos} AND {end_pos}
-                            AND {startMax_pos} AND {startMin_pos}
-                            AND {endMin_pos} AND {endMax_pos}
-                            AND {refbase} AND {variant} AND {altbase})
-                            AND a.chromosome='{chromosome}'
-                            AND {access_query} {"<>" if misses and datasets else "AND"} {datasets_query} ;"""
+                            AND b.assemblyId=$3
+                            AND {"NOT" if misses else ''} (coalesce(a.start=$8, true)
+                            AND coalesce(a.end=$9, true)
+                            AND coalesce(a.start<=$10, true) AND coalesce(a.start>=$11, true)
+                            AND coalesce(a.end>=$12, true) AND coalesce(a.end<=$13, true)
+                            AND coalesce(a.reference LIKE any($7::varchar[]), true)
+                            AND coalesce(a.variantType=$5, true)
+                            AND coalesce(a.alternate LIKE any($6::varchar[]), true))
+                            AND a.chromosome=$4
+                            AND coalesce(b.accessType = any($2::varchar[]), true)
+                            {"<>" if misses and datasets else "AND"} coalesce(a.datasetId = any($1::varchar[]), true) ;"""
                 datasets = []
                 statement = await connection.prepare(query)
-                db_response = await statement.fetch()
+                db_response = await statement.fetch(datasets_query, access_query, assembly_id, chromosome,
+                                                    variant, altbase, refbase,
+                                                    start_pos, end_pos,
+                                                    startMax_pos, startMin_pos,
+                                                    endMin_pos, endMax_pos)
                 LOG.info(f"Query for dataset(s): {datasets} that are {access_type} matching conditions.")
                 for record in list(db_response):
                     processed = transform_misses(record) if misses else transform_record(record)
