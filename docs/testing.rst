@@ -71,7 +71,7 @@ Example testing with `locust.io <http://locust.io/>`_
     @task
     def get_query(self):
         """Test GET query endpoint."""
-        self.client.get("/query?assemblyId=GRCh38&referenceName=MT&start=10&referenceBases=T&alternateBases=C&includeDatasetResponses=HIT")
+        self.client.get("/query?assemblyId=GRCh38&referenceName=MT&start=9&referenceBases=T&alternateBases=C&includeDatasetResponses=HIT")
 
 
     class APITest(HttpLocust):

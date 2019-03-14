@@ -42,9 +42,9 @@ Example Response:
         "welcomeUrl": "https://www.csc.fi/",
         "contactUrl": "https://www.csc.fi/contact-info",
         "logoUrl": "https://www.csc.fi/documents/10180/161914/CSC_2012_LOGO_RGB_72dpi.jpg",
-        "info": [{
+        "info": {
           "orgInfo": "CSC represents Finland in the ELIXIR partner nodes"
-        }]
+        }
       },
       "description": "Beacon API Web Server based on the GA4GH Beacon API",
       "version": "1.0.0",
@@ -62,9 +62,9 @@ Example Response:
         "callCount": 79423363,
         "sampleCount": 2504,
         "version": "v0.4",
-        "info": [{
+        "info": {
           "accessType": "PUBLIC"
-        }],
+        },
         "createDateTime": "2013-05-02T12:00:00Z",
         "updateDateTime": "2013-05-02T12:00:00Z"
       }],
@@ -72,22 +72,22 @@ Example Response:
         "alternateBases": "C",
         "referenceBases": "T",
         "referenceName": "MT",
-        "start": 10,
+        "start": 9,
         "assemblyId": "GRCh38",
         "includeDatasetResponses": "ALL"
       }, {
         "alternateBases": "A",
         "referenceBases": "G",
         "referenceName": "MT",
-        "start": 7600,
+        "start": 7599,
         "assemblyId": "GRCh38",
         "datasetIds": ["urn:hg:exampleid-mt"],
         "includeDatasetResponses": "HIT"
       }, {
         "variantType": "SNP",
-        "referenceBases": "T",
+        "referenceBases": "G",
         "referenceName": "Y",
-        "start": 7267244,
+        "start": 7267243,
         "assemblyId": "GRCh38"
       }],
       "info": {
@@ -103,7 +103,7 @@ An example ``GET`` request and response to the ``query`` endpoint:
 .. code-block:: console
 
     $ curl -X GET \
-      'http://localhost:5050/query?referenceName=MT&referenceBases=A&start=14037&assemblyId=GRCh38&alternateBases=G'
+      'http://localhost:5050/query?referenceName=MT&referenceBases=A&start=14036&assemblyId=GRCh38&alternateBases=G'
 
 Example Response:
 
@@ -115,7 +115,7 @@ Example Response:
       "exists": true,
       "alleleRequest": {
         "referenceName": "MT",
-        "start": 14037,
+        "start": 14036,
         "referenceBases": "A",
         "assemblyId": "GRCh38",
         "datasetIds": [],
@@ -133,7 +133,7 @@ An example ``POST`` request and response to the ``query`` endpoint:
     $ curl -X POST \
       'http://localhost:5050/query' \
       -d '{"referenceName": "MT", \
-      "start": 14037, \
+      "start": 14036, \
       "referenceBases": "A", \
       "alternateBases": "G", \
       "assemblyId": "GRCh38", \
@@ -149,7 +149,7 @@ Example Response:
       "exists": true,
       "alleleRequest": {
         "referenceName": "MT",
-        "start": 14037,
+        "start": 14036,
         "referenceBases": "A",
         "assemblyId": "GRCh38",
         "datasetIds": [],
