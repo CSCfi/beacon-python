@@ -32,7 +32,7 @@ Using OpenShift's ``s2i`` means of building the Docker image requires
     $ s2i build . centos/python-36-centos7 cscfi/beacon-python
 
 After the image has been built one can use it with the simple Docker ``run``
-(requires connection to a connection to a DB in the same docker network)
+(requires connection to a DB in the same docker network)
 or as part of a docker-compose file or as illustrated below with Kubernetes.
 
 .. code-block:: console
