@@ -15,7 +15,7 @@ We have templates for submitting new issues, that you can fill out. For example 
 
 ### Submitting changes
 
-When you made some changes you are happy with please send a [GitHub Pull Request to beacon-python](https://github.com/CSCfi/beacon-python/pull/new/master) with a clear list of what you've done (read more about [pull requests](https://help.github.com/en/articles/about-pull-requests)). When you create that Pull Request, we will forever be in your debt if you include unit tests. For extra bonus points you can always use add some more integration test. 
+When you made some changes you are happy with please send a [GitHub Pull Request to beacon-python](https://github.com/CSCfi/beacon-python/pull/new/master) with a clear list of what you've done (read more about [pull requests](https://help.github.com/en/articles/about-pull-requests)). When you create that Pull Request, we will forever be in your debt if you include unit tests. For extra bonus points you can always use add some more integration tests.
 
 Please follow our Git branches model and coding conventions (both below), and make sure all of your commits are atomic (preferably one feature per commit) and it is recommended a Pull Request addresses one functionality or fixes one bug.
 
@@ -27,11 +27,11 @@ Once submitted, the Pull Request will go through a review process, meaning we wi
 
 Give your branch a short descriptive name (like the names between the `<>` below) and prefix the name with something representative for that branch:
 
-   * `feature/<feature-name>` - used when an enhancement or new feature implemented;
-   * `docs/<what-the-docs>` - missing docs or making them up to date;
+   * `feature/<feature-name>` - used when an enhancement or new feature was implemented;
+   * `docs/<what-the-docs>` - missing docs or keeping them up to date;
    * `bugfix/<caught-it>` - solved a bug;
    * `test/<thank-you>` - adding missing tests for a feature, we would prefer they would come with the `feature` but still `thank you`;
-   * `refactor/<that-name-is-confusing>` - well we hope we don't mess anything and we don't use this;
+   * `refactor/<that-name-is-confusing>` - well we hope we don't mess anything and we don't get to use this;
    * `hotfix/<oh-no>` - for when things needed to be fixed yesterday.
 
 
