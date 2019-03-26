@@ -105,7 +105,7 @@ An example ``GET`` request and response to the ``query`` endpoint:
     $ curl -X GET \
       'http://localhost:5050/query?referenceName=MT&referenceBases=A&start=14036&assemblyId=GRCh38&alternateBases=G'
 
-Example Response:
+Example Request:
 
 .. code-block:: javascript
 
@@ -166,6 +166,8 @@ Example Response:
         "exists": true,
         "referenceBases": "A",
         "alternateBases": "G",
+        "start": 14036,
+        "end": 14037,
         "variantType": "SNP",
         "frequency": 0.000789266,
         "variantCount": 1,
