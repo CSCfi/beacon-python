@@ -14,7 +14,8 @@ class Record:
     """
 
     def __init__(self, accessType, frequency=None, createDateTime=None, updateDateTime=None,
-                 referenceBases=None, alternateBases=None, variantCount=0, variantType=None):
+                 referenceBases=None, alternateBases=None, start=None, end=None,
+                 variantCount=0, variantType=None):
         """Initialise things."""
         self.data = {"accessType": accessType}
         # self.variantCount = variantCount
@@ -26,6 +27,10 @@ class Record:
             self.data.update({"alternateBases": alternateBases})
         if variantType:
             self.data.update({"variantType": variantType})
+        if start:
+            self.data.update({"start": start})
+        if end:
+            self.data.update({"end": end})
         if frequency:
             self.data.update({"frequency": frequency})
         if createDateTime:
@@ -80,8 +85,10 @@ class TestDataQueryFunctions(asynctest.TestCase):
     def test_transform_record(self):
         """Test transform DB record."""
         response = {"frequency": 0.009112876, "info": {"accessType": "PUBLIC"},
-                    "referenceBases": "CT", "alternateBases": "AT", "variantCount": 3, "variantType": "MNP"}
-        record = Record("PUBLIC", 0.009112875989879, referenceBases="CT", alternateBases="AT", variantCount=3, variantType="MNP")
+                    "referenceBases": "CT", "alternateBases": "AT",
+                    "start": 10, "end": 12,
+                    "variantCount": 3, "variantType": "MNP"}
+        record = Record("PUBLIC", 0.009112875989879, referenceBases="CT", alternateBases="AT", start=10, end=12, variantCount=3, variantType="MNP")
         result = transform_record(record)
         self.assertEqual(result, response)
 
@@ -89,7 +96,7 @@ class TestDataQueryFunctions(asynctest.TestCase):
         """Test transform misses record."""
         response = {"referenceBases": '', "alternateBases": '', "variantType": "",
                     "frequency": 0, "callCount": 0, "sampleCount": 0, "variantCount": 0,
-                    "info": {"accessType": "PUBLIC"}}
+                    "start": 0, "end": 0, "info": {"accessType": "PUBLIC"}}
         record = Record("PUBLIC")
         result = transform_misses(record)
         self.assertEqual(result, response)
