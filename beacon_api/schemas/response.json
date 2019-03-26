@@ -137,6 +137,12 @@
             "type": "string",
             "pattern": "^([ACGT]+)$"
           },
+          "start": {
+            "type": "integer"
+          },
+          "end": {
+            "type": "integer"
+          },
           "variantType": {
             "type": "string",
             "enum": ["DEL", "INS", "DUP", "INV", "CNV", "SNP", "MNP", "DUP:TANDEM", "DEL:ME", "INS:ME"]
