@@ -13,6 +13,8 @@ def transform_record(record):
     response["referenceBases"] = response.pop("referenceBases")  # NOT part of beacon specification
     response["alternateBases"] = response.pop("alternateBases")  # NOT part of beacon specification
     response["variantType"] = response.pop("variantType")  # NOT part of beacon specification
+    response["start"] = response.pop("start")  # NOT part of beacon specification
+    response["end"] = response.pop("end")  # NOT part of beacon specification
     response["frequency"] = round(response.pop("frequency"), 9)
     response["info"] = {"accessType": response.pop("accessType")}
     # Error is not required and should not be shown unless exists is null
@@ -29,6 +31,8 @@ def transform_misses(record):
     response["referenceBases"] = ''  # NOT part of beacon specification
     response["alternateBases"] = ''  # NOT part of beacon specification
     response["variantType"] = ''  # NOT part of beacon specification
+    response["start"] = 0  # NOT part of beacon specification
+    response["end"] = 0  # NOT part of beacon specification
     response["frequency"] = 0
     response["variantCount"] = 0
     response["callCount"] = 0
@@ -150,8 +154,9 @@ async def fetch_filtered_dataset(db_pool, assembly_id, position, chromosome, ref
 
                 # UBER QUERY - TBD if it is what we need
                 # referenceBases, alternateBases and variantType fields are NOT part of beacon specification example response
-                query = f"""SELECT {"DISTINCT ON (a.datasetId)" if misses else ''} a.datasetId as "datasetId", b.accessType as "accessType",
-                            a.chromosome as "referenceName", a.reference as "referenceBases", a.alternate as "alternateBases",
+                query = f"""SELECT {"DISTINCT ON (a.datasetId)" if misses else ''}
+                            a.datasetId as "datasetId", b.accessType as "accessType", a.chromosome as "referenceName",
+                            a.reference as "referenceBases", a.alternate as "alternateBases", a.start as "start", a.end as "end",
                             b.externalUrl as "externalUrl", b.description as "note",
                             a.alleleCount as "variantCount", a.variantType as "variantType",
                             a.callCount as "callCount", b.sampleCount as "sampleCount",
