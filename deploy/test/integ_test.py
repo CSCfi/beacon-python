@@ -70,6 +70,8 @@ async def test_2():
                 assert data['datasetAlleleResponses'][0]['datasetId'] == 'urn:hg:1000genome', 'DatasetID Error'
                 assert data['datasetAlleleResponses'][0]['variantCount'] == 3, 'Variant count Error'
                 assert data['datasetAlleleResponses'][0]['frequency'] == 0.00059195, 'frequency Error'
+                assert data['datasetAlleleResponses'][0]['start'] == 9, 'Start coordinate Error'
+                assert data['datasetAlleleResponses'][0]['end'] == 10, 'End coordinate Error'
                 assert data['datasetAlleleResponses'][0]['exists'] is True, 'Inconsistent, exists is False, but all other pass'
             else:
                 sys.exit('Query GET Endpoint Error!')
@@ -159,6 +161,8 @@ async def test_6():
                 assert data['datasetAlleleResponses'][0]['datasetId'] == 'urn:hg:1000genome', 'DatasetID Error'
                 assert data['datasetAlleleResponses'][0]['variantCount'] == 3, 'Variant count Error'
                 assert data['datasetAlleleResponses'][0]['frequency'] == 0.00059195, 'frequency Error'
+                assert data['datasetAlleleResponses'][0]['start'] == 9, 'Start coordinate Error'
+                assert data['datasetAlleleResponses'][0]['end'] == 10, 'End coordinate Error'
                 assert data['datasetAlleleResponses'][0]['exists'] is True, 'Inconsistent, exists is False, but all other pass'
             else:
                 sys.exit('Query POST Endpoint Error!')
