@@ -128,7 +128,7 @@ def token_scheme_check(token, scheme, obj, host):
         raise BeaconUnauthorised(obj, host, "invalid_token", 'Invalid token scheme, Bearer required.')
 
     if token is None:
-        BeaconUnauthorised(obj, host, "invalid_token", f'Token cannot be empty.')
+        raise BeaconUnauthorised(obj, host, "invalid_token", 'Token cannot be empty.')
 
 
 def token_auth():
