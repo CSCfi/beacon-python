@@ -87,3 +87,5 @@ Request:
 - URL: `/query`
 - HTTP method: `GET` and `POST`
 - Parameters: Refer to [Beacon API specification](https://github.com/ga4gh-beacon/specification/blob/develop/beacon.md) for full list of parameters.
+
+We would like to acknowledge the valuable feedback from the members of [NBIS](https://nbis.se/) and [DDBJ](https://www.ddbj.nig.ac.jp), whose ideas and contributions have helped to make the Beacon services more robust.
