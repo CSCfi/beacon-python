@@ -18,8 +18,8 @@ The values in this table take a long time to compute on large datasets
 Most likely these values do not change once the dataset is loaded so one
 could compute the values and UPDATE the table once the all dataset is inserted
 
-callcount: SELECT count(*) FROM (SELECT distinct(reference, start)
-                                FROM beacon_data_table) t;
+callcount: SELECT count(*) FROM (SELECT distinct(datasetId, chromosome, reference, start)
+                                 FROM beacon_data_table) t;
 
 variantcount: SELECT count(*) FROM beacon_data_table;
 */
