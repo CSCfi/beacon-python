@@ -4,6 +4,7 @@ from datetime import datetime
 from .logging import LOG
 from ..api.exceptions import BeaconServerError
 from ..conf.config import DB_SCHEMA
+from .. import __handover_drs__, __handover_datasets__, __handover_base__
 
 
 # def transform_record(record, variantCount):
@@ -56,6 +57,32 @@ def transform_metadata(record):
         response["updateDateTime"] = response.pop("updateDateTime").strftime('%Y-%m-%dT%H:%M:%SZ')
 
     return response
+
+
+def add_handover(record):
+    """Add handover to a dataset response."""
+    response = dict(record)
+    response["datasetHandover"] = make_handover(__handover_datasets__, [record['datasetId']],
+                                                record['referenceName'], record['start'],
+                                                record['end'], record['referenceBases'],
+                                                record['alternateBases'], record['variantType'])
+    return response
+
+
+def make_handover(paths, datasetIds, chr='', start=0, end=0, ref='', alt='', variant=''):
+    """Create one handover for each path (specified in config)."""
+    alt = alt if alt else variant
+    handovers = []
+    start = start + __handover_base__
+    end = end + __handover_base__
+    for label, desc, path in paths:
+        for dataset in set(datasetIds):
+            handovers.append({"handoverType": {"id": "CUSTOM", "label": label},
+                              "description": desc,
+                              "url": __handover_drs__ + path.format(dataset=dataset, chr=chr, start=start,
+                                                                    end=end, ref=ref, alt=alt)})
+
+    return handovers
 
 
 async def fetch_datasets_access(db_pool, datasets):
@@ -183,6 +210,7 @@ async def fetch_filtered_dataset(db_pool, assembly_id, position, chromosome, ref
                                                     endMin_pos, endMax_pos)
                 LOG.info(f"Query for dataset(s): {datasets} that are {access_type} matching conditions.")
                 for record in list(db_response):
+                    record = add_handover(record)
                     processed = transform_misses(record) if misses else transform_record(record)
                     datasets.append(processed)
                 return datasets

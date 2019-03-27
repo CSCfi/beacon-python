@@ -6,8 +6,8 @@ start or end position.
 """
 
 from ..utils.logging import LOG
-from .. import __apiVersion__
-from ..utils.data_query import filter_exists, find_datasets, fetch_datasets_access
+from .. import __apiVersion__, __handover_beacon__
+from ..utils.data_query import filter_exists, find_datasets, fetch_datasets_access, make_handover
 from .exceptions import BeaconUnauthorised, BeaconForbidden, BeaconBadRequest
 
 
@@ -63,6 +63,7 @@ async def query_request_handler(params):
     """
     LOG.info(f'{params[1]} request to beacon endpoint "/query"')
     request = params[2]
+
     # Fills the Beacon variable with the found data.
     alleleRequest = {'referenceName': request.get("referenceName"),
                      'referenceBases': request.get("referenceBases"),
@@ -99,6 +100,7 @@ async def query_request_handler(params):
                                    request.get("referenceBases"), alternate,
                                    accessible_datasets, access_type, request.get("includeDatasetResponses", "NONE"))
 
+    beaconhandover = make_handover(__handover_beacon__, [x['datasetId'] for x in datasets])
     beacon_response = {'beaconId': '.'.join(reversed(params[4].split('.'))),
                        'apiVersion': __apiVersion__,
                        'exists': any([x['exists'] for x in datasets]),
@@ -107,6 +109,7 @@ async def query_request_handler(params):
                        # otherwise schema validation will fail
                        # "error": None,
                        'alleleRequest': alleleRequest,
+                       'beaconHandover': beaconhandover,
                        'datasetAlleleResponses': filter_exists(request.get("includeDatasetResponses", "NONE"), datasets)}
 
     return beacon_response

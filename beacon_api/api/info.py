@@ -6,10 +6,10 @@ and their associated metadata.
 .. note:: See ``beacon_api`` root folder ``__init__.py`` for changing values used here.
 """
 
-from .. import __apiVersion__, __title__, __version__, __description__, __url__, __alturl__
+from .. import __apiVersion__, __title__, __version__, __description__, __url__, __alturl__, __handover_beacon__
 from .. import __createtime__, __updatetime__, __org_id__, __org_name__, __org_description__
 from .. import __org_address__, __org_logoUrl__, __org_welcomeUrl__, __org_info__, __org_contactUrl__
-from ..utils.data_query import fetch_dataset_metadata
+from ..utils.data_query import fetch_dataset_metadata, make_handover
 from aiocache import cached
 from aiocache.serializers import JsonSerializer
 
@@ -21,6 +21,7 @@ async def beacon_info(host, pool):
     :return beacon_info: A dict that contain information about the ``Beacon`` endpoint.
     """
     beacon_dataset = await fetch_dataset_metadata(pool)
+    beaconhandover = make_handover(__handover_beacon__, [x['id'] for x in beacon_dataset])
     # If one sets up a beacon it is recommended to adjust these sample requests
     sample_allele_request = [{
         "alternateBases": "G",
@@ -73,7 +74,8 @@ async def beacon_info(host, pool):
         'updateDateTime': __updatetime__,
         'datasets': beacon_dataset,
         'sampleAlleleRequests': sample_allele_request,
-        'info': {"achievement": "World's first 1.0 Beacon"}
+        'info': {"achievement": "World's first 1.0 Beacon"},
+        'beaconHandover': beaconhandover
     }
 
     return beacon_info
