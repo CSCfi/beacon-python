@@ -6,7 +6,7 @@ start or end position.
 """
 
 from ..utils.logging import LOG
-from .. import __apiVersion__, __handover_beacon__
+from .. import __apiVersion__, __handover_beacon__, __handover_drs__
 from ..utils.data_query import filter_exists, find_datasets, fetch_datasets_access, make_handover
 from .exceptions import BeaconUnauthorised, BeaconForbidden, BeaconBadRequest
 
@@ -100,7 +100,6 @@ async def query_request_handler(params):
                                    request.get("referenceBases"), alternate,
                                    accessible_datasets, access_type, request.get("includeDatasetResponses", "NONE"))
 
-    beaconhandover = make_handover(__handover_beacon__, [x['datasetId'] for x in datasets])
     beacon_response = {'beaconId': '.'.join(reversed(params[4].split('.'))),
                        'apiVersion': __apiVersion__,
                        'exists': any([x['exists'] for x in datasets]),
@@ -109,7 +108,8 @@ async def query_request_handler(params):
                        # otherwise schema validation will fail
                        # "error": None,
                        'alleleRequest': alleleRequest,
-                       'beaconHandover': beaconhandover,
                        'datasetAlleleResponses': filter_exists(request.get("includeDatasetResponses", "NONE"), datasets)}
 
+    if __handover_drs__:
+        beacon_response['beaconHandover'] = make_handover(__handover_beacon__, [x['datasetId'] for x in datasets])
     return beacon_response

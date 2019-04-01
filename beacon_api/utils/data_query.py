@@ -62,10 +62,11 @@ def transform_metadata(record):
 def add_handover(record):
     """Add handover to a dataset response."""
     response = dict(record)
-    response["datasetHandover"] = make_handover(__handover_datasets__, [record['datasetId']],
-                                                record['referenceName'], record['start'],
-                                                record['end'], record['referenceBases'],
-                                                record['alternateBases'], record['variantType'])
+    if __handover_drs__:
+        response["datasetHandover"] = make_handover(__handover_datasets__, [record['datasetId']],
+                                                    record['referenceName'], record['start'],
+                                                    record['end'], record['referenceBases'],
+                                                    record['alternateBases'], record['variantType'])
     return response
 
 
