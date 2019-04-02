@@ -59,14 +59,12 @@ def transform_metadata(record):
     return response
 
 
-def add_handover(record):
+def add_handover(response):
     """Add handover to a dataset response."""
-    response = dict(record)
-    if __handover_drs__:
-        response["datasetHandover"] = make_handover(__handover_datasets__, [record['datasetId']],
-                                                    record['referenceName'], record['start'],
-                                                    record['end'], record['referenceBases'],
-                                                    record['alternateBases'], record['variantType'])
+    response["datasetHandover"] = make_handover(__handover_datasets__, [response['datasetId']],
+                                                response['referenceName'], response['start'],
+                                                response['end'], response['referenceBases'],
+                                                response['alternateBases'], response['variantType'])
     return response
 
 
@@ -211,8 +209,10 @@ async def fetch_filtered_dataset(db_pool, assembly_id, position, chromosome, ref
                                                     endMin_pos, endMax_pos)
                 LOG.info(f"Query for dataset(s): {datasets} that are {access_type} matching conditions.")
                 for record in list(db_response):
-                    record = add_handover(record)
                     processed = transform_misses(record) if misses else transform_record(record)
+                    if __handover_drs__:
+                        # If handover feature is enabled, add handover object to response
+                        processed = add_handover(processed)
                     datasets.append(processed)
                 return datasets
             except Exception as e:
