@@ -5,6 +5,11 @@ from configparser import ConfigParser
 from collections import namedtuple
 
 
+def parse_drspaths(paths):
+    """Parse handover configuration."""
+    return [p.strip().split(',', 2) for p in paths.split('\n') if p.split()]
+
+
 def parse_config_file(path):
     """Parse configuration file."""
     config = ConfigParser()
@@ -15,6 +20,10 @@ def parse_config_file(path):
         'author': config.get('beacon_general_info', 'author'),
         'license': config.get('beacon_general_info', 'license'),
         'copyright': config.get('beacon_general_info', 'copyright'),
+        'handover_drs': config.get('handover_info', 'drs', fallback=''),
+        'handover_datasets': parse_drspaths(config.get('handover_info', 'dataset_paths', fallback='')),
+        'handover_beacon': parse_drspaths(config.get('handover_info', 'beacon_paths', fallback='')),
+        'handover_base': int(config.get('handover_info', 'handover_base', fallback=0)),
         'apiVersion': config.get('beacon_api_info', 'apiVersion'),
         'beaconId': config.get('beacon_api_info', 'beaconId'),
         'description': config.get('beacon_api_info', 'description'),

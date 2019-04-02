@@ -1,6 +1,7 @@
 import asynctest
+from unittest import mock
 from beacon_api.utils.data_query import filter_exists, transform_record
-from beacon_api.utils.data_query import transform_misses, transform_metadata, find_datasets
+from beacon_api.utils.data_query import transform_misses, transform_metadata, find_datasets, add_handover, make_handover
 from datetime import datetime
 # from beacon_api.utils.data_query import fetch_dataset_metadata
 from beacon_api.utils.data_query import handle_wildcard
@@ -109,6 +110,26 @@ class TestDataQueryFunctions(asynctest.TestCase):
                         updateDateTime=datetime.strptime("2018-10-20 20:33:40+00", '%Y-%m-%d %H:%M:%S+00'))
         result = transform_metadata(record)
         self.assertEqual(result, response)
+
+    def test_add_handover(self):
+        """Test that add handover."""
+        # Test that the handover actually is added
+        handovers = [{"handover1": "info"}, {"handover2": "url"}]
+        record = {"datasetId": "test", "referenceName": "22", "referenceBases": "A",
+                  "alternateBases": "C", "start": 10, "end": 11, "variantType": "SNP"}
+        with mock.patch('beacon_api.utils.data_query.make_handover', return_value=handovers):
+            result = add_handover(record)
+        record['datasetHandover'] = handovers
+        self.assertEqual(result, record)
+
+    def test_make_handover(self):
+        """Test make handover."""
+        paths = [('lab1', 'desc1', 'path1'), ('lab2', 'desc2', 'path2')]
+        result = make_handover(paths, ['id1', 'id2', 'id1'])
+        # The number of handovers = number of paths * number of unique datasets
+        self.assertEqual(len(result), 4)
+        self.assertIn("path1", result[0]["url"])
+        self.assertEqual(result[0]["description"], 'desc1')
 
     @asynctest.mock.patch('beacon_api.utils.data_query.fetch_filtered_dataset')
     async def test_find_datasets(self, mock_filtered):

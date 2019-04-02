@@ -826,6 +826,35 @@
     },
     "info": {
       "type": "object"
+    },
+    "beaconHandover": {
+            "type": "array",
+            "required": [
+              "handoverType",
+              "url"
+            ],
+            "properties": {
+              "handoverType": {
+                "type": "object",
+                "required": [
+                  "id"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "label": {
+                    "type": "string"
+                  }
+                }
+              },
+              "description": {
+                    "type": "string"
+              },
+              "url": {
+                    "type": "string"
+              }
+            }
     }
   }
 }
