@@ -229,10 +229,10 @@ The Beacon specification contains some optional features that may be turned on o
 Handover Protocol
 ~~~~~~~~~~~~~~~~~
 
-The handover protocol is a feature similar to `HATEOAS and HAL<https://restfulapi.net/hateoas/>`_. It can be used to convey
+The handover protocol is a feature comparable to `HATEOAS and HAL<https://restfulapi.net/hateoas/>`_. It can be used to convey
 extra information regarding the beacon service or the dataset response, that resides in a URL that has been constructed ready for use.
 More information about the handover protocol can be read from the `Beacon Project page <https://beacon-project.io/roadmap/handover.html>`_ and
-Beacon Specification's `handover issue <https://github.com/ga4gh-beacon/specification/issues/114>`_ at github.
+Beacon Specification's `handover issue <https://github.com/ga4gh-beacon/specification/issues/114>`_ at Github.
 
 The handover protocol can be configured in ``config.ini`` as follows:
 
