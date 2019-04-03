@@ -45,6 +45,7 @@ Table of Contents
    Deployment             <deploy>
    API Examples           <example>
    Handling Permissions   <permissions>
+   Optional Features      <optionals>
    Python Modules         <code>
    Testing                <testing>
 
