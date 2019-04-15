@@ -8,7 +8,7 @@ import json
 import aiohttp
 from aioresponses import aioresponses
 from aiocache import caches
-# from jose import jwk
+
 
 mock_dataset_metadata = {"id": "id1",
                          "name": "name",

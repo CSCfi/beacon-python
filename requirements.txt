@@ -1,8 +1,9 @@
 aiohttp
 aiohttp_cors
 asyncpg
-jsonschema==3.0.0
+jsonschema==3.0.1
 Cython
+numpy
 cyvcf2==0.10.1
 tox
 uvloop

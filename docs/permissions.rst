@@ -3,7 +3,7 @@
 Handling Permissions
 ====================
 
-By default there are three types of permissions:
+As per Beacon specification there are three types of permissions:
 
 * ``PUBLIC`` - data available for anyone;
 * ``REGISTERED`` - data available for users registered on a service for special credentials
@@ -53,7 +53,7 @@ The permissions are then passed in :meth:`beacon_api.utils.validate` as illustra
 .. literalinclude:: /../beacon_api/utils/validate.py
    :language: python
    :dedent: 16
-   :lines: 155-166
+   :lines: 160-173
 
 If there is no claim for REMS permission as illustrated above, they will not be added to
 ``controlled_datasets``.

@@ -1,8 +1,8 @@
 Deployment
 ==========
 
-The recommended means of deployment for the Python based Beacon Web Server is via
-docker engine.
+The recommended means of deployment for production Beacon-python Web Server is via
+a container image (e.g. Docker image).
 In this section we illustrate several means of building and running a
 ``beacon-python`` application via Docker.
 
@@ -31,8 +31,8 @@ Using OpenShift's ``s2i`` means of building the Docker image requires
     $ cd beacon-python
     $ s2i build . centos/python-36-centos7 cscfi/beacon-python
 
-After the image has been built one can use it with the simple Docker ``run``
-(requires connection to a DB in the same docker network)
+After the image has been built, one can use it with the simple Docker ``run``
+(requires connection to a DB in the same Docker network)
 or as part of a docker-compose file or as illustrated below with Kubernetes.
 
 .. code-block:: console

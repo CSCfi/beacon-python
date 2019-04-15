@@ -10,7 +10,6 @@ from jose import jwt
 import os
 from test.support import EnvironmentVarGuard
 from aiocache import caches
-# from aioresponses import aioresponses
 
 
 PARAMS = {'assemblyId': 'GRCh38',
