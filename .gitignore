@@ -1,5 +1,15 @@
 
-# Created by https://www.gitignore.io/api/python
+### VisualStudioCode ###
+.vscode/*
+.vscode/settings.json
+.vscode/tasks.json
+.vscode/launch.json
+.vscode/extensions.json
+beacon.code-workspace
+
+### VisualStudioCode Patch ###
+# Ignore all local history of files
+.history
 
 /*.csv
 

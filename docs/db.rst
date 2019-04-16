@@ -50,37 +50,46 @@ For ``HIT`` results, example query below searches in all datasets:
 
 .. code-block:: sql
 
-    SELECT  a.datasetId as "datasetId", b.accessType as "accessType",
-            a.chromosome as "referenceName",
-            b.externalUrl as "externalUrl", b.description as "note",
-            a.alleleCount as "sampleCount", a.variantType as "variantType",
-            a.callCount as "callCount",
-            a.frequency, TRUE as "exists"
-            FROM beacon_data_table a, beacon_dataset_table b
-            WHERE a.datasetId=b.datasetId
-            AND  (a.start=3056601 AND TRUE
-            AND TRUE AND TRUE
-            AND TRUE AND TRUE
-            AND TRUE AND a.reference='T' AND TRUE  AND a.alternate='C')
-            AND a.chromosome='Y'
-            AND b.accessType IN ('REGISTERED', 'PUBLIC') AND TRUE ;
+    SELECT a.datasetId as "datasetId", b.accessType as "accessType", a.chromosome as "referenceName",
+                a.reference as "referenceBases", a.alternate as "alternateBases", a.start as "start", a.end as "end",
+                b.externalUrl as "externalUrl", b.description as "note",
+                a.alleleCount as "variantCount", a.variantType as "variantType",
+                a.callCount as "callCount", b.sampleCount as "sampleCount",
+                a.frequency, "TRUE" as "exists"
+                FROM beacon_data_table a, beacon_dataset_table b
+                WHERE a.datasetId=b.datasetId
+                AND b.assemblyId='GRCh38'
+                AND (coalesce(a.start=3056601, true)
+                AND coalesce(a.end=NULL, true)
+                AND coalesce(a.start<=NULL, true) AND coalesce(a.start>=NULL, true)
+                AND coalesce(a.end>=NULL, true) AND coalesce(a.end<=NULL, true)
+                AND coalesce(a.reference LIKE any('T'), true)
+                AND coalesce(a.variantType=NULL, true)
+                AND coalesce(a.alternate LIKE any('C'), true))
+                AND a.chromosome='Y'
+                AND coalesce(b.accessType = any('REGISTERED', 'PUBLIC'), true)
+                AND coalesce(a.datasetId = any('DATASET2'), true) ;
 
 For ``MISS`` results, example query below searches in all ``DATASET2``:
 
 .. code-block:: sql
 
-    SELECT DISTINCT ON (a.dataset_id) a.datasetId as "datasetId", b.accessType as "accessType",
-                        a.chromosome as "referenceName",
-                        b.externalUrl as "externalUrl", b.description as "note",
-                        a.alleleCount as "sampleCount", a.variantType as "variantType",
-                        a.callCount as "callCount",
-                        a.frequency, FALSE as "exists"
-                        FROM beacon_data_table a, beacon_dataset_table b
-                        WHERE a.datasetId=b.datasetId
-                        AND NOT (a.start=3056601 AND TRUE
-                        AND TRUE AND TRUE
-                        AND TRUE AND TRUE
-                        AND TRUE AND a.reference='T' AND TRUE AND a.alternate='C')
-                        AND a.chromosome='Y'
-                        AND b.accesstype IN ('REGISTERED', 'PUBLIC')
-                        <> a.dataset_id IN ('DATASET2') ;
+    SELECT DISTINCT ON (a.datasetId) a.datasetId as "datasetId", b.accessType as "accessType", a.chromosome as "referenceName",
+                a.reference as "referenceBases", a.alternate as "alternateBases", a.start as "start", a.end as "end",
+                b.externalUrl as "externalUrl", b.description as "note",
+                a.alleleCount as "variantCount", a.variantType as "variantType",
+                a.callCount as "callCount", b.sampleCount as "sampleCount",
+                a.frequency, "FALSE" as "exists"
+                FROM beacon_data_table a, beacon_dataset_table b
+                WHERE a.datasetId=b.datasetId
+                AND b.assemblyId='GRCh38'
+                AND "NOT" (coalesce(a.start=3056601, true)
+                AND coalesce(a.end=NULL, true)
+                AND coalesce(a.start<=NULL, true) AND coalesce(a.start>=NULL, true)
+                AND coalesce(a.end>=NULL, true) AND coalesce(a.end<=NULL, true)
+                AND coalesce(a.reference LIKE any('T'), true)
+                AND coalesce(a.variantType=NULL, true)
+                AND coalesce(a.alternate LIKE any('C'), true))
+                AND a.chromosome='Y'
+                AND coalesce(b.accessType = any('REGISTERED', 'PUBLIC'), true)
+                <> coalesce(a.datasetId = any('DATASET2'), true) ;

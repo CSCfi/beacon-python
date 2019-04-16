@@ -62,7 +62,7 @@ Beacon Information
 ~~~~~~~~~~~~~~~~~~
 
 By default the beacon contains information about the beacon service.
-The information can be changed in a configuration file that has the structure specified below, by
+The information can be changed in a configuration file that has the structure specified below, or by
 pointing to the location of the file using `CONFIG_FILE` environment variable.
 
 .. literalinclude:: /../beacon_api/conf/config.ini
@@ -84,8 +84,8 @@ The configuration variables reside in the same `CONFIG_FILE` as described above 
 ``server`` should point to an API that returns a public key which can be used to validate the received Bearer token.
 ``issuers`` is a string of comma separated values, e.g. `one,two,three` without spaces. The issuers string contains
 a list of entities that are viewed as trusted organisations.
-``bona_fide`` should point to an API that returns the `bona_fide_status` for now
-`ELIXIR <https://www.elixir-europe.org/services/compute/aai>`_ specific.
+``bona_fide`` should point to an API that returns the `bona_fide_status` this is
+`ELIXIR AAI <https://www.elixir-europe.org/services/compute/aai>`_ specific.
 
 .. note:: For implementing `CONTROLLED` dataset permissions see :ref:`permissions`.
 
@@ -154,8 +154,8 @@ Starting PostgreSQL using Docker:
 
           * creating a DB View that matches the DB schema for the beacon python server see: :ref:`database`
             for information on the database schema and queries;
-          * migrate the database to match the :ref:`database` schema;
-          * keep own database, but modify the queries in :meth:`beacon_api.utils.data_query`.
+          * migrating the database to match the :ref:`database` schema;
+          * modifying the queries in :meth:`beacon_api.utils.data_query` in order to fit one's own database.
 
 
 Loading data (Optional)
@@ -179,7 +179,7 @@ For loading datasets to database we provide the ``beacon_init`` utility:
       --samples   comma separated string of samples to process
       -h, --help  show this help message and exit
 
-Dataset metadata format is as follows:
+As an example, a dataset metadata could be:
 
 .. code-block:: javascript
 

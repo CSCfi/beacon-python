@@ -22,7 +22,7 @@ cd beacon-python
 
 Start the PostgreSQL DB server and set up `POSTGRES_USER` and `POSTGRES_PASSWORD` as `beacon` and `POSTGRES_DB` as `beacondb` (default values, that can be changed via environment variables - see [documentation](https://beacon-python.readthedocs.io) for instructions).
 
-Recommended is to start PostgreSQL using [Docker](https://www.docker.com/):
+It is recommended to start PostgreSQL using [Docker](https://www.docker.com/):
 
 ```shell
 docker run -e POSTGRES_USER=beacon \
@@ -40,10 +40,12 @@ For installing `beacon-python` do the following:
 pip install .
 ```
 
-If one has their own database the ``beacon_init`` utility can be skipped, and make use of their own database by:
+#### Loading Data
+
+If one has their own database the ``beacon_init`` utility can be skipped, and make use of the existing database by:
 * creating a DB View that matches the DB schema for the beacon python server see: [Database](https://beacon-python.readthedocs.io/en/latest/db.html) documentation for information on the database schema and queries;
-* migrate the database to match the [Database](https://beacon-python.readthedocs.io/en/latest/db.html) schema;
-* keep own database, but modify the queries in [beacon_api.utils.data_query.py](beacon_api/utils/data_query.py).
+* migrating the database to match the [Database](https://beacon-python.readthedocs.io/en/latest/db.html) schema;
+* modifying the queries in [beacon_api.utils.data_query.py](beacon_api/utils/data_query.py) in order to fit one's own database.
 
 For loading `*.vcf`/`*.vcf.gz` files into the database we provide the `beacon_init` utility:
 ```shell
