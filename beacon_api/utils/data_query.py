@@ -1,13 +1,14 @@
 """Query DB and prepare data for reponse."""
 
 from datetime import datetime
+from functools import partial
 from .logging import LOG
 from ..api.exceptions import BeaconServerError
 from ..conf.config import DB_SCHEMA
-from .. import __handover_drs__, __handover_datasets__, __handover_base__
+from ..extensions.handover import add_handover
+from .. import __handover_drs__
 
 
-# def transform_record(record, variantCount):
 def transform_record(record):
     """Format the record we got from the database to adhere to the response schema."""
     response = dict(record)
@@ -20,7 +21,7 @@ def transform_record(record):
     response["info"] = {"accessType": response.pop("accessType")}
     # Error is not required and should not be shown unless exists is null
     # If error key is set to null it will still not validate as it has a required key errorCode
-    # otherwise schema validation will fail
+    # Setting this will make schema validation fail
     # response["error"] = None
 
     return response
@@ -41,7 +42,7 @@ def transform_misses(record):
     response["info"] = {"accessType": response.pop("accessType")}
     # Error is not required and should not be shown unless exists is null
     # If error key is set to null it will still not validate as it has a required key errorCode
-    # otherwise schema validation will fail
+    # Setting this will make schema validation fail
     # response["error"] = None
 
     return response
@@ -57,31 +58,6 @@ def transform_metadata(record):
         response["updateDateTime"] = response.pop("updateDateTime").strftime('%Y-%m-%dT%H:%M:%SZ')
 
     return response
-
-
-def add_handover(response):
-    """Add handover to a dataset response."""
-    response["datasetHandover"] = make_handover(__handover_datasets__, [response['datasetId']],
-                                                response['referenceName'], response['start'],
-                                                response['end'], response['referenceBases'],
-                                                response['alternateBases'], response['variantType'])
-    return response
-
-
-def make_handover(paths, datasetIds, chr='', start=0, end=0, ref='', alt='', variant=''):
-    """Create one handover for each path (specified in config)."""
-    alt = alt if alt else variant
-    handovers = []
-    start = start + __handover_base__
-    end = end + __handover_base__
-    for label, desc, path in paths:
-        for dataset in set(datasetIds):
-            handovers.append({"handoverType": {"id": "CUSTOM", "label": label},
-                              "description": desc,
-                              "url": __handover_drs__ + path.format(dataset=dataset, chr=chr, start=start,
-                                                                    end=end, ref=ref, alt=alt)})
-
-    return handovers
 
 
 async def fetch_datasets_access(db_pool, datasets):
@@ -179,7 +155,7 @@ async def fetch_filtered_dataset(db_pool, assembly_id, position, chromosome, ref
             try:
 
                 # UBER QUERY - TBD if it is what we need
-                # referenceBases, alternateBases and variantType fields are NOT part of beacon specification example response
+                # referenceBases, alternateBases and variantType fields are NOT part of beacon's specification response
                 query = f"""SELECT {"DISTINCT ON (a.datasetId)" if misses else ''}
                             a.datasetId as "datasetId", b.accessType as "accessType", a.chromosome as "referenceName",
                             a.reference as "referenceBases", a.alternate as "alternateBases", a.start as "start", a.end as "end",
@@ -242,12 +218,10 @@ async def find_datasets(db_pool, assembly_id, position, chromosome, reference, a
     hit_datasets = []
     miss_datasets = []
     response = []
-    hit_datasets = await fetch_filtered_dataset(db_pool, assembly_id, position, chromosome, reference, alternate,
-                                                dataset_ids, access_type)
+    fetch_call = partial(fetch_filtered_dataset, db_pool, assembly_id, position, chromosome, reference, alternate)
+    hit_datasets = await fetch_call(dataset_ids, access_type)
     if include_dataset in ['ALL', 'MISS']:
-        miss_datasets = await fetch_filtered_dataset(db_pool, assembly_id, position, chromosome, reference, alternate,
-                                                     [item["datasetId"] for item in hit_datasets],
-                                                     access_type, misses=True)
+        miss_datasets = await fetch_call([item["datasetId"] for item in hit_datasets], access_type, misses=True)
 
     response = hit_datasets + miss_datasets
     return response

@@ -12,6 +12,7 @@ Python Modules
     beacon_api.permissions
     beacon_api.utils
     beacon_api.conf
+    beacon_api.extensions
 
 ***********
 API Schemas
@@ -82,6 +83,17 @@ Configuration
    :toctree: beacon_api.conf
 
    beacon_api.conf.config
+
+**********
+Extensions
+**********
+
+.. automodule:: beacon_api.extensions
+
+.. autosummary::
+   :toctree: beacon_api.extensions
+
+    beacon_api.extensions.handover
 
 
 :ref:`genindex` | :ref:`modindex`
