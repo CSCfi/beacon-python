@@ -155,7 +155,7 @@ Starting PostgreSQL using Docker:
           * creating a DB View that matches the DB schema for the beacon python server see: :ref:`database`
             for information on the database schema and queries;
           * migrating the database to match the :ref:`database` schema;
-          * modifying the queries in :meth:`beacon_api.utils.data_query` in order to fit own database.
+          * modifying the queries in :meth:`beacon_api.utils.data_query` in order to fit one's own database.
 
 
 Loading data (Optional)

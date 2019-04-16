@@ -45,7 +45,7 @@ pip install .
 If one has their own database the ``beacon_init`` utility can be skipped, and make use of the existing database by:
 * creating a DB View that matches the DB schema for the beacon python server see: [Database](https://beacon-python.readthedocs.io/en/latest/db.html) documentation for information on the database schema and queries;
 * migrating the database to match the [Database](https://beacon-python.readthedocs.io/en/latest/db.html) schema;
-* modifyinf the queries in [beacon_api.utils.data_query.py](beacon_api/utils/data_query.py) in order to fit own database.
+* modifying the queries in [beacon_api.utils.data_query.py](beacon_api/utils/data_query.py) in order to fit one's own database.
 
 For loading `*.vcf`/`*.vcf.gz` files into the database we provide the `beacon_init` utility:
 ```shell
