@@ -38,6 +38,27 @@ async def fetch_fusion_dataset(db_pool, assembly_id, position, chromosome, refer
                             a.datasetId as "datasetId", b.accessType as "accessType", a.chromosome as "referenceName",
                             a.reference as "referenceBases", a.alternate as "alternateBases", a.chromosomeStart as "start",
                             a.mate as "mateName",
+                            a.chromosomePos as "referenceID", a.matePos as "mateID", a.mateStart as "start", a.end as "end",
+                            b.externalUrl as "externalUrl", b.description as "note",
+                            a.alleleCount as "variantCount", CAST('BND' as text) as "variantType",
+                            a.callCount as "callCount", b.sampleCount as "sampleCount",
+                            a.frequency, {"FALSE" if misses else "TRUE"} as "exists"
+                            FROM {DB_SCHEMA}beacon_dataset_table b, {DB_SCHEMA}beacon_mate_table a
+                            WHERE a.datasetId=b.datasetId
+                            AND b.assemblyId=$3
+                            AND coalesce(a.mate=$4, true)
+                            AND coalesce(a.reference LIKE any($5::varchar[]), true)
+                            AND {"NOT" if misses else ''} (coalesce(a.mateStart=$7, true)
+                            AND coalesce(a.end=$6, true)
+                            AND coalesce(a.end<=$8, true) AND coalesce(a.end>=$9, true)
+                            AND coalesce(a.mateStart>=$10, true) AND coalesce(a.mateStart<=$11, true))
+                            AND coalesce(b.accessType = any($2::varchar[]), true)
+                            {"<>" if misses and datasets else "AND"} coalesce(a.datasetId = any($1::varchar[]), true)
+                            UNION
+                            SELECT {"DISTINCT ON (a.datasetId)" if misses else ''}
+                            a.datasetId as "datasetId", b.accessType as "accessType", a.chromosome as "referenceName",
+                            a.reference as "referenceBases", a.alternate as "alternateBases", a.chromosomeStart as "start",
+                            a.mate as "mateName",
                             a.chromosomePos as "referenceID", a.matePos as "mateID", a.mateStart as "mateStart", a.end as "end",
                             b.externalUrl as "externalUrl", b.description as "note",
                             a.alleleCount as "variantCount", CAST('BND' as text) as "variantType",
@@ -46,22 +67,21 @@ async def fetch_fusion_dataset(db_pool, assembly_id, position, chromosome, refer
                             FROM {DB_SCHEMA}beacon_dataset_table b, {DB_SCHEMA}beacon_mate_table a
                             WHERE a.datasetId=b.datasetId
                             AND b.assemblyId=$3
-                            AND coalesce(a.mate=$5, true)
-                            AND a.chromosome=$4
-                            AND coalesce(a.reference LIKE any($6::varchar[]), true)
-                            AND {"NOT" if misses else ''} (coalesce(a.chromosomeStart=$7, true)
-                            AND coalesce(a.mateStart=$8, true)
-                            AND coalesce(a.chromosomeStart<=$9, true) AND coalesce(a.chromosomeStart>=$10, true)
-                            AND coalesce(a.mateStart>=$11, true) AND coalesce(a.mateStart<=$12, true))
+                            AND coalesce(a.mate=$12, true)
+                            AND coalesce(a.reference LIKE any($5::varchar[]), true)
+                            AND {"NOT" if misses else ''} (coalesce(a.mateStart=$6, true)
+                            AND coalesce(a.end=$7, true)
+                            AND coalesce(a.mateStart<=$8, true) AND coalesce(a.mateStart>=$9, true)
+                            AND coalesce(a.end>=$10, true) AND coalesce(a.end<=$11, true))
                             AND coalesce(b.accessType = any($2::varchar[]), true)
                             {"<>" if misses and datasets else "AND"} coalesce(a.datasetId = any($1::varchar[]), true);"""
                 datasets = []
                 statement = await connection.prepare(query)
-                db_response = await statement.fetch(datasets_query, access_query, assembly_id, chromosome,
+                db_response = await statement.fetch(datasets_query, access_query, assembly_id,
                                                     mate, refbase,
                                                     start_pos, end_pos,
                                                     startMax_pos, startMin_pos,
-                                                    endMin_pos, endMax_pos)
+                                                    endMin_pos, endMax_pos, chromosome)
                 LOG.info(f"Query for dataset(s): {datasets} that are {access_type} matching conditions.")
                 for record in list(db_response):
                     processed = transform_misses(record) if misses else transform_record(record)
