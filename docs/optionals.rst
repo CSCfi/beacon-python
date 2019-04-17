@@ -1,7 +1,7 @@
 Optional Features
 =================
 
-The Beacon specification contains some optional features that may be present or not.
+The Beacon specification contains some optional features that may be utilised or not.
 
 .. _handover-protocol:
 
@@ -48,4 +48,6 @@ Taking the first line from ``dataset_paths`` as an example, produces an object i
 
 MateName Fusions
 ----------------
+
+TBD
 
