@@ -7,7 +7,8 @@ start or end position.
 
 from ..utils.logging import LOG
 from .. import __apiVersion__, __handover_beacon__, __handover_drs__
-from ..utils.data_query import filter_exists, find_datasets, fetch_datasets_access, make_handover
+from ..utils.data_query import filter_exists, find_datasets, fetch_datasets_access
+from ..extensions.handover import make_handover
 from .exceptions import BeaconUnauthorised, BeaconForbidden, BeaconBadRequest
 
 
@@ -73,12 +74,15 @@ async def query_request_handler(params):
     # as per specification if they don't exist all datatsets will be queried
     # Only one of `alternateBases` or `variantType` is required, validated by schema
     oneof_fields = ["alternateBases", "variantType", "datasetIds"]
-    alleleRequest.update({k: request.get(k) for k in oneof_fields if k in request})
+    oneof_postions = ["start", "end", "startMin", "startMax", "endMin", "endMax"]
+
     # We only add them in the response if they are found, as the schema does the validation
     # for the combinations on how to add them
-    oneof_postions = ["start", "end", "startMin", "startMax", "endMin", "endMax"]
+    alleleRequest.update({k: request.get(k) for k in oneof_fields if k in request})
     alleleRequest.update({k: request.get(k) for k in oneof_postions if k in request})
+
     alternate = alleleRequest.get("variantType"), alleleRequest.get("alternateBases")
+
     # Initialising the values of the positions, based on what we get from request
     if request.get("end") and request.get("end") < request.get("start"):
         raise BeaconBadRequest(request, params[4], "end value Must be greater than start value")
@@ -89,13 +93,13 @@ async def query_request_handler(params):
     requested_position = (request.get("start", None), request.get("end", None),
                           request.get("startMin", None), request.get("startMax", None),
                           request.get("endMin", None), request.get("endMax", None))
+
     # Get dataset ids that were requested, sort by access level
     # If request is empty (default case) the three dataset variables contain all datasets by access level
     # Datasets are further filtered using permissions from token
     public_datasets, registered_datasets, controlled_datasets = await fetch_datasets_access(params[0], request.get("datasetIds"))
     access_type, accessible_datasets = access_resolution(request, params[3], params[4], public_datasets,
                                                          registered_datasets, controlled_datasets)
-
     datasets = await find_datasets(params[0], request.get("assemblyId"), requested_position, request.get("referenceName"),
                                    request.get("referenceBases"), alternate,
                                    accessible_datasets, access_type, request.get("includeDatasetResponses", "NONE"))
@@ -105,7 +109,7 @@ async def query_request_handler(params):
                        'exists': any([x['exists'] for x in datasets]),
                        # Error is not required and should not be shown unless exists is null
                        # If error key is set to null it will still not validate as it has a required key errorCode
-                       # otherwise schema validation will fail
+                       # Setting this will make schema validation fail
                        # "error": None,
                        'alleleRequest': alleleRequest,
                        'datasetAlleleResponses': filter_exists(request.get("includeDatasetResponses", "NONE"), datasets)}

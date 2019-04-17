@@ -10,7 +10,8 @@ from .. import __apiVersion__, __title__, __version__, __description__, __url__,
 from .. import __createtime__, __updatetime__, __org_id__, __org_name__, __org_description__
 from .. import __org_address__, __org_logoUrl__, __org_welcomeUrl__, __org_info__, __org_contactUrl__
 from .. import __handover_drs__
-from ..utils.data_query import fetch_dataset_metadata, make_handover
+from ..utils.data_query import fetch_dataset_metadata
+from ..extensions.handover import make_handover
 from aiocache import cached
 from aiocache.serializers import JsonSerializer
 

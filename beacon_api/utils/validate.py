@@ -86,7 +86,12 @@ def validate(schema):
                 LOG.info('Validate against JSON schema.')
                 DefaultValidatingDraft7Validator(schema).validate(obj)
             except ValidationError as e:
-                raise BeaconBadRequest(obj, request.host, e.message)
+                if len(e.path) > 0:
+                    LOG.error(f'Bad Request: {e.message} caused by input: {e.instance} in {e.path[0]}')
+                    raise BeaconBadRequest(obj, request.host, f"Provided input: '{e.instance}' does not seem correct for field: '{e.path[0]}'")
+                else:
+                    LOG.error(f'Bad Request: {e.message} caused by input: {e.instance}')
+                    raise BeaconBadRequest(obj, request.host, f"Provided input: '{e.instance}' does not seem correct because: '{e.message}'")
 
             return await func(*args)
         return wrapped
@@ -157,16 +162,16 @@ def token_auth():
                 decodedData = jwt.decode(token, key, issuer=issuers)
                 LOG.info('Auth Token Decoded.')
                 LOG.info(f'Identified as {decodedData["sub"]} user by {decodedData["iss"]}.')
-                # for now the permissions just reflect that the data can be decoded from token
-                # the bona fide status is checked against ELIXIR AAI by default
-                # the bona_fide_status is specific to ELIXIR Tokens by default
-                # permissions key will hold the actual permissions found in the token e.g. REMS permissions
+                # for now the permissions just reflects that the data can be decoded from token
+                # the bona fide status is checked against ELIXIR AAI by default or the URL from config
+                # the bona_fide_status is specific to ELIXIR Tokens
                 controlled_datasets = set()
                 # currently we parse only REMS, but multiple claims and providers can be utilised
-                # by updating the set, replicating the line below with the permissions function and its associated claim
+                # by updating the set, meaning replicating the line below with the permissions function and its associated claim
                 controlled_datasets.update(get_rems_controlled(decodedData["permissions_rems"]) if "permissions_rems" in decodedData else {})
                 all_controlled = list(controlled_datasets) if bool(controlled_datasets) else None
                 request["token"] = {"bona_fide_status": True if await check_bona_fide_status(token, obj, request.host) is not None else False,
+                                    # permissions key will hold the actual permissions found in the token e.g. REMS permissions
                                     "permissions": all_controlled,
                                     # additional checks can be performed against this authenticated key
                                     # currently if a token is valid that means request is authenticated

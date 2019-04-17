@@ -1,11 +1,10 @@
 import asynctest
 from unittest import mock
 from beacon_api.utils.data_query import filter_exists, transform_record
-from beacon_api.utils.data_query import transform_misses, transform_metadata, find_datasets, add_handover, make_handover
+from beacon_api.utils.data_query import transform_misses, transform_metadata, find_datasets, add_handover
+from beacon_api.extensions.handover import make_handover
 from datetime import datetime
-# from beacon_api.utils.data_query import fetch_dataset_metadata
 from beacon_api.utils.data_query import handle_wildcard
-# from .test_db_load import Connection
 
 
 class Record:
@@ -117,7 +116,7 @@ class TestDataQueryFunctions(asynctest.TestCase):
         handovers = [{"handover1": "info"}, {"handover2": "url"}]
         record = {"datasetId": "test", "referenceName": "22", "referenceBases": "A",
                   "alternateBases": "C", "start": 10, "end": 11, "variantType": "SNP"}
-        with mock.patch('beacon_api.utils.data_query.make_handover', return_value=handovers):
+        with mock.patch('beacon_api.extensions.handover.make_handover', return_value=handovers):
             result = add_handover(record)
         record['datasetHandover'] = handovers
         self.assertEqual(result, record)
@@ -139,14 +138,6 @@ class TestDataQueryFunctions(asynctest.TestCase):
         token["bona_fide_status"] = False
         result = await find_datasets(None, 'GRCh38', None, 'Y', 'T', 'C', [], token, "NONE")
         self.assertEqual(result, [])
-
-    # async def test_fetch_metadata(self):
-    #     """Test fetch_metadata."""
-    #     pool = asynctest.CoroutineMock()
-    #     pool.acquire.return_value = Connection()
-    #     # pool.connection.prepare.return_value = asynctest.CoroutineMock()
-    #     result = await fetch_dataset_metadata(pool)
-    #     self.assertTrue(False)
 
     def test_handle_wildcard(self):
         """Test PostgreSQL wildcard handling."""

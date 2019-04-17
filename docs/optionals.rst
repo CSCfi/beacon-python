@@ -1,7 +1,7 @@
 Optional Features
 =================
 
-The Beacon specification contains some optional features that may be turned on or off.
+The Beacon specification contains some optional features that may be present or not.
 
 .. _handover-protocol:
 

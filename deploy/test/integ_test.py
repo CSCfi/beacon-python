@@ -104,6 +104,8 @@ async def test_4():
     Send a query with missing required params. Expect a bad request (400).
     """
     LOG.debug(f'[04/{TESTS_NUMBER}] Test get query (missing params)')
+    error_text = "Provided input: '{'assemblyId': 'GRCh38', 'start': 9, 'referenceBases': 'T', 'alternateBases': 'C', \
+'includeDatasetResponses': 'HIT'}' does not seem correct because: ''referenceName' is a required property'"
     params = {'assemblyId': 'GRCh38',
               'start': 9, 'referenceBases': 'T', 'alternateBases': 'C',
               'includeDatasetResponses': 'HIT'}
@@ -114,7 +116,7 @@ async def test_4():
             if 'error' in data and len(data['error']) > 0:
                 assert resp.status == 400, 'HTTP Status code error'
                 assert data['error']['errorCode'] == 400, 'HTTP Status code error'
-                assert data['error']['errorMessage'] == "'referenceName' is a required property", 'Error message error'
+                assert data['error']['errorMessage'] == error_text
             else:
                 sys.exit('Query GET Endpoint Error!')
 
@@ -199,6 +201,8 @@ async def test_8():
     Send a query with missing required params. Expect a bad request (400).
     """
     LOG.debug(f'[08/{TESTS_NUMBER}] Test post query (missing params)')
+    error_text = "Provided input: '{'start': 9, 'referenceBases': 'T', 'alternateBases': 'C', 'assemblyId': 'GRCh38', 'includeDatasetResponses': 'HIT'}' \
+does not seem correct because: ''referenceName' is a required property'"
     payload = {"start": 9,
                "referenceBases": "T",
                "alternateBases": "C",
@@ -210,7 +214,7 @@ async def test_8():
             if 'error' in data and len(data['error']) > 0:
                 assert resp.status == 400, 'HTTP Status code error'
                 assert data['error']['errorCode'] == 400, 'HTTP Status code error'
-                assert data['error']['errorMessage'] == "'referenceName' is a required property", 'Error message error'
+                assert data['error']['errorMessage'] == error_text
             else:
                 sys.exit('Query POST Endpoint Error!')
 
@@ -479,7 +483,7 @@ async def main():
     await test_16()
     await test_17()
     # tests 18, 19 and 20 are also tested in the unit tests
-    # redundant but later we may want to valdiate agains json schema
+    # redundant, but later we may want to valdiate against json schema
     await test_18()
     await test_19()
     await test_20()
