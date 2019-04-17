@@ -43,3 +43,9 @@ Taking the first line from ``dataset_paths`` as an example, produces an object i
             }
         ]
     }
+
+.. _mate-name:
+
+MateName Fusions
+----------------
+

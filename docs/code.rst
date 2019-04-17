@@ -94,6 +94,7 @@ Extensions
    :toctree: beacon_api.extensions
 
     beacon_api.extensions.handover
+    beacon_api.extensions.mate_name
 
 
 :ref:`genindex` | :ref:`modindex`

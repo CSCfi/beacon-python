@@ -8,8 +8,8 @@ from ..utils.data_query import handle_wildcard, transform_misses, transform_reco
 from .. import __handover_drs__
 
 
-async def fetch_filtered_dataset(db_pool, assembly_id, position, chromosome, reference, mate,
-                                 datasets=None, access_type=None, misses=False):
+async def fetch_fusion_dataset(db_pool, assembly_id, position, chromosome, reference, mate,
+                               datasets=None, access_type=None, misses=False):
     """Execute filter datasets.
 
     There is an Uber query that aims to be all inclusive yet specific for mate fusion table.
@@ -30,7 +30,6 @@ async def fetch_filtered_dataset(db_pool, assembly_id, position, chromosome, ref
             endMax_pos = position[5]
 
             refbase = None if not reference else handle_wildcard(reference)
-            print(refbase)
             try:
 
                 # UBER QUERY - TBD if it is what we need
@@ -44,10 +43,10 @@ async def fetch_filtered_dataset(db_pool, assembly_id, position, chromosome, ref
                             a.alleleCount as "variantCount", CAST('BND' as text) as "variantType",
                             a.callCount as "callCount", b.sampleCount as "sampleCount",
                             a.frequency, {"FALSE" if misses else "TRUE"} as "exists"
-                            FROM {DB_SCHEMA}beacon_mate_table a, {DB_SCHEMA}beacon_dataset_table b
+                            FROM {DB_SCHEMA}beacon_dataset_table b, {DB_SCHEMA}beacon_mate_table a
                             WHERE a.datasetId=b.datasetId
                             AND b.assemblyId=$3
-                            AND a.mate=$5
+                            AND coalesce(a.mate=$5, true)
                             AND a.chromosome=$4
                             AND coalesce(a.reference LIKE any($6::varchar[]), true)
                             AND {"NOT" if misses else ''} (coalesce(a.chromosomeStart=$7, true)
@@ -55,7 +54,7 @@ async def fetch_filtered_dataset(db_pool, assembly_id, position, chromosome, ref
                             AND coalesce(a.chromosomeStart<=$9, true) AND coalesce(a.chromosomeStart>=$10, true)
                             AND coalesce(a.mateStart>=$11, true) AND coalesce(a.mateStart<=$12, true))
                             AND coalesce(b.accessType = any($2::varchar[]), true)
-                            {"<>" if misses and datasets else "AND"} coalesce(a.datasetId = any($1::varchar[]), true) ;"""
+                            {"<>" if misses and datasets else "AND"} coalesce(a.datasetId = any($1::varchar[]), true);"""
                 datasets = []
                 statement = await connection.prepare(query)
                 db_response = await statement.fetch(datasets_query, access_query, assembly_id, chromosome,
@@ -83,7 +82,7 @@ async def find_fusion(db_pool, assembly_id, position, chromosome, reference, mat
     hit_datasets = []
     miss_datasets = []
     response = []
-    fetch_call = partial(fetch_filtered_dataset, db_pool, assembly_id, position, chromosome, reference, mate)
+    fetch_call = partial(fetch_fusion_dataset, db_pool, assembly_id, position, chromosome, reference, mate)
     hit_datasets = await fetch_call(dataset_ids, access_type)
     if include_dataset in ['ALL', 'MISS']:
         miss_datasets = await fetch_call([item["datasetId"] for item in hit_datasets], access_type, misses=True)
