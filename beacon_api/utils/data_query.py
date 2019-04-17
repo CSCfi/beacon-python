@@ -17,7 +17,7 @@ def transform_record(record):
     response["variantType"] = response.pop("variantType")  # NOT part of beacon specification
     response["start"] = response.pop("start")  # NOT part of beacon specification
     response["end"] = response.pop("end")  # NOT part of beacon specification
-    response["frequency"] = round(response.pop("frequency"), 9)
+    response["frequency"] = 0 if response.get("frequency") is None else round(response.pop("frequency"), 9)
     response["info"] = {"accessType": response.pop("accessType")}
     # Error is not required and should not be shown unless exists is null
     # If error key is set to null it will still not validate as it has a required key errorCode

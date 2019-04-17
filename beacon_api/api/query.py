@@ -9,6 +9,7 @@ from ..utils.logging import LOG
 from .. import __apiVersion__, __handover_beacon__, __handover_drs__
 from ..utils.data_query import filter_exists, find_datasets, fetch_datasets_access
 from ..extensions.handover import make_handover
+from ..extensions.mate_name import find_fusion
 from .exceptions import BeaconUnauthorised, BeaconForbidden, BeaconBadRequest
 
 
@@ -100,9 +101,14 @@ async def query_request_handler(params):
     public_datasets, registered_datasets, controlled_datasets = await fetch_datasets_access(params[0], request.get("datasetIds"))
     access_type, accessible_datasets = access_resolution(request, params[3], params[4], public_datasets,
                                                          registered_datasets, controlled_datasets)
-    datasets = await find_datasets(params[0], request.get("assemblyId"), requested_position, request.get("referenceName"),
-                                   request.get("referenceBases"), alternate,
-                                   accessible_datasets, access_type, request.get("includeDatasetResponses", "NONE"))
+    if 'mateName' in request or alleleRequest.get('variantType') == 'BND':
+        datasets = await find_fusion(params[0], request.get("assemblyId"), requested_position, request.get("referenceName"),
+                                     request.get("referenceBases"), request.get('mateName'),
+                                     accessible_datasets, access_type, request.get("includeDatasetResponses", "NONE"))
+    else:
+        datasets = await find_datasets(params[0], request.get("assemblyId"), requested_position, request.get("referenceName"),
+                                       request.get("referenceBases"), alternate,
+                                       accessible_datasets, access_type, request.get("includeDatasetResponses", "NONE"))
 
     beacon_response = {'beaconId': '.'.join(reversed(params[4].split('.'))),
                        'apiVersion': __apiVersion__,
