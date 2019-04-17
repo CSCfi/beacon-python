@@ -146,6 +146,14 @@ class DatabaseTestCase(asynctest.TestCase):
         """Close database connection after tests."""
         self._dir.cleanup_all()
 
+    @asynctest.mock.patch('beacon_api.utils.db_load.asyncpg.connect')
+    async def test_bnd_parts(self, db_mock):
+        """Test breakend parsing parts."""
+        db_mock.return_value = Connection()
+        await self._db.connection()
+        result = self._db._bnd_parts('[CHR17:31356925[N', '126_2')
+        self.assertEqual(('chr17', 31356925, True, True, 'N', True, '126_2'), result)
+
     @asynctest.mock.patch('beacon_api.utils.db_load.asyncpg')
     async def test_connection(self, db_mock):
         """Test database URL fetching."""
@@ -255,15 +263,15 @@ class DatabaseTestCase(asynctest.TestCase):
         inf1 = INFO((1), 'S', 3)
         variant = Variant(['C'], 'T', inf1, 0.7, 'snp', 3)
         result = self._db._unpack(variant)
-        self.assertEqual(([0.3333333333333333], [1], ['SNP'], ['C'], 3), result)
+        self.assertEqual(([0.3333333333333333], [1], ['SNP'], ['C'], 3, []), result)
         inf2 = INFO(1, 'S', 3)
         variant = Variant(['AT', 'A'], 'ATA', inf2, 0.7, 'snp', 3)
         result = self._db._unpack(variant)
-        self.assertEqual(([0.3333333333333333], [1], ['DEL', 'DEL'], ['AT', 'A'], 3), result)
+        self.assertEqual(([0.3333333333333333], [1], ['DEL', 'DEL'], ['AT', 'A'], 3, []), result)
         inf3 = INFO((1), 'S', 3)
         variant = Variant(['TC'], 'T', inf3, 0.7, 'snp', 3)
         result = self._db._unpack(variant)
-        self.assertEqual(([0.3333333333333333], [1], ['INS'], ['TC'], 3), result)
+        self.assertEqual(([0.3333333333333333], [1], ['INS'], ['TC'], 3, []), result)
 
     @asynctest.mock.patch('beacon_api.utils.db_load.LOG')
     @asynctest.mock.patch('beacon_api.utils.db_load.asyncpg.connect')

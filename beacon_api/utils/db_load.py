@@ -40,6 +40,7 @@ import os
 import argparse
 import json
 import itertools
+import re
 
 import asyncio
 import asyncpg
@@ -76,7 +77,6 @@ class BeaconDB:
         elif vt in ['i', 'indel']:
             return self._alt_length_check(variant, i, 'SNP')
         else:
-            # LOG.debug(f'Other variantType value {variant.var_type.upper()}')
             return variant.var_type.upper()
 
     def _handle_type(self, value, type):
@@ -89,10 +89,40 @@ class BeaconDB:
 
         return ar
 
+    def _bnd_parts(self, alt, mate):
+        """Retrieve BND SV type parts.
+
+        We retrieve more than needed
+        """
+        # REF ALT  Meaning
+        # s   t[p[ piece extending to the right of p is joined after t
+        # s   t]p] reverse comp piece extending left of p is joined after t
+        # s   ]p]t piece extending to the left of p is joined before t
+        # s   [p[t reverse comp piece extending right of p is joined before t
+        # where p is chr:pos
+        patt = re.compile("[\\[\\]]")
+        mate_items = patt.split(alt)
+        remoteCoords = mate_items[1].split(':')
+        chr = remoteCoords[0].lower()
+        if chr[0] == "<":
+            chr = chr[1:-1]
+            withinMainAssembly = False
+        else:
+            withinMainAssembly = True
+        pos = int(remoteCoords[1])
+        orientation = (alt[0] == "[" or alt[0] == "]")
+        remoteOrientation = (re.search("\\[", alt) is not None)
+        if orientation:
+            connectingSequence = mate_items[2]
+        else:
+            connectingSequence = mate_items[0]
+
+        return(chr, pos, orientation, remoteOrientation, connectingSequence, withinMainAssembly, mate)
+
     def _rchop(self, thestring, ending):
         """Chop SV type if any SV is in the ``me_type`` list.
 
-        If a ``SV=LINE1`` is not supported thus we meed to used the ALT base
+        The ``SV=LINE1`` is not supported, thus we meed to used the ALT base
         ``INS:ME:LINE1`` but removing the ``:LINE1`` from the end.
 
         .. warning:: This data transformation might only be valid for 1000genome.
@@ -102,14 +132,20 @@ class BeaconDB:
         return thestring
 
     def _unpack(self, variant):
-        """Unpack variant type, allele frequency and count."""
+        """Unpack variant type, allele frequency and count.
+
+        This is quite a complicated parser, but it is custom made to address some of
+        expectations regarding the data to be delivered by the beacon API.
+
+        .. warning:: By no means this is exahustive in processing of VCF Records.
+        """
         aaf = []
         ac = []
         vt = []
+        bnd = []
         alt = variant.ALT
         me_type = ['dup:tandem', 'del:me', 'ins:me']
-        # sv_type = ['dup', 'inv', 'ins', 'del', 'cnv']
-        # supported_vt = ['snp', 'indel', 'mnp', 'dup', 'inv', 'ins', 'del']
+
         ac = self._handle_type(variant.INFO.get('AC'), int) if variant.INFO.get('AC') else []
         an = variant.INFO.get('AN') if variant.INFO.get('AN') else variant.num_called * 2
         if variant.INFO.get('AF'):
@@ -121,7 +157,11 @@ class BeaconDB:
             alt = [elem.strip("<>") for elem in variant.ALT]
             if variant.INFO.get('SVTYPE'):
                 v = variant.INFO.get('SVTYPE')
-                vt = [self._rchop(e, ":"+v) if e.lower().startswith(tuple(me_type)) else v for e in alt]
+                if v == 'BND':
+                    bnd = [self._bnd_parts(e, variant.INFO.get('MATEID')) for e in alt]
+                    vt = ['BND' for e in alt]
+                else:
+                    vt = [self._rchop(e, ":"+v) if e.lower().startswith(tuple(me_type)) else v for e in alt]
         else:
             if variant.INFO.get('VT'):
                 v = variant.INFO.get('VT').split(',')
@@ -131,7 +171,7 @@ class BeaconDB:
                 else:
                     vt = [self._transform_vt(var_type.lower(), variant, i) for i, var_type in enumerate(v)]
 
-        return (aaf, ac, vt, alt, an)
+        return (aaf, ac, vt, alt, an, bnd)
 
     async def connection(self):
         """Connect to the database."""
@@ -218,7 +258,7 @@ class BeaconDB:
         return metadata['datasetId']
 
     def _chunks(self, iterable, size):
-        """Generate record.
+        """Chunk records.
 
         Encountered at: https://stackoverflow.com/a/24527424/10143238
         """
@@ -247,21 +287,45 @@ class BeaconDB:
                 LOG.info('Insert variants into the database')
                 for variant in variants:
                     # params = (frequency, count, actual variant Type)
+                    # Nothing interesting on the variant with no aaf
+                    # because none of the samples have it
                     if variant.aaf > 0:
                         params = self._unpack(variant)
                         # Coordinates that are read from VCF are 1-based,
                         # cyvcf2 reads them as 0-based, and they are inserted into the DB as such
-                        await self._conn.execute("""INSERT INTO beacon_data_table
-                                                 (datasetId, chromosome, start, reference, alternate,
-                                                 "end", aggregatedVariantType, alleleCount, callCount, frequency, variantType)
-                                                 SELECT ($1), ($2), ($3), ($4), t.alt, ($6), ($7), t.ac, ($9), t.freq, t.vt
-                                                 FROM (SELECT unnest($5::varchar[]) alt, unnest($8::integer[]) ac,
-                                                 unnest($10::float[]) freq, unnest($11::varchar[]) as vt) t
-                                                 ON CONFLICT (datasetId, chromosome, start, reference, alternate)
-                                                 DO NOTHING""",
-                                                 dataset_id, variant.CHROM, variant.start, variant.REF,
-                                                 params[3], variant.end, variant.var_type.upper(),
-                                                 params[1], params[4], params[0], params[2])
+
+                        # We Process Breakend Records into a different table for now
+                        if params[5] != []:
+                            # await self.insert_mates(dataset_id, variant, params)
+                            # Most likely there will be only one BND per Record
+                            for bnd in params[5]:
+                                await self._conn.execute("""INSERT INTO beacon_mate_table
+                                                         (datasetId, chromosome, chromosomeStart, chromosomePos,
+                                                         mate, mateStart, matePos, reference, alternate, alleleCount,
+                                                         callCount, frequency, "end")
+                                                         SELECT ($1), ($2), ($3), ($4),
+                                                         ($5), ($6), ($7), ($8), t.alt, t.ac, ($11), t.freq, ($13)
+                                                         FROM (SELECT unnest($9::varchar[]) alt, unnest($10::integer[]) ac,
+                                                         unnest($12::float[]) freq) t
+                                                         ON CONFLICT (datasetId, chromosome, mate, chromosomePos, matePos)
+                                                         DO NOTHING""",
+                                                         dataset_id, variant.CHROM.replace('chr', ''), variant.start, variant.ID,
+                                                         bnd[0].replace('chr', ''), bnd[1], bnd[6],
+                                                         variant.REF, params[3], params[1], params[4], params[0],
+                                                         variant.end)
+                        else:
+                            await self._conn.execute("""INSERT INTO beacon_data_table
+                                                     (datasetId, chromosome, start, reference, alternate,
+                                                     "end", aggregatedVariantType, alleleCount, callCount, frequency, variantType)
+                                                     SELECT ($1), ($2), ($3), ($4), t.alt, ($6), ($7), t.ac, ($9), t.freq, t.vt
+                                                     FROM (SELECT unnest($5::varchar[]) alt, unnest($8::integer[]) ac,
+                                                     unnest($10::float[]) freq, unnest($11::varchar[]) as vt) t
+                                                     ON CONFLICT (datasetId, chromosome, start, reference, alternate)
+                                                     DO NOTHING""",
+                                                     dataset_id, variant.CHROM.replace('chr', ''), variant.start, variant.REF,
+                                                     params[3], variant.end, variant.var_type.upper(),
+                                                     params[1], params[4], params[0], params[2])
+
                         LOG.debug('Variants have been inserted')
         except Exception as e:
             LOG.error(f'AN ERROR OCCURRED WHILE ATTEMPTING TO INSERT VARIANTS -> {e}')

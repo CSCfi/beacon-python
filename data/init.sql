@@ -46,8 +46,28 @@ CREATE TABLE IF NOT EXISTS beacon_data_table (
     PRIMARY KEY (index)
 );
 
+CREATE TABLE IF NOT EXISTS beacon_mate_table (
+    index SERIAL,
+    datasetId VARCHAR(128),
+    chromosome VARCHAR(2), 
+    chromosomeStart INTEGER,
+    chromosomePos VARCHAR(128), /*for working with MATEID*/
+    mate VARCHAR(2), 
+    mateStart INTEGER,
+    matePos VARCHAR(128), /*for working with MATEID*/
+    reference VARCHAR(8192),
+    alternate VARCHAR(8192),
+    alleleCount INTEGER,
+    callCount INTEGER,
+    frequency REAL,
+    "end" INTEGER,
+    PRIMARY KEY (index)
+);
+
 CREATE UNIQUE INDEX data_conflict ON beacon_data_table (datasetId, chromosome, start, reference, alternate);
 CREATE UNIQUE INDEX metadata_conflict ON beacon_dataset_table (name, datasetId);
+CREATE UNIQUE INDEX mate_conflict ON beacon_mate_table (datasetId, chromosome, mate, chromosomePos, matePos);
+
 
 CREATE OR REPLACE VIEW dataset_metadata(name, datasetId, description, assemblyId,
                                         createDateTime, updateDateTime, version,
