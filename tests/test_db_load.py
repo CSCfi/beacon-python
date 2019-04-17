@@ -147,6 +147,14 @@ class DatabaseTestCase(asynctest.TestCase):
         self._dir.cleanup_all()
 
     @asynctest.mock.patch('beacon_api.utils.db_load.asyncpg.connect')
+    async def test_rchop(self, db_mock):
+        """Test breakend parsing parts."""
+        db_mock.return_value = Connection()
+        await self._db.connection()
+        result = self._db._rchop('INS:ME:LINE1', ":LINE1")
+        self.assertEqual('INS:ME', result)
+
+    @asynctest.mock.patch('beacon_api.utils.db_load.asyncpg.connect')
     async def test_bnd_parts(self, db_mock):
         """Test breakend parsing parts."""
         db_mock.return_value = Connection()
