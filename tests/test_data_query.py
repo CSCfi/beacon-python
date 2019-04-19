@@ -2,9 +2,11 @@ import asynctest
 from unittest import mock
 from beacon_api.utils.data_query import filter_exists, transform_record
 from beacon_api.utils.data_query import transform_misses, transform_metadata, find_datasets, add_handover
+from beacon_api.utils.data_query import fetch_datasets_access, fetch_dataset_metadata, fetch_filtered_dataset
 from beacon_api.extensions.handover import make_handover
 from datetime import datetime
 from beacon_api.utils.data_query import handle_wildcard
+from .test_db_load import Connection
 
 
 class Record:
@@ -137,6 +139,44 @@ class TestDataQueryFunctions(asynctest.TestCase):
         token = dict()
         token["bona_fide_status"] = False
         result = await find_datasets(None, 'GRCh38', None, 'Y', 'T', 'C', [], token, "NONE")
+        self.assertEqual(result, [])
+        # setting ALL should cover MISS call as well
+        result_all = await find_datasets(None, 'GRCh38', None, 'Y', 'T', 'C', [], token, "ALL")
+        self.assertEqual(result_all, [])
+
+    async def test_datasets_access_call(self):
+        """Test db call of getting datasets access."""
+        pool = asynctest.CoroutineMock()
+        pool.acquire().__aenter__.return_value = Connection()
+        result = await fetch_datasets_access(pool, None)
+        # for now it can return a tuple of empty datasets
+        # in order to get a response we will have to mock it
+        # in Connection() class
+        self.assertEqual(result, ([], [], []))
+
+    async def test_fetch_dataset_metadata_call(self):
+        """Test db call of getting datasets metadata."""
+        pool = asynctest.CoroutineMock()
+        pool.acquire().__aenter__.return_value = Connection()
+        result = await fetch_dataset_metadata(pool, None, None)
+        # for now it can return empty dataset
+        # in order to get a response we will have to mock it
+        # in Connection() class
+        self.assertEqual(result, [])
+
+    async def test_fetch_filtered_dataset_call(self):
+        """Test db call for retrieving main data."""
+        pool = asynctest.CoroutineMock()
+        pool.acquire().__aenter__.return_value = Connection()
+        assembly_id = 'GRCh38'
+        position = (10, 20, None, None, None, None)
+        chromosome = 1
+        reference = 'A'
+        alternate = ('DUP', None)
+        result = await fetch_filtered_dataset(pool, assembly_id, position, chromosome, reference, alternate, None, None, False)
+        # for now it can return empty dataset
+        # in order to get a response we will have to mock it
+        # in Connection() class
         self.assertEqual(result, [])
 
     def test_handle_wildcard(self):

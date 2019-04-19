@@ -1,5 +1,6 @@
 import unittest
 import asynctest
+import asyncio
 from testfixtures import TempDirectory
 from beacon_api.utils.db_load import BeaconDB
 
@@ -68,6 +69,10 @@ class Statement(Transaction):
         """Initialize class."""
         pass
 
+    async def fetch(self, *args, **kwargs):
+        """Mimic fetch."""
+        return []
+
 
 class Connection:
     """Class Connection.
@@ -79,7 +84,7 @@ class Connection:
         """Initialize class."""
         pass
 
-    async def fetch(self, query):
+    async def fetch(self, *args, **kwargs):
         """Mimic fetch."""
         return [{"table_name": "DATATSET1"}, {"table_name": "DATATSET2"}]
 
@@ -99,13 +104,14 @@ class Connection:
         """Initialize class."""
         pass
 
-    async def prepare(self, query):
+    @asyncio.coroutine
+    def prepare(self, query):
         """Mimic prepare."""
-        return Statement(self, query)
+        return Statement(query)
 
     def transaction(self, *args, **kwargs):
         """Mimic execute."""
-        return Transaction(self, *args, **kwargs)
+        return Transaction(*args, **kwargs)
 
 
 class DatabaseTestCase(asynctest.TestCase):
