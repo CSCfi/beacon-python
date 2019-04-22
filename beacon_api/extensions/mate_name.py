@@ -12,7 +12,7 @@ async def fetch_fusion_dataset(db_pool, assembly_id, position, chromosome, refer
                                datasets=None, access_type=None, misses=False):
     """Execute filter datasets.
 
-    There is an Uber query that aims to be all inclusive yet specific for mate fusion table.
+    There is an Uber query that aims to retrieve specific for data for mate fusion table.
     """
     # Take one connection from the database pool
     async with db_pool.acquire(timeout=180) as connection:

@@ -154,7 +154,7 @@ class DatabaseTestCase(asynctest.TestCase):
 
     @asynctest.mock.patch('beacon_api.utils.db_load.asyncpg.connect')
     async def test_rchop(self, db_mock):
-        """Test breakend parsing parts."""
+        """Test rchop for SVTYPE."""
         db_mock.return_value = Connection()
         await self._db.connection()
         result = self._db._rchop('INS:ME:LINE1', ":LINE1")
