@@ -40,7 +40,7 @@ using one of the solutions:
 
 .. literalinclude:: /../data/init.sql
    :language: sql
-   :lines: 1-62
+   :lines: 1-82
 
 .. note:: In order to retrieve bot HIT and MISS (according) to the API specification,
           we make use of the same query structure, exemplified below.

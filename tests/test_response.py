@@ -82,6 +82,27 @@ class TestBasicFunctions(asynctest.TestCase):
             json.dumps(result)), load_schema('response')), None)
         data_find.assert_called()
 
+    @asynctest.mock.patch('beacon_api.api.query.find_fusion')
+    @asynctest.mock.patch('beacon_api.api.query.fetch_datasets_access')
+    async def test_beacon_query_bnd(self, fetch_req_datasets, data_find):
+        """Test query data response."""
+        data_find.return_value = mock_data
+        fetch_req_datasets.return_value = mock_controlled
+        pool = asynctest.CoroutineMock()
+        request = {"assemblyId": "GRCh38",
+                   "referenceName": "MT",
+                   "start": 0,
+                   "referenceBases": "C",
+                   "mateName": "1",
+                   "includeDatasetResponses": "ALL",
+                   "datasetIds": []}
+
+        params = pool, 'POST', request, {'bona_fide_status': True, 'permissions': None}, "localhost"
+        result = await query_request_handler(params)
+        self.assertEqual(jsonschema.validate(json.loads(
+            json.dumps(result)), load_schema('response')), None)
+        data_find.assert_called()
+
     @aioresponses()
     async def test_get_bona_fide(self, m):
         """Test retrieve bona_fide_status."""

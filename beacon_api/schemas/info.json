@@ -805,7 +805,7 @@
           },
           "variantType": {
             "type": "string",
-            "enum": ["DEL", "INS", "DUP", "INV", "CNV", "SNP", "MNP", "DUP:TANDEM", "DEL:ME", "INS:ME"]
+            "enum": ["DEL", "INS", "DUP", "INV", "CNV", "SNP", "MNP", "DUP:TANDEM", "DEL:ME", "INS:ME", "BND"]
           },
           "assemblyId": {
             "type": "string",
@@ -828,33 +828,33 @@
       "type": "object"
     },
     "beaconHandover": {
-            "type": "array",
-            "required": [
-              "handoverType",
-              "url"
-            ],
-            "properties": {
-              "handoverType": {
-                "type": "object",
-                "required": [
-                  "id"
-                ],
-                "properties": {
-                  "id": {
-                    "type": "string"
-                  },
-                  "label": {
-                    "type": "string"
-                  }
-                }
-              },
-              "description": {
-                    "type": "string"
-              },
-              "url": {
-                    "type": "string"
-              }
+      "type": "array",
+      "required": [
+        "handoverType",
+        "url"
+      ],
+      "properties": {
+        "handoverType": {
+          "type": "object",
+          "required": [
+            "id"
+          ],
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "label": {
+              "type": "string"
             }
+          }
+        },
+        "description": {
+              "type": "string"
+        },
+        "url": {
+              "type": "string"
+        }
+      }
     }
   }
 }

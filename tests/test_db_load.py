@@ -1,5 +1,6 @@
 import unittest
 import asynctest
+import asyncio
 from testfixtures import TempDirectory
 from beacon_api.utils.db_load import BeaconDB
 
@@ -68,6 +69,10 @@ class Statement(Transaction):
         """Initialize class."""
         pass
 
+    async def fetch(self, *args, **kwargs):
+        """Mimic fetch."""
+        return []
+
 
 class Connection:
     """Class Connection.
@@ -79,7 +84,7 @@ class Connection:
         """Initialize class."""
         pass
 
-    async def fetch(self, query):
+    async def fetch(self, *args, **kwargs):
         """Mimic fetch."""
         return [{"table_name": "DATATSET1"}, {"table_name": "DATATSET2"}]
 
@@ -99,13 +104,14 @@ class Connection:
         """Initialize class."""
         pass
 
-    async def prepare(self, query):
+    @asyncio.coroutine
+    def prepare(self, query):
         """Mimic prepare."""
-        return Statement(self, query)
+        return Statement(query)
 
     def transaction(self, *args, **kwargs):
         """Mimic execute."""
-        return Transaction(self, *args, **kwargs)
+        return Transaction(*args, **kwargs)
 
 
 class DatabaseTestCase(asynctest.TestCase):
@@ -145,6 +151,22 @@ class DatabaseTestCase(asynctest.TestCase):
     def tearDown(self):
         """Close database connection after tests."""
         self._dir.cleanup_all()
+
+    @asynctest.mock.patch('beacon_api.utils.db_load.asyncpg.connect')
+    async def test_rchop(self, db_mock):
+        """Test rchop for SVTYPE."""
+        db_mock.return_value = Connection()
+        await self._db.connection()
+        result = self._db._rchop('INS:ME:LINE1', ":LINE1")
+        self.assertEqual('INS:ME', result)
+
+    @asynctest.mock.patch('beacon_api.utils.db_load.asyncpg.connect')
+    async def test_bnd_parts(self, db_mock):
+        """Test breakend parsing parts."""
+        db_mock.return_value = Connection()
+        await self._db.connection()
+        result = self._db._bnd_parts('[CHR17:31356925[N', '126_2')
+        self.assertEqual(('chr17', 31356925, True, True, 'N', True, '126_2'), result)
 
     @asynctest.mock.patch('beacon_api.utils.db_load.asyncpg')
     async def test_connection(self, db_mock):
@@ -255,15 +277,15 @@ class DatabaseTestCase(asynctest.TestCase):
         inf1 = INFO((1), 'S', 3)
         variant = Variant(['C'], 'T', inf1, 0.7, 'snp', 3)
         result = self._db._unpack(variant)
-        self.assertEqual(([0.3333333333333333], [1], ['SNP'], ['C'], 3), result)
+        self.assertEqual(([0.3333333333333333], [1], ['SNP'], ['C'], 3, []), result)
         inf2 = INFO(1, 'S', 3)
         variant = Variant(['AT', 'A'], 'ATA', inf2, 0.7, 'snp', 3)
         result = self._db._unpack(variant)
-        self.assertEqual(([0.3333333333333333], [1], ['DEL', 'DEL'], ['AT', 'A'], 3), result)
+        self.assertEqual(([0.3333333333333333], [1], ['DEL', 'DEL'], ['AT', 'A'], 3, []), result)
         inf3 = INFO((1), 'S', 3)
         variant = Variant(['TC'], 'T', inf3, 0.7, 'snp', 3)
         result = self._db._unpack(variant)
-        self.assertEqual(([0.3333333333333333], [1], ['INS'], ['TC'], 3), result)
+        self.assertEqual(([0.3333333333333333], [1], ['INS'], ['TC'], 3, []), result)
 
     @asynctest.mock.patch('beacon_api.utils.db_load.LOG')
     @asynctest.mock.patch('beacon_api.utils.db_load.asyncpg.connect')
