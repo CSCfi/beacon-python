@@ -106,6 +106,10 @@ Currently querying for a ``BND`` using ``startMin``, ``startMax`` and ``endMin``
 with ``variantType=BND`` has the response illustrated below.
 Fixed ``start`` and ``end`` can be utilised, as well as ``mateName`` as depicted above.
 
+.. note:: By default when using ``mateName``, ``variantType`` is implicit ``BND``, 
+          but it can also be set in an explicit manner using both ``mateName`` and
+          ``variantType=BND`` in a query.
+
 .. code-block:: javascript
 
     {

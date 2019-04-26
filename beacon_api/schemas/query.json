@@ -107,7 +107,12 @@
     "oneOf": [{
         "required": [
           "variantType"
-        ]
+        ],
+        "not": {
+          "required": [
+            "mateName"
+          ]
+        }
       },
       {
         "required": [
@@ -117,7 +122,24 @@
       {
         "required": [
           "mateName"
-        ]
+        ],
+        "not": {
+          "required": [
+            "variantType"
+          ]
+        }
+      },
+      {
+        "required": [
+          "mateName",
+          "variantType"
+        ],
+        "properties": {
+          "variantType": {
+            "type": "string",
+            "enum": ["BND"]
+          }
+        }
       }
     ]
   }, {
