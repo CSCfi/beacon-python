@@ -168,9 +168,9 @@ async def fetch_filtered_dataset(db_pool, assembly_id, position, chromosome, ref
                             WHERE a.datasetId=b.datasetId
                             AND b.assemblyId=$3
                             AND {"NOT" if misses else ''} (($8::integer IS NULL OR a.start=$8)
-                            AND coalesce(a.end=$9, true)
+                            AND ($9 IS NULL OR a.end=$9)
                             AND ($10::integer IS NULL OR a.start<=$10) AND ($11::integer IS NULL OR a.start>=$11)
-                            AND coalesce(a.end>=$12, true) AND coalesce(a.end<=$13, true)
+                            AND ($12::integer IS NULL OR a.end>=$12) AND ($13::integer IS NULL OR a.end<=$13)
                             AND coalesce(a.reference LIKE any($7::varchar[]), true)
                             AND coalesce(a.variantType=$5, true)
                             AND coalesce(a.alternate LIKE any($6::varchar[]), true))
