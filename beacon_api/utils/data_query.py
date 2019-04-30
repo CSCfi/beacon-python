@@ -176,7 +176,7 @@ async def fetch_filtered_dataset(db_pool, assembly_id, position, chromosome, ref
                             AND coalesce(a.alternate LIKE any($6::varchar[]), true))
                             AND a.chromosome=$4
                             AND coalesce(b.accessType = any($2::accessType[]), true)
-                            {"<>" if misses and datasets else "AND"} coalesce(a.datasetId = any($1::varchar[]), true) ;"""
+                            {"<>" if misses and datasets else "AND"} coalesce(a.datasetId = any($1::varchar[]), false) ;"""
                 datasets = []
                 statement = await connection.prepare(query)
                 db_response = await statement.fetch(datasets_query, access_query, assembly_id, chromosome,

@@ -74,7 +74,7 @@ async def fetch_fusion_dataset(db_pool, assembly_id, position, chromosome, refer
                             AND coalesce(a.mateStart<=$8, true) AND coalesce(a.mateStart>=$9, true)
                             AND coalesce(a.end>=$10, true) AND coalesce(a.end<=$11, true))
                             AND coalesce(b.accessType = any($2::accessType[]), true)
-                            {"<>" if misses and datasets else "AND"} coalesce(a.datasetId = any($1::varchar[]), true);"""
+                            {"<>" if misses and datasets else "AND"} coalesce(a.datasetId = any($1::varchar[]), false);"""
                 datasets = []
                 statement = await connection.prepare(query)
                 db_response = await statement.fetch(datasets_query, access_query, assembly_id,
