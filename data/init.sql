@@ -1,3 +1,5 @@
+CREATE TYPE accessType AS enum('CONTROLLED', 'REGISTERED', 'PUBLIC');
+
 CREATE TABLE IF NOT EXISTS beacon_dataset_table (
     index SERIAL,
     name VARCHAR(128),
@@ -9,7 +11,7 @@ CREATE TABLE IF NOT EXISTS beacon_dataset_table (
     version VARCHAR(8),
     sampleCount INTEGER,
     externalUrl VARCHAR(256),
-    accessType VARCHAR(10),
+    accessType accessType,
     PRIMARY KEY (index)
 );
 

@@ -107,7 +107,7 @@ async def fetch_dataset_metadata(db_pool, datasets=None, access_type=None):
                             updateDateTime as "updateDateTime"
                             FROM {DB_SCHEMA}dataset_metadata WHERE
                             coalesce(datasetId = any($1::varchar[]), true)
-                            AND coalesce(accessType = any($2::varchar[]), true);"""
+                            AND coalesce(accessType = any($2::accessType[]), true);"""
                 statement = await connection.prepare(query)
                 db_response = await statement.fetch(datasets_query, access_query)
                 metadata = []
@@ -175,7 +175,7 @@ async def fetch_filtered_dataset(db_pool, assembly_id, position, chromosome, ref
                             AND coalesce(a.variantType=$5, true)
                             AND coalesce(a.alternate LIKE any($6::varchar[]), true))
                             AND a.chromosome=$4
-                            AND coalesce(b.accessType = any($2::varchar[]), true)
+                            AND coalesce(b.accessType = any($2::accessType[]), true)
                             {"<>" if misses and datasets else "AND"} coalesce(a.datasetId = any($1::varchar[]), true) ;"""
                 datasets = []
                 statement = await connection.prepare(query)
