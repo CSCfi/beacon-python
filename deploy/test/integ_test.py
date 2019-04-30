@@ -527,6 +527,7 @@ async def test_23():
             assert data['exists'] is False, sys.exit('Query POST Endpoint Error!')
             assert len(data['datasetAlleleResponses']) == 0, sys.exit('Should be able to retrieve only public.')
 
+
 async def test_24():
     """Test query POST endpoint.
 
@@ -547,6 +548,7 @@ async def test_24():
             data = await resp.json()
             assert data['exists'] is True, sys.exit('Query POST Endpoint Error!')
             assert len(data['datasetAlleleResponses']) == 1, sys.exit('Should be able to retrieve only public.')
+
 
 async def main():
     """Run the tests."""
