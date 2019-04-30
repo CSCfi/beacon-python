@@ -468,7 +468,7 @@ async def test_21():
     Send a query for non-existing variant targeting PUBLIC and CONTROLLED datasets with token perms, using MISS.
     Expect public and controlled data to be shown (200).
     """
-    LOG.debug(f'[21/{TESTS_NUMBER}] Test post query (public data (success) and controlled data without token (failure))')
+    LOG.debug(f'[21/{TESTS_NUMBER}] Test Non-existing/MISS variant targeting PUBLIC and CONTROLLED datasets with token perms (expect all shown)')
     payload = {"referenceName": "MT",
                "start": 8,
                "referenceBases": "T",
@@ -490,7 +490,7 @@ async def test_22():
     Send a query for non-existing variant targeting CONTROLLED datasets with token perms, using MISS.
     Expect the only the controlled, not the public data, to not be shown (200).
     """
-    LOG.debug(f'[22/{TESTS_NUMBER}] Test post query (public data (success) and controlled data without token (failure))')
+    LOG.debug(f'[22/{TESTS_NUMBER}] Test non-existing variant targeting CONTROLLED datasets with token perms, using MISS (expect only controlled shown)')
     payload = {"referenceName": "MT",
                "start": 8,
                "referenceBases": "T",
@@ -512,7 +512,7 @@ async def test_23():
     Send a query for targeting a non-existing PUBLIC datasets, using ALL.
     Expect no data to be shown (200).
     """
-    LOG.debug(f'[23/{TESTS_NUMBER}] Test post query (public data (success) and controlled data without token (failure))')
+    LOG.debug(f'[23/{TESTS_NUMBER}] Testquery for targeting a non-existing PUBLIC datasets, using ALL. (expect no data shown)')
     payload = {"referenceName": "MT",
                "start": 9,
                "referenceBases": "T",
@@ -534,7 +534,7 @@ async def test_24():
     Send a query for targeting one existing and one non-existing PUBLIC datasets, using ALL.
     Expect the existing PUBLIC data to be shown (200).
     """
-    LOG.debug(f'[24/{TESTS_NUMBER}] Test post query (public data (success) and controlled data without token (failure))')
+    LOG.debug(f'[24/{TESTS_NUMBER}] Testquery for targeting one existing and one non-existing PUBLIC datasets, using ALL. (expect only PUBLIC)')
     payload = {"referenceName": "MT",
                "start": 9,
                "referenceBases": "T",
