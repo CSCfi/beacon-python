@@ -49,9 +49,9 @@ async def fetch_fusion_dataset(db_pool, assembly_id, position, chromosome, refer
                             AND coalesce(a.mate=$4, true)
                             AND coalesce(a.reference LIKE any($5::varchar[]), true)
                             AND {"NOT" if misses else ''} (coalesce(a.mateStart=$7, true)
-                            AND ($6 IS NULL OR a.end=$6)
-                            AND ($8 IS NULL OR a.end<=$8) AND ($9 IS NULL OR a.end>=$9)
-                            AND ($10 IS NULL OR a.mateStart>=$10) AND ($11 IS NULL OR a.mateStart<=$11))
+                            AND ($6::integer IS NULL OR a.end=$6)
+                            AND ($8::integer IS NULL OR a.end<=$8) AND ($9::integer IS NULL OR a.end>=$9)
+                            AND ($10::integer IS NULL OR a.mateStart>=$10) AND ($11::integer IS NULL OR a.mateStart<=$11))
                             AND coalesce(b.accessType = any($2::access_levels[]), true)
                             AND coalesce(a.datasetId = any($1::varchar[]), true)
                             UNION
@@ -70,9 +70,9 @@ async def fetch_fusion_dataset(db_pool, assembly_id, position, chromosome, refer
                             AND coalesce(a.mate=$12, true)
                             AND coalesce(a.reference LIKE any($5::varchar[]), true)
                             AND {"NOT" if misses else ''} (coalesce(a.mateStart=$6, true)
-                            AND ($7 IS NULL OR a.end=$7)
-                            AND ($8 IS NULL OR a.mateStart<=$8) AND ($9 IS NULL OR a.mateStart>=$9)
-                            AND ($10 IS NULL OR a.end>=$10) AND ($11 IS NULL OR a.end<=$11))
+                            AND ($7::integer IS NULL OR a.end=$7)
+                            AND ($8::integer IS NULL OR a.mateStart<=$8) AND ($9::integer IS NULL OR a.mateStart>=$9)
+                            AND ($10::integer IS NULL OR a.end>=$10) AND ($11::integer IS NULL OR a.end<=$11))
                             AND coalesce(b.accessType = any($2::access_levels[]), true)
                             AND coalesce(a.datasetId = any($1::varchar[]), false);"""
                 datasets = []
