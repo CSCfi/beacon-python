@@ -53,7 +53,7 @@ async def fetch_fusion_dataset(db_pool, assembly_id, position, chromosome, refer
                             AND ($8 IS NULL OR a.end<=$8) AND ($9 IS NULL OR a.end>=$9)
                             AND ($10 IS NULL OR a.mateStart>=$10) AND ($11 IS NULL OR a.mateStart<=$11))
                             AND coalesce(b.accessType = any($2::varchar[]), true)
-                            {"<>" if misses and datasets else "AND"} coalesce(a.datasetId = any($1::varchar[]), true)
+                            AND coalesce(a.datasetId = any($1::varchar[]), true)
                             UNION
                             SELECT {"DISTINCT ON (a.datasetId)" if misses else ''}
                             a.datasetId as "datasetId", b.accessType as "accessType", a.chromosome as "referenceName",
@@ -74,7 +74,7 @@ async def fetch_fusion_dataset(db_pool, assembly_id, position, chromosome, refer
                             AND ($8 IS NULL OR a.mateStart<=$8) AND ($9 IS NULL OR a.mateStart>=$9)
                             AND ($10 IS NULL OR a.end>=$10) AND ($11 IS NULL OR a.end<=$11))
                             AND coalesce(b.accessType = any($2::accessType[]), true)
-                            {"<>" if misses and datasets else "AND"} coalesce(a.datasetId = any($1::varchar[]), false);"""
+                            AND coalesce(a.datasetId = any($1::varchar[]), false);"""
                 datasets = []
                 statement = await connection.prepare(query)
                 db_response = await statement.fetch(datasets_query, access_query, assembly_id,
@@ -105,7 +105,8 @@ async def find_fusion(db_pool, assembly_id, position, chromosome, reference, mat
     fetch_call = partial(fetch_fusion_dataset, db_pool, assembly_id, position, chromosome, reference, mate)
     hit_datasets = await fetch_call(dataset_ids, access_type)
     if include_dataset in ['ALL', 'MISS']:
-        miss_datasets = await fetch_call([item["datasetId"] for item in hit_datasets], access_type, misses=True)
+        accessible_missing = set(dataset_ids).difference([item["datasetId"] for item in hit_datasets])
+        miss_datasets = await fetch_call(accessible_missing, access_type, misses=True)
 
     response = hit_datasets + miss_datasets
     return response
