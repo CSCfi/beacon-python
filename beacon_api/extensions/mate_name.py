@@ -52,7 +52,7 @@ async def fetch_fusion_dataset(db_pool, assembly_id, position, chromosome, refer
                             AND ($6 IS NULL OR a.end=$6)
                             AND ($8 IS NULL OR a.end<=$8) AND ($9 IS NULL OR a.end>=$9)
                             AND ($10 IS NULL OR a.mateStart>=$10) AND ($11 IS NULL OR a.mateStart<=$11))
-                            AND coalesce(b.accessType = any($2::accessType[]), true)
+                            AND coalesce(b.accessType = any($2::access_levels[]), true)
                             AND coalesce(a.datasetId = any($1::varchar[]), true)
                             UNION
                             SELECT {"DISTINCT ON (a.datasetId)" if misses else ''}
@@ -73,7 +73,7 @@ async def fetch_fusion_dataset(db_pool, assembly_id, position, chromosome, refer
                             AND ($7 IS NULL OR a.end=$7)
                             AND ($8 IS NULL OR a.mateStart<=$8) AND ($9 IS NULL OR a.mateStart>=$9)
                             AND ($10 IS NULL OR a.end>=$10) AND ($11 IS NULL OR a.end<=$11))
-                            AND coalesce(b.accessType = any($2::accessType[]), true)
+                            AND coalesce(b.accessType = any($2::access_levels[]), true)
                             AND coalesce(a.datasetId = any($1::varchar[]), false);"""
                 datasets = []
                 statement = await connection.prepare(query)
