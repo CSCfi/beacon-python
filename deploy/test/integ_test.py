@@ -16,7 +16,7 @@ LOG = logging.getLogger(__name__)
 LOG.setLevel(logging.DEBUG)
 
 
-TESTS_NUMBER = 20
+TESTS_NUMBER = 24
 DATASET_IDS_LIST = ['urn:hg:1000genome', 'urn:hg:1000genome:registered',
                     'urn:hg:1000genome:controlled', 'urn:hg:1000genome:controlled1']
 
