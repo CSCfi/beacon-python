@@ -154,37 +154,52 @@ async def fetch_filtered_dataset(db_pool, assembly_id, position, chromosome, ref
             altbase = None if not alternate[1] else handle_wildcard(alternate[1])
             refbase = None if not reference else handle_wildcard(reference)
             try:
+                if misses:
+                    # For MISS and ALL. We have already found all datasets with maching variants,
+                    # so now just get one post per accesible, remaining datasets.
+                    query = f"""SELECT DISTINCT ON (datasetId)
+                                datasetId as "datasetId", accessType as "accessType",
+                                '{chromosome}' as "referenceName", False as "exists"
+                                FROM {DB_SCHEMA}beacon_dataset_table 
+                                WHERE coalesce(accessType = any($2::access_levels[]), true)
+                                AND assemblyId=$3
+                                AND coalesce(datasetId = any($1::varchar[]), false) ;"""
+                    statement = await connection.prepare(query)
+                    db_response = await statement.fetch(datasets_query, access_query, assembly_id)
 
-                # UBER QUERY - TBD if it is what we need
-                # referenceBases, alternateBases and variantType fields are NOT part of beacon's specification response
-                query = f"""SELECT {"DISTINCT ON (a.datasetId)" if misses else ''}
-                            a.datasetId as "datasetId", b.accessType as "accessType", a.chromosome as "referenceName",
-                            a.reference as "referenceBases", a.alternate as "alternateBases", a.start as "start", a.end as "end",
-                            b.externalUrl as "externalUrl", b.description as "note",
-                            a.alleleCount as "variantCount", a.variantType as "variantType",
-                            a.callCount as "callCount", b.sampleCount as "sampleCount",
-                            a.frequency, {"FALSE" if misses else "TRUE"} as "exists"
-                            FROM {DB_SCHEMA}beacon_data_table a, {DB_SCHEMA}beacon_dataset_table b
-                            WHERE a.datasetId=b.datasetId
-                            AND b.assemblyId=$3
-                            AND {"NOT" if misses else ''} (($8::integer IS NULL OR a.start=$8)
-                            AND ($9::integer IS NULL OR a.end=$9)
-                            AND ($10::integer IS NULL OR a.start<=$10) AND ($11::integer IS NULL OR a.start>=$11)
-                            AND ($12::integer IS NULL OR a.end>=$12) AND ($13::integer IS NULL OR a.end<=$13)
-                            AND coalesce(a.reference LIKE any($7::varchar[]), true)
-                            AND coalesce(a.variantType=$5, true)
-                            AND coalesce(a.alternate LIKE any($6::varchar[]), true))
-                            AND a.chromosome=$4
-                            AND coalesce(b.accessType = any($2::access_levels[]), true)
-                            AND coalesce(a.datasetId = any($1::varchar[]), false) ;"""
-                datasets = []
-                statement = await connection.prepare(query)
-                db_response = await statement.fetch(datasets_query, access_query, assembly_id, chromosome,
-                                                    variant, altbase, refbase,
-                                                    start_pos, end_pos,
-                                                    startMax_pos, startMin_pos,
-                                                    endMin_pos, endMax_pos)
+                else:
+                    # UBER QUERY - TBD if it is what we need
+                    # referenceBases, alternateBases and variantType fields are NOT part of beacon's specification response
+                    query = f"""SELECT
+                                a.datasetId as "datasetId", b.accessType as "accessType", a.chromosome as "referenceName",
+                                a.reference as "referenceBases", a.alternate as "alternateBases", a.start as "start", a.end as "end",
+                                b.externalUrl as "externalUrl", b.description as "note",
+                                a.alleleCount as "variantCount", a.variantType as "variantType",
+                                a.callCount as "callCount", b.sampleCount as "sampleCount",
+                                a.frequency, True as "exists"
+                                FROM {DB_SCHEMA}beacon_data_table a, {DB_SCHEMA}beacon_dataset_table b
+                                WHERE a.datasetId=b.datasetId
+                                AND b.assemblyId=$3
+                                AND ($8::integer IS NULL OR a.start=$8)
+                                AND ($9::integer IS NULL OR a.end=$9)
+                                AND ($10::integer IS NULL OR a.start<=$10) AND ($11::integer IS NULL OR a.start>=$11)
+                                AND ($12::integer IS NULL OR a.end>=$12) AND ($13::integer IS NULL OR a.end<=$13)
+                                AND coalesce(a.reference LIKE any($7::varchar[]), true)
+                                AND coalesce(a.variantType=$5, true)
+                                AND coalesce(a.alternate LIKE any($6::varchar[]), true)
+                                AND a.chromosome=$4
+                                AND coalesce(b.accessType = any($2::access_levels[]), true)
+                                AND coalesce(a.datasetId = any($1::varchar[]), false) ;"""
+
+                    statement = await connection.prepare(query)
+                    db_response = await statement.fetch(datasets_query, access_query, assembly_id, chromosome,
+                                                        variant, altbase, refbase,
+                                                        start_pos, end_pos,
+                                                        startMax_pos, startMin_pos,
+                                                        endMin_pos, endMax_pos)
+
                 LOG.info(f"Query for dataset(s): {datasets} that are {access_type} matching conditions.")
+                datasets = []
                 for record in list(db_response):
                     processed = transform_misses(record) if misses else transform_record(record)
                     if __handover_drs__:
