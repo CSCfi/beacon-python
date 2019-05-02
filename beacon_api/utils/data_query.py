@@ -107,7 +107,7 @@ async def fetch_dataset_metadata(db_pool, datasets=None, access_type=None):
                             updateDateTime as "updateDateTime"
                             FROM {DB_SCHEMA}dataset_metadata WHERE
                             coalesce(datasetId = any($1::varchar[]), true)
-                            AND coalesce(accessType = any($2::accessType[]), true);"""
+                            AND coalesce(accessType = any($2::access_levels[]), true);"""
                 statement = await connection.prepare(query)
                 db_response = await statement.fetch(datasets_query, access_query)
                 metadata = []
@@ -168,15 +168,15 @@ async def fetch_filtered_dataset(db_pool, assembly_id, position, chromosome, ref
                             WHERE a.datasetId=b.datasetId
                             AND b.assemblyId=$3
                             AND {"NOT" if misses else ''} (($8::integer IS NULL OR a.start=$8)
-                            AND coalesce(a.end=$9, true)
+                            AND ($9::integer IS NULL OR a.end=$9)
                             AND ($10::integer IS NULL OR a.start<=$10) AND ($11::integer IS NULL OR a.start>=$11)
-                            AND coalesce(a.end>=$12, true) AND coalesce(a.end<=$13, true)
+                            AND ($12::integer IS NULL OR a.end>=$12) AND ($13::integer IS NULL OR a.end<=$13)
                             AND coalesce(a.reference LIKE any($7::varchar[]), true)
                             AND coalesce(a.variantType=$5, true)
                             AND coalesce(a.alternate LIKE any($6::varchar[]), true))
                             AND a.chromosome=$4
-                            AND coalesce(b.accessType = any($2::accessType[]), true)
-                            {"<>" if misses and datasets else "AND"} coalesce(a.datasetId = any($1::varchar[]), true) ;"""
+                            AND coalesce(b.accessType = any($2::access_levels[]), true)
+                            AND coalesce(a.datasetId = any($1::varchar[]), false) ;"""
                 datasets = []
                 statement = await connection.prepare(query)
                 db_response = await statement.fetch(datasets_query, access_query, assembly_id, chromosome,
@@ -222,7 +222,8 @@ async def find_datasets(db_pool, assembly_id, position, chromosome, reference, a
     fetch_call = partial(fetch_filtered_dataset, db_pool, assembly_id, position, chromosome, reference, alternate)
     hit_datasets = await fetch_call(dataset_ids, access_type)
     if include_dataset in ['ALL', 'MISS']:
-        miss_datasets = await fetch_call([item["datasetId"] for item in hit_datasets], access_type, misses=True)
+        accessible_missing = set(dataset_ids).difference([item["datasetId"] for item in hit_datasets])
+        miss_datasets = await fetch_call(accessible_missing, access_type, misses=True)
 
     response = hit_datasets + miss_datasets
     return response

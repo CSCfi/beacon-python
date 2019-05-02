@@ -16,7 +16,7 @@ LOG = logging.getLogger(__name__)
 LOG.setLevel(logging.DEBUG)
 
 
-TESTS_NUMBER = 20
+TESTS_NUMBER = 24
 DATASET_IDS_LIST = ['urn:hg:1000genome', 'urn:hg:1000genome:registered',
                     'urn:hg:1000genome:controlled', 'urn:hg:1000genome:controlled1']
 
@@ -462,6 +462,94 @@ async def test_20():
             assert resp.status == 400, 'HTTP Status code error'
 
 
+async def test_21():
+    """Test query POST endpoint.
+
+    Send a query for non-existing variant targeting PUBLIC and CONTROLLED datasets with token perms, using MISS.
+    Expect public and controlled data to be shown (200).
+    """
+    LOG.debug(f'[21/{TESTS_NUMBER}] Test Non-existing/MISS variant targeting PUBLIC and CONTROLLED datasets with token perms (expect all shown)')
+    payload = {"referenceName": "MT",
+               "start": 8,
+               "referenceBases": "T",
+               "alternateBases": "C",
+               "assemblyId": "GRCh38",
+               "datasetIds": ['urn:hg:1000genome', 'urn:hg:1000genome:controlled'],
+               "includeDatasetResponses": "MISS"}
+    headers = {"Authorization": f"Bearer {TOKEN}"}
+    async with aiohttp.ClientSession(headers=headers) as session:
+        async with session.post('http://localhost:5050/query', data=json.dumps(payload)) as resp:
+            data = await resp.json()
+            assert data['exists'] is False, sys.exit('Query POST Endpoint Error!')
+            assert len(data['datasetAlleleResponses']) == 2, sys.exit('Should be able to retrieve only public.')
+
+
+async def test_22():
+    """Test query POST endpoint.
+
+    Send a query for non-existing variant targeting CONTROLLED datasets with token perms, using MISS.
+    Expect the only the controlled, not the public data, to not be shown (200).
+    """
+    LOG.debug(f'[22/{TESTS_NUMBER}] Test non-existing variant targeting CONTROLLED datasets with token perms, using MISS (expect only controlled shown)')
+    payload = {"referenceName": "MT",
+               "start": 8,
+               "referenceBases": "T",
+               "alternateBases": "C",
+               "assemblyId": "GRCh38",
+               "datasetIds": ['urn:hg:1000genome:controlled'],
+               "includeDatasetResponses": "MISS"}
+    headers = {"Authorization": f"Bearer {TOKEN}"}
+    async with aiohttp.ClientSession(headers=headers) as session:
+        async with session.post('http://localhost:5050/query', data=json.dumps(payload)) as resp:
+            data = await resp.json()
+            assert data['exists'] is False, sys.exit('Query POST Endpoint Error!')
+            assert len(data['datasetAlleleResponses']) == 1, sys.exit('Should be able to retrieve only public.')
+
+
+async def test_23():
+    """Test query POST endpoint.
+
+    Send a query for targeting a non-existing PUBLIC datasets, using ALL.
+    Expect no data to be shown (200).
+    """
+    LOG.debug(f'[23/{TESTS_NUMBER}] Testquery for targeting a non-existing PUBLIC datasets, using ALL. (expect no data shown)')
+    payload = {"referenceName": "MT",
+               "start": 9,
+               "referenceBases": "T",
+               "alternateBases": "C",
+               "assemblyId": "GRCh38",
+               "datasetIds": ['urn:hg:1111genome'],
+               "includeDatasetResponses": "ALL"}
+    headers = {"Authorization": f"Bearer {TOKEN}"}
+    async with aiohttp.ClientSession(headers=headers) as session:
+        async with session.post('http://localhost:5050/query', data=json.dumps(payload)) as resp:
+            data = await resp.json()
+            assert data['exists'] is False, sys.exit('Query POST Endpoint Error!')
+            assert len(data['datasetAlleleResponses']) == 0, sys.exit('Should be able to retrieve only public.')
+
+
+async def test_24():
+    """Test query POST endpoint.
+
+    Send a query for targeting one existing and one non-existing PUBLIC datasets, using ALL.
+    Expect the existing PUBLIC data to be shown (200).
+    """
+    LOG.debug(f'[24/{TESTS_NUMBER}] Testquery for targeting one existing and one non-existing PUBLIC datasets, using ALL. (expect only PUBLIC)')
+    payload = {"referenceName": "MT",
+               "start": 9,
+               "referenceBases": "T",
+               "alternateBases": "C",
+               "assemblyId": "GRCh38",
+               "datasetIds": ['urn:hg:1111genome', 'urn:hg:1000genome'],
+               "includeDatasetResponses": "ALL"}
+    headers = {"Authorization": f"Bearer {TOKEN}"}
+    async with aiohttp.ClientSession(headers=headers) as session:
+        async with session.post('http://localhost:5050/query', data=json.dumps(payload)) as resp:
+            data = await resp.json()
+            assert data['exists'] is True, sys.exit('Query POST Endpoint Error!')
+            assert len(data['datasetAlleleResponses']) == 1, sys.exit('Should be able to retrieve only public.')
+
+
 async def main():
     """Run the tests."""
     LOG.debug('Start integration tests')
@@ -487,6 +575,10 @@ async def main():
     await test_18()
     await test_19()
     await test_20()
+    await test_21()
+    await test_22()
+    await test_23()
+    await test_24()
     LOG.debug('All integration tests have passed')
 
 
