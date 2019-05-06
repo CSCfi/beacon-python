@@ -37,7 +37,7 @@ async def fetch_fusion_dataset(db_pool, assembly_id, position, chromosome, refer
                     query = f"""SELECT DISTINCT ON (datasetId)
                                 datasetId as "datasetId", accessType as "accessType",
                                 '{chromosome}' as "referenceName", False as "exists"
-                                FROM {DB_SCHEMA}beacon_dataset_table 
+                                FROM {DB_SCHEMA}beacon_dataset_table
                                 WHERE coalesce(accessType = any($2::access_levels[]), true)
                                 AND assemblyId=$3
                                 AND coalesce(datasetId = any($1::varchar[]), false) ;"""
