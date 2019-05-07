@@ -156,7 +156,7 @@ async def fetch_filtered_dataset(db_pool, assembly_id, position, chromosome, ref
             try:
                 if misses:
                     # For MISS and ALL. We have already found all datasets with maching variants,
-                    # so now just get one post per accesible, remaining datasets.
+                    # so now just get one post per accessible, remaining datasets.
                     query = f"""SELECT DISTINCT ON (datasetId)
                                 datasetId as "datasetId", accessType as "accessType",
                                 '{chromosome}' as "referenceName", False as "exists"
