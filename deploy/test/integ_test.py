@@ -512,7 +512,7 @@ async def test_23():
     Send a query for targeting a non-existing PUBLIC datasets, using ALL.
     Expect no data to be shown (200).
     """
-    LOG.debug(f'[23/{TESTS_NUMBER}] Testquery for targeting a non-existing PUBLIC datasets, using ALL. (expect no data shown)')
+    LOG.debug(f'[23/{TESTS_NUMBER}] Test query for targeting a non-existing PUBLIC datasets, using ALL. (expect no data shown)')
     payload = {"referenceName": "MT",
                "start": 9,
                "referenceBases": "T",
@@ -534,7 +534,7 @@ async def test_24():
     Send a query for targeting one existing and one non-existing PUBLIC datasets, using ALL.
     Expect the existing PUBLIC data to be shown (200).
     """
-    LOG.debug(f'[24/{TESTS_NUMBER}] Testquery for targeting one existing and one non-existing PUBLIC datasets, using ALL. (expect only PUBLIC)')
+    LOG.debug(f'[24/{TESTS_NUMBER}] Test query for targeting one existing and one non-existing PUBLIC datasets, using ALL. (expect only PUBLIC)')
     payload = {"referenceName": "MT",
                "start": 9,
                "referenceBases": "T",
@@ -556,7 +556,7 @@ async def test_25():
     Send a query for non-existing variant targeting three datasets, using ALL.
     Expect no hits, but data to be shown (200).
     """
-    LOG.debug(f'[25/{TESTS_NUMBER}] Testquery for targeting three datasets, using ALL. (expect data shown)')
+    LOG.debug(f'[25/{TESTS_NUMBER}] Test query for targeting three datasets, using ALL. (expect data shown)')
     payload = {"referenceName": "MT",
                "start": 10,
                "referenceBases": "T",
@@ -578,7 +578,7 @@ async def test_26():
     Send a query for non-existing variant targeting three datasets, using MISS.
     Expect no hits, but data to be shown (200).
     """
-    LOG.debug(f'[26/{TESTS_NUMBER}] Testquery for non-existing query targeting three datasets, using MISS. (expect data shown)')
+    LOG.debug(f'[26/{TESTS_NUMBER}] Test query for non-existing query targeting three datasets, using MISS. (expect data shown)')
     payload = {"referenceName": "MT",
                "start": 10,
                "referenceBases": "T",
@@ -600,7 +600,7 @@ async def test_27():
     Send a query targeting three datasets, using MISS.
     Expect hits, but no data to be shown (200).
     """
-    LOG.debug(f'[26/{TESTS_NUMBER}] Testquery for targeting three datasets, using MISS. (expect no data shown)')
+    LOG.debug(f'[27/{TESTS_NUMBER}] Test query for targeting three datasets, using MISS. (expect no data shown)')
     payload = {"referenceName": "MT",
                "start": 9,
                "referenceBases": "T",
