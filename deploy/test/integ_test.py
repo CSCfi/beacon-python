@@ -16,7 +16,7 @@ LOG = logging.getLogger(__name__)
 LOG.setLevel(logging.DEBUG)
 
 
-TESTS_NUMBER = 24
+TESTS_NUMBER = 27
 DATASET_IDS_LIST = ['urn:hg:1000genome', 'urn:hg:1000genome:registered',
                     'urn:hg:1000genome:controlled', 'urn:hg:1000genome:controlled1']
 
@@ -512,7 +512,7 @@ async def test_23():
     Send a query for targeting a non-existing PUBLIC datasets, using ALL.
     Expect no data to be shown (200).
     """
-    LOG.debug(f'[23/{TESTS_NUMBER}] Testquery for targeting a non-existing PUBLIC datasets, using ALL. (expect no data shown)')
+    LOG.debug(f'[23/{TESTS_NUMBER}] Test query for targeting a non-existing PUBLIC datasets, using ALL. (expect no data shown)')
     payload = {"referenceName": "MT",
                "start": 9,
                "referenceBases": "T",
@@ -534,7 +534,7 @@ async def test_24():
     Send a query for targeting one existing and one non-existing PUBLIC datasets, using ALL.
     Expect the existing PUBLIC data to be shown (200).
     """
-    LOG.debug(f'[24/{TESTS_NUMBER}] Testquery for targeting one existing and one non-existing PUBLIC datasets, using ALL. (expect only PUBLIC)')
+    LOG.debug(f'[24/{TESTS_NUMBER}] Test query for targeting one existing and one non-existing PUBLIC datasets, using ALL. (expect only PUBLIC)')
     payload = {"referenceName": "MT",
                "start": 9,
                "referenceBases": "T",
@@ -548,6 +548,72 @@ async def test_24():
             data = await resp.json()
             assert data['exists'] is True, sys.exit('Query POST Endpoint Error!')
             assert len(data['datasetAlleleResponses']) == 1, sys.exit('Should be able to retrieve only public.')
+
+
+async def test_25():
+    """Test query POST endpoint.
+
+    Send a query for non-existing variant targeting three datasets, using ALL.
+    Expect no hits, but data to be shown (200).
+    """
+    LOG.debug(f'[25/{TESTS_NUMBER}] Test query for targeting three datasets, using ALL. (expect data shown)')
+    payload = {"referenceName": "MT",
+               "start": 10,
+               "referenceBases": "T",
+               "alternateBases": "C",
+               "assemblyId": "GRCh38",
+               "datasetIds": ['urn:hg:1000genome', 'urn:hg:1000genome:controlled', 'urn:hg:1000genome:registered'],
+               "includeDatasetResponses": "ALL"}
+    headers = {"Authorization": f"Bearer {TOKEN}"}
+    async with aiohttp.ClientSession(headers=headers) as session:
+        async with session.post('http://localhost:5050/query', data=json.dumps(payload)) as resp:
+            data = await resp.json()
+            assert data['exists'] is False, sys.exit('Query POST Endpoint Error!')
+            assert len(data['datasetAlleleResponses']) == 3, sys.exit('Should be able to retrieve data for all datasets.')
+
+
+async def test_26():
+    """Test query POST endpoint.
+
+    Send a query for non-existing variant targeting three datasets, using MISS.
+    Expect no hits, but data to be shown (200).
+    """
+    LOG.debug(f'[26/{TESTS_NUMBER}] Test query for non-existing query targeting three datasets, using MISS. (expect data shown)')
+    payload = {"referenceName": "MT",
+               "start": 10,
+               "referenceBases": "T",
+               "alternateBases": "C",
+               "assemblyId": "GRCh38",
+               "datasetIds": ['urn:hg:1000genome', 'urn:hg:1000genome:controlled', 'urn:hg:1000genome:registered'],
+               "includeDatasetResponses": "MISS"}
+    headers = {"Authorization": f"Bearer {TOKEN}"}
+    async with aiohttp.ClientSession(headers=headers) as session:
+        async with session.post('http://localhost:5050/query', data=json.dumps(payload)) as resp:
+            data = await resp.json()
+            assert data['exists'] is False, sys.exit('Query POST Endpoint Error!')
+            assert len(data['datasetAlleleResponses']) == 3, sys.exit('Should be able to retrieve missing datasets.')
+
+
+async def test_27():
+    """Test query POST endpoint.
+
+    Send a query targeting three datasets, using MISS.
+    Expect hits, but no data to be shown (200).
+    """
+    LOG.debug(f'[27/{TESTS_NUMBER}] Test query for targeting three datasets, using MISS. (expect no data shown)')
+    payload = {"referenceName": "MT",
+               "start": 9,
+               "referenceBases": "T",
+               "alternateBases": "C",
+               "assemblyId": "GRCh38",
+               "datasetIds": ['urn:hg:1000genome', 'urn:hg:1000genome:controlled', 'urn:hg:1000genome:registered'],
+               "includeDatasetResponses": "MISS"}
+    headers = {"Authorization": f"Bearer {TOKEN}"}
+    async with aiohttp.ClientSession(headers=headers) as session:
+        async with session.post('http://localhost:5050/query', data=json.dumps(payload)) as resp:
+            data = await resp.json()
+            assert data['exists'] is True, sys.exit('Query POST Endpoint Error!')
+            assert len(data['datasetAlleleResponses']) == 0, sys.exit('Should not be able to retrieve any datasets.')
 
 
 async def main():
@@ -579,6 +645,9 @@ async def main():
     await test_22()
     await test_23()
     await test_24()
+    await test_25()
+    await test_26()
+    await test_27()
     LOG.debug('All integration tests have passed')
 
 
