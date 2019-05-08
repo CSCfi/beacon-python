@@ -16,7 +16,7 @@ LOG = logging.getLogger(__name__)
 LOG.setLevel(logging.DEBUG)
 
 
-TESTS_NUMBER = 27
+TESTS_NUMBER = 28
 DATASET_IDS_LIST = ['urn:hg:1000genome', 'urn:hg:1000genome:registered',
                     'urn:hg:1000genome:controlled', 'urn:hg:1000genome:controlled1']
 
@@ -616,6 +616,27 @@ async def test_27():
             assert len(data['datasetAlleleResponses']) == 0, sys.exit('Should not be able to retrieve any datasets.')
 
 
+async def test_28():
+    """Test query POST endpoint.
+
+    Send a query for BND. Expect two hits, one for each direction (200).
+    """
+    LOG.debug(f'[28/{TESTS_NUMBER}] Send a query for BND. Expect two hits.')
+    payload = {"referenceName": "2",
+               "start": 321681,
+               "end": 123460,
+               "referenceBases": "N",
+               "assemblyId": "GRCh38",
+               "variantType": "BND",
+               "datasetIds": ['urn:hg:1000genome'],
+               "includeDatasetResponses": "HIT"}
+    async with aiohttp.ClientSession() as session:
+        async with session.post('http://localhost:5050/query', data=json.dumps(payload)) as resp:
+            data = await resp.json()
+            assert data['exists'] is True, sys.exit('Query POST Endpoint Error!')
+            assert len(data['datasetAlleleResponses']) == 2, sys.exit('Should not be able to retrieve any datasets.')
+
+
 async def main():
     """Run the tests."""
     LOG.debug('Start integration tests')
@@ -648,6 +669,7 @@ async def main():
     await test_25()
     await test_26()
     await test_27()
+    await test_28()
     LOG.debug('All integration tests have passed')
 
 

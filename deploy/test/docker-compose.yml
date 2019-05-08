@@ -20,6 +20,7 @@ services:
       - ./example_metadata_controlled.json:/exdata/example_metadata_controlled.json
       - ./example_metadata_controlled1.json:/exdata/example_metadata_controlled1.json
       - ./example_metadata_registered.json:/exdata/example_metadata_registered.json
+      - ./mate.sql:/exdata/mate.sql
     depends_on:
       - postgres
     environment:
