@@ -144,15 +144,46 @@ class TestDataQueryFunctions(asynctest.TestCase):
         result_all = await find_datasets(None, 'GRCh38', None, 'Y', 'T', 'C', [], token, "ALL")
         self.assertEqual(result_all, [])
 
-    async def test_datasets_access_call(self):
-        """Test db call of getting datasets access."""
+    async def test_datasets_access_call_public(self):
+        """Test db call of getting public datasets access."""
         pool = asynctest.CoroutineMock()
-        pool.acquire().__aenter__.return_value = Connection()
+        pool.acquire().__aenter__.return_value = Connection(accessData=[{'accesstype': 'PUBLIC', 'datasetid': 'mock:public:id'}])
         result = await fetch_datasets_access(pool, None)
         # for now it can return a tuple of empty datasets
         # in order to get a response we will have to mock it
         # in Connection() class
-        self.assertEqual(result, ([], [], []))
+        self.assertEqual(result, (['mock:public:id'], [], []))
+
+    async def test_datasets_access_call_registered(self):
+        """Test db call of getting registered datasets access."""
+        pool = asynctest.CoroutineMock()
+        pool.acquire().__aenter__.return_value = Connection(accessData=[{'accesstype': 'REGISTERED', 'datasetid': 'mock:registered:id'}])
+        result = await fetch_datasets_access(pool, None)
+        # for now it can return a tuple of empty datasets
+        # in order to get a response we will have to mock it
+        # in Connection() class
+        self.assertEqual(result, ([], ['mock:registered:id'], []))
+
+    async def test_datasets_access_call_controlled(self):
+        """Test db call of getting controlled datasets access."""
+        pool = asynctest.CoroutineMock()
+        pool.acquire().__aenter__.return_value = Connection(accessData=[{'accesstype': 'CONTROLLED', 'datasetid': 'mock:controlled:id'}])
+        result = await fetch_datasets_access(pool, None)
+        # for now it can return a tuple of empty datasets
+        # in order to get a response we will have to mock it
+        # in Connection() class
+        self.assertEqual(result, ([], [], ['mock:controlled:id']))
+
+    async def test_datasets_access_call_multiple(self):
+        """Test db call of getting controlled and public datasets access."""
+        pool = asynctest.CoroutineMock()
+        pool.acquire().__aenter__.return_value = Connection(accessData=[{'accesstype': 'CONTROLLED', 'datasetid': 'mock:controlled:id'},
+                                                                        {'accesstype': 'PUBLIC', 'datasetid': 'mock:public:id'}])
+        result = await fetch_datasets_access(pool, None)
+        # for now it can return a tuple of empty datasets
+        # in order to get a response we will have to mock it
+        # in Connection() class
+        self.assertEqual(result, (['mock:public:id'], [], ['mock:controlled:id']))
 
     async def test_fetch_dataset_metadata_call(self):
         """Test db call of getting datasets metadata."""
@@ -178,6 +209,8 @@ class TestDataQueryFunctions(asynctest.TestCase):
         # in order to get a response we will have to mock it
         # in Connection() class
         self.assertEqual(result, [])
+        result_miss = await fetch_filtered_dataset(pool, assembly_id, position, chromosome, reference, alternate, None, None, True)
+        self.assertEqual(result_miss, [])
 
     def test_handle_wildcard(self):
         """Test PostgreSQL wildcard handling."""

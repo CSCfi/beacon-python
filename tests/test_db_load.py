@@ -65,13 +65,17 @@ class Statement(Transaction):
     Mock this from asyncpg.
     """
 
-    def __init__(self, query):
+    def __init__(self, query, accessData):
         """Initialize class."""
+        self.accessData = accessData
         pass
 
     async def fetch(self, *args, **kwargs):
         """Mimic fetch."""
-        return []
+        if self.accessData:
+            return self.accessData
+        else:
+            return []
 
 
 class Connection:
@@ -80,8 +84,9 @@ class Connection:
     Mock this from asyncpg.
     """
 
-    def __init__(self):
+    def __init__(self, accessData=None):
         """Initialize class."""
+        self.accessData = accessData
         pass
 
     async def fetch(self, *args, **kwargs):
@@ -107,10 +112,10 @@ class Connection:
     @asyncio.coroutine
     def prepare(self, query):
         """Mimic prepare."""
-        return Statement(query)
+        return Statement(query, self.accessData)
 
     def transaction(self, *args, **kwargs):
-        """Mimic execute."""
+        """Mimic transaction."""
         return Transaction(*args, **kwargs)
 
 
