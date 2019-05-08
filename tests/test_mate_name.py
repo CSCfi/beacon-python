@@ -38,6 +38,8 @@ class TestDataQueryFunctions(asynctest.TestCase):
         # in order to get a response we will have to mock it
         # in Connection() class
         self.assertEqual(result, [])
+        result_miss = await fetch_fusion_dataset(pool, assembly_id, position, chromosome, reference, None, None, None, True)
+        self.assertEqual(result_miss, [])
 
 
 if __name__ == '__main__':

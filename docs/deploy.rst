@@ -4,7 +4,7 @@ Deployment
 The recommended means of deployment for a production web server of Beacon-python is via
 a container image (e.g. Docker image).
 In this section we illustrate several means of building and running a
-``beacon-python`` application via Docker.
+``beacon-python`` application via a Docker container image.
 
 Dockerfile
 ----------
