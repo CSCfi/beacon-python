@@ -89,7 +89,6 @@ async def fetch_fusion_dataset(db_pool, assembly_id, position, chromosome, refer
                                 AND ($10::integer IS NULL OR a.end>=$10) AND ($11::integer IS NULL OR a.end<=$11)
                                 AND coalesce(b.accessType = any($2::access_levels[]), true)
                                 AND coalesce(a.datasetId = any($1::varchar[]), false);"""
-                datasets = []
                 statement = await connection.prepare(query)
                 db_response = await statement.fetch(datasets_query, access_query, assembly_id,
                                                     mate, refbase,
@@ -97,6 +96,7 @@ async def fetch_fusion_dataset(db_pool, assembly_id, position, chromosome, refer
                                                     startMax_pos, startMin_pos,
                                                     endMin_pos, endMax_pos, chromosome)
                 LOG.info(f"Query for dataset(s): {datasets} that are {access_type} matching conditions.")
+                datasets = []
                 for record in list(db_response):
                     processed = transform_misses(record) if misses else transform_record(record)
                     if __handover_drs__:
