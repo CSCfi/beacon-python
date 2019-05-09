@@ -9,7 +9,7 @@ and their associated metadata.
 from .. import __apiVersion__, __title__, __version__, __description__, __url__, __alturl__, __handover_beacon__
 from .. import __createtime__, __updatetime__, __org_id__, __org_name__, __org_description__
 from .. import __org_address__, __org_logoUrl__, __org_welcomeUrl__, __org_info__, __org_contactUrl__
-from .. import __handover_drs__
+from .. import  __sample_queries__,__handover_drs__
 from ..utils.data_query import fetch_dataset_metadata
 from ..extensions.handover import make_handover
 from aiocache import cached
@@ -25,6 +25,7 @@ async def beacon_info(host, pool):
     beacon_dataset = await fetch_dataset_metadata(pool)
 
     # If one sets up a beacon it is recommended to adjust these sample requests
+    # for instance by adding a list of other samples in beacon_api/conf/sample_queries.json
     sample_allele_request = [{
         "alternateBases": "G",
         "referenceBases": "A",
@@ -75,7 +76,7 @@ async def beacon_info(host, pool):
         'createDateTime': __createtime__,
         'updateDateTime': __updatetime__,
         'datasets': beacon_dataset,
-        'sampleAlleleRequests': sample_allele_request,
+        'sampleAlleleRequests': __sample_queries__ or sample_allele_request,
         'info': {"achievement": "World's first 1.0 Beacon"},
     }
 
