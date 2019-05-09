@@ -6,7 +6,7 @@ Database
 We use a PostgreSQL database (version 9.6+) for working with beacon data.
 For more information on setting up the database consult :ref:`database-setup`.
 
-.. attention:: We recommend https://pgtune.leopard.in.ua/#/ for establishing PostgreSQL
+.. attention:: We recommend https://pgtune.leopard.in.ua/ for establishing PostgreSQL
              configuration parameters, in order to optimised database setup.
 
              e.g. for PostgreSQL running on 8GB of RAM setting ``shared_buffers = 2GB``
