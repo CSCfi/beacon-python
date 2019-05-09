@@ -90,14 +90,12 @@
     "mateName": {
       "oneOf": [{
         "required": [
-          "start",
-          "end"
+          "start"
         ]
       },
       {
         "required": [
-          "startMin",
-          "endMin"
+          "startMin"
         ]
       }
     ]
