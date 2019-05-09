@@ -2,7 +2,6 @@
 from functools import partial
 from ..utils.logging import LOG
 from ..api.exceptions import BeaconServerError
-from ..conf.config import DB_SCHEMA
 from .handover import add_handover
 from ..utils.data_query import handle_wildcard, transform_misses, transform_record
 from .. import __handover_drs__
@@ -34,22 +33,23 @@ async def fetch_fusion_dataset(db_pool, assembly_id, position, chromosome, refer
                 if misses:
                     # For MISS and ALL. We have already found all datasets with maching variants,
                     # so now just get one post per accessible, remaining datasets.
-                    query = f"""SELECT DISTINCT ON (datasetId)
-                                datasetId as "datasetId", accessType as "accessType",
-                                '{chromosome}' as "referenceName", False as "exists"
-                                FROM {DB_SCHEMA}beacon_dataset_table
-                                WHERE coalesce(accessType = any($2::access_levels[]), true)
-                                AND assemblyId=$3
-                                AND coalesce(datasetId = any($1::varchar[]), false) ;"""
+                    query = """SELECT DISTINCT ON (datasetId)
+                               datasetId as "datasetId", accessType as "accessType",
+                               $4 as "referenceName", False as "exists"
+                               FROM beacon_dataset_table
+                               WHERE coalesce(accessType = any($2::access_levels[]), true)
+                               AND assemblyId=$3
+                               AND coalesce(datasetId = any($1::varchar[]), false);
+                               """
                     statement = await connection.prepare(query)
-                    db_response = await statement.fetch(datasets_query, access_query, assembly_id)
+                    db_response = await statement.fetch(datasets_query, access_query, assembly_id,
+                                                        chromosome)
 
                 else:
 
                     # UBER QUERY - TBD if it is what we need
                     # referenceBases, alternateBases and variantType fields are NOT part of beacon's specification response
-                    query = f"""SELECT
-                                a.datasetId as "datasetId", b.accessType as "accessType", a.chromosome as "referenceName",
+                    query = """SELECT a.datasetId as "datasetId", b.accessType as "accessType", a.chromosome as "referenceName",
                                 a.reference as "referenceBases", a.alternate as "alternateBases", a.chromosomeStart as "start",
                                 a.mate as "mateName",
                                 a.chromosomePos as "referenceID", a.matePos as "mateID", a.mateStart as "mateStart", a.mateStart as "end",
@@ -57,7 +57,7 @@ async def fetch_fusion_dataset(db_pool, assembly_id, position, chromosome, refer
                                 a.alleleCount as "variantCount", CAST('BND' as text) as "variantType",
                                 a.callCount as "callCount", b.sampleCount as "sampleCount",
                                 a.frequency, True as "exists"
-                                FROM {DB_SCHEMA}beacon_dataset_table b, {DB_SCHEMA}beacon_mate_table a
+                                FROM beacon_dataset_table b, beacon_mate_table a
                                 WHERE a.datasetId=b.datasetId
                                 AND b.assemblyId=$3
                                 AND a.chromosome=$12
@@ -79,7 +79,7 @@ async def fetch_fusion_dataset(db_pool, assembly_id, position, chromosome, refer
                                 a.alleleCount as "variantCount", CAST('BND' as text) as "variantType",
                                 a.callCount as "callCount", b.sampleCount as "sampleCount",
                                 a.frequency, True as "exists"
-                                FROM {DB_SCHEMA}beacon_dataset_table b, {DB_SCHEMA}beacon_mate_table a
+                                FROM beacon_dataset_table b, beacon_mate_table a
                                 WHERE a.datasetId=b.datasetId
                                 AND b.assemblyId=$3
                                 AND a.mate=$12
@@ -90,8 +90,8 @@ async def fetch_fusion_dataset(db_pool, assembly_id, position, chromosome, refer
                                 AND ($8::integer IS NULL OR a.mateStart<=$8) AND ($9::integer IS NULL OR a.mateStart>=$9)
                                 AND ($10::integer IS NULL OR a.chromosomeStart>=$10) AND ($11::integer IS NULL OR a.chromosomeStart<=$11)
                                 AND coalesce(b.accessType = any($2::access_levels[]), true)
-                                AND coalesce(a.datasetId = any($1::varchar[]), false)
-                                ; """
+                                AND coalesce(a.datasetId = any($1::varchar[]), false);
+                                """
                 statement = await connection.prepare(query)
                 db_response = await statement.fetch(datasets_query, access_query, assembly_id,
                                                     mate, refbase,

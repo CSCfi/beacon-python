@@ -17,8 +17,7 @@ At this point we also initialize a connection pool that the API is going to use 
 import os
 import asyncpg
 
-DB_SCHEMA = os.environ.get('DATABASE_SCHEMA', '')
-DB_SCHEMA += '.' if DB_SCHEMA else ''
+DB_SCHEMA = os.environ.get('DATABASE_SCHEMA', None)
 
 
 async def init_db_pool():
@@ -31,6 +30,7 @@ async def init_db_pool():
                                      user=os.environ.get('DATABASE_USER', 'beacon'),
                                      password=os.environ.get('DATABASE_PASSWORD', 'beacon'),
                                      database=os.environ.get('DATABASE_NAME', 'beacondb'),
+                                     server_settings={'search_path': DB_SCHEMA if DB_SCHEMA else 'public'},
                                      # initializing with 0 connections allows the web server to
                                      # start and also continue to live
                                      min_size=0,
