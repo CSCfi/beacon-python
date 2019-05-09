@@ -52,7 +52,7 @@ async def fetch_fusion_dataset(db_pool, assembly_id, position, chromosome, refer
                                 a.datasetId as "datasetId", b.accessType as "accessType", a.chromosome as "referenceName",
                                 a.reference as "referenceBases", a.alternate as "alternateBases", a.chromosomeStart as "start",
                                 a.mate as "mateName",
-                                a.chromosomePos as "referenceID", a.matePos as "mateID", a.mateStart as "start", a.end as "end",
+                                a.chromosomePos as "referenceID", a.matePos as "mateID", a.mateStart as "mateStart", a.mateStart as "end",
                                 b.externalUrl as "externalUrl", b.description as "note",
                                 a.alleleCount as "variantCount", CAST('BND' as text) as "variantType",
                                 a.callCount as "callCount", b.sampleCount as "sampleCount",
@@ -60,11 +60,12 @@ async def fetch_fusion_dataset(db_pool, assembly_id, position, chromosome, refer
                                 FROM {DB_SCHEMA}beacon_dataset_table b, {DB_SCHEMA}beacon_mate_table a
                                 WHERE a.datasetId=b.datasetId
                                 AND b.assemblyId=$3
+                                AND a.chromosome=$12
                                 AND coalesce(a.mate=$4, true)
                                 AND coalesce(a.reference LIKE any($5::varchar[]), true)
                                 AND coalesce(a.mateStart=$7, true)
-                                AND ($6::integer IS NULL OR a.end=$6)
-                                AND ($8::integer IS NULL OR a.end<=$8) AND ($9::integer IS NULL OR a.end>=$9)
+                                AND ($6::integer IS NULL OR a.chromosomeStart=$6)
+                                AND ($8::integer IS NULL OR a.chromosomeStart<=$8) AND ($9::integer IS NULL OR a.chromosomeStart>=$9)
                                 AND ($10::integer IS NULL OR a.mateStart>=$10) AND ($11::integer IS NULL OR a.mateStart<=$11)
                                 AND coalesce(b.accessType = any($2::access_levels[]), true)
                                 AND coalesce(a.datasetId = any($1::varchar[]), true)
@@ -73,7 +74,7 @@ async def fetch_fusion_dataset(db_pool, assembly_id, position, chromosome, refer
                                 a.datasetId as "datasetId", b.accessType as "accessType", a.chromosome as "referenceName",
                                 a.reference as "referenceBases", a.alternate as "alternateBases", a.chromosomeStart as "start",
                                 a.mate as "mateName",
-                                a.chromosomePos as "referenceID", a.matePos as "mateID", a.mateStart as "mateStart", a.end as "end",
+                                a.chromosomePos as "referenceID", a.matePos as "mateID", a.mateStart as "mateStart", a.mateStart as "end",
                                 b.externalUrl as "externalUrl", b.description as "note",
                                 a.alleleCount as "variantCount", CAST('BND' as text) as "variantType",
                                 a.callCount as "callCount", b.sampleCount as "sampleCount",
@@ -81,15 +82,16 @@ async def fetch_fusion_dataset(db_pool, assembly_id, position, chromosome, refer
                                 FROM {DB_SCHEMA}beacon_dataset_table b, {DB_SCHEMA}beacon_mate_table a
                                 WHERE a.datasetId=b.datasetId
                                 AND b.assemblyId=$3
-                                AND coalesce(a.mate=$12, true)
+                                AND a.mate=$12
+                                AND coalesce(a.chromosome=$4, true)
                                 AND coalesce(a.reference LIKE any($5::varchar[]), true)
                                 AND coalesce(a.mateStart=$6, true)
-                                AND ($7::integer IS NULL OR a.end=$7)
+                                AND ($7::integer IS NULL OR a.chromosomeStart=$7)
                                 AND ($8::integer IS NULL OR a.mateStart<=$8) AND ($9::integer IS NULL OR a.mateStart>=$9)
-                                AND ($10::integer IS NULL OR a.end>=$10) AND ($11::integer IS NULL OR a.end<=$11)
+                                AND ($10::integer IS NULL OR a.chromosomeStart>=$10) AND ($11::integer IS NULL OR a.chromosomeStart<=$11)
                                 AND coalesce(b.accessType = any($2::access_levels[]), true)
-                                AND coalesce(a.datasetId = any($1::varchar[]), false);"""
-                datasets = []
+                                AND coalesce(a.datasetId = any($1::varchar[]), false)
+                                ; """
                 statement = await connection.prepare(query)
                 db_response = await statement.fetch(datasets_query, access_query, assembly_id,
                                                     mate, refbase,
@@ -97,6 +99,7 @@ async def fetch_fusion_dataset(db_pool, assembly_id, position, chromosome, refer
                                                     startMax_pos, startMin_pos,
                                                     endMin_pos, endMax_pos, chromosome)
                 LOG.info(f"Query for dataset(s): {datasets} that are {access_type} matching conditions.")
+                datasets = []
                 for record in list(db_response):
                     processed = transform_misses(record) if misses else transform_record(record)
                     if __handover_drs__:

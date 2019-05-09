@@ -85,7 +85,7 @@ async def query_request_handler(params):
     alternate = alleleRequest.get("variantType"), alleleRequest.get("alternateBases")
 
     # Initialising the values of the positions, based on what we get from request
-    if request.get("end") and request.get("end") < request.get("start"):
+    if request.get('variantType') != 'BND' and request.get("end") and request.get("end") < request.get("start"):
         raise BeaconBadRequest(request, params[4], "end value Must be greater than start value")
     if request.get("endMin") and request.get("endMin") > request.get("endMax"):
         raise BeaconBadRequest(request, params[4], "endMin value Must be smaller than endMax value")
