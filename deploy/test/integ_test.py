@@ -16,7 +16,7 @@ LOG = logging.getLogger(__name__)
 LOG.setLevel(logging.DEBUG)
 
 
-TESTS_NUMBER = 30
+TESTS_NUMBER = 31
 DATASET_IDS_LIST = ['urn:hg:1000genome', 'urn:hg:1000genome:registered',
                     'urn:hg:1000genome:controlled', 'urn:hg:1000genome:controlled1']
 
@@ -667,7 +667,7 @@ async def test_30():
     """
     LOG.debug(f'[30/{TESTS_NUMBER}] Test BND query where end is smaller than start with no variantType, expecting it to fail.')
     payload = {"referenceName": "2",
-               "mateName": 10,
+               "mateName": "13",
                "start": 321681,
                "end": 123460,
                "referenceBases": "N",
@@ -679,6 +679,27 @@ async def test_30():
             data = await resp.json()
             assert data['exists'] is None, sys.exit('Query POST Endpoint Error!')
             assert resp.status == 400, 'HTTP Status code error'
+
+
+async def test_31():
+    """Test query POST endpoint.
+
+    Test mateName query with startMin and startMax with no end params. Expect good query (200).
+    """
+    LOG.debug(f'[31/{TESTS_NUMBER}] Test mateName with start range and no end range.')
+    payload = {"referenceName": "2",
+               "mateName": "13",
+               "startMin": 300000,
+               "startMax": 400000,
+               "referenceBases": "N",
+               "assemblyId": "GRCh38",
+               "datasetIds": ['urn:hg:1000genome'],
+               "includeDatasetResponses": "HIT"}
+    async with aiohttp.ClientSession() as session:
+        async with session.post('http://localhost:5050/query', data=json.dumps(payload)) as resp:
+            data = await resp.json()
+            assert data['exists'] is True, sys.exit('Query POST Endpoint Error!')
+            assert resp.status == 200, 'HTTP Status code error'
 
 
 async def main():
@@ -716,6 +737,7 @@ async def main():
     await test_28()
     await test_29()
     await test_30()
+    await test_31()
     LOG.debug('All integration tests have passed')
 
 
