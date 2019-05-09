@@ -96,7 +96,12 @@
       {
         "required": [
           "startMin"
-        ]
+        ],
+        "not": {
+          "required": [
+            "endMin"
+          ]
+        }
       }
     ]
     }
