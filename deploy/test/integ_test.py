@@ -6,7 +6,7 @@ respond and have the loaded data.
 
 import aiohttp
 import sys
-import asyncio
+
 import json
 import logging
 
@@ -15,7 +15,7 @@ logging.basicConfig(format=FORMAT, datefmt='%Y-%m-%d %H:%M:%S')
 LOG = logging.getLogger(__name__)
 LOG.setLevel(logging.DEBUG)
 
-
+# start does not need to be changed
 TESTS_NUMBER = 31
 DATASET_IDS_LIST = ['urn:hg:1000genome', 'urn:hg:1000genome:registered',
                     'urn:hg:1000genome:controlled', 'urn:hg:1000genome:controlled1']
@@ -42,7 +42,7 @@ async def test_1():
 
     Info endpoint should respond with 4 datasets all in the list specified above.
     """
-    LOG.debug(f'[01/{TESTS_NUMBER}] Test info endpoint')
+    LOG.debug('Test info endpoint')
     async with aiohttp.ClientSession() as session:
         async with session.get('http://localhost:5050/') as resp:
             data = await resp.json()
@@ -59,7 +59,7 @@ async def test_2():
 
     Send a query with alternateBases. Expect data to be found (200).
     """
-    LOG.debug(f'[02/{TESTS_NUMBER}] Test get query (normal query with alternateBases)')
+    LOG.debug('Test get query (normal query with alternateBases)')
     params = {'assemblyId': 'GRCh38', 'referenceName': 'MT',
               'start': 9, 'referenceBases': 'T', 'alternateBases': 'C',
               'includeDatasetResponses': 'HIT'}
@@ -82,7 +82,7 @@ async def test_3():
 
     Send a query with variantType. Expect data to be found (200).
     """
-    LOG.debug(f'[03/{TESTS_NUMBER}] Test get query (normal query with variantType)')
+    LOG.debug('Test get query (normal query with variantType)')
     params = {'assemblyId': 'GRCh38', 'referenceName': 'MT',
               'start': 9, 'referenceBases': 'T', 'variantType': 'SNP',
               'includeDatasetResponses': 'HIT'}
@@ -103,7 +103,7 @@ async def test_4():
 
     Send a query with missing required params. Expect a bad request (400).
     """
-    LOG.debug(f'[04/{TESTS_NUMBER}] Test get query (missing params)')
+    LOG.debug('Test get query (missing params)')
     error_text = "Provided input: '{'assemblyId': 'GRCh38', 'start': 9, 'referenceBases': 'T', 'alternateBases': 'C', \
 'includeDatasetResponses': 'HIT'}' does not seem correct because: ''referenceName' is a required property'"
     params = {'assemblyId': 'GRCh38',
@@ -126,7 +126,7 @@ async def test_5():
 
     Send a query with wildcard alternateBases. Expect data to be found (200).
     """
-    LOG.debug(f'[05/{TESTS_NUMBER}] Test get query (wildcards)')
+    LOG.debug('Test get query (wildcards)')
     params = {'assemblyId': 'GRCh38', 'referenceName': 'MT',
               'start': 63, 'referenceBases': 'CT', 'alternateBases': 'NN',
               'includeDatasetResponses': 'HIT'}
@@ -148,7 +148,7 @@ async def test_6():
 
     Send a query with alternateBases. Expect data to be found (200).
     """
-    LOG.debug(f'[06/{TESTS_NUMBER}] Test post query (normal query with alternateBases)')
+    LOG.debug('Test post query (normal query with alternateBases)')
     payload = {"referenceName": "MT",
                "start": 9,
                "end": 10,
@@ -175,7 +175,7 @@ async def test_7():
 
     Send a query with variantType. Expect data to be found (200).
     """
-    LOG.debug(f'[07/{TESTS_NUMBER}] Test post query (normal query with variantType)')
+    LOG.debug('Test post query (normal query with variantType)')
     payload = {"referenceName": "MT",
                "start": 9,
                "end": 10,
@@ -200,7 +200,7 @@ async def test_8():
 
     Send a query with missing required params. Expect a bad request (400).
     """
-    LOG.debug(f'[08/{TESTS_NUMBER}] Test post query (missing params)')
+    LOG.debug('Test post query (missing params)')
     error_text = "Provided input: '{'start': 9, 'referenceBases': 'T', 'alternateBases': 'C', 'assemblyId': 'GRCh38', 'includeDatasetResponses': 'HIT'}' \
 does not seem correct because: ''referenceName' is a required property'"
     payload = {"start": 9,
@@ -224,7 +224,7 @@ async def test_9():
 
     Send a query with wildcard alternateBases. Expect no data to be found exists=false, but query was good (200).
     """
-    LOG.debug(f'[09/{TESTS_NUMBER}] Test get query (good query, empty response)')
+    LOG.debug('Test get query (good query, empty response)')
     params = {'assemblyId': 'GRCh99', 'referenceName': 'MT',
               'start': 63, 'referenceBases': 'CT', 'alternateBases': 'NN',
               'includeDatasetResponses': 'HIT'}
@@ -239,7 +239,7 @@ async def test_10():
 
     Send a query targeted to a REGISTERED dataset without bona_fide_status. Expect failure (401).
     """
-    LOG.debug(f'[10/{TESTS_NUMBER}] Test post query (fail to access registered data (no token))')
+    LOG.debug('Test post query (fail to access registered data (no token))')
     payload = {"referenceName": "MT",
                "start": 9,
                "referenceBases": "T",
@@ -260,7 +260,7 @@ async def test_11():
 
     Send a query targeted to a CONTROLLED dataset without token perms. Expect failure (401).
     """
-    LOG.debug(f'[11/{TESTS_NUMBER}] Test post query (fail to access controlled data (no token))')
+    LOG.debug('Test post query (fail to access controlled data (no token))')
     payload = {"referenceName": "MT",
                "start": 9,
                "referenceBases": "T",
@@ -281,7 +281,7 @@ async def test_12():
 
     Send a multiquery targeting PUBLIC and CONTROLLED datasets without token perms. Expect only public data to be shown (200).
     """
-    LOG.debug(f'[12/{TESTS_NUMBER}] Test post query (public data (success) and controlled data without token (failure))')
+    LOG.debug('Test post query (public data (success) and controlled data without token (failure))')
     payload = {"referenceName": "MT",
                "start": 9,
                "referenceBases": "T",
@@ -301,7 +301,7 @@ async def test_13():
 
     Send a multiquery targeting PUBLIC and REGISTERED datasets with bona_fide_status. Expect data to be found (200).
     """
-    LOG.debug(f'[13/{TESTS_NUMBER}] Test post query (public and registered with bona_fide_status)')
+    LOG.debug('Test post query (public and registered with bona_fide_status)')
     payload = {"referenceName": "MT",
                "start": 9,
                "referenceBases": "T",
@@ -322,7 +322,7 @@ async def test_14():
 
     Send a multiquery targeting REGISTERED and CONTROLLED datasets with bona_fide_status and token perms. Expect data to be found (200).
     """
-    LOG.debug(f'[14/{TESTS_NUMBER}] Test post query (registered and controlled (bona fide + token perms))')
+    LOG.debug('Test post query (registered and controlled (bona fide + token perms))')
     payload = {"referenceName": "MT",
                "start": 9,
                "referenceBases": "T",
@@ -343,7 +343,9 @@ async def test_15():
 
     Send a query targeting CONTROLLED dataset without token perms. Expect failure (403).
     """
-    LOG.debug(f'[15/{TESTS_NUMBER}] Test post query (fail to access controlled data (token, but no perms))')
+    global TESTS_NUMBER
+    TESTS_NUMBER += 1
+    LOG.debug('Test post query (fail to access controlled data (token, but no perms))')
     payload = {"referenceName": "MT",
                "start": 9,
                "end": 10,
@@ -365,7 +367,7 @@ async def test_16():
 
     Send a query targeting REGISTERED dataset with token, but no bona fide. Expect failure (403).
     """
-    LOG.debug(f'[16/{TESTS_NUMBER}] Test post query (fail to access registered data (token, but no bona fide))')
+    LOG.debug('Test post query (fail to access registered data (token, but no bona fide))')
     payload = {"referenceName": "MT",
                "start": 9,
                "referenceBases": "T",
@@ -386,7 +388,7 @@ async def test_17():
 
     Send a query targeting two CONTROLLED dataset with token perms, having access only to one of them. Expect data to be found (200).
     """
-    LOG.debug(f'[17/{TESTS_NUMBER}] Test post query (request two controlled, having access to one)')
+    LOG.debug('Test post query (request two controlled, having access to one)')
     payload = {"referenceName": "MT",
                "start": 9,
                "referenceBases": "T",
@@ -407,7 +409,7 @@ async def test_18():
 
     Send a query with bad end parameter. Expect failure (400).
     """
-    LOG.debug(f'[18/{TESTS_NUMBER}] Test post query (end < start)')
+    LOG.debug('Test post query (end < start)')
     payload = {"referenceName": "MT",
                "start": 9,
                "end": 8,
@@ -427,7 +429,7 @@ async def test_19():
 
     Send a query with bad start min/max parameters. Expect failure (400).
     """
-    LOG.debug(f'[19/{TESTS_NUMBER}] Test post query (startMin > startMax)')
+    LOG.debug('Test post query (startMin > startMax)')
     payload = {"referenceName": "MT",
                "startMin": 21,
                "startMax": 20,
@@ -447,7 +449,7 @@ async def test_20():
 
     Send a query with bad end min/max parameters. Expect failure (400).
     """
-    LOG.debug(f'[20/{TESTS_NUMBER}] Test post query (endMin > endMax)')
+    LOG.debug('Test post query (endMin > endMax)')
     payload = {"referenceName": "MT",
                "endMin": 21,
                "endMax": 20,
@@ -468,7 +470,7 @@ async def test_21():
     Send a query for non-existing variant targeting PUBLIC and CONTROLLED datasets with token perms, using MISS.
     Expect public and controlled data to be shown (200).
     """
-    LOG.debug(f'[21/{TESTS_NUMBER}] Test Non-existing/MISS variant targeting PUBLIC and CONTROLLED datasets with token perms (expect all shown)')
+    LOG.debug('Test Non-existing/MISS variant targeting PUBLIC and CONTROLLED datasets with token perms (expect all shown)')
     payload = {"referenceName": "MT",
                "start": 8,
                "referenceBases": "T",
@@ -490,7 +492,7 @@ async def test_22():
     Send a query for non-existing variant targeting CONTROLLED datasets with token perms, using MISS.
     Expect the only the controlled, not the public data, to not be shown (200).
     """
-    LOG.debug(f'[22/{TESTS_NUMBER}] Test non-existing variant targeting CONTROLLED datasets with token perms, using MISS (expect only controlled shown)')
+    LOG.debug('Test non-existing variant targeting CONTROLLED datasets with token perms, using MISS (expect only controlled shown)')
     payload = {"referenceName": "MT",
                "start": 8,
                "referenceBases": "T",
@@ -512,7 +514,7 @@ async def test_23():
     Send a query for targeting a non-existing PUBLIC datasets, using ALL.
     Expect no data to be shown (200).
     """
-    LOG.debug(f'[23/{TESTS_NUMBER}] Test query for targeting a non-existing PUBLIC datasets, using ALL. (expect no data shown)')
+    LOG.debug('Test query for targeting a non-existing PUBLIC datasets, using ALL. (expect no data shown)')
     payload = {"referenceName": "MT",
                "start": 9,
                "referenceBases": "T",
@@ -534,7 +536,7 @@ async def test_24():
     Send a query for targeting one existing and one non-existing PUBLIC datasets, using ALL.
     Expect the existing PUBLIC data to be shown (200).
     """
-    LOG.debug(f'[24/{TESTS_NUMBER}] Test query for targeting one existing and one non-existing PUBLIC datasets, using ALL. (expect only PUBLIC)')
+    LOG.debug('Test query for targeting one existing and one non-existing PUBLIC datasets, using ALL. (expect only PUBLIC)')
     payload = {"referenceName": "MT",
                "start": 9,
                "referenceBases": "T",
@@ -556,7 +558,7 @@ async def test_25():
     Send a query for non-existing variant targeting three datasets, using ALL.
     Expect no hits, but data to be shown (200).
     """
-    LOG.debug(f'[25/{TESTS_NUMBER}] Test query for targeting three datasets, using ALL. (expect data shown)')
+    LOG.debug('Test query for targeting three datasets, using ALL. (expect data shown)')
     payload = {"referenceName": "MT",
                "start": 10,
                "referenceBases": "T",
@@ -578,7 +580,7 @@ async def test_26():
     Send a query for non-existing variant targeting three datasets, using MISS.
     Expect no hits, but data to be shown (200).
     """
-    LOG.debug(f'[26/{TESTS_NUMBER}] Test query for non-existing query targeting three datasets, using MISS. (expect data shown)')
+    LOG.debug('Test query for non-existing query targeting three datasets, using MISS. (expect data shown)')
     payload = {"referenceName": "MT",
                "start": 10,
                "referenceBases": "T",
@@ -600,7 +602,7 @@ async def test_27():
     Send a query targeting three datasets, using MISS.
     Expect hits, but no data to be shown (200).
     """
-    LOG.debug(f'[27/{TESTS_NUMBER}] Test query for targeting three datasets, using MISS. (expect no data shown)')
+    LOG.debug('Test query for targeting three datasets, using MISS. (expect no data shown)')
     payload = {"referenceName": "MT",
                "start": 9,
                "referenceBases": "T",
@@ -621,7 +623,7 @@ async def test_28():
 
     Test BND query when end is smaller than start, with variantType and no mateName. Expect two hits, one for each direction (200).
     """
-    LOG.debug(f'[28/{TESTS_NUMBER}] Test BND with variantType and no mateName query where end is smaller than start. Expect two hits.')
+    LOG.debug('Test BND with variantType and no mateName query where end is smaller than start. Expect two hits.')
     payload = {"referenceName": "2",
                "start": 321681,
                "end": 123460,
@@ -643,7 +645,7 @@ async def test_29():
 
     Test BND query with mateName and no variantType. Expect two hits, one for each direction (200).
     """
-    LOG.debug(f'[29/{TESTS_NUMBER}] Test BND query with mateName and no variantType. Expect two hits.')
+    LOG.debug('Test BND query with mateName and no variantType. Expect two hits.')
     payload = {"referenceName": "2",
                "mateName": "13",
                "start": 321681,
@@ -665,7 +667,7 @@ async def test_30():
     Test mateName query without variantType, where end is smaller than start.
     Expect failure, because no variantType=BND and end is smaller than start (400).
     """
-    LOG.debug(f'[30/{TESTS_NUMBER}] Test BND query where end is smaller than start with no variantType, expecting it to fail.')
+    LOG.debug('Test BND query where end is smaller than start with no variantType, expecting it to fail.')
     payload = {"referenceName": "2",
                "mateName": "13",
                "start": 321681,
@@ -686,7 +688,7 @@ async def test_31():
 
     Test mateName query with startMin and startMax with no end params. Expect good query (200).
     """
-    LOG.debug(f'[31/{TESTS_NUMBER}] Test mateName with start range and no end range.')
+    LOG.debug('Test mateName with start range and no end range.')
     payload = {"referenceName": "2",
                "mateName": "13",
                "startMin": 300000,
@@ -700,48 +702,3 @@ async def test_31():
             data = await resp.json()
             assert data['exists'] is True, sys.exit('Query POST Endpoint Error!')
             assert resp.status == 200, 'HTTP Status code error'
-
-
-async def main():
-    """Run the tests."""
-    LOG.debug('Start integration tests')
-    await test_1()
-    await test_2()
-    await test_3()
-    await test_4()
-    await test_5()
-    await test_6()
-    await test_7()
-    await test_8()
-    await test_9()
-    await test_10()
-    await test_11()
-    await test_12()
-    await test_13()
-    await test_14()
-    await test_15()
-    await test_16()
-    await test_17()
-    # tests 18, 19 and 20 are also tested in the unit tests
-    # redundant, but later we may want to valdiate against json schema
-    await test_18()
-    await test_19()
-    await test_20()
-    await test_21()
-    await test_22()
-    await test_23()
-    await test_24()
-    await test_25()
-    await test_26()
-    await test_27()
-    await test_28()
-    await test_29()
-    await test_30()
-    await test_31()
-    LOG.debug('All integration tests have passed')
-
-
-if __name__ == '__main__':
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(main())
-    loop.close()

@@ -47,13 +47,15 @@ In order to run the integration tests, makes use of :ref:`s2i-build`:
     $ docker-compose exec beacon beacon_init data/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz /exdata/example_metadata_registered.json
     $ docker-compose exec beacon beacon_init data/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz /exdata/example_metadata_controlled.json
     $ docker-compose exec beacon beacon_init data/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz /exdata/example_metadata_controlled1.json
-    $ python test/integ_test.py
+    $ python test/run_tests.py
 
 The integration tests will build a docker image of the ``beacon-python`` and make use of
 `docker compose <https://docs.docker.com/compose/>`_ to deploy the Web Server and an associated
 PostgreSQL Database as well as a mock OAuth2 authentication server.
 Next step is to load mock data, as illustrated by the
 ``docker-compose exec`` commands above, and last step is to run the integration tests.
+
+The ``integ_test.py`` contains the actual tests while the ``run_tests`` discovers the tests and runs them.
 
 
 Load Testing
