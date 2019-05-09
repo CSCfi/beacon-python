@@ -16,7 +16,7 @@ LOG = logging.getLogger(__name__)
 LOG.setLevel(logging.DEBUG)
 
 
-TESTS_NUMBER = 28
+TESTS_NUMBER = 30
 DATASET_IDS_LIST = ['urn:hg:1000genome', 'urn:hg:1000genome:registered',
                     'urn:hg:1000genome:controlled', 'urn:hg:1000genome:controlled1']
 
@@ -619,9 +619,9 @@ async def test_27():
 async def test_28():
     """Test query POST endpoint.
 
-    Send a query for BND. Expect two hits, one for each direction (200).
+    Test BND query when end is smaller than start, with variantType and no mateName. Expect two hits, one for each direction (200).
     """
-    LOG.debug(f'[28/{TESTS_NUMBER}] Send a query for BND. Expect two hits.')
+    LOG.debug(f'[28/{TESTS_NUMBER}] Test BND with variantType and no mateName query where end is smaller than start. Expect two hits.')
     payload = {"referenceName": "2",
                "start": 321681,
                "end": 123460,
@@ -634,7 +634,51 @@ async def test_28():
         async with session.post('http://localhost:5050/query', data=json.dumps(payload)) as resp:
             data = await resp.json()
             assert data['exists'] is True, sys.exit('Query POST Endpoint Error!')
+            assert data['datasetAlleleResponses'][1]['mateStart'] == 123460, 'Mate start error'
             assert len(data['datasetAlleleResponses']) == 2, sys.exit('Should not be able to retrieve any datasets.')
+
+
+async def test_29():
+    """Test query POST endpoint.
+
+    Test BND query with mateName and no variantType. Expect two hits, one for each direction (200).
+    """
+    LOG.debug(f'[29/{TESTS_NUMBER}] Test BND query with mateName and no variantType. Expect two hits.')
+    payload = {"referenceName": "2",
+               "mateName": "13",
+               "start": 321681,
+               "referenceBases": "N",
+               "assemblyId": "GRCh38",
+               "datasetIds": ['urn:hg:1000genome'],
+               "includeDatasetResponses": "HIT"}
+    async with aiohttp.ClientSession() as session:
+        async with session.post('http://localhost:5050/query', data=json.dumps(payload)) as resp:
+            data = await resp.json()
+            assert data['exists'] is True, sys.exit('Query POST Endpoint Error!')
+            assert data['datasetAlleleResponses'][0]['variantType'] == 'BND', 'Variant type error'
+            assert len(data['datasetAlleleResponses']) == 2, sys.exit('Should not be able to retrieve any datasets.')
+
+
+async def test_30():
+    """Test query POST endpoint.
+
+    Test mateName query without variantType, where end is smaller than start.
+    Expect failure, because no variantType=BND and end is smaller than start (400).
+    """
+    LOG.debug(f'[30/{TESTS_NUMBER}] Test BND query where end is smaller than start with no variantType, expecting it to fail.')
+    payload = {"referenceName": "2",
+               "mateName": 10,
+               "start": 321681,
+               "end": 123460,
+               "referenceBases": "N",
+               "assemblyId": "GRCh38",
+               "datasetIds": ['urn:hg:1000genome'],
+               "includeDatasetResponses": "HIT"}
+    async with aiohttp.ClientSession() as session:
+        async with session.post('http://localhost:5050/query', data=json.dumps(payload)) as resp:
+            data = await resp.json()
+            assert data['exists'] is None, sys.exit('Query POST Endpoint Error!')
+            assert resp.status == 400, 'HTTP Status code error'
 
 
 async def main():
@@ -670,6 +714,8 @@ async def main():
     await test_26()
     await test_27()
     await test_28()
+    await test_29()
+    await test_30()
     LOG.debug('All integration tests have passed')
 
 
