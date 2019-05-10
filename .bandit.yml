@@ -1,6 +1,5 @@
 
 ### Bandit config file generated from:
-# '/home/stenegru/.pyenv/versions/3.7.2/bin/bandit-config-generator -s B104 -o .bandit.yml'
 
 ### This config may optionally select a subset of tests to run or skip by
 ### filling out the 'tests' and 'skips' lists given below. If no tests are
