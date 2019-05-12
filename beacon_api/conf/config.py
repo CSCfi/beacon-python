@@ -30,6 +30,7 @@ async def init_db_pool():
                                      user=os.environ.get('DATABASE_USER', 'beacon'),
                                      password=os.environ.get('DATABASE_PASSWORD', 'beacon'),
                                      database=os.environ.get('DATABASE_NAME', 'beacondb'),
+                                     # Multiple schemas can be used, and they need to be comma separated
                                      server_settings={'search_path': DB_SCHEMA if DB_SCHEMA else 'public'},
                                      # initializing with 0 connections allows the web server to
                                      # start and also continue to live
