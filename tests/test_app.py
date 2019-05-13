@@ -77,6 +77,16 @@ class AppTestCase(AioHTTPTestCase):
         assert 200 == resp.status
 
     @unittest_run_loop
+    async def test_ga4gh_info(self):
+        """Test the GA4GH Discovery info endpoint.
+
+        The status should always be 200.
+        """
+        with asynctest.mock.patch('beacon_api.app.beacon_info', side_effect={"smth": "value"}):
+            resp = await self.client.request("GET", "/service-info")
+        assert 200 == resp.status
+
+    @unittest_run_loop
     async def test_post_info(self):
         """Test the info endpoint with POST.
 

@@ -8,7 +8,7 @@ import os
 import sys
 import aiohttp_cors
 
-from .api.info import beacon_info
+from .api.info import beacon_info, ga4gh_info
 from .api.query import query_request_handler
 from .conf.config import init_db_pool
 from .schemas import load_schema
@@ -25,7 +25,8 @@ asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 # ----------------------------------------------------------------------------------------------------------------------
 #                                         INFO END POINT OPERATIONS
 # ----------------------------------------------------------------------------------------------------------------------
-@routes.get('/', name='info')
+@routes.get('/')  # For Beacon API Specification
+@routes.get('/service-info')  # For GA4GH Discovery Specification
 async def beacon_get(request):
     """
     Use the HTTP protocol 'GET' to return a Json object of all the necessary info on the beacon and the API.
@@ -35,9 +36,14 @@ async def beacon_get(request):
     :type beacon: Dict
     :return beacon: The method returns an example Beacon characteristic to beacon info endpoint.
     """
-    LOG.info('GET request to the info endpoint "/".')
-    db_pool = request.app['pool']
-    response = await beacon_info(request.host, db_pool)
+    LOG.info('GET request to the info endpoint.')
+    if str(request.rel_url) == '/service-info':
+        LOG.info('Using GA4GH Discovery format for Service Info.')
+        response = await ga4gh_info(request.host)
+    else:
+        LOG.info('Using Beacon API Specification format for Service Info.')
+        db_pool = request.app['pool']
+        response = await beacon_info(request.host, db_pool)
     return web.json_response(response)
 
 

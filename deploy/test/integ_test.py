@@ -698,3 +698,18 @@ async def test_31():
             data = await resp.json()
             assert data['exists'] is True, sys.exit('Query POST Endpoint Error!')
             assert resp.status == 200, 'HTTP Status code error'
+
+
+async def test_32():
+    """Test the GA4GH Discovery info endpoint.
+
+    Discovery endpoint should be smaller than Beacon info endpoint.
+    """
+    LOG.debug('Test GA4GH Discovery info endpoint')
+    async with aiohttp.ClientSession() as session:
+        async with session.get('http://localhost:5050/service-info') as resp:
+            data = await resp.json()
+            # GA4GH Discovery Service-Info is small and its length should be between 3 and 6, when the Beacon info is very long
+            # https://github.com/ga4gh-discovery/service-info/blob/develop/service-info.yaml
+            assert 3 <= len(data) <= 6, 'Service info size error'
+            assert resp.status == 200, 'HTTP Status code error'

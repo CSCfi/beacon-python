@@ -12,6 +12,7 @@ __version__ = CONFIG_INFO.version
 __author__ = CONFIG_INFO.author
 __license__ = CONFIG_INFO.license
 __copyright__ = CONFIG_INFO.copyright
+__docs_url__ = CONFIG_INFO.docs_url
 __handover_drs__ = CONFIG_INFO.handover_drs
 __handover_datasets__ = CONFIG_INFO.handover_datasets
 __handover_beacon__ = CONFIG_INFO.handover_beacon

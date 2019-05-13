@@ -67,7 +67,7 @@ pointing to the location of the file using `CONFIG_FILE` environment variable.
 
 .. literalinclude:: /../beacon_api/conf/config.ini
    :language: python
-   :lines: 1-65
+   :lines: 1-68
 
 .. _oauth2:
 
