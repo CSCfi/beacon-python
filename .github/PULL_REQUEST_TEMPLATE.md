@@ -1,5 +1,3 @@
-# Pull Request Template
-
 ### Description
 
 <!-- Please include a summary of the change or any information deemed important. -->

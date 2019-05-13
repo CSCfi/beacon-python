@@ -9,11 +9,29 @@ and their associated metadata.
 from .. import __apiVersion__, __title__, __version__, __description__, __url__, __alturl__, __handover_beacon__
 from .. import __createtime__, __updatetime__, __org_id__, __org_name__, __org_description__
 from .. import __org_address__, __org_logoUrl__, __org_welcomeUrl__, __org_info__, __org_contactUrl__
-from .. import __sample_queries__, __handover_drs__
+from .. import __sample_queries__, __handover_drs__, __docs_url__
 from ..utils.data_query import fetch_dataset_metadata
 from ..extensions.handover import make_handover
 from aiocache import cached
 from aiocache.serializers import JsonSerializer
+
+
+@cached(ttl=60, key="ga4gh_info", serializer=JsonSerializer())
+async def ga4gh_info(host):
+    """Construct the `Beacon` app information dict in GA4GH Discovery format.
+
+    :return beacon_info: A dict that contain information about the ``Beacon`` endpoint.
+    """
+    beacon_info = {
+        # TO DO implement some fallback mechanism for ID
+        'id': '.'.join(reversed(host.split('.'))),
+        'name': __title__,
+        'description': __description__,
+        'documentationUrl': __docs_url__,
+        'contactUrl': __org_contactUrl__,
+        'version': __version__
+    }
+    return beacon_info
 
 
 @cached(ttl=60, key="info_key", serializer=JsonSerializer())
