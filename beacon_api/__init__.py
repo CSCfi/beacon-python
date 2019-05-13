@@ -5,7 +5,7 @@
 """
 import datetime
 
-from .conf import CONFIG_INFO
+from .conf import CONFIG_INFO, SAMPLE_QUERIES
 
 __title__ = CONFIG_INFO.title
 __version__ = CONFIG_INFO.version
@@ -34,3 +34,5 @@ __org_welcomeUrl__ = CONFIG_INFO.org_welcomeUrl
 __org_contactUrl__ = CONFIG_INFO.org_contactUrl
 __org_logoUrl__ = CONFIG_INFO.org_logoUrl
 __org_info__ = {'orgInfo': CONFIG_INFO.org_info}
+
+__sample_queries__ = SAMPLE_QUERIES
