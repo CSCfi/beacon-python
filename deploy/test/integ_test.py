@@ -15,8 +15,6 @@ logging.basicConfig(format=FORMAT, datefmt='%Y-%m-%d %H:%M:%S')
 LOG = logging.getLogger(__name__)
 LOG.setLevel(logging.DEBUG)
 
-# start does not need to be changed
-TESTS_NUMBER = 31
 DATASET_IDS_LIST = ['urn:hg:1000genome', 'urn:hg:1000genome:registered',
                     'urn:hg:1000genome:controlled', 'urn:hg:1000genome:controlled1']
 
@@ -343,8 +341,6 @@ async def test_15():
 
     Send a query targeting CONTROLLED dataset without token perms. Expect failure (403).
     """
-    global TESTS_NUMBER
-    TESTS_NUMBER += 1
     LOG.debug('Test post query (fail to access controlled data (token, but no perms))')
     payload = {"referenceName": "MT",
                "start": 9,
