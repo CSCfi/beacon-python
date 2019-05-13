@@ -20,7 +20,7 @@ message that contains a ``bona_fide_status`` key. Custom servers can be set up t
 
 .. literalinclude:: /../beacon_api/utils/validate.py
    :language: python
-   :lines: 101-111
+   :lines: 102-112
 
 .. note:: The ``bona_fide_status`` key is provided base on ELIXIR AAI bona fide status of a researcher.
 
