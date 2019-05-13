@@ -59,6 +59,6 @@ def parse_oauth2_config_file(path):
 
 
 OAUTH2_CONFIG = parse_oauth2_config_file(os.environ.get('CONFIG_FILE', os.path.join(os.path.dirname(__file__), 'config.ini')))
-
+# Sample query file should be of format [{BeaconAlleleRequest}] https://github.com/ga4gh-beacon/specification/
 sampleq_file = os.environ.get('SAMPLEQUERY_FILE', os.path.join(os.path.dirname(__file__), 'sample_queries.json'))
 SAMPLE_QUERIES = json.load(open(sampleq_file)) if os.path.isfile(sampleq_file) else []
