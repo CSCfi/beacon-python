@@ -21,7 +21,7 @@ def parse_config_file(path):
         'author': config.get('beacon_general_info', 'author'),
         'license': config.get('beacon_general_info', 'license'),
         'copyright': config.get('beacon_general_info', 'copyright'),
-        'docs_url': config.get('beacon_general_info', 'docsUrl'),
+        'docs_url': config.get('beacon_general_info', 'docs_url'),
         'handover_drs': config.get('handover_info', 'drs', fallback=''),
         'handover_datasets': parse_drspaths(config.get('handover_info', 'dataset_paths', fallback='')),
         'handover_beacon': parse_drspaths(config.get('handover_info', 'beacon_paths', fallback='')),
