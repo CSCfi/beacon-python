@@ -7,12 +7,27 @@ Testing
 Unit Testing
 ------------
 
-In order to run the unit tests and `flake8 <http://flake8.pycqa.org/en/latest/>`_ (coding style guide)
-we are using `tox <http://tox.readthedocs.io/>`_:
+In order to run the unit tests, security checks with `bandit <https://github.com/PyCQA/bandit>`_,
+Sphinx documentation check for links consistency and HTML output
+and `flake8 <http://flake8.pycqa.org/en/latest/>`_ (coding style guide)
+`tox <http://tox.readthedocs.io/>`_. To run the unit tests in parallel use:
 
 .. code-block:: console
 
-    $ tox
+    $ tox -p auto
+
+To run environments seprately use:
+
+.. code-block:: console
+
+    $ # list environments
+    $ tox -l
+    $ # run flake8
+    $ tox -e flake8
+    $ # run bandit
+    $ tox -e bandit
+    $ # run docs
+    $ tox -e docs
 
 
 Integration Testing
@@ -32,13 +47,15 @@ In order to run the integration tests, makes use of :ref:`s2i-build`:
     $ docker-compose exec beacon beacon_init data/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz /exdata/example_metadata_registered.json
     $ docker-compose exec beacon beacon_init data/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz /exdata/example_metadata_controlled.json
     $ docker-compose exec beacon beacon_init data/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz /exdata/example_metadata_controlled1.json
-    $ python test/integ_test.py
+    $ python test/run_tests.py
 
 The integration tests will build a docker image of the ``beacon-python`` and make use of
 `docker compose <https://docs.docker.com/compose/>`_ to deploy the Web Server and an associated
 PostgreSQL Database as well as a mock OAuth2 authentication server.
 Next step is to load mock data, as illustrated by the
 ``docker-compose exec`` commands above, and last step is to run the integration tests.
+
+The ``integ_test.py`` contains the actual tests while the ``run_tests`` discovers the tests and runs them.
 
 
 Load Testing

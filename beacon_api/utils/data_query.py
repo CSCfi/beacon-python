@@ -4,7 +4,6 @@ from datetime import datetime
 from functools import partial
 from .logging import LOG
 from ..api.exceptions import BeaconServerError
-from ..conf.config import DB_SCHEMA
 from ..extensions.handover import add_handover
 from .. import __handover_drs__
 
@@ -70,8 +69,9 @@ async def fetch_datasets_access(db_pool, datasets):
         async with connection.transaction():
             datasets_query = None if not datasets else datasets
             try:
-                query = f"""SELECT accessType, datasetId FROM {DB_SCHEMA}beacon_dataset_table
-                            WHERE coalesce(datasetId = any($1::varchar[]), true);"""
+                query = """SELECT accessType, datasetId FROM beacon_dataset_table
+                           WHERE coalesce(datasetId = any($1::varchar[]), true);
+                           """
                 statement = await connection.prepare(query)
                 db_response = await statement.fetch(datasets_query)
                 for record in list(db_response):
@@ -99,15 +99,16 @@ async def fetch_dataset_metadata(db_pool, datasets=None, access_type=None):
             datasets_query = None if not datasets else datasets
             access_query = None if not access_type else access_type
             try:
-                query = f"""SELECT datasetId as "id", name as "name", accessType as "accessType",
-                            externalUrl as "externalUrl", description as "description",
-                            assemblyId as "assemblyId", variantCount as "variantCount",
-                            callCount as "callCount", sampleCount as "sampleCount",
-                            version as "version", createDateTime as "createDateTime",
-                            updateDateTime as "updateDateTime"
-                            FROM {DB_SCHEMA}dataset_metadata WHERE
-                            coalesce(datasetId = any($1::varchar[]), true)
-                            AND coalesce(accessType = any($2::access_levels[]), true);"""
+                query = """SELECT datasetId as "id", name as "name", accessType as "accessType",
+                           externalUrl as "externalUrl", description as "description",
+                           assemblyId as "assemblyId", variantCount as "variantCount",
+                           callCount as "callCount", sampleCount as "sampleCount",
+                           version as "version", createDateTime as "createDateTime",
+                           updateDateTime as "updateDateTime"
+                           FROM dataset_metadata WHERE
+                           coalesce(datasetId = any($1::varchar[]), true)
+                           AND coalesce(accessType = any($2::access_levels[]), true);
+                           """
                 statement = await connection.prepare(query)
                 db_response = await statement.fetch(datasets_query, access_query)
                 metadata = []
@@ -157,39 +158,41 @@ async def fetch_filtered_dataset(db_pool, assembly_id, position, chromosome, ref
                 if misses:
                     # For MISS and ALL. We have already found all datasets with maching variants,
                     # so now just get one post per accessible, remaining datasets.
-                    query = f"""SELECT DISTINCT ON (datasetId)
-                                datasetId as "datasetId", accessType as "accessType",
-                                '{chromosome}' as "referenceName", False as "exists"
-                                FROM {DB_SCHEMA}beacon_dataset_table
-                                WHERE coalesce(accessType = any($2::access_levels[]), true)
-                                AND assemblyId=$3
-                                AND coalesce(datasetId = any($1::varchar[]), false) ;"""
+                    query = """SELECT DISTINCT ON (datasetId)
+                               datasetId as "datasetId", accessType as "accessType",
+                               $4 as "referenceName", False as "exists"
+                               FROM beacon_dataset_table
+                               WHERE coalesce(accessType = any($2::access_levels[]), true)
+                               AND assemblyId=$3
+                               AND coalesce(datasetId = any($1::varchar[]), false);
+                               """
                     statement = await connection.prepare(query)
-                    db_response = await statement.fetch(datasets_query, access_query, assembly_id)
+                    db_response = await statement.fetch(datasets_query, access_query, assembly_id,
+                                                        chromosome)
 
                 else:
                     # UBER QUERY - TBD if it is what we need
                     # referenceBases, alternateBases and variantType fields are NOT part of beacon's specification response
-                    query = f"""SELECT
-                                a.datasetId as "datasetId", b.accessType as "accessType", a.chromosome as "referenceName",
-                                a.reference as "referenceBases", a.alternate as "alternateBases", a.start as "start", a.end as "end",
-                                b.externalUrl as "externalUrl", b.description as "note",
-                                a.alleleCount as "variantCount", a.variantType as "variantType",
-                                a.callCount as "callCount", b.sampleCount as "sampleCount",
-                                a.frequency, True as "exists"
-                                FROM {DB_SCHEMA}beacon_data_table a, {DB_SCHEMA}beacon_dataset_table b
-                                WHERE a.datasetId=b.datasetId
-                                AND b.assemblyId=$3
-                                AND ($8::integer IS NULL OR a.start=$8)
-                                AND ($9::integer IS NULL OR a.end=$9)
-                                AND ($10::integer IS NULL OR a.start<=$10) AND ($11::integer IS NULL OR a.start>=$11)
-                                AND ($12::integer IS NULL OR a.end>=$12) AND ($13::integer IS NULL OR a.end<=$13)
-                                AND coalesce(a.reference LIKE any($7::varchar[]), true)
-                                AND coalesce(a.variantType=$5, true)
-                                AND coalesce(a.alternate LIKE any($6::varchar[]), true)
-                                AND a.chromosome=$4
-                                AND coalesce(b.accessType = any($2::access_levels[]), true)
-                                AND coalesce(a.datasetId = any($1::varchar[]), false) ;"""
+                    query = """SELECT a.datasetId as "datasetId", b.accessType as "accessType", a.chromosome as "referenceName",
+                               a.reference as "referenceBases", a.alternate as "alternateBases", a.start as "start", a.end as "end",
+                               b.externalUrl as "externalUrl", b.description as "note",
+                               a.alleleCount as "variantCount", a.variantType as "variantType",
+                               a.callCount as "callCount", b.sampleCount as "sampleCount",
+                               a.frequency, True as "exists"
+                               FROM beacon_data_table a, beacon_dataset_table b
+                               WHERE a.datasetId=b.datasetId
+                               AND b.assemblyId=$3
+                               AND ($8::integer IS NULL OR a.start=$8)
+                               AND ($9::integer IS NULL OR a.end=$9)
+                               AND ($10::integer IS NULL OR a.start<=$10) AND ($11::integer IS NULL OR a.start>=$11)
+                               AND ($12::integer IS NULL OR a.end>=$12) AND ($13::integer IS NULL OR a.end<=$13)
+                               AND coalesce(a.reference LIKE any($7::varchar[]), true)
+                               AND coalesce(a.variantType=$5, true)
+                               AND coalesce(a.alternate LIKE any($6::varchar[]), true)
+                               AND a.chromosome=$4
+                               AND coalesce(b.accessType = any($2::access_levels[]), true)
+                               AND coalesce(a.datasetId = any($1::varchar[]), false);
+                               """
 
                     statement = await connection.prepare(query)
                     db_response = await statement.fetch(datasets_query, access_query, assembly_id, chromosome,

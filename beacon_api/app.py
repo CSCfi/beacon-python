@@ -118,5 +118,7 @@ def main():
 
 
 if __name__ == '__main__':
-    assert sys.version_info >= (3, 6), "beacon-python requires python3.6"
+    if sys.version_info < (3, 6):
+        LOG.error("beacon-python requires python3.6")
+        sys.exit(1)
     main()
