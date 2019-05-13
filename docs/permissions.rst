@@ -53,7 +53,7 @@ The permissions are then passed in :meth:`beacon_api.utils.validate` as illustra
 .. literalinclude:: /../beacon_api/utils/validate.py
    :language: python
    :dedent: 16
-   :lines: 169-184
+   :lines: 167-180
 
 If there is no claim for REMS permission as illustrated above, they will not be added to
 ``controlled_datasets``.

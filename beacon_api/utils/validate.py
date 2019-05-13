@@ -76,9 +76,7 @@ def validate(schema):
         @wraps(func)
         async def wrapped(*args):
             request = args[-1]
-            if isinstance(request, web.Request):
-                pass
-            else:
+            if not isinstance(request, web.Request):
                 raise BeaconBadRequest(request, request.host, "invalid request", "This does not seem a valid HTTP Request.")
             try:
                 _, obj = await parse_request_object(request)
@@ -147,9 +145,7 @@ def token_auth():
     """
     @web.middleware
     async def token_middleware(request, handler):
-        if isinstance(request, web.Request):
-            pass
-        else:
+        if not isinstance(request, web.Request):
             raise BeaconBadRequest(request, request.host, "invalid request", "This does not seem a valid HTTP Request.")
         if request.path in ['/query'] and 'Authorization' in request.headers:
             _, obj = await parse_request_object(request)
