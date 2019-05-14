@@ -70,9 +70,9 @@ beacon
 
 ### Using the application
 
-The API has two endpoints, the info endpoint `/` and the query end point `/query`. The info end point
+The API has three endpoints, the info endpoint `/`, a second info endpoint `/service-info` for GA4GH compliancy, and the query end point `/query`. The info end point
 gives the user general info about the Beacon and it's datasets, while the query end point allows to
-retrieve dataset information based on specific parameters.
+retrieve dataset information based on specific parameters. The GA4GH info endpoint serves a minimal data payload.
 
 For information about the endpoints and parameters consult the [Beacon API specification](https://github.com/ga4gh-beacon/specification/blob/develop/beacon.md)
 
@@ -80,6 +80,13 @@ For information about the endpoints and parameters consult the [Beacon API speci
 
 Request:
 - URL: `/`
+- HTTP method: `GET`
+- Parameters: `None`
+
+#### GA4GH Info endpoint
+
+Request:
+- URL: `/service-info`
 - HTTP method: `GET`
 - Parameters: `None`
 

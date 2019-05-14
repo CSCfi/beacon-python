@@ -4,6 +4,7 @@ Beacon API Examples
 The Beacon API consists of the following endpoints:
 
 * ``/`` beacon information endpoint;
+* ``/service-info`` GA4GH compliant information endpoint;
 * ``/query`` - retrieving and filtering information from the beacon.
 
 For the full specification consult: `Beacon API 1.0.0+ specification <https://github.com/ga4gh-beacon/specification>`_.
@@ -14,6 +15,11 @@ The Beacon API specification allows for additional properties, thus we add the f
 * ``referenceBases``
 * ``alternateBases``
 * ``variantType``
+
+And variant location information to determine the region:
+
+* ``start``
+* ``end``
 
 The requests are validated against a JSON schema, while for the responses we validate (via unit tests)
 that they adhere to the required format.
@@ -94,6 +100,26 @@ Example Response:
         "key": "value"
       }
     }
+
+GA4GH Info Endpoint
+-------------------------------------
+
+.. code-block:: console
+
+    $ curl -X GET 'http://localhost:5050/service-info'
+
+Example Response:
+
+.. code-block:: javascript
+
+  {
+    "id": "localhost:5050",
+    "name": "GA4GHBeacon at CSC",
+    "description": "Beacon API Web Server based on the GA4GH Beacon API",
+    "documentationUrl": "https://beacon-python.readthedocs.io/en/latest/",
+    "contactUrl": "https://www.csc.fi/contact-info",
+    "version": "1.3.0"
+  }
 
 Query Endpoint
 --------------
