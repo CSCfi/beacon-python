@@ -79,7 +79,7 @@ The configuration variables reside in the same `CONFIG_FILE` as described above 
 
 .. literalinclude:: /../beacon_api/conf/config.ini
    :language: python
-   :lines: 87-95
+   :lines: 90-98
 
 ``server`` should point to an API that returns a public key which can be used to validate the received Bearer token.
 ``issuers`` is a string of comma separated values, e.g. `one,two,three` without spaces. The issuers string contains

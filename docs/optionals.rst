@@ -17,7 +17,7 @@ The handover protocol can be configured in ``config.ini`` as follows:
 
 .. literalinclude:: /../beacon_api/conf/config.ini
    :language: python
-   :lines: 68-84
+   :lines: 71-87
 
 .. note:: Handover protocol is disabled by default, as shown by the commented out ``drs`` variable. This variable should point
           to the server, which serves the additional data. To enable the handover protocol, uncomment the ``drs`` variable.
