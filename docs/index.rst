@@ -32,6 +32,8 @@ Out of the box the ``beacon-python`` offers:
 * 1000 genome dataset loader - see :ref:`genome-dataset` instructions;
 * deployment `Docker container <https://hub.docker.com/r/cscfi/beacon-python/>`_.
 
+.. note:: ``beacon-python`` and all it sources are released under *Apache License 2.0*.
+
 ----
 
 Table of Contents
