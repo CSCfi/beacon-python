@@ -97,6 +97,10 @@ Request:
 - HTTP method: `GET` and `POST`
 - Parameters: Refer to [Beacon API specification](https://github.com/ga4gh-beacon/specification/blob/develop/beacon.md) for full list of parameters.
 
+### License
+
+`beacon-python` and all it sources are released under `Apache License 2.0`.
+
 ### Acknowledgements
 
 We would like to acknowledge the valuable feedback from the members of [NBIS](https://nbis.se/) and [DDBJ](https://www.ddbj.nig.ac.jp), whose ideas and contributions have helped to make the Beacon services more robust.
