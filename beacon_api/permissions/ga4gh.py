@@ -1,6 +1,6 @@
 """Parse permissions from ELIXIR token for GA4GH claim.
 
-Current implementation is based on https://github.com/CSCfi/elixir-rems-proxy/blob/master/permissions-api.yml
+Current implementation is based on https://github.com/CSCfi/elixir-rems-proxy/blob/2.0/permissions-api.yml
 
 The JWT contains GA4GH DURI claims in the following form:
 
@@ -67,10 +67,8 @@ async def get_ga4gh_controlled(token, token_claim):
         ga4gh = await retrieve_dataset_permissions(token)
         # If the /userinfo endpoint responded with permissions, retrieve and parse them
         if 'ControlledAccessGrants' in ga4gh:
-            # Found permissions
-            for permission in ga4gh["ControlledAccessGrants"]:
-                # Extract dataset key and split by `/` to remove potential URL prefix
-                # the dataset id in the resulting list will always be the last element
-                datasets.add(permission["value"].split('/')[-1])
+            # Extract dataset key and split by `/` to remove potential URL prefix
+            # the dataset id in the resulting list will always be the last element
+            datasets.update([p["value"].split('/')[-1] for p in ga4gh["ControlledAccessGrants"]])
 
     return datasets
