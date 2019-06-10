@@ -4,6 +4,7 @@ from beacon_api.utils.db_load import parse_arguments, init_beacon_db, main
 from beacon_api.conf.config import init_db_pool
 from beacon_api.api.query import access_resolution
 from beacon_api.permissions.rems import get_rems_controlled
+from beacon_api.permissions.ga4gh import get_ga4gh_controlled
 from .test_app import PARAMS
 from testfixtures import TempDirectory
 
@@ -286,6 +287,42 @@ class TestBasicFunctions(asynctest.TestCase):
         self.assertCountEqual(get_rems_controlled(claim),
                               ['EGAD01', 'urn:hg:example-controlled',
                                'urn:hg:example-controlled3', 'EGAD02'])
+
+    @asynctest.mock.patch('beacon_api.permissions.ga4gh.retrieve_dataset_permissions')
+    async def test_ga4gh_controlled(self, userinfo):
+        """Test ga4gh permissions claim parsing."""
+        userinfo.return_value = {
+            "ControlledAccessGrants": [
+                {
+                    "value": "https://www.ebi.ac.uk/ega/EGAD000000000001",
+                    "source": "https://ega-archive.org/dacs/EGAC00000000001",
+                    "by": "dac",
+                    "authoriser": "john.doe@dac.org",
+                    "asserted": 1546300800,
+                    "expires": 1577836800
+                },
+                {
+                    "value": "https://www.ebi.ac.uk/ega/EGAD000000000002",
+                    "source": "https://ega-archive.org/dacs/EGAC00000000001",
+                    "by": "dac",
+                    "authoriser": "john.doe@dac.org",
+                    "asserted": 1546300800,
+                    "expires": 1577836800
+                },
+                {
+                    "value": "no-prefix-dataset",
+                    "source": "https://ega-archive.org/dacs/EGAC00000000001",
+                    "by": "dac",
+                    "authoriser": "john.doe@dac.org",
+                    "asserted": 1546300800,
+                    "expires": 1577836800
+                }
+            ]
+        }
+        token_claim = ["ControlledAccessGrants"]
+        token = 'this_is_a_jwt'
+        datasets = await get_ga4gh_controlled(token, token_claim)
+        self.assertEqual(datasets, {'EGAD000000000001', 'EGAD000000000002', 'no-prefix-dataset'})
 
 
 if __name__ == '__main__':
