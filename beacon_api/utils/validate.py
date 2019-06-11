@@ -161,8 +161,9 @@ def token_auth():
             key = await get_key()
             issuers = OAUTH2_CONFIG.issuers.split(',')
             aud = os.environ.get('JWT_AUD', OAUTH2_CONFIG.audience)  # defaults to `None` if neither is given
+            verify_aud = OAUTH2_CONFIG.verify_aud  # Option to skip verification of `aud` claim
             try:
-                decodedData = jwt.decode(token, key, issuer=issuers, audience=aud)
+                decodedData = jwt.decode(token, key, issuer=issuers, audience=aud, options={'verify_aud': verify_aud})
                 LOG.info('Auth Token Decoded.')
                 LOG.info(f'Identified as {decodedData["sub"]} user by {decodedData["iss"]}.')
                 # for now the permissions just reflects that the data can be decoded from token

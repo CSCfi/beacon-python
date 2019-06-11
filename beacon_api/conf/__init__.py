@@ -4,6 +4,7 @@ import json
 import os
 from configparser import ConfigParser
 from collections import namedtuple
+from distutils.util import strtobool
 
 
 def parse_drspaths(paths):
@@ -55,7 +56,8 @@ def parse_oauth2_config_file(path):
         'server': config.get('oauth2', 'server'),
         'issuers': config.get('oauth2', 'issuers'),
         'bona_fide': config.get('oauth2', 'bona_fide'),
-        'audience': config.get('oauth2', 'audience') or None
+        'audience': config.get('oauth2', 'audience') or None,
+        'verify_aud': strtobool(config.get('oauth2', 'verify_aud'))
     }
     return namedtuple("Config", config_vars.keys())(*config_vars.values())
 
