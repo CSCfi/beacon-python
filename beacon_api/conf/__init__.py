@@ -54,7 +54,8 @@ def parse_oauth2_config_file(path):
     config_vars = {
         'server': config.get('oauth2', 'server'),
         'issuers': config.get('oauth2', 'issuers'),
-        'bona_fide': config.get('oauth2', 'bona_fide')
+        'bona_fide': config.get('oauth2', 'bona_fide'),
+        'audience': config.get('oauth2', 'audience') or None
     }
     return namedtuple("Config", config_vars.keys())(*config_vars.values())
 

@@ -160,8 +160,9 @@ def token_auth():
 
             key = await get_key()
             issuers = OAUTH2_CONFIG.issuers.split(',')
+            aud = os.environ.get('JWT_AUD', OAUTH2_CONFIG.audience)  # defaults to `None` if neither is given
             try:
-                decodedData = jwt.decode(token, key, issuer=issuers)
+                decodedData = jwt.decode(token, key, issuer=issuers, audience=aud)
                 LOG.info('Auth Token Decoded.')
                 LOG.info(f'Identified as {decodedData["sub"]} user by {decodedData["iss"]}.')
                 # for now the permissions just reflects that the data can be decoded from token
