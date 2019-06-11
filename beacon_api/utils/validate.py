@@ -177,7 +177,7 @@ def token_auth():
                 controlled_datasets.update(get_rems_controlled(decodedData["permissions_rems"]) if "permissions_rems" in decodedData else {})
                 # For GA4GH DURI permissions (ELIXIR Permissions API 2.0)
                 controlled_datasets.update(await get_ga4gh_controlled(token,
-                                                                      decodedData["ga4gh.userinfo_claims"]) if "ga4gh.userinfo_claims" in decodedData else {})
+                                                                      decodedData["ga4gh_userinfo_claims"]) if "ga4gh_userinfo_claims" in decodedData else {})
                 all_controlled = list(controlled_datasets) if bool(controlled_datasets) else None
                 request["token"] = {"bona_fide_status": True if await check_bona_fide_status(token, obj, request.host) is not None else False,
                                     # permissions key will hold the actual permissions found in the token e.g. REMS permissions
