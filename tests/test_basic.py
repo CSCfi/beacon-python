@@ -319,7 +319,7 @@ class TestBasicFunctions(asynctest.TestCase):
                 }
             ]
         }
-        token_claim = ["ControlledAccessGrants"]
+        token_claim = ["ga4gh.ControlledAccessGrants"]
         token = 'this_is_a_jwt'
         datasets = await get_ga4gh_controlled(token, token_claim)
         self.assertEqual(datasets, {'EGAD000000000001', 'EGAD000000000002', 'no-prefix-dataset'})
