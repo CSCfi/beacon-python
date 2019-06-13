@@ -62,7 +62,7 @@ async def get_ga4gh_controlled(token, token_claim):
     LOG.info("Parsing GA4GH permissions.")
     datasets = set()
     # Check if the token contains a claim for GA4GH permissions
-    if 'ControlledAccessGrants' in token_claim:
+    if 'ga4gh.ControlledAccessGrants' in token_claim:
         # Contact /userinfo with token to get GA4GH permissions
         ga4gh = await retrieve_dataset_permissions(token)
         # If the /userinfo endpoint responded with permissions, retrieve and parse them
