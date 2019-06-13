@@ -15,7 +15,7 @@ We have templates for submitting new issues, that you can fill out. For example 
 
 ### Submitting changes
 
-When you made some changes you are happy with please send a [GitHub Pull Request to beacon-python](https://github.com/CSCfi/beacon-python/pull/new/master) with a clear list of what you've done (read more about [pull requests](https://help.github.com/en/articles/about-pull-requests)). When you create that Pull Request, we will forever be in your debt if you include unit tests. For extra bonus points you can always use add some more integration tests.
+When you made some changes you are happy with please send a [GitHub Pull Request to beacon-python](https://github.com/CSCfi/beacon-python/pull/new/dev) to `dev` branch with a clear list of what you've done (read more about [pull requests](https://help.github.com/en/articles/about-pull-requests)). When you create that Pull Request, we will forever be in your debt if you include unit tests. For extra bonus points you can always use add some more integration tests.
 
 Please follow our Git branches model and coding conventions (both below), and make sure all of your commits are atomic (preferably one feature per commit) and it is recommended a Pull Request addresses one functionality or fixes one bug.
 
@@ -24,6 +24,9 @@ Always write a clear log message for your commits, and if there is an issue open
 Once submitted, the Pull Request will go through a review process, meaning we will judge your code :smile:.
 
 #### Git Branches
+
+We use `dev` branch as the main development branch and `master` as the releases branch.
+All Pull Requests related to features should be done agains `dev` branch, releases Pull Requests should be done agains `master` branch.
 
 Give your branch a short descriptive name (like the names between the `<>` below) and prefix the name with something representative for that branch:
 
