@@ -8,10 +8,10 @@ The JWT contains GA4GH DURI claims in the following form:
 
     {
         "ga4gh.userinfo_claims": [
-            "AffiliationAndRole",
-            "ControlledAccessGrants",
-            "AcceptedTermsAndPolicies",
-            "ResearcherStatus"
+            "ga4gh.AffiliationAndRole",
+            "ga4gh.ControlledAccessGrants",
+            "ga4gh.AcceptedTermsAndPolicies",
+            "ga4gh.ResearcherStatus"
         ]
     }
 
