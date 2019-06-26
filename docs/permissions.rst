@@ -16,13 +16,21 @@ Registered Data
 
 For retrieving ``REGISTERED`` permissions the function below forwards the TOKEN to another server
 that validates the information in the token is for a registered user/token and retrieves a JSON
-message that contains a ``bona_fide_status`` key. Custom servers can be set up to mimic this functionality.
+message that contains data regarding the Bona Fide status. Custom servers can be set up to mimic this functionality.
 
-.. literalinclude:: /../beacon_api/utils/validate.py
+.. literalinclude:: /../beacon_api/permissions/ga4gh.py
    :language: python
-   :lines: 102-112
+   :lines: 72-82
 
-.. note:: The ``bona_fide_status`` key is provided base on ELIXIR AAI bona fide status of a researcher.
+The function below then checks for the existence of the ``ga4gh.AcceptedTermsAndPolicies`` and ``ga4gh.ResearcherStatus`` keys,
+which will indicate, that the user has agreed to follow ethical researcher practices, and has been recognised by another esteemed
+researcher.
+
+.. literalinclude:: /../beacon_api/permissions/ga4gh.py
+   :language: python
+   :lines: 103-128
+
+.. note:: The ``ga4gh.AcceptedTermsAndPolicies`` and ``ga4gh.ResearcherStatus`` keys' values must be equal to those mandated by GA4GH.
 
 Controlled Data
 ---------------
@@ -38,24 +46,24 @@ The main reason for choosing such a method of handling dataset permissions, is t
 there is no standard way for delivering access to datasets via JWT Tokens
 and each AAI authority provides different claims with different structures.
 
-By default we include :meth:`beacon_api.permissions.rems` add-on that offers a means to retrieve
-permissions from `REMS <https://rems2docs.rahtiapp.fi/>`_ via a token provided by ELIXIR AAI.
+By default we include :meth:`beacon_api.permissions.ga4gh` add-on that offers the means to retrieve
+permissions following the `GA4GH format <https://docs.google.com/document/d/11Wg-uL75ypU5eNu2p_xh9gspmbGtmLzmdq5VfPHBirE>`_ via a token provided by ELIXIR AAI.
 
-If a token contains ``permissions_rems`` JWT claim with dataset permissions, these are parsed
+If a token contains ``ga4gh_userinfo_claims`` JWT claim with ``ga4gh.ControlledAccessGrants``, these are parsed
 and retrieved as illustrated in:
 
-.. literalinclude:: /../beacon_api/permissions/rems.py
+.. literalinclude:: /../beacon_api/permissions/ga4gh.py
    :language: python
-   :lines: 34-42
+   :lines: 85-100
 
 The permissions are then passed in :meth:`beacon_api.utils.validate` as illustrated below:
 
 .. literalinclude:: /../beacon_api/utils/validate.py
    :language: python
    :dedent: 16
-   :lines: 167-180
+   :lines: 153-165
 
-If there is no claim for REMS permission as illustrated above, they will not be added to
+If there is no claim for GA4GH permissions as illustrated above, they will not be added to
 ``controlled_datasets``.
 
 More datasets can be added to the ``controlled_datasets`` ``set()`` by updating:
@@ -67,7 +75,7 @@ More datasets can be added to the ``controlled_datasets`` ``set()`` by updating:
 
 where ``custom_add_on()`` is a function one could add in :meth:`beacon_api.permissions`.
 
-An example of such a function is :meth:`beacon_api.permissions.rems` and the specific JWT claim it should parse.
+Examples of such functions are :meth:`beacon_api.permissions.ga4gh` and the deprecated :meth:`beacon_api.permissions.rems` that parse two different kinds of JWT claims.
 
 .. attention:: JWT is validated against an AAI OAuth2 signing authority with the public key.
                This public key can be provided  either a JWK server or the environment variable

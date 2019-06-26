@@ -13,8 +13,7 @@ from aiocache import cached
 from aiocache.serializers import JsonSerializer
 from ..api.exceptions import BeaconUnauthorised, BeaconBadRequest, BeaconForbidden, BeaconServerError
 from ..conf import OAUTH2_CONFIG
-from ..permissions.rems import get_rems_controlled
-from ..permissions.ga4gh import get_ga4gh_controlled
+from ..permissions.ga4gh import get_ga4gh_controlled, get_ga4gh_bona_fide
 from jsonschema import Draft7Validator, validators
 from jsonschema.exceptions import ValidationError
 
@@ -100,19 +99,6 @@ def validate(schema):
     return wrapper
 
 
-async def check_bona_fide_status(token, obj, host):
-    """Check user details bona_fide_status."""
-    headers = {"Authorization": f"Bearer {token}"}
-    try:
-        async with aiohttp.ClientSession(headers=headers) as session:
-            async with session.get(OAUTH2_CONFIG.bona_fide) as r:
-                json_body = await r.json()
-                LOG.info('Retrieve a user\'s bona_fide_status.')
-                return json_body.get("bona_fide_status", None)
-    except Exception:
-        raise BeaconServerError("Could not retrieve ELIXIR AAI bona fide status.")
-
-
 # This can be something that lives longer as it is unlikely to change
 @cached(ttl=3600, key="jwk_key", serializer=JsonSerializer())
 async def get_key():
@@ -171,15 +157,15 @@ def token_auth():
                 # the bona fide status is checked against ELIXIR AAI by default or the URL from config
                 # the bona_fide_status is specific to ELIXIR Tokens
                 controlled_datasets = set()
-                # currently we offer modules for parsing REMS and GA4GH permissions, but multiple claims and providers can be utilised
+                # currently we offer module for parsing GA4GH permissions, but multiple claims and providers can be utilised
                 # by updating the set, meaning replicating the line below with the permissions function and its associated claim
-                # For REMS permissions (ELIXIR Permissions API 1.2)
-                controlled_datasets.update(get_rems_controlled(decodedData["permissions_rems"]) if "permissions_rems" in decodedData else {})
                 # For GA4GH DURI permissions (ELIXIR Permissions API 2.0)
                 controlled_datasets.update(await get_ga4gh_controlled(token,
                                                                       decodedData["ga4gh_userinfo_claims"]) if "ga4gh_userinfo_claims" in decodedData else {})
                 all_controlled = list(controlled_datasets) if bool(controlled_datasets) else None
-                request["token"] = {"bona_fide_status": True if await check_bona_fide_status(token, obj, request.host) is not None else False,
+                # For Bona Fide status in GA4GH format
+                bona_fide_status = await get_ga4gh_bona_fide(token, decodedData["ga4gh_userinfo_claims"]) if "ga4gh_userinfo_claims" in decodedData else False
+                request["token"] = {"bona_fide_status": bona_fide_status,
                                     # permissions key will hold the actual permissions found in the token e.g. REMS permissions
                                     "permissions": all_controlled,
                                     # additional checks can be performed against this authenticated key

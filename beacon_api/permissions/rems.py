@@ -1,5 +1,8 @@
 """Parse permissions from ELIXIR token for REMS claim.
 
+IMPORTANT: ELIXIR Permissions API 1.2 deprecated by ELIXIR AAI as of June 24th 2019, use `ga4gh.py` instead.
+This file is kept as a piece of history and as an example of how to create custom permissions modules.
+
 Current implementation is based on https://app.swaggerhub.com/apis-docs/ELIXIR-Finland/Permissions/1.2
 where they JWT claim for permissions is ``permissions_rems`` and the permissions have the following format:
 
