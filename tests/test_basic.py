@@ -3,8 +3,7 @@ import aiohttp
 from beacon_api.utils.db_load import parse_arguments, init_beacon_db, main
 from beacon_api.conf.config import init_db_pool
 from beacon_api.api.query import access_resolution
-from beacon_api.permissions.rems import get_rems_controlled
-from beacon_api.permissions.ga4gh import get_ga4gh_controlled
+from beacon_api.permissions.ga4gh import get_ga4gh_controlled, get_ga4gh_bona_fide
 from .test_app import PARAMS
 from testfixtures import TempDirectory
 
@@ -273,22 +272,23 @@ class TestBasicFunctions(asynctest.TestCase):
         with self.assertRaises(aiohttp.web_exceptions.HTTPForbidden):
             access_resolution(request, token, host, [], [], [8])
 
-    def test_rems_controlled(self):
-        """Test rems permissions claim parsing."""
-        claim = [{"affiliation": "",
-                  "datasets": ["EGAD01", "urn:hg:example-controlled"],
-                  "source_signature": "",
-                  "url_prefix": ""},
-                 {"affiliation": "",
-                  "datasets": ["urn:hg:example-controlled", "EGAD02",
-                               "urn:hg:example-controlled3"],
-                  "source_signature": "",
-                  "url_prefix": ""}]
-        self.assertCountEqual(get_rems_controlled(claim),
-                              ['EGAD01', 'urn:hg:example-controlled',
-                               'urn:hg:example-controlled3', 'EGAD02'])
+    # rems.py is deprecated
+    # def test_rems_controlled(self):
+    #     """Test rems permissions claim parsing."""
+    #     claim = [{"affiliation": "",
+    #               "datasets": ["EGAD01", "urn:hg:example-controlled"],
+    #               "source_signature": "",
+    #               "url_prefix": ""},
+    #              {"affiliation": "",
+    #               "datasets": ["urn:hg:example-controlled", "EGAD02",
+    #                            "urn:hg:example-controlled3"],
+    #               "source_signature": "",
+    #               "url_prefix": ""}]
+    #     self.assertCountEqual(get_rems_controlled(claim),
+    #                           ['EGAD01', 'urn:hg:example-controlled',
+    #                            'urn:hg:example-controlled3', 'EGAD02'])
 
-    @asynctest.mock.patch('beacon_api.permissions.ga4gh.retrieve_dataset_permissions')
+    @asynctest.mock.patch('beacon_api.permissions.ga4gh.retrieve_user_data')
     async def test_ga4gh_controlled(self, userinfo):
         """Test ga4gh permissions claim parsing."""
         userinfo.return_value = {
@@ -323,6 +323,65 @@ class TestBasicFunctions(asynctest.TestCase):
         token = 'this_is_a_jwt'
         datasets = await get_ga4gh_controlled(token, token_claim)
         self.assertEqual(datasets, {'EGAD000000000001', 'EGAD000000000002', 'no-prefix-dataset'})
+
+    @asynctest.mock.patch('beacon_api.permissions.ga4gh.retrieve_user_data')
+    async def test_ga4gh_bona_fide(self, userinfo):
+        """Test ga4gh statuses claim parsing."""
+        userinfo.return_value = {
+            "AcceptedTermsAndPolicies": [
+                {
+                    "value": "https://doi.org/10.1038/s41431-018-0219-y",
+                    "source": "https://ga4gh.org/duri/no_org",
+                    "by": "self",
+                    "asserted": 1539069213,
+                    "expires": 4694742813
+                }
+            ],
+            "ResearcherStatus": [
+                {
+                    "value": "https://doi.org/10.1038/s41431-018-0219-y",
+                    "source": "https://ga4gh.org/duri/no_org",
+                    "by": "peer",
+                    "asserted": 1539017776,
+                    "expires": 1593165413
+                }
+            ]
+        }
+        token_claim = ["ga4gh.AcceptedTermsAndPolicies", "ga4gh.ResearcherStatus"]
+        token = 'this_is_a_jwt'
+        bona_fide_status = await get_ga4gh_bona_fide(token, token_claim)
+        self.assertEqual(bona_fide_status, True)  # has bona fide
+
+        userinfo.return_value = {
+            "AcceptedTermsAndPolicies": [
+                {
+                    "value": "https://doi.org/10.1038/s41431-018-0219-y",
+                    "source": "https://ga4gh.org/duri/no_org",
+                    "by": "self",
+                    "asserted": 1539069213,
+                    "expires": 4694742813
+                }
+            ],
+            "ResearcherStatus": [
+                {
+                    "value": "https://doi.org/10.1038/s41431-018-0219-y",
+                    "source": "https://ga4gh.org/duri/no_org",
+                    "by": "peer",
+                    "asserted": 1539017776,
+                    "expires": 1593165413
+                }
+            ]
+        }
+        token_claim = []
+        token = 'this_is_a_jwt'
+        bona_fide_status = await get_ga4gh_bona_fide(token, token_claim)
+        self.assertEqual(bona_fide_status, False)  # doesn't have bona fide
+
+        userinfo.return_value = {}
+        token_claim = []
+        token = 'this_is_a_jwt'
+        bona_fide_status = await get_ga4gh_bona_fide(token, token_claim)
+        self.assertEqual(bona_fide_status, False)  # doesn't have bona fide
 
 
 if __name__ == '__main__':
