@@ -2,7 +2,7 @@ from beacon_api.api.info import beacon_info
 from beacon_api.api.query import query_request_handler
 import asynctest
 from beacon_api.schemas import load_schema
-from beacon_api.utils.validate import check_bona_fide_status, get_key
+from beacon_api.utils.validate import get_key
 import jsonschema
 import json
 import aiohttp
@@ -103,19 +103,19 @@ class TestBasicFunctions(asynctest.TestCase):
             json.dumps(result)), load_schema('response')), None)
         data_find.assert_called()
 
-    @aioresponses()
-    async def test_get_bona_fide(self, m):
-        """Test retrieve bona_fide_status."""
-        m.get("https://login.elixir-czech.org/oidc/userinfo", payload=dict(bona_fide_status="smth"))
-        result = await check_bona_fide_status("token", {}, 'localhost')
-        self.assertEqual(result, "smth")
+    # @aioresponses()
+    # async def test_get_bona_fide(self, m):
+    #     """Test retrieve bona_fide_status."""
+    #     m.get("https://login.elixir-czech.org/oidc/userinfo", payload=dict(bona_fide_status="smth"))
+    #     result = await check_bona_fide_status("token", {}, 'localhost')
+    #     self.assertEqual(result, "smth")
 
-    @aioresponses()
-    async def test_bad_get_bona_fide(self, m):
-        """Test bad retrieve bona_fide_status."""
-        m.get("https://login.elixir-czech.org/oidc/userinfo", status=400)
-        with self.assertRaises(aiohttp.web_exceptions.HTTPInternalServerError):
-            await check_bona_fide_status("token", {}, 'localhost')
+    # @aioresponses()
+    # async def test_bad_get_bona_fide(self, m):
+    #     """Test bad retrieve bona_fide_status."""
+    #     m.get("https://login.elixir-czech.org/oidc/userinfo", status=400)
+    #     with self.assertRaises(aiohttp.web_exceptions.HTTPInternalServerError):
+    #         await check_bona_fide_status("token", {}, 'localhost')
 
     @aioresponses()
     async def test_get_key(self, m):

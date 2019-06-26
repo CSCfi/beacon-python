@@ -176,11 +176,10 @@ class AppTestCase(AioHTTPTestCase):
         resp = await self.client.request("POST", "/query", data=json.dumps(bad_start))
         assert 400 == resp.status
 
-    @asynctest.mock.patch('beacon_api.utils.validate.check_bona_fide_status', side_effect={'bona_fide_status': "ftw"})
     @asynctest.mock.patch('beacon_api.app.parse_request_object', side_effect=mock_parse_request_object)
     @asynctest.mock.patch('beacon_api.app.query_request_handler')
     @unittest_run_loop
-    async def test_good_start_post_query(self, mock_handler, mock_object, bona_fide):
+    async def test_good_start_post_query(self, mock_handler, mock_object):
         """Test good start combination POST query endpoint."""
         good_start = {"referenceName": "MT",
                       "start": 10,
@@ -192,11 +191,10 @@ class AppTestCase(AioHTTPTestCase):
         resp = await self.client.request("POST", "/query", data=json.dumps(good_start))
         assert 200 == resp.status
 
-    @asynctest.mock.patch('beacon_api.utils.validate.check_bona_fide_status', side_effect={'bona_fide_status': "ftw"})
     @asynctest.mock.patch('beacon_api.app.parse_request_object', side_effect=mock_parse_request_object)
     @asynctest.mock.patch('beacon_api.app.query_request_handler')
     @unittest_run_loop
-    async def test_good_start2_post_query(self, mock_handler, mock_object, bona_fide):
+    async def test_good_start2_post_query(self, mock_handler, mock_object):
         """Test good start combination 2 POST query endpoint."""
         good_start = {"referenceName": "MT",
                       "start": 10,
@@ -209,11 +207,10 @@ class AppTestCase(AioHTTPTestCase):
         resp = await self.client.request("POST", "/query", data=json.dumps(good_start))
         assert 200 == resp.status
 
-    @asynctest.mock.patch('beacon_api.utils.validate.check_bona_fide_status', side_effect={'bona_fide_status': "ftw"})
     @asynctest.mock.patch('beacon_api.app.parse_request_object', side_effect=mock_parse_request_object)
     @asynctest.mock.patch('beacon_api.app.query_request_handler')
     @unittest_run_loop
-    async def test_good_start3_post_query(self, mock_handler, mock_object, bona_fide):
+    async def test_good_start3_post_query(self, mock_handler, mock_object):
         """Test good start combination 3 POST query endpoint."""
         good_start = {"referenceName": "MT",
                       "startMin": 10,
@@ -250,11 +247,10 @@ class AppTestCase(AioHTTPTestCase):
                                          headers={'Authorization': "SMTH x"})
         assert 401 == resp.status
 
-    @asynctest.mock.patch('beacon_api.utils.validate.check_bona_fide_status', side_effect={'bona_fide_status': "ftw"})
     @asynctest.mock.patch('beacon_api.app.parse_request_object', side_effect=mock_parse_request_object)
     @asynctest.mock.patch('beacon_api.app.query_request_handler', side_effect=json.dumps(PARAMS))
     @unittest_run_loop
-    async def test_valid_token_get_query(self, mock_handler, mock_object, bona_fide):
+    async def test_valid_token_get_query(self, mock_handler, mock_object):
         """Test valid token GET query endpoint, invalid scheme."""
         token = os.environ.get('TOKEN')
         resp = await self.client.request("POST", "/query",
