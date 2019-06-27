@@ -22,11 +22,55 @@ async def jwk(request):
 
 
 async def userinfo(request):
-    """Mock an authentication to ELIXIR AAI bona_fide."""
+    """Mock an authentication to ELIXIR AAI for GA4GH claims."""
     if request.headers.get('Authorization').split(' ')[1] == TOKEN_EMPTY:
         data = {}
     else:
-        data = {'bona_fide_status': "yes we can"}
+        data = {
+            "ga4gh": {
+                "AcceptedTermsAndPolicies": [
+                    {
+                        "value": "https://doi.org/10.1038/s41431-018-0219-y",
+                        "source": "https://ga4gh.org/duri/no_org",
+                        "by": "self",
+                        "asserted": 1539069213,
+                        "expires": 9999999999
+                    }
+                ],
+                "ResearcherStatus": [
+                    {
+                        "value": "https://doi.org/10.1038/s41431-018-0219-y",
+                        "source": "https://ga4gh.org/duri/no_org",
+                        "by": "peer",
+                        "asserted": 1539017776,
+                        "expires": 9999999999
+                    }
+                ],
+                "ControlledAccessGrants": [
+                    {
+                        "value": "https://www.ebi.ac.uk/ega/urn:hg:1000genome",
+                        "source": "https://ga4gh.org/duri/no_org",
+                        "by": "dac",
+                        "asserted": 1559893314,
+                        "expires": 9999999999
+                    },
+                    {
+                        "value": "https://www.ebi.ac.uk/ega/urn:hg:1000genome:controlled",
+                        "source": "https://ga4gh.org/duri/no_org",
+                        "by": "dac",
+                        "asserted": 1559897355,
+                        "expires": 9999999999
+                    },
+                    {
+                        "value": "https://www.ebi.ac.uk/ega/urn:hg:1000genome:controlled1",
+                        "source": "https://ga4gh.org/duri/no_org",
+                        "by": "dac",
+                        "asserted": 1560169441,
+                        "expires": 9999999999
+                    }
+                ]
+            }
+        }
     return web.json_response(data)
 
 
