@@ -6,7 +6,7 @@ respond and have the loaded data.
 
 import aiohttp
 import sys
-
+import requests
 import json
 import logging
 
@@ -18,21 +18,13 @@ LOG.setLevel(logging.DEBUG)
 DATASET_IDS_LIST = ['urn:hg:1000genome', 'urn:hg:1000genome:registered',
                     'urn:hg:1000genome:controlled', 'urn:hg:1000genome:controlled1']
 
-TOKEN = "eyJraWQiOiJyc2ExIiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiJyZXF1ZXN0ZXJAZWxpeGlyL\
-WV1cm9wZS5vcmciLCJwZXJtaXNzaW9uc19yZW1zIjpbeyJhZmZpbGlhdGlvbiI6IiIsImRhdGFzZXRzIj\
-pbImRhdGFzZXQ6ZnJvbTphbm90aGVyOmJlYWNvbiIsInVybjpoZzoxMDAwZ2Vub21lOmNvbnRyb2xsZWQ\
-iXSwic291cmNlX3NpZ25hdHVyZSI6IiIsInVybF9wcmVmaXgiOiIifV0sImlzcyI6Imh0dHA6Ly9zb21l\
-Ym9keS5jb20iLCJleHAiOjk5OTk5OTk5OTk5LCJpYXQiOjE1NDc3OTQ2NTUsImp0aSI6IjZhZDdhYTQyL\
-TNlOWMtNDgzMy1iZDE2LTc2NWNiODBjMjEwMiJ9.YQ50vcOKRNsyJrMKq7N-A4MtGxLilWVq0HDl4gUut\
-FpbNMD4DEA8r4vqZpa08nL_5i01byD4_Y8G_AtJV9kEeW5Xu_19AELmDWnvyCi_ayAm46xcFcsUwcr7zo\
-m-WIYtpkc8MP4aAlVAvHUjzxt5eHsQNpuJ4yo-dA3pB9VRsZo"
+TOKEN = None
+TOKEN_EMPTY = None
 
-TOKEN_EMPTY = "eyJraWQiOiJyc2ExIiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiJyZXF1ZXN0ZXJAZWx\
-peGlyLWV1cm9wZS5vcmciLCJpc3MiOiJodHRwOi8vc29tZWJvZHkuY29tIiwiZXhwIjo5OTk5OTk5OTk5\
-OSwiaWF0IjoxNTQ3Nzk0NjU1LCJqdGkiOiI2YWQ3YWE0Mi0zZTljLTQ4MzMtYmQxNi03NjVjYjgwYzIxM\
-DIifQ.HPr3_N_4E-w_sIWS0kO7b-1VGVBuwQpgQoA2DRWj86YRt11JM_lpG58NrZwUOKXIOn4yV-HnrHe\
-4pXn07bEZ_EgcqBsNnVHE51iiKZUS3v3gkBrLJ5miogjCdxz-wNnIm45ceSIW1PSRTkKDJpwmzigfvP_l\
-GHpxwmUKAmRwFnw"
+with requests.get('http://localhost:8000/tokens') as resp:
+    result = resp.json()
+    TOKEN = result[0]
+    TOKEN_EMPTY = result[1]
 
 
 async def test_1():
@@ -132,7 +124,7 @@ async def test_5():
         async with session.get('http://localhost:5050/query', params=params) as resp:
             data = await resp.json()
             if 'datasetAlleleResponses' in data and len(data['datasetAlleleResponses']) > 0:
-                assert len(data['datasetAlleleResponses']) == 3, sys.exist('Should have three variants.')
+                assert len(data['datasetAlleleResponses']) == 3, sys.exit('Should have three variants.')
                 assert data['datasetAlleleResponses'][0]['datasetId'] == 'urn:hg:1000genome', 'DatasetID Error'
                 assert data['datasetAlleleResponses'][0]['variantCount'] in [1, 118], 'Variant count Error'
                 assert data['datasetAlleleResponses'][0]['frequency'] in [0.000197472, 0.023301737], 'frequency Error'
@@ -291,7 +283,7 @@ async def test_12():
         async with session.post('http://localhost:5050/query', data=json.dumps(payload)) as resp:
             data = await resp.json()
             assert data['exists'] is True, sys.exit('Query POST Endpoint Error!')
-            assert len(data['datasetAlleleResponses']) == 1, sys.exist('Should be able to retrieve only public.')
+            assert len(data['datasetAlleleResponses']) == 1, sys.exit('Should be able to retrieve only public.')
 
 
 async def test_13():
@@ -312,7 +304,7 @@ async def test_13():
         async with session.post('http://localhost:5050/query', data=json.dumps(payload)) as resp:
             data = await resp.json()
             assert data['exists'] is True, sys.exit('Query POST Endpoint Error!')
-            assert len(data['datasetAlleleResponses']) == 2, sys.exist('Should be able to retrieve both requested.')
+            assert len(data['datasetAlleleResponses']) == 2, sys.exit('Should be able to retrieve both requested.')
 
 
 async def test_14():
@@ -333,7 +325,7 @@ async def test_14():
         async with session.post('http://localhost:5050/query', data=json.dumps(payload)) as resp:
             data = await resp.json()
             assert data['exists'] is True, sys.exit('Query POST Endpoint Error!')
-            assert len(data['datasetAlleleResponses']) == 2, sys.exist('Should be able to retrieve both requested.')
+            assert len(data['datasetAlleleResponses']) == 2, sys.exit('Should be able to retrieve both requested.')
 
 
 async def test_15():
@@ -397,7 +389,7 @@ async def test_17():
         async with session.post('http://localhost:5050/query', data=json.dumps(payload)) as resp:
             data = await resp.json()
             assert data['exists'] is True, sys.exit('Query POST Endpoint Error!')
-            assert len(data['datasetAlleleResponses']) == 1, sys.exist('Should be able to retrieve both requested.')
+            assert len(data['datasetAlleleResponses']) == 1, sys.exit('Should be able to retrieve both requested.')
 
 
 async def test_18():
