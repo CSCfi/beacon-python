@@ -75,7 +75,7 @@ More datasets can be added to the ``controlled_datasets`` ``set()`` by updating:
 
 where ``custom_add_on()`` is a function one could add in :meth:`beacon_api.permissions`.
 
-Examples of such functions are :meth:`beacon_api.permissions.ga4gh` and the deprecated :meth:`beacon_api.permissions.rems` that parse two different kinds of JWT claims.
+An example of such a function is :meth:`beacon_api.permissions.ga4gh` and the specific JWT claim it should parse.
 
 .. attention:: JWT is validated against an AAI OAuth2 signing authority with the public key.
                This public key can be provided  either a JWK server or the environment variable
