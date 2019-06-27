@@ -27,7 +27,7 @@ Out of the box the ``beacon-python`` offers:
 * asynchronous web server;
 * JSON schema validation for queries and responses;
 * OAuth2 JWT token validation, by default for ELIXIR AAI, with retrieving researcher's bona fide status;
-* Handling `REMS <https://rems2docs.rahtiapp.fi/>`_ permissions for ``CONTROLLED`` datasets,
+* Handling `GA4GH <https://docs.google.com/document/d/11Wg-uL75ypU5eNu2p_xh9gspmbGtmLzmdq5VfPHBirE>`_ permissions for ``CONTROLLED`` datasets,
   additional modules can be added - see :ref:`permissions`;
 * 1000 genome dataset loader - see :ref:`genome-dataset` instructions;
 * deployment `Docker container <https://hub.docker.com/r/cscfi/beacon-python/>`_.
