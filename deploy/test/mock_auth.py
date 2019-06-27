@@ -1,29 +1,79 @@
 """Mock OAUTH2 aiohttp.web server."""
 
 from aiohttp import web
-
-TOKEN_EMPTY = "eyJraWQiOiJyc2ExIiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiJyZXF1ZXN0ZXJAZWx\
-peGlyLWV1cm9wZS5vcmciLCJpc3MiOiJodHRwOi8vc29tZWJvZHkuY29tIiwiZXhwIjo5OTk5OTk5OTk5\
-OSwiaWF0IjoxNTQ3Nzk0NjU1LCJqdGkiOiI2YWQ3YWE0Mi0zZTljLTQ4MzMtYmQxNi03NjVjYjgwYzIxM\
-DIifQ.HPr3_N_4E-w_sIWS0kO7b-1VGVBuwQpgQoA2DRWj86YRt11JM_lpG58NrZwUOKXIOn4yV-HnrHe\
-4pXn07bEZ_EgcqBsNnVHE51iiKZUS3v3gkBrLJ5miogjCdxz-wNnIm45ceSIW1PSRTkKDJpwmzigfvP_l\
-GHpxwmUKAmRwFnw"
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.backends import default_backend
+from jose import jwt, jwk
 
 
-async def jwk(request):
+def decode_jwk(data):
+    """Decode JWK dictionary."""
+    decoded = {}
+    for key, value in data.to_dict().items():
+        if isinstance(value, str):
+            decoded[key] = value
+        else:
+            decoded[key] = value.decode("utf-8")
+    decoded['kid'] = 'rsa1'
+    return decoded
+
+
+def generate_token():
+    """Generate RSA Key pair to be used to sign token and the JWT Token itself."""
+    private_key = rsa.generate_private_key(public_exponent=65537, key_size=1024, backend=default_backend())
+    public_key = private_key.public_key().public_bytes(encoding=serialization.Encoding.PEM, format=serialization.PublicFormat.SubjectPublicKeyInfo)
+    pem = private_key.private_bytes(encoding=serialization.Encoding.PEM,
+                                    format=serialization.PrivateFormat.TraditionalOpenSSL,
+                                    encryption_algorithm=serialization.NoEncryption())
+    # we set no `exp` and other claims as they are optional in a real scenario these should be set
+    # See available claims here: https://www.iana.org/assignments/jwt/jwt.xhtml
+    # the important claim is the "authorities"
+
+    dataset_payload = {"sub": "requester@elixir-europe.org",
+                       "aud": "771678e5-bf28-4938-910a-4a28c614e64f",
+                       "azp": "771678e5-bf28-4938-910a-4a28c614e64f",
+                       "scope": "openid ga4gh",
+                       "iss": "http://test.csc.fi",
+                       "exp": 9999999999,
+                       "iat": 1561621913,
+                       "jti": "6ad7aa42-3e9c-4833-bd16-765cb80c2102",
+                       "ga4gh_userinfo_claims": ["ga4gh.AffiliationAndRole",
+                                                 "ga4gh.ControlledAccessGrants",
+                                                 "ga4gh.AcceptedTermsAndPolicies",
+                                                 "ga4gh.ResearcherStatus"]}
+
+    empty_payload = {"sub": "requester@elixir-europe.org",
+                     "iss": "http://test.csc.fi",
+                     "exp": 99999999999,
+                     "iat": 1547794655,
+                     "jti": "6ad7aa42-3e9c-4833-bd16-765cb80c2102"}
+    public_jwk = jwk.construct(public_key.decode('utf-8'), algorithm='RS256')
+    private_data = jwk.construct(pem, algorithm='RS256')
+
+    datasaet_encoded = jwt.encode(dataset_payload, private_data.to_dict(), algorithm='RS256')
+    empty_encoded = jwt.encode(empty_payload, private_data.to_dict(), algorithm='RS256')
+    return (decode_jwk(public_jwk), datasaet_encoded, empty_encoded)
+
+
+DATA = generate_token()
+
+
+async def jwk_response(request):
     """Mock JSON Web Key server."""
-    data = [{"kty": "RSA",
-             "n": "3ZWrUY0Y6IKN1qI4BhxR2C7oHVFgGPYkd38uGq1jQNSqEvJFcN93CYm16_G78FAFKWqws\
-             Jb3Wx-nbxDn6LtP4AhULB1H0K0g7_jLklDAHvI8yhOKlvoyvsUFPWtNxlJyh5JJXvkNKV_4Oo12e69f8QCuQ6NpEPl-cSvXIqUYBCs",
-             "e": "AQAB",
-             "alg": "RS256",
-             "kid": "rsa1"}]
+    data = [DATA[0]]
+    return web.json_response(data)
+
+
+async def tokens_response(request):
+    """Serve generated tokens."""
+    data = [DATA[1], DATA[2]]
     return web.json_response(data)
 
 
 async def userinfo(request):
     """Mock an authentication to ELIXIR AAI for GA4GH claims."""
-    if request.headers.get('Authorization').split(' ')[1] == TOKEN_EMPTY:
+    if request.headers.get('Authorization').split(' ')[1] == DATA[2]:
         data = {}
     else:
         data = {
@@ -60,13 +110,6 @@ async def userinfo(request):
                         "by": "dac",
                         "asserted": 1559897355,
                         "expires": 9999999999
-                    },
-                    {
-                        "value": "https://www.ebi.ac.uk/ega/urn:hg:1000genome:controlled1",
-                        "source": "https://ga4gh.org/duri/no_org",
-                        "by": "dac",
-                        "asserted": 1560169441,
-                        "expires": 9999999999
                     }
                 ]
             }
@@ -77,7 +120,8 @@ async def userinfo(request):
 def init():
     """Start server."""
     app = web.Application()
-    app.router.add_get('/jwk', jwk)
+    app.router.add_get('/jwk', jwk_response)
+    app.router.add_get('/tokens', tokens_response)
     app.router.add_get('/userinfo', userinfo)
     return app
 
