@@ -272,22 +272,6 @@ class TestBasicFunctions(asynctest.TestCase):
         with self.assertRaises(aiohttp.web_exceptions.HTTPForbidden):
             access_resolution(request, token, host, [], [], [8])
 
-    # rems.py is deprecated
-    # def test_rems_controlled(self):
-    #     """Test rems permissions claim parsing."""
-    #     claim = [{"affiliation": "",
-    #               "datasets": ["EGAD01", "urn:hg:example-controlled"],
-    #               "source_signature": "",
-    #               "url_prefix": ""},
-    #              {"affiliation": "",
-    #               "datasets": ["urn:hg:example-controlled", "EGAD02",
-    #                            "urn:hg:example-controlled3"],
-    #               "source_signature": "",
-    #               "url_prefix": ""}]
-    #     self.assertCountEqual(get_rems_controlled(claim),
-    #                           ['EGAD01', 'urn:hg:example-controlled',
-    #                            'urn:hg:example-controlled3', 'EGAD02'])
-
     @asynctest.mock.patch('beacon_api.permissions.ga4gh.retrieve_user_data')
     async def test_ga4gh_controlled(self, userinfo):
         """Test ga4gh permissions claim parsing."""
@@ -319,10 +303,27 @@ class TestBasicFunctions(asynctest.TestCase):
                 }
             ]
         }
+        # Good test: claims OK, userinfo OK
         token_claim = ["ga4gh.ControlledAccessGrants"]
         token = 'this_is_a_jwt'
         datasets = await get_ga4gh_controlled(token, token_claim)
-        self.assertEqual(datasets, {'EGAD000000000001', 'EGAD000000000002', 'no-prefix-dataset'})
+        self.assertEqual(datasets, {'EGAD000000000001', 'EGAD000000000002', 'no-prefix-dataset'})  # has permissions
+        # Bad test: no claims, userinfo OK
+        token_claim = []
+        token = 'this_is_a_jwt'
+        datasets = await get_ga4gh_controlled(token, token_claim)
+        self.assertEqual(datasets, set())  # doesn't have permissions
+        # Bad test: claims OK, no userinfo
+        userinfo.return_value = {}
+        token_claim = ["ga4gh.ControlledAccessGrants"]
+        token = 'this_is_a_jwt'
+        datasets = await get_ga4gh_controlled(token, token_claim)
+        self.assertEqual(datasets, set())  # doesn't have permissions
+        # Bad test: no claims, no userinfo
+        token_claim = []
+        token = 'this_is_a_jwt'
+        datasets = await get_ga4gh_controlled(token, token_claim)
+        self.assertEqual(datasets, set())  # doesn't have permissions
 
     @asynctest.mock.patch('beacon_api.permissions.ga4gh.retrieve_user_data')
     async def test_ga4gh_bona_fide(self, userinfo):
@@ -347,36 +348,23 @@ class TestBasicFunctions(asynctest.TestCase):
                 }
             ]
         }
+        # Good test: claims OK, userinfo OK
         token_claim = ["ga4gh.AcceptedTermsAndPolicies", "ga4gh.ResearcherStatus"]
         token = 'this_is_a_jwt'
         bona_fide_status = await get_ga4gh_bona_fide(token, token_claim)
         self.assertEqual(bona_fide_status, True)  # has bona fide
-
-        userinfo.return_value = {
-            "AcceptedTermsAndPolicies": [
-                {
-                    "value": "https://doi.org/10.1038/s41431-018-0219-y",
-                    "source": "https://ga4gh.org/duri/no_org",
-                    "by": "self",
-                    "asserted": 1539069213,
-                    "expires": 4694742813
-                }
-            ],
-            "ResearcherStatus": [
-                {
-                    "value": "https://doi.org/10.1038/s41431-018-0219-y",
-                    "source": "https://ga4gh.org/duri/no_org",
-                    "by": "peer",
-                    "asserted": 1539017776,
-                    "expires": 1593165413
-                }
-            ]
-        }
+        # Bad test: no claims, userinfo OK
         token_claim = []
         token = 'this_is_a_jwt'
         bona_fide_status = await get_ga4gh_bona_fide(token, token_claim)
         self.assertEqual(bona_fide_status, False)  # doesn't have bona fide
-
+        # Bad test: claims OK, no userinfo
+        userinfo.return_value = {}
+        token_claim = ["ga4gh.AcceptedTermsAndPolicies", "ga4gh.ResearcherStatus"]
+        token = 'this_is_a_jwt'
+        bona_fide_status = await get_ga4gh_bona_fide(token, token_claim)
+        self.assertEqual(bona_fide_status, False)  # doesn't have bona fide
+        # Bad test: no claims, no userinfo
         userinfo.return_value = {}
         token_claim = []
         token = 'this_is_a_jwt'

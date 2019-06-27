@@ -3,6 +3,7 @@ from beacon_api.api.query import query_request_handler
 import asynctest
 from beacon_api.schemas import load_schema
 from beacon_api.utils.validate import get_key
+from beacon_api.permissions.ga4gh import retrieve_user_data
 import jsonschema
 import json
 import aiohttp
@@ -103,19 +104,25 @@ class TestBasicFunctions(asynctest.TestCase):
             json.dumps(result)), load_schema('response')), None)
         data_find.assert_called()
 
-    # @aioresponses()
-    # async def test_get_bona_fide(self, m):
-    #     """Test retrieve bona_fide_status."""
-    #     m.get("https://login.elixir-czech.org/oidc/userinfo", payload=dict(bona_fide_status="smth"))
-    #     result = await check_bona_fide_status("token", {}, 'localhost')
-    #     self.assertEqual(result, "smth")
+    @aioresponses()
+    async def test_bad_retrieve_user_data(self, m):
+        """Test a failing userdata call because token is bad."""
+        with self.assertRaises(aiohttp.web_exceptions.HTTPInternalServerError):
+            user_data = await retrieve_user_data('bad_token')
 
-    # @aioresponses()
-    # async def test_bad_get_bona_fide(self, m):
-    #     """Test bad retrieve bona_fide_status."""
-    #     m.get("https://login.elixir-czech.org/oidc/userinfo", status=400)
-    #     with self.assertRaises(aiohttp.web_exceptions.HTTPInternalServerError):
-    #         await check_bona_fide_status("token", {}, 'localhost')
+    @aioresponses()
+    async def test_bad_none_retrieve_user_data(self, m):
+        """Test a failing userdata call because response didn't have ga4gh format."""
+        m.get("https://login.elixir-czech.org/oidc/userinfo", payload={"not_ga4gh": [{}]})
+        user_data = await retrieve_user_data('good_token')
+        self.assertEqual(user_data, None)
+    @aioresponses()
+
+    async def test_good_retrieve_user_data(self, m):
+        """Test a passing call to retrieve user data."""
+        m.get("https://login.elixir-czech.org/oidc/userinfo", payload={"ga4gh": [{}]})
+        user_data = await retrieve_user_data('good_token')
+        self.assertEqual(user_data, [{}])
 
     @aioresponses()
     async def test_get_key(self, m):
