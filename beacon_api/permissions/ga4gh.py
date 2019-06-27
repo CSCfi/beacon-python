@@ -95,7 +95,7 @@ async def get_ga4gh_controlled(token, token_claim):
         if 'ControlledAccessGrants' in ga4gh:
             # Extract dataset key and split by `/` to remove potential URL prefix
             # the dataset id in the resulting list will always be the last element
-            datasets.update([p["value"].split('/')[-1] for p in ga4gh["ControlledAccessGrants"]])
+            datasets.update([p["value"].split('/')[-1] for p in ga4gh["ControlledAccessGrants"] if "value" in p])
 
     return datasets
 
@@ -115,11 +115,11 @@ async def get_ga4gh_bona_fide(token, token_claim):
         # If the /userinfo endpoint responded with user data, retrieve statuses and agreements and parse them
         if 'AcceptedTermsAndPolicies' in ga4gh:
             for accepted_terms in ga4gh["AcceptedTermsAndPolicies"]:
-                if accepted_terms["value"] == OAUTH2_CONFIG.bona_fide_value:
+                if accepted_terms.get("value") == OAUTH2_CONFIG.bona_fide_value:
                     terms = True
         if 'ResearcherStatus' in ga4gh:
             for researcher_status in ga4gh["ResearcherStatus"]:
-                if researcher_status["value"] == OAUTH2_CONFIG.bona_fide_value:
+                if researcher_status.get("value") == OAUTH2_CONFIG.bona_fide_value:
                     status = True
         if terms and status:
             # User has agreed to terms and has been recognized by a peer, return True for Bona Fide status
