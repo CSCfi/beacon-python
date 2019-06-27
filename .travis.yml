@@ -64,6 +64,7 @@ jobs:
         - docker-compose exec beacon beacon_init data/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz /exdata/example_metadata_controlled.json
         - docker-compose exec beacon beacon_init data/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz /exdata/example_metadata_controlled1.json
         - pip install aiohttp
+        - pip install requests
       script:
         - python run_tests.py
     - stage: image
