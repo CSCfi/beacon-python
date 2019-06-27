@@ -72,7 +72,6 @@ Permissions Addons
    :toctree: beacon_api.permissions
 
     beacon_api.permissions.ga4gh
-    beacon_api.permissions.rems
 
 *************
 Configuration
