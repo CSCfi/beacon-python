@@ -166,7 +166,7 @@ def token_auth():
                 # For Bona Fide status in GA4GH format
                 bona_fide_status = await get_ga4gh_bona_fide(token, decodedData["ga4gh_userinfo_claims"]) if "ga4gh_userinfo_claims" in decodedData else False
                 request["token"] = {"bona_fide_status": bona_fide_status,
-                                    # permissions key will hold the actual permissions found in the token e.g. REMS permissions
+                                    # permissions key will hold the actual permissions found in the token/userinfo e.g. GA4GH permissions
                                     "permissions": all_controlled,
                                     # additional checks can be performed against this authenticated key
                                     # currently if a token is valid that means request is authenticated
