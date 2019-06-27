@@ -108,7 +108,7 @@ class TestBasicFunctions(asynctest.TestCase):
     async def test_bad_retrieve_user_data(self, m):
         """Test a failing userdata call because token is bad."""
         with self.assertRaises(aiohttp.web_exceptions.HTTPInternalServerError):
-            user_data = await retrieve_user_data('bad_token')
+            await retrieve_user_data('bad_token')
 
     @aioresponses()
     async def test_bad_none_retrieve_user_data(self, m):
@@ -116,8 +116,8 @@ class TestBasicFunctions(asynctest.TestCase):
         m.get("https://login.elixir-czech.org/oidc/userinfo", payload={"not_ga4gh": [{}]})
         user_data = await retrieve_user_data('good_token')
         self.assertEqual(user_data, None)
-    @aioresponses()
 
+    @aioresponses()
     async def test_good_retrieve_user_data(self, m):
         """Test a passing call to retrieve user data."""
         m.get("https://login.elixir-czech.org/oidc/userinfo", payload={"ga4gh": [{}]})
