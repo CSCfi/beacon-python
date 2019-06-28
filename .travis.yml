@@ -17,7 +17,9 @@ stages:
   - name: integtests
     if: type IN (pull_request)
   - name: image
-    if: type IN (push)
+    if: branch = master
+  - name: image tag
+    if: tag =~ /^v([0-9]+)\.([0-9]+)\.([0-9]+)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+[0-9A-Za-z-]+)?$/
 
 
 jobs:
@@ -69,16 +71,23 @@ jobs:
         - python run_tests.py
     - stage: image
       name: "Image Publish"
+      before_script:
+        - cd deploy
+        - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
       script:
-        - if [[ "$TRAVIS_BRANCH" == "master" && "$TRAVIS_PULL_REQUEST" == "false" ]]; then
-             cd deploy ;
-             docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD ;
-             docker build -t cscfi/beacon-python . ;
-             docker push cscfi/beacon-python:latest;
-             cd dataloader ;
-             docker build -t cscfi/beacon-dataloader . ;
-             docker push cscfi/beacon-dataloader:latest;
-          fi
+        - docker build -t cscfi/beacon-python . 
+        - docker push cscfi/beacon-python:latest
+        - cd dataloader
+        - docker build -t cscfi/beacon-dataloader . 
+        - docker push cscfi/beacon-dataloader:latest
+    - stage: image tag
+      name: "Image Tag Publish"
+      before_script:
+        - cd deploy
+        - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+      script:
+        - docker build -t cscfi/beacon-python . 
+        - docker push cscfi/beacon-python:$TRAVIS_TAG
 
 notifications:
   email: false
