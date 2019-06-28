@@ -26,10 +26,13 @@ async def ga4gh_info(host):
         # TO DO implement some fallback mechanism for ID
         'id': '.'.join(reversed(host.split('.'))),
         'name': __title__,
+        "type": "urn:ga4gh:beacon",
         'description': __description__,
         'documentationUrl': __docs_url__,
+        "organization": __org_id__,
         'contactUrl': __org_contactUrl__,
-        'version': __version__
+        'version': __version__,
+        "extension": {}
     }
     return beacon_info
 
