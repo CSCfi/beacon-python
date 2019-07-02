@@ -118,7 +118,7 @@ Example Response:
     "description": "Beacon API Web Server based on the GA4GH Beacon API",
     "documentationUrl": "https://beacon-python.readthedocs.io/en/latest/",
     "contactUrl": "https://www.csc.fi/contact-info",
-    "version": "1.3.0"
+    "version": "1.4.0"
   }
 
 Query Endpoint
