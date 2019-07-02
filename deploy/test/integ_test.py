@@ -347,7 +347,7 @@ async def test_15():
         async with session.post('http://localhost:5050/query', data=json.dumps(payload)) as resp:
             data = await resp.json()
             assert data['exists'] is None, sys.exit('Query POST Endpoint Error!')
-            assert resp.status == 403, 'HTTP Status code error'
+            assert resp.status == 401, 'HTTP Status code error'
 
 
 async def test_16():
@@ -368,7 +368,7 @@ async def test_16():
         async with session.post('http://localhost:5050/query', data=json.dumps(payload)) as resp:
             data = await resp.json()
             assert data['exists'] is None, sys.exit('Query POST Endpoint Error!')
-            assert resp.status == 403, 'HTTP Status code error'
+            assert resp.status == 401, 'HTTP Status code error'
 
 
 async def test_17():
