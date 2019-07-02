@@ -6,7 +6,7 @@ from unittest import mock
 import asyncpg
 import asynctest
 import json
-from jose import jwt
+from authlib.jose import jwt
 import os
 from test.support import EnvironmentVarGuard
 from aiocache import caches
@@ -21,15 +21,49 @@ PARAMS = {'assemblyId': 'GRCh38',
 
 def generate_token(issuer):
     """Mock ELIXIR AAI token."""
-    pem = {"kty": "oct",
-           "kid": "018c0ae5-4d9b-471b-bfd6-eef314bc7037",
-           "use": "sig",
-           "alg": "HS256",
-           "k": "hJtXIZ2uSN5kbQfbtTNWbpdmhkV8FJG-Onbc6mxCcYg"
-           }
-    token = jwt.encode({'iss': issuer, 'sub': 'smth@elixir-europe.org'},
-                       pem)
+    pem = {
+        "kty": "oct",
+        "kid": "018c0ae5-4d9b-471b-bfd6-eef314bc7037",
+        "use": "sig",
+        "alg": "HS256",
+        "k": "hJtXIZ2uSN5kbQfbtTNWbpdmhkV8FJG-Onbc6mxCcYg"
+    }
+    header = {
+        "jku": "https://login.elixir-czech.org/oidc/jwk",
+        "kid": "018c0ae5-4d9b-471b-bfd6-eef314bc7037",
+        "alg": "HS256"
+    }
+    payload = {
+        "iss": issuer,
+        "aud": "audience",
+        "exp": 9999999999,
+        "sub": "smth@elixir-europe.org"
+    }
+    token = jwt.encode(header, payload, pem).decode('utf-8')
+    return token, pem
 
+
+def generate_bad_token():
+    """Mock ELIXIR AAI token."""
+    pem = {
+        "kty": "oct",
+        "kid": "018c0ae5-4d9b-471b-bfd6-eef314bc7037",
+        "use": "sig",
+        "alg": "HS256",
+        "k": "hJtXIZ2uSN5kbQfbtTNWbpdmhkV8FJG-Onbc6mxCcYg"
+    }
+    header = {
+        "jku": "https://login.elixir-czech.org/oidc/jwk",
+        "kid": "018c0ae5-4d9b-471b-bfd6-eef314bc7037",
+        "alg": "HS256"
+    }
+    payload = {
+        "iss": "bad_issuer",
+        "aud": "audience",
+        "exp": 0,
+        "sub": "smth@elixir-europe.org"
+    }
+    token = jwt.encode(header, payload, pem).decode('utf-8')
     return token, pem
 
 
@@ -54,6 +88,7 @@ class AppTestCase(AioHTTPTestCase):
     async def get_application(self, pool_mock):
         """Retrieve web Application for test."""
         token, public_key = generate_token('https://login.elixir-czech.org/oidc/')
+        self.bad_token, _ = generate_bad_token()
         self.env = EnvironmentVarGuard()
         self.env.set('PUBLIC_KEY', json.dumps(public_key))
         self.env.set('TOKEN', token)
@@ -236,8 +271,8 @@ class AppTestCase(AioHTTPTestCase):
         """Test unauthorized POST query endpoint, bad token."""
         resp = await self.client.request("POST", "/query",
                                          data=json.dumps(PARAMS),
-                                         headers={'Authorization': "Bearer x"})
-        assert 401 == resp.status
+                                         headers={'Authorization': f"Bearer {self.bad_token}"})
+        assert 403 == resp.status
 
     @unittest_run_loop
     async def test_invalid_scheme_get_query(self):

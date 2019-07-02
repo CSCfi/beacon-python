@@ -4,19 +4,19 @@ from aiohttp import web
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.backends import default_backend
-from jose import jwt, jwk
+from authlib.jose import jwt, jwk
 
 
-def decode_jwk(data):
-    """Decode JWK dictionary."""
-    decoded = {}
-    for key, value in data.to_dict().items():
-        if isinstance(value, str):
-            decoded[key] = value
-        else:
-            decoded[key] = value.decode("utf-8")
-    decoded['kid'] = 'rsa1'
-    return decoded
+# def decode_jwk(data):
+#     """Decode JWK dictionary."""
+#     decoded = {}
+#     for key, value in data.to_dict().items():
+#         if isinstance(value, str):
+#             decoded[key] = value
+#         else:
+#             decoded[key] = value.decode("utf-8")
+#     decoded['kid'] = 'rsa1'
+#     return decoded
 
 
 def generate_token():
@@ -29,31 +29,40 @@ def generate_token():
     # we set no `exp` and other claims as they are optional in a real scenario these should be set
     # See available claims here: https://www.iana.org/assignments/jwt/jwt.xhtml
     # the important claim is the "authorities"
+    header = {
+        "jku": "https://login.elixir-czech.org/oidc/jwk",
+        "kid": "018c0ae5-4d9b-471b-bfd6-eef314bc7037",
+        "alg": "RS256"
+    }
+    dataset_payload = {
+        "sub": "requester@elixir-europe.org",
+        "aud": ["aud2", "aud3"],
+        "azp": "azp",
+        "scope": "openid ga4gh",
+        "iss": "http://test.csc.fi",
+        "exp": 9999999999,
+        "iat": 1561621913,
+        "jti": "6ad7aa42-3e9c-4833-bd16-765cb80c2102",
+        "ga4gh_userinfo_claims": [
+            "ga4gh.AffiliationAndRole",
+            "ga4gh.ControlledAccessGrants",
+            "ga4gh.AcceptedTermsAndPolicies",
+            "ga4gh.ResearcherStatus"
+        ]
+    }
+    empty_payload = {
+        "sub": "requester@elixir-europe.org",
+        "iss": "http://test.csc.fi",
+        "exp": 99999999999,
+        "iat": 1547794655,
+        "jti": "6ad7aa42-3e9c-4833-bd16-765cb80c2102"
+    }
+    public_jwk = jwk.dumps(public_key.decode('utf-8'), kty='RS256')
+    private_data = jwk.dumps(pem, kty='RS256')
 
-    dataset_payload = {"sub": "requester@elixir-europe.org",
-                       "aud": "771678e5-bf28-4938-910a-4a28c614e64f",
-                       "azp": "771678e5-bf28-4938-910a-4a28c614e64f",
-                       "scope": "openid ga4gh",
-                       "iss": "http://test.csc.fi",
-                       "exp": 9999999999,
-                       "iat": 1561621913,
-                       "jti": "6ad7aa42-3e9c-4833-bd16-765cb80c2102",
-                       "ga4gh_userinfo_claims": ["ga4gh.AffiliationAndRole",
-                                                 "ga4gh.ControlledAccessGrants",
-                                                 "ga4gh.AcceptedTermsAndPolicies",
-                                                 "ga4gh.ResearcherStatus"]}
-
-    empty_payload = {"sub": "requester@elixir-europe.org",
-                     "iss": "http://test.csc.fi",
-                     "exp": 99999999999,
-                     "iat": 1547794655,
-                     "jti": "6ad7aa42-3e9c-4833-bd16-765cb80c2102"}
-    public_jwk = jwk.construct(public_key.decode('utf-8'), algorithm='RS256')
-    private_data = jwk.construct(pem, algorithm='RS256')
-
-    datasaet_encoded = jwt.encode(dataset_payload, private_data.to_dict(), algorithm='RS256')
-    empty_encoded = jwt.encode(empty_payload, private_data.to_dict(), algorithm='RS256')
-    return (decode_jwk(public_jwk), datasaet_encoded, empty_encoded)
+    dataset_encoded = jwt.encode(header, dataset_payload, private_data)
+    empty_encoded = jwt.encode(header, empty_payload, private_data)
+    return (jwk.loads(public_jwk), dataset_encoded, empty_encoded)
 
 
 DATA = generate_token()

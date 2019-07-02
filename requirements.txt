@@ -10,5 +10,5 @@ uvloop
 aiocache
 ujson
 aiomcache
-python-jose[cryptography]
+authlib
 gunicorn
