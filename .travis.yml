@@ -76,16 +76,15 @@ jobs:
       script:
         - docker build -t cscfi/beacon-python . 
         - docker push cscfi/beacon-python:latest
-        - cd dataloader
+        - cd deploy/dataloader
         - docker build -t cscfi/beacon-dataloader . 
         - docker push cscfi/beacon-dataloader:latest
     - stage: image tag
       name: "Image Tag Publish"
       before_script:
-        - cd deploy
         - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
       script:
-        - docker build -t cscfi/beacon-python . 
+        - docker build -t cscfi/beacon-python:$TRAVIS_TAG . 
         - docker push cscfi/beacon-python:$TRAVIS_TAG
 
 notifications:
