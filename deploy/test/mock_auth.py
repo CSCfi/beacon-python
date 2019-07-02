@@ -30,9 +30,10 @@ def generate_token():
     # See available claims here: https://www.iana.org/assignments/jwt/jwt.xhtml
     # the important claim is the "authorities"
     header = {
-        "jku": "https://login.elixir-czech.org/oidc/jwk",
-        "kid": "018c0ae5-4d9b-471b-bfd6-eef314bc7037",
-        "alg": "RS256"
+        "jku": "http://mockauth:8000/jwk",
+        "kid": "rsa1",
+        "alg": "RS256",
+        "typ": "JWT"
     }
     dataset_payload = {
         "sub": "requester@elixir-europe.org",
@@ -57,12 +58,11 @@ def generate_token():
         "iat": 1547794655,
         "jti": "6ad7aa42-3e9c-4833-bd16-765cb80c2102"
     }
-    public_jwk = jwk.dumps(public_key.decode('utf-8'), kty='RS256')
-    private_data = jwk.dumps(pem, kty='RS256')
-
-    dataset_encoded = jwt.encode(header, dataset_payload, private_data)
-    empty_encoded = jwt.encode(header, empty_payload, private_data)
-    return (jwk.loads(public_jwk), dataset_encoded, empty_encoded)
+    public_jwk = jwk.dumps(public_key, kty='RSA')
+    private_jwk = jwk.dumps(pem, kty='RSA')
+    dataset_encoded = jwt.encode(header, dataset_payload, private_jwk).decode('utf-8')
+    empty_encoded = jwt.encode(header, empty_payload, private_jwk).decode('utf-8')
+    return (public_jwk, dataset_encoded, empty_encoded)
 
 
 DATA = generate_token()
@@ -71,6 +71,7 @@ DATA = generate_token()
 async def jwk_response(request):
     """Mock JSON Web Key server."""
     data = [DATA[0]]
+    data[0]['kid'] = 'rsa1'
     return web.json_response(data)
 
 
