@@ -26,7 +26,7 @@ class Mock(MagicMock):
 
 # List modules need to be mocked
 MOCK_MODULES = ['aiohttp', 'asyncpg', 'cyvcf2',
-                'Cython', 'numpy', 'python-jose',
+                'Cython', 'numpy', 'authlib',
                 'uvloop', 'aiocache', 'aiocache.serializers']
 sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 

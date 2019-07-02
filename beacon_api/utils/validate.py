@@ -1,8 +1,8 @@
 """JSON Request/Response Validation and Token authentication."""
 
 from aiohttp import web
-from jose import jwt
-from jose.exceptions import JWTError, ExpiredSignatureError, JWTClaimsError
+from authlib.jose import jwt
+from authlib.jose.errors import MissingClaimError, InvalidClaimError, ExpiredTokenError, InvalidTokenError
 import json
 import re
 import aiohttp
@@ -145,12 +145,35 @@ def token_auth():
 
             token_scheme_check(token, scheme, obj, request.host)
 
-            key = await get_key()
-            issuers = OAUTH2_CONFIG.issuers.split(',')
-            aud = os.environ.get('JWT_AUD', OAUTH2_CONFIG.audience)  # defaults to `None` if neither is given
+            # Token decoding parameters
+            key = await get_key()  # JWK used to decode token with
+            aud = []
             verify_aud = OAUTH2_CONFIG.verify_aud  # Option to skip verification of `aud` claim
+            if verify_aud:
+                aud = os.environ.get('JWT_AUD', OAUTH2_CONFIG.audience)  # List of intended audiences of token
+                # if verify_aud is set to True, we expect that a desired aud is then supplied.
+                # However, if verify_aud=True and no aud is supplied, we use aud=[None] which will fail for
+                # all tokens as a security measure. If aud=[], all tokens will pass (as is the default value).
+                aud = aud.split(',') if aud is not None else [None]
+            # Prepare JWTClaims validation
+            # can be populated with claims that are required to be present in the payload of the token
+            claims_options = {
+                "iss": {
+                    "essential": True,
+                    "values": OAUTH2_CONFIG.issuers.split(',')  # Token allowed from these issuers
+                },
+                "aud": {
+                    "essential": verify_aud,
+                    "values": aud
+                },
+                "exp": {
+                    "essential": True
+                }
+            }
+
             try:
-                decodedData = jwt.decode(token, key, issuer=issuers, audience=aud, options={'verify_aud': verify_aud})
+                decodedData = jwt.decode(token, key, claims_options=claims_options)  # decode the token
+                decodedData.validate()  # validate the token contents
                 LOG.info('Auth Token Decoded.')
                 LOG.info(f'Identified as {decodedData["sub"]} user by {decodedData["iss"]}.')
                 # for now the permissions just reflects that the data can be decoded from token
@@ -172,11 +195,13 @@ def token_auth():
                                     # currently if a token is valid that means request is authenticated
                                     "authenticated": True}
                 return await handler(request)
-            except ExpiredSignatureError as e:
+            except MissingClaimError as e:
+                raise BeaconUnauthorised(obj, request.host, "invalid_token", f'Missing claim(s): {e}')
+            except ExpiredTokenError as e:
                 raise BeaconUnauthorised(obj, request.host, "invalid_token", f'Expired signature: {e}')
-            except JWTClaimsError as e:
+            except InvalidClaimError as e:
                 raise BeaconForbidden(obj, request.host, f'Token info not corresponding with claim: {e}')
-            except JWTError as e:
+            except InvalidTokenError as e:
                 raise BeaconUnauthorised(obj, request.host, "invalid_token", f'Invalid authorization token: {e}')
         else:
             request["token"] = {"bona_fide_status": False,
