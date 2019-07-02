@@ -7,18 +7,6 @@ from cryptography.hazmat.backends import default_backend
 from authlib.jose import jwt, jwk
 
 
-# def decode_jwk(data):
-#     """Decode JWK dictionary."""
-#     decoded = {}
-#     for key, value in data.to_dict().items():
-#         if isinstance(value, str):
-#             decoded[key] = value
-#         else:
-#             decoded[key] = value.decode("utf-8")
-#     decoded['kid'] = 'rsa1'
-#     return decoded
-
-
 def generate_token():
     """Generate RSA Key pair to be used to sign token and the JWT Token itself."""
     private_key = rsa.generate_private_key(public_exponent=65537, key_size=1024, backend=default_backend())
