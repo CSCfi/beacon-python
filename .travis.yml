@@ -17,7 +17,7 @@ stages:
   - name: integtests
     if: type IN (pull_request)
   - name: image
-    if: branch = master
+    if: branch = master AND type = push
   - name: image tag
     if: tag =~ /^v([0-9]+)\.([0-9]+)\.([0-9]+)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+[0-9A-Za-z-]+)?$/
 
@@ -72,7 +72,6 @@ jobs:
     - stage: image
       name: "Image Publish"
       before_script:
-        - cd deploy
         - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
       script:
         - docker build -t cscfi/beacon-python . 
