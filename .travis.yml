@@ -2,7 +2,6 @@ sudo: required
 dist: xenial
 language: python
 
-python: 3.6
 install: true
 
 git:
@@ -31,13 +30,21 @@ jobs:
         - pip install tox-travis
       script: tox -e flake8
     - stage: tests
-      name: "Unit Tests"
+      name: "Unit Tests Python 3.6"
       python: 3.6
       before_script:
         - sudo apt-get update
         - sudo apt-get install libcurl4-openssl-dev
         - pip install tox-travis
-      script: tox
+      script: tox -e py36
+    - stage: tests
+      name: "Unit Tests Python 3.7"
+      python: 3.7
+      before_script:
+        - sudo apt-get update
+        - sudo apt-get install libcurl4-openssl-dev
+        - pip install tox-travis
+      script: tox -e py37
     - stage: tests
       name: "Documentation Tests"
       python: 3.6
