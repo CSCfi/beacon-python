@@ -1,8 +1,8 @@
-FROM python:3.6-alpine3.8 as BUILD
+FROM python:3.7-alpine3.9 as BUILD
 
 RUN apk add --update \
-    && apk add --no-cache build-base curl-dev linux-headers bash git\
-    && apk add --no-cache libressl-dev libffi-dev\
+    && apk add --no-cache build-base curl-dev linux-headers bash git musl-dev\
+    && apk add --no-cache libressl-dev libffi-dev autoconf bzip2-dev xz-dev\
     && rm -rf /var/cache/apk/*
 
 COPY requirements.txt /root/beacon/requirements.txt
@@ -13,15 +13,15 @@ RUN pip install --upgrade pip && \
     pip install -r /root/beacon/requirements.txt && \
     pip install /root/beacon
 
-FROM python:3.6-alpine3.8
+FROM python:3.7-alpine3.9
 
 RUN apk add --no-cache --update bash
 
 LABEL maintainer "CSC Developers"
-LABEL org.label-schema.schema-version="1.3"
+LABEL org.label-schema.schema-version="1.0"
 LABEL org.label-schema.vcs-url="https://github.com/CSCFI/beacon-python"
 
-COPY --from=BUILD usr/local/lib/python3.6/ usr/local/lib/python3.6/
+COPY --from=BUILD usr/local/lib/python3.7/ usr/local/lib/python3.7/
 
 COPY --from=BUILD /usr/local/bin/gunicorn /usr/local/bin/
 

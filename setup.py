@@ -43,9 +43,10 @@ setup(name='beacon_api',
           'License :: OSI Approved :: Apache Software License',
 
           'Programming Language :: Python :: 3.6',
+          'Programming Language :: Python :: 3.7',
       ],
       install_requires=['aiohttp', 'asyncpg', 'authlib',
-                        'jsonschema==3.0.1', 'gunicorn'],
+                        'jsonschema==3.0.2', 'gunicorn'],
       extras_require={
           'test': ['coverage', 'pytest', 'pytest-cov',
                    'coveralls', 'testfixtures', 'tox',
