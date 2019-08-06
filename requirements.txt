@@ -1,10 +1,11 @@
 aiohttp
 aiohttp_cors
 asyncpg
-jsonschema==3.0.1
+jsonschema==3.0.2
 Cython
 numpy
-cyvcf2==0.10.1
+cyvcf2==0.10.1; python_version < '3.7'
+cyvcf2; python_version >= '3.7'
 tox
 uvloop
 aiocache
