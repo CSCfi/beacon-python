@@ -14,8 +14,8 @@ Using vanilla docker in order to build the image - the tag can be customised:
 .. code-block:: console
 
     $ git clone https://github.com/CSCfi/beacon-python
-    $ cd beacon-python/deploy
     $ docker build -t cscfi/beacon-python .
+    $ docker run -p 5050:5050 cscfi/beacon-python
 
 .. _s2i-build:
 
@@ -81,7 +81,7 @@ For use with Kubernetes we provide ``YAML`` configuration.
               name: beacon
               ports:
                 - containerPort: 5050
-                  name: browsepy
+                  name: beaconpy
                   protocol: TCP
               volumeMounts:
                 - mountPath: /files
