@@ -21,6 +21,9 @@ LABEL maintainer "CSC Developers"
 LABEL org.label-schema.schema-version="1.0"
 LABEL org.label-schema.vcs-url="https://github.com/CSCFI/beacon-python"
 
+RUN apk add --update \
+    && apk add --no-cache curl bzip2 xz
+
 COPY --from=BUILD usr/local/lib/python3.7/ usr/local/lib/python3.7/
 
 COPY --from=BUILD /usr/local/bin/gunicorn /usr/local/bin/
