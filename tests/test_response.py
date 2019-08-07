@@ -113,14 +113,14 @@ class TestBasicFunctions(asynctest.TestCase):
     @aioresponses()
     async def test_bad_none_retrieve_user_data(self, m):
         """Test a failing userdata call because response didn't have ga4gh format."""
-        m.get("https://login.elixir-czech.org/oidc/userinfo", payload={"not_ga4gh": [{}]})
+        m.get("http://test.csc.fi/userinfo", payload={"not_ga4gh": [{}]})
         user_data = await retrieve_user_data('good_token')
         self.assertEqual(user_data, None)
 
     @aioresponses()
     async def test_good_retrieve_user_data(self, m):
         """Test a passing call to retrieve user data."""
-        m.get("https://login.elixir-czech.org/oidc/userinfo", payload={"ga4gh": [{}]})
+        m.get("http://test.csc.fi/userinfo", payload={"ga4gh": [{}]})
         user_data = await retrieve_user_data('good_token')
         self.assertEqual(user_data, [{}])
 
@@ -140,7 +140,7 @@ f9BjIARRfVrbxVxiZHjU6zL6jY5QJdh1QCmENoejj_ytspMmGW7yMRxzUqgxcAqOBpVm0b-_mW3HoBdj
                     "e": "AQAB"
                 }
             ]}
-        m.get("https://login.elixir-czech.org/oidc/jwk", payload=data)
+        m.get("http://test.csc.fi/jwk", payload=data)
         result = await get_key()
         # key = load_pem_public_key(result.encode('utf-8'), backend=default_backend())
         self.assertTrue(isinstance(result, dict))
