@@ -29,7 +29,7 @@ def generate_token(issuer):
         "k": "hJtXIZ2uSN5kbQfbtTNWbpdmhkV8FJG-Onbc6mxCcYg"
     }
     header = {
-        "jku": "https://login.elixir-czech.org/oidc/jwk",
+        "jku": "http://test.csc.fi/jwk",
         "kid": "018c0ae5-4d9b-471b-bfd6-eef314bc7037",
         "alg": "HS256"
     }
@@ -53,7 +53,7 @@ def generate_bad_token():
         "k": "hJtXIZ2uSN5kbQfbtTNWbpdmhkV8FJG-Onbc6mxCcYg"
     }
     header = {
-        "jku": "https://login.elixir-czech.org/oidc/jwk",
+        "jku": "http://test.csc.fi/jwk",
         "kid": "018c0ae5-4d9b-471b-bfd6-eef314bc7037",
         "alg": "HS256"
     }
@@ -87,7 +87,7 @@ class AppTestCase(AioHTTPTestCase):
     @asynctest.mock.patch('beacon_api.app.initialize', side_effect=create_db_mock)
     async def get_application(self, pool_mock):
         """Retrieve web Application for test."""
-        token, public_key = generate_token('https://login.elixir-czech.org/oidc/')
+        token, public_key = generate_token('http://test.csc.fi')
         self.bad_token, _ = generate_bad_token()
         self.env = EnvironmentVarGuard()
         self.env.set('PUBLIC_KEY', json.dumps(public_key))
