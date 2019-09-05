@@ -69,7 +69,7 @@ pointing to the location of the file using `CONFIG_FILE` environment variable.
 
 .. literalinclude:: /../beacon_api/conf/config.ini
    :language: python
-   :lines: 1-68
+   :lines: 1-75
 
 .. _oauth2:
 
@@ -81,7 +81,7 @@ The configuration variables reside in the same `CONFIG_FILE` as described above 
 
 .. literalinclude:: /../beacon_api/conf/config.ini
    :language: python
-   :lines: 90-116
+   :lines: 97-123
 
 * ``server`` should point to an API that returns a public key, which can be used to validate the received JWTBearer token.
 * ``issuers`` is a string of comma separated values, e.g. `one,two,three` without spaces. The issuers string should contain

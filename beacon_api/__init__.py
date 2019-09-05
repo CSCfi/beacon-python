@@ -26,7 +26,6 @@ __alturl__ = CONFIG_INFO.alturl
 __createtime__ = CONFIG_INFO.createtime
 __updatetime__ = datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ')  # Every restart of the application means an update to it
 
-
 __org_id__ = CONFIG_INFO.org_id
 __org_name__ = CONFIG_INFO.org_name
 __org_description__ = CONFIG_INFO.org_description
@@ -37,3 +36,7 @@ __org_logoUrl__ = CONFIG_INFO.org_logoUrl
 __org_info__ = {'orgInfo': CONFIG_INFO.org_info}
 
 __sample_queries__ = SAMPLE_QUERIES
+
+# GA4GH Discovery
+__service_type__ = f'{CONFIG_INFO.service_type}:{__apiVersion__}'
+__service_env__ = CONFIG_INFO.environment
