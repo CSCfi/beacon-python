@@ -33,6 +33,8 @@ def parse_config_file(path):
         'url': config.get('beacon_api_info', 'url'),
         'alturl': config.get('beacon_api_info', 'alturl'),
         'createtime': config.get('beacon_api_info', 'createtime'),
+        'service_type': config.get('beacon_api_info', 'service_type'),
+        'environment': config.get('beacon_api_info', 'environment'),
         'org_id': config.get('organisation_info', 'org_id'),
         'org_name': config.get('organisation_info', 'org_name'),
         'org_description': config.get('organisation_info', 'org_description'),

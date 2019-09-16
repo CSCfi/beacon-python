@@ -115,10 +115,18 @@ Example Response:
   {
     "id": "localhost:5050",
     "name": "GA4GHBeacon at CSC",
+    "type": "org.ga4gh:beacon:1.1.0",
     "description": "Beacon API Web Server based on the GA4GH Beacon API",
-    "documentationUrl": "https://beacon-python.readthedocs.io/en/latest/",
+    "organization": {
+        "name": "CSC - IT Center for Science",
+        "url": "https://www.csc.fi/"
+    },
     "contactUrl": "https://www.csc.fi/contact-info",
-    "version": "1.4.0"
+    "documentationUrl": "https://beacon-network.readthedocs.io/en/latest/",
+    "createdAt": "2019-09-04T12:00:00Z",
+    "updatedAt": "2019-09-05T05:55:18Z",
+    "environment": "prod",
+    "version": "1.4.1"
   }
 
 Query Endpoint
