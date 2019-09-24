@@ -33,7 +33,7 @@ The process is carried out as such:
 1. Take token (JWT)
 2. Decode token
 3a. Extract `type` key from the payload portion and check if the token type is of interest
-3b. If the token is of the desired type, continue, if not, discard this token and move to the next one
+3b. If the token is of the desired type, add it to list and continue, if not, discard this token and move to the next one
 4. Extract `jku` key from the header portion (value is a URL that returns a JWK public key set)
 5. Decode the complete token with the received public key
 6. Validate the token claims
@@ -171,7 +171,7 @@ async def retrieve_user_data(token):
             async with session.get(OAUTH2_CONFIG.userinfo) as r:
                 json_body = await r.json()
                 LOG.info('Retrieve GA4GH user data from ELIXIR AAI.')
-                return json_body.get("ga4gh_visa_v1", None)
+                return json_body.get("ga4gh_passport_v1", None)
     except Exception:
         raise BeaconServerError("Could not retrieve GA4GH user data from ELIXIR AAI.")
 
@@ -191,11 +191,17 @@ async def get_jwk(url):
         pass
 
 
-async def get_ga4gh_controlled(passports):
-    """Retrieve dataset permissions from GA4GH passport visas."""
-    # We only want to get datasets once, thus the set which prevents duplicates
-    LOG.info("Parsing GA4GH dataset permissions.")
-    datasets = set()
+async def validate_passport(passport):
+    """Decode a passport and validate its contents."""
+    LOG.debug('Validating passport.')
+
+    # Passports from `get_ga4gh_controlled()` will be of form
+    # passport[0] -> encoded passport (JWT)
+    # passport[1] -> unverified decoded header (contains `jku`)
+    # Passports from `get_bona_fide_status()` will be of form
+    # passport[0] -> encoded passport (JWT)
+    # passport[1] -> unverified decoded header (contains `jku`)
+    # passport[2] -> unverified decoded payload
 
     # JWT decoding and validation settings
     # The `aud` claim will be ignored, because Beacon has no prior knowledge
@@ -207,42 +213,51 @@ async def get_ga4gh_controlled(passports):
         }
     }
 
+    # Attempt to decode the token and validate its contents
+    # None of the exceptions are fatal, and will not raise an exception
+    # Because even if the validation of one passport fails, the query
+    # Should still continue in case other passports are valid
+    try:
+        # Get JWK for this passport from a third party provider
+        # The JWK will be requested from a URL that is given in the `jku` claim in the header
+        passport_key = await get_jwk(passport[1].get('jku'))
+        # Decode the JWT using public key
+        decoded_passport = jwt.decode(passport[0], passport_key, claims_options=claims_options)
+        # Validate the JWT signature
+        decoded_passport.validate()
+        # Return decoded and validated payload contents
+        return decoded_passport
+    except MissingClaimError as e:
+        LOG.error(f'Missing claim(s): {e}')
+        pass
+    except ExpiredTokenError as e:
+        LOG.error(f'Expired signature: {e}')
+        pass
+    except InvalidClaimError as e:
+        LOG.error(f'Token info not corresponding with claim: {e}')
+        pass
+    except InvalidTokenError as e:
+        LOG.error(f'Invalid authorization token: {e}')
+        pass
+
+    return None
+
+
+async def get_ga4gh_controlled(passports):
+    """Retrieve dataset permissions from GA4GH passport visas."""
+    # We only want to get datasets once, thus the set which prevents duplicates
+    LOG.info("Parsing GA4GH dataset permissions.")
+    datasets = set()
+
     for passport in passports:
-        # passport[0] -> token
-        # passport[1] -> decoded unverified header
-        # Attempt to decode the token and validate its contents
-        # None of the exceptions are fatal, and will not raise an exception
-        # Because even if the validation of one passport fails, the query
-        # Should still continue in case other passports are valid
-        try:
-            # Get JWK for this passport from a third party provider
-            # The JWK will be requested from a URL that is given in the `jku` claim in the header
-            passport_key = await get_jwk(passport[1].get('jku'))
-            # Decode the JWT using public key
-            decoded_passport = jwt.decode(passport[0], passport_key, claims_options=claims_options)
-            # Validate the JWT signature
-            decoded_passport.validate()
-            # Extract dataset id from validated passport
-            # The dataset value will be of form `https://institution.org/urn:dataset:1000`
-            # the extracted dataset will always be the last list element when split with `/`
-            dataset = decoded_passport.get('ga4gh_visa_v1', {}).get('value').split('/')[-1]
-            # Add dataset to set
-            datasets.update(dataset)
-        except MissingClaimError as e:
-            LOG.error(f'Missing claim(s): {e}')
-            pass
-        except ExpiredTokenError as e:
-            LOG.error(f'Expired signature: {e}')
-            pass
-        except InvalidClaimError as e:
-            LOG.error(f'Token info not corresponding with claim: {e}')
-            pass
-        except InvalidTokenError as e:
-            LOG.error(f'Invalid authorization token: {e}')
-            pass
-        except AttributeError as e:
-            LOG.error(f'GA4GH Visa did not contain a value: {e}')
-            pass
+        # Decode passport and validate its contents
+        validated_passport = await validate_passport(passport)
+        # Extract dataset id from validated passport
+        # The dataset value will be of form `https://institution.org/urn:dataset:1000`
+        # the extracted dataset will always be the last list element when split with `/`
+        dataset = validated_passport.get('ga4gh_visa_v1', {}).get('value').split('/')[-1]
+        # Add dataset to set
+        datasets.add(dataset)
 
     return datasets
 
@@ -255,24 +270,7 @@ async def get_ga4gh_bona_fide(passports):
     terms = False
     status = False
 
-    # JWT decoding and validation settings
-    # The `aud` claim will be ignored, because Beacon has no prior knowledge
-    # as to where the token has originated from, and is therefore unable to
-    # verify the intended audience. Other claims will be validated as per usual.
-    claims_options = {
-        "aud": {
-            "essential": False
-        }
-    }
-
     for passport in passports:
-        # passport[0] -> token
-        # passport[1] -> decoded unverified header
-        # passport[2] -> decoded unverified payload
-        # Attempt to decode the token and validate its contents
-        # None of the exceptions are fatal, and will not raise an exception
-        # Because even if the validation of one passport fails, the query
-        # Should still continue in case other passports are valid
         # Check for the `type` of visa to determine if to look for `terms` or `status`
         #
         # CHECK FOR TERMS
@@ -280,56 +278,28 @@ async def get_ga4gh_bona_fide(passports):
             # Check if the visa contains a bona fide value
             if passport[2].get('ga4gh_visa_v1', {}).get('value') == OAUTH2_CONFIG.bona_fide_value:
                 # This passport has the correct type and value, next step is to validate it
-                try:
-                    # Get JWK for this passport from a third party provider
-                    # The JWK will be requested from a URL that is given in the `jku` claim in the header
-                    passport_key = await get_jwk(passport[1].get('jku'))
-                    # Decode the JWT using public key
-                    decoded_passport = jwt.decode(passport[0], passport_key, claims_options=claims_options)
-                    # Validate the JWT signature
-                    decoded_passport.validate()
-                    # The token is validated, therefore the terms are accepted
-                    terms = True
-                except MissingClaimError as e:
-                    LOG.error(f'Missing claim(s): {e}')
-                    pass
-                except ExpiredTokenError as e:
-                    LOG.error(f'Expired signature: {e}')
-                    pass
-                except InvalidClaimError as e:
-                    LOG.error(f'Token info not corresponding with claim: {e}')
-                    pass
-                except InvalidTokenError as e:
-                    LOG.error(f'Invalid authorization token: {e}')
-                    pass
+                #
+                # Decode passport and validate its contents
+                # If the validation passes, terms will be set to True
+                # If the validation fails, an exception will be raised
+                # (and ignored since it's not fatal), and terms will remain False
+                await validate_passport(passport)
+                # The token is validated, therefore the terms are accepted
+                terms = True
         #
         # CHECK FOR STATUS
         if passport[2].get('ga4gh_visa_v1', {}).get('type') == 'ResearcherStatus':
             # Check if the visa contains a bona fide value
             if passport[2].get('ga4gh_visa_v1', {}).get('value') == OAUTH2_CONFIG.bona_fide_value:
                 # This passport has the correct type and value, next step is to validate it
-                try:
-                    # Get JWK for this passport from a third party provider
-                    # The JWK will be requested from a URL that is given in the `jku` claim in the header
-                    passport_key = await get_jwk(passport[1].get('jku'))
-                    # Decode the JWT using public key
-                    decoded_passport = jwt.decode(passport[0], passport_key, claims_options=claims_options)
-                    # Validate the JWT signature
-                    decoded_passport.validate()
-                    # The token is validated, therefore the status is accepted
-                    status = True
-                except MissingClaimError as e:
-                    LOG.error(f'Missing claim(s): {e}')
-                    pass
-                except ExpiredTokenError as e:
-                    LOG.error(f'Expired signature: {e}')
-                    pass
-                except InvalidClaimError as e:
-                    LOG.error(f'Token info not corresponding with claim: {e}')
-                    pass
-                except InvalidTokenError as e:
-                    LOG.error(f'Invalid authorization token: {e}')
-                    pass
+                #
+                # Decode passport and validate its contents
+                # If the validation passes, status will be set to True
+                # If the validation fails, an exception will be raised
+                # (and ignored since it's not fatal), and status will remain False
+                await validate_passport(passport)
+                # The token is validated, therefore the status is accepted
+                status = True
 
     if terms and status:
         # User has agreed to terms and has been recognized by a peer, return True for Bona Fide status
