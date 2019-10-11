@@ -3,6 +3,7 @@ import aiohttp
 from beacon_api.utils.db_load import parse_arguments, init_beacon_db, main
 from beacon_api.conf.config import init_db_pool
 from beacon_api.api.query import access_resolution
+from beacon_api.utils.validate import token_scheme_check
 from beacon_api.permissions.ga4gh import get_ga4gh_controlled, get_ga4gh_bona_fide
 from .test_app import PARAMS
 from testfixtures import TempDirectory
@@ -104,6 +105,12 @@ class TestBasicFunctions(asynctest.TestCase):
         """Test run asyncio main beacon init."""
         main()
         mock_init.assert_called()
+
+    def test_token_scheme_check_bad(self):
+        """Test token scheme no token."""
+        # This might never happen, yet let prepare for it
+        with self.assertRaises(aiohttp.web_exceptions.HTTPUnauthorized):
+            token_scheme_check(None, 'https', {}, 'localhost')
 
     def test_access_resolution_base(self):
         """Test assumptions for access resolution.
