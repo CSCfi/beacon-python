@@ -222,11 +222,11 @@ class BeaconDB:
             LOG.info(f'Calculate number of samples from {datafile}')
             len_samples = len(vcf.samples)
             LOG.info(f'Parse metadata from {metafile}')
-            with open(metafile, 'r') as metafile:
+            with open(metafile, 'r') as meta_file:
                 # read metadata from given JSON file
                 # TO DO: parse metadata directly from datafile if possible
-                LOG.info(metafile)
-                metadata = json.load(metafile)
+                LOG.info(meta_file)
+                metadata = json.load(meta_file)
             LOG.info(metadata)
             LOG.info('Metadata has been parsed')
             try:
@@ -255,7 +255,8 @@ class BeaconDB:
                 LOG.error(f'AN ERROR OCCURRED WHILE ATTEMPTING TO INSERT METADATA -> {e}')
         except Exception as e:
             LOG.error(f'AN ERROR OCCURRED WHILE ATTEMPTING TO PARSE METADATA -> {e}')
-        return metadata['datasetId']
+        else:
+            return metadata['datasetId']
 
     def _chunks(self, iterable, size):
         """Chunk records.

@@ -11,7 +11,7 @@ class Variant:
     Mock this for Variant calculations.
     """
 
-    def __init__(self, ALT, REF, INF, call_rate, var_type, num_called):
+    def __init__(self, ALT, REF, INF, call_rate, var_type, num_called, is_sv=False):
         """Initialize class."""
         self.INFO = INF
         self.ALT = ALT
@@ -19,7 +19,7 @@ class Variant:
         self.call_rate = call_rate
         self.var_type = var_type
         self.num_called = num_called
-        self.is_sv = False
+        self.is_sv = is_sv
 
 
 class INFO:
@@ -28,12 +28,13 @@ class INFO:
     Mock this for storing VCF info.
     """
 
-    def __init__(self, AC, VT, AN):
+    def __init__(self, AC, VT, AN, AF, SVTYPE=None):
         """Initialize class."""
         self.AC = AC
         self.VT = VT
         self.AN = AN
-        self.AF = None
+        self.AF = AF
+        self.SVTYPE = SVTYPE
 
     def get(self, key):
         """Inside `__getitem__` method."""
@@ -133,6 +134,10 @@ class ConnectionException:
         """Mimic transaction."""
         return Transaction(*args, **kwargs)
 
+    async def execute(self, query, *args):
+        """Mimic execute."""
+        return Exception
+
     @asyncio.coroutine
     def prepare(self, query):
         """Mimic prepare."""
@@ -170,7 +175,8 @@ class DatabaseTestCase(asynctest.TestCase):
         #CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	NA00001	NA00002	NA00003
         19	111	.	A	C	9.6	.	.	GT:HQ	0|0:10,10	0|0:10,10	0/1:3,3
         19	112	.	A	G	10	.	.	GT:HQ	0|0:10,10	0|0:10,10	0/1:3,3
-        20	14370	rs6054257	G	A	29	PASS	NS=3;DP=14;AF=0.5;DB;H2	GT:GQ:DP:HQ	0|0:48:1:51,51	1|0:48:8:51,51	1/1:43:5:.,."""
+        20	14370	rs6054257	G	A	29	PASS	NS=3;DP=14;AF=0.5;DB;H2	GT:GQ:DP:HQ	0|0:48:1:51,51	1|0:48:8:51,51	1/1:43:5:.,.
+        chrM 15011 . T C . PASS . GT:GQ:DP:RO:QR:AO:QA:GL 1:160:970:0:0:968:31792:-2860.58,0 1:160:970:0:0:968:31792:-2860.58,0"""
         self.datafile = self._dir.write('data.csv', self.data.encode('utf-8'))
 
     def tearDown(self):
@@ -184,6 +190,18 @@ class DatabaseTestCase(asynctest.TestCase):
         await self._db.connection()
         result = self._db._rchop('INS:ME:LINE1', ":LINE1")
         self.assertEqual('INS:ME', result)
+        result_no_ending = self._db._rchop('INS', ":LINE1")
+        self.assertEqual('INS', result_no_ending)
+
+    @asynctest.mock.patch('beacon_api.utils.db_load.asyncpg.connect')
+    async def test_handle_type(self, db_mock):
+        """Test handle type."""
+        db_mock.return_value = Connection()
+        await self._db.connection()
+        result = self._db._handle_type(1, int)
+        self.assertEqual([1], result)
+        result_tuple = self._db._handle_type((0.1, 0.2), float)
+        self.assertEqual([0.1, 0.2], result_tuple)
 
     @asynctest.mock.patch('beacon_api.utils.db_load.asyncpg.connect')
     async def test_bnd_parts(self, db_mock):
@@ -227,6 +245,16 @@ class DatabaseTestCase(asynctest.TestCase):
 
     @asynctest.mock.patch('beacon_api.utils.db_load.LOG')
     @asynctest.mock.patch('beacon_api.utils.db_load.asyncpg.connect')
+    async def test_create_tables_exception(self, db_mock, mock_log):
+        """Test creating tables exception."""
+        db_mock.return_value = ConnectionException()
+        await self._db.connection()
+        await self._db.create_tables('sql.init')
+        log = "AN ERROR OCCURRED WHILE ATTEMPTING TO CREATE TABLES -> [Errno 2] No such file or directory: 'sql.init'"
+        mock_log.error.assert_called_with(log)
+
+    @asynctest.mock.patch('beacon_api.utils.db_load.LOG')
+    @asynctest.mock.patch('beacon_api.utils.db_load.asyncpg.connect')
     @asynctest.mock.patch('beacon_api.utils.db_load.VCF')
     async def test_load_metadata(self, mock_vcf, db_mock, mock_log):
         """Test load metadata."""
@@ -249,6 +277,18 @@ class DatabaseTestCase(asynctest.TestCase):
         # Should assert logs
         mock_log.info.mock_calls = [f'Parsing metadata from {metafile}',
                                     'Metadata has been parsed']
+
+    @asynctest.mock.patch('beacon_api.utils.db_load.LOG')
+    @asynctest.mock.patch('beacon_api.utils.db_load.asyncpg.connect')
+    async def test_load_metadata_exception(self, db_mock, mock_log):
+        """Test load metadata error."""
+        db_mock.return_value = ConnectionException()
+        await self._db.connection()
+        vcf = asynctest.mock.MagicMock(name='samples')
+        vcf.samples.return_value = [1, 2, 3]
+        await self._db.load_metadata(vcf, 'meta.are', 'datafile')
+        log = "AN ERROR OCCURRED WHILE ATTEMPTING TO PARSE METADATA -> [Errno 2] No such file or directory: 'meta.are'"
+        mock_log.error.assert_called_with(log)
 
     @asynctest.mock.patch('beacon_api.utils.db_load.LOG')
     @asynctest.mock.patch('beacon_api.utils.db_load.asyncpg.connect')
@@ -277,12 +317,6 @@ class DatabaseTestCase(asynctest.TestCase):
         mock_log.info.mock_calls = [f'Received 1 variants for insertion to DATASET1',
                                     'Insert variants into the database']
 
-    # This was the case when BeaconDB() was initiated with a URL parameter, now it happens with environment variables
-    # def test_bad_init(self):
-    #     """Capture error in case of anything wrong with initializing BeaconDB."""
-    #     with self.assertRaises(TypeError):
-    #         BeaconDB()
-
     @asynctest.mock.patch('beacon_api.utils.db_load.LOG')
     @asynctest.mock.patch('beacon_api.utils.db_load.asyncpg.connect')
     async def test_close(self, db_mock, mock_log):
@@ -299,18 +333,26 @@ class DatabaseTestCase(asynctest.TestCase):
         """Test database URL fetching."""
         db_mock.return_value = Connection()
         await self._db.connection()
-        inf1 = INFO((1), 'S', 3)
-        variant = Variant(['C'], 'T', inf1, 0.7, 'snp', 3)
-        result = self._db._unpack(variant)
+        inf1 = INFO((1), 'S', 3, None)
+        variant_1 = Variant(['C'], 'T', inf1, 0.7, 'snp', 3)
+        result = self._db._unpack(variant_1)
         self.assertEqual(([0.3333333333333333], [1], ['SNP'], ['C'], 3, []), result)
-        inf2 = INFO(1, 'S', 3)
-        variant = Variant(['AT', 'A'], 'ATA', inf2, 0.7, 'snp', 3)
-        result = self._db._unpack(variant)
+        inf2 = INFO(1, 'S', 3, None)
+        variant_2 = Variant(['AT', 'A'], 'ATA', inf2, 0.7, 'snp', 3)
+        result = self._db._unpack(variant_2)
         self.assertEqual(([0.3333333333333333], [1], ['DEL', 'DEL'], ['AT', 'A'], 3, []), result)
-        inf3 = INFO((1), 'S', 3)
-        variant = Variant(['TC'], 'T', inf3, 0.7, 'snp', 3)
-        result = self._db._unpack(variant)
-        self.assertEqual(([0.3333333333333333], [1], ['INS'], ['TC'], 3, []), result)
+        inf3 = INFO((1), 'S', 3, 0.5)
+        variant_3 = Variant(['TC'], 'T', inf3, 0.7, 'snp', 3)
+        result = self._db._unpack(variant_3)
+        self.assertEqual(([0.5], [1], ['INS'], ['TC'], 3, []), result)
+        inf4 = INFO((1), '<INS:ME>', 3, None, 'BND')
+        variant_4 = Variant(['TC'], 'T', inf4, 0.7, 'snp', 3)
+        result = self._db._unpack(variant_4)
+        self.assertEqual(([0.3333333333333333], [1], ['SNP'], ['TC'], 3, []), result)
+        inf5 = INFO((1), 'S', 3, None, '<INS:ME>')
+        variant_5 = Variant(['TC'], 'T', inf5, 0.7, 'ins', 3)
+        result5 = self._db._unpack(variant_5)
+        self.assertEqual(([0.3333333333333333], [1], ['INS'], ['TC'], 3, []), result5)
 
     @asynctest.mock.patch('beacon_api.utils.db_load.LOG')
     @asynctest.mock.patch('beacon_api.utils.db_load.asyncpg.connect')
