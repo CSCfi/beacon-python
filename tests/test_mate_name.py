@@ -1,6 +1,7 @@
 import asynctest
+import aiohttp
 from beacon_api.extensions.mate_name import find_fusion, fetch_fusion_dataset
-from .test_db_load import Connection
+from .test_db_load import Connection, ConnectionException
 
 
 class TestDataQueryFunctions(asynctest.TestCase):
@@ -40,6 +41,17 @@ class TestDataQueryFunctions(asynctest.TestCase):
         self.assertEqual(result, [])
         result_miss = await fetch_fusion_dataset(pool, assembly_id, position, chromosome, reference, None, None, None, True)
         self.assertEqual(result_miss, [])
+
+    async def test_fetch_fusion_dataset_call_exception(self):
+        """Test db call for retrieving mate data with exception."""
+        pool = asynctest.CoroutineMock()
+        pool.acquire().__aenter__.return_value = ConnectionException()
+        assembly_id = 'GRCh38'
+        position = (10, 20, None, None, None, None)
+        chromosome = 1
+        reference = 'A'
+        with self.assertRaises(aiohttp.web_exceptions.HTTPInternalServerError):
+            await fetch_fusion_dataset(pool, assembly_id, position, chromosome, reference, None, None, None, False)
 
 
 if __name__ == '__main__':

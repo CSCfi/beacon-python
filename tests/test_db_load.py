@@ -119,6 +119,26 @@ class Connection:
         return Transaction(*args, **kwargs)
 
 
+class ConnectionException:
+    """Class Connection with Exception.
+
+    Mock this from asyncpg.
+    """
+
+    def __init__(self):
+        """Initialize class."""
+        pass
+
+    def transaction(self, *args, **kwargs):
+        """Mimic transaction."""
+        return Transaction(*args, **kwargs)
+
+    @asyncio.coroutine
+    def prepare(self, query):
+        """Mimic prepare."""
+        return Exception
+
+
 class DatabaseTestCase(asynctest.TestCase):
     """Test database operations."""
 

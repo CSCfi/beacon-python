@@ -1,4 +1,5 @@
 import asynctest
+import aiohttp
 from unittest import mock
 from beacon_api.utils.data_query import filter_exists, transform_record
 from beacon_api.utils.data_query import transform_misses, transform_metadata, find_datasets, add_handover
@@ -6,7 +7,7 @@ from beacon_api.utils.data_query import fetch_datasets_access, fetch_dataset_met
 from beacon_api.extensions.handover import make_handover
 from datetime import datetime
 from beacon_api.utils.data_query import handle_wildcard
-from .test_db_load import Connection
+from .test_db_load import Connection, ConnectionException
 
 
 class Record:
@@ -154,6 +155,13 @@ class TestDataQueryFunctions(asynctest.TestCase):
         # in Connection() class
         self.assertEqual(result, (['mock:public:id'], [], []))
 
+    async def test_datasets_access_call_exception(self):
+        """Test db call of getting public datasets access with exception."""
+        pool = asynctest.CoroutineMock()
+        pool.acquire().__aenter__.return_value = ConnectionException()
+        with self.assertRaises(aiohttp.web_exceptions.HTTPInternalServerError):
+            await fetch_datasets_access(pool, None)
+
     async def test_datasets_access_call_registered(self):
         """Test db call of getting registered datasets access."""
         pool = asynctest.CoroutineMock()
@@ -195,6 +203,13 @@ class TestDataQueryFunctions(asynctest.TestCase):
         # in Connection() class
         self.assertEqual(result, [])
 
+    async def test_fetch_dataset_metadata_call_exception(self):
+        """Test db call of getting datasets metadata with exception."""
+        pool = asynctest.CoroutineMock()
+        pool.acquire().__aenter__.return_value = ConnectionException()
+        with self.assertRaises(aiohttp.web_exceptions.HTTPInternalServerError):
+            await fetch_dataset_metadata(pool, None, None)
+
     async def test_fetch_filtered_dataset_call(self):
         """Test db call for retrieving main data."""
         pool = asynctest.CoroutineMock()
@@ -211,6 +226,18 @@ class TestDataQueryFunctions(asynctest.TestCase):
         self.assertEqual(result, [])
         result_miss = await fetch_filtered_dataset(pool, assembly_id, position, chromosome, reference, alternate, None, None, True)
         self.assertEqual(result_miss, [])
+
+    async def test_fetch_filtered_dataset_call_exception(self):
+        """Test db call of retrieving main data with exception."""
+        assembly_id = 'GRCh38'
+        position = (10, 20, None, None, None, None)
+        chromosome = 1
+        reference = 'A'
+        alternate = ('DUP', None)
+        pool = asynctest.CoroutineMock()
+        pool.acquire().__aenter__.return_value = ConnectionException()
+        with self.assertRaises(aiohttp.web_exceptions.HTTPInternalServerError):
+            await fetch_filtered_dataset(pool, assembly_id, position, chromosome, reference, alternate, None, None, False)
 
     def test_handle_wildcard(self):
         """Test PostgreSQL wildcard handling."""
