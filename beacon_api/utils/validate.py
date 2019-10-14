@@ -185,8 +185,19 @@ def token_auth():
                 # the bona_fide_status is specific to ELIXIR Tokens
                 #
                 # Retrieve GA4GH Passports from /userinfo and process them into dataset permissions and bona fide status
-                dataset_permissions, bona_fide_status = await get_ga4gh_permissions(token)
+                bona_fide_status = False
+                dataset_permissions = set()
+                required_scopes = ['openid', 'ga4gh_passport_v1']
+                token_scopes = decoded_data.get('scope').split(' ')
+                LOG.info(f'Required scopes: {required_scopes}')
+                LOG.info(f'Token scopes: {token_scopes}')
+                LOG.info(f'Bona fide before: {bona_fide_status}')
+                LOG.info(f'Permissions before: {dataset_permissions}')
+                if all(scope in token_scopes for scope in required_scopes):
+                    dataset_permissions, bona_fide_status = await get_ga4gh_permissions(token)
                 #
+                LOG.info(f'Bona fide after: {bona_fide_status}')
+                LOG.info(f'Permissions after: {dataset_permissions}')
                 controlled_datasets = set()
                 # currently we offer module for parsing GA4GH permissions, but multiple claims and providers can be utilised
                 # by updating the set, meaning replicating the line below with the permissions function and its associated claim
