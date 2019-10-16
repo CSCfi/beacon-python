@@ -22,7 +22,7 @@ def make_handover(paths, datasetIds, chr='', start=0, end=0, ref='', alt='', var
         for dataset in set(datasetIds):
             handovers.append({"handoverType": {"id": "CUSTOM", "label": label},
                               "description": desc,
-                              "url": __handover_drs__ + path.format(dataset=dataset, chr=chr, start=start,
-                                                                    end=end, ref=ref, alt=alt)})
+                              "url": __handover_drs__ + "/" + path.format(dataset=dataset, chr=chr, start=start,
+                                                                          end=end, ref=ref, alt=alt)})
 
     return handovers
