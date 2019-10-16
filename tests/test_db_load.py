@@ -329,6 +329,16 @@ class DatabaseTestCase(asynctest.TestCase):
 
     @asynctest.mock.patch('beacon_api.utils.db_load.LOG')
     @asynctest.mock.patch('beacon_api.utils.db_load.asyncpg.connect')
+    async def test_close_error(self, db_mock, mock_log):
+        """Test database URL close error."""
+        db_mock.return_value = ConnectionException()
+        await self._db.connection()
+        await self._db.close()
+        log = "AN ERROR OCCURRED WHILE ATTEMPTING TO CLOSE DATABASE CONNECTION -> 'ConnectionException' object has no attribute 'close'"
+        mock_log.error.assert_called_with(log)
+
+    @asynctest.mock.patch('beacon_api.utils.db_load.LOG')
+    @asynctest.mock.patch('beacon_api.utils.db_load.asyncpg.connect')
     async def test_unpack(self, db_mock, mock_log):
         """Test database URL fetching."""
         db_mock.return_value = Connection()
