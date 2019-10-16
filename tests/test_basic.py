@@ -108,9 +108,9 @@ class TestBasicFunctions(asynctest.TestCase):
 
     def test_token_scheme_check_bad(self):
         """Test token scheme no token."""
-        # This might never happen, yet let prepare for it
+        # This might never happen, yet lets prepare for it
         with self.assertRaises(aiohttp.web_exceptions.HTTPUnauthorized):
-            token_scheme_check(None, 'https', {}, 'localhost')
+            token_scheme_check("", 'https', {}, 'localhost')
 
     def test_access_resolution_base(self):
         """Test assumptions for access resolution.

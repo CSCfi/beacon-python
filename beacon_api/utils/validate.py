@@ -54,7 +54,8 @@ def extend_with_default(validator_class):
         for error in validate_properties(
             validator, properties, instance, schema,
         ):
-            yield error
+            # Difficult to unit test
+            yield error  # pragma: no cover
 
     return validators.extend(
         validator_class, {"properties": set_defaults},
@@ -119,7 +120,8 @@ def token_scheme_check(token, scheme, obj, host):
         raise BeaconUnauthorised(obj, host, "invalid_token", 'Invalid token scheme, Bearer required.')
 
     if token is None:
-        raise BeaconUnauthorised(obj, host, "invalid_token", 'Token cannot be empty.')
+        # Might never happen
+        raise BeaconUnauthorised(obj, host, "invalid_token", 'Token cannot be empty.')  # pragma: no cover
 
 
 def verify_aud_claim():
