@@ -76,8 +76,6 @@ def validate(schema):
         @wraps(func)
         async def wrapped(*args):
             request = args[-1]
-            if not isinstance(request, web.Request):
-                raise BeaconBadRequest(request, request.host, "invalid request", "This does not seem a valid HTTP Request.")
             try:
                 _, obj = await parse_request_object(request)
             except Exception:
