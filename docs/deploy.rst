@@ -76,7 +76,7 @@ For use with Kubernetes we provide ``YAML`` configuration.
             role: beacon
         spec:
           containers:
-            - image: cscfi/beacon
+            - image: cscfi/beacon-python
               imagePullPolicy: Always
               name: beacon
               ports:
@@ -88,8 +88,9 @@ For use with Kubernetes we provide ``YAML`` configuration.
                   name: data
           volumes:
             - name: data
-              persistentVolumeClaim:
-                claimName: beaconpy
+            # change below with preferred volume class
+              hostPath:
+                path: /local/disk/path
     ---
     apiVersion: v1
     kind: Service

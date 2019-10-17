@@ -54,7 +54,8 @@ def extend_with_default(validator_class):
         for error in validate_properties(
             validator, properties, instance, schema,
         ):
-            yield error
+            # Difficult to unit test
+            yield error  # pragma: no cover
 
     return validators.extend(
         validator_class, {"properties": set_defaults},
@@ -76,8 +77,6 @@ def validate(schema):
         @wraps(func)
         async def wrapped(*args):
             request = args[-1]
-            if not isinstance(request, web.Request):
-                raise BeaconBadRequest(request, request.host, "invalid request", "This does not seem a valid HTTP Request.")
             try:
                 _, obj = await parse_request_object(request)
             except Exception:
@@ -121,7 +120,21 @@ def token_scheme_check(token, scheme, obj, host):
         raise BeaconUnauthorised(obj, host, "invalid_token", 'Invalid token scheme, Bearer required.')
 
     if token is None:
-        raise BeaconUnauthorised(obj, host, "invalid_token", 'Token cannot be empty.')
+        # Might never happen
+        raise BeaconUnauthorised(obj, host, "invalid_token", 'Token cannot be empty.')  # pragma: no cover
+
+
+def verify_aud_claim():
+    """Verify audience claim."""
+    aud = []
+    verify_aud = OAUTH2_CONFIG.verify_aud  # Option to skip verification of `aud` claim
+    if verify_aud:
+        aud = os.environ.get('JWT_AUD', OAUTH2_CONFIG.audience)  # List of intended audiences of token
+        # if verify_aud is set to True, we expect that a desired aud is then supplied.
+        # However, if verify_aud=True and no aud is supplied, we use aud=[None] which will fail for
+        # all tokens as a security measure. If aud=[], all tokens will pass (as is the default value).
+        aud = aud.split(',') if aud is not None else [None]
+    return verify_aud, aud
 
 
 def token_auth():
@@ -132,8 +145,6 @@ def token_auth():
     """
     @web.middleware
     async def token_middleware(request, handler):
-        if not isinstance(request, web.Request):
-            raise BeaconBadRequest(request, request.host, "invalid request", "This does not seem a valid HTTP Request.")
         if request.path in ['/query'] and 'Authorization' in request.headers:
             _, obj = await parse_request_object(request)
             try:
@@ -147,14 +158,7 @@ def token_auth():
 
             # Token decoding parameters
             key = await get_key()  # JWK used to decode token with
-            aud = []
-            verify_aud = OAUTH2_CONFIG.verify_aud  # Option to skip verification of `aud` claim
-            if verify_aud:
-                aud = os.environ.get('JWT_AUD', OAUTH2_CONFIG.audience)  # List of intended audiences of token
-                # if verify_aud is set to True, we expect that a desired aud is then supplied.
-                # However, if verify_aud=True and no aud is supplied, we use aud=[None] which will fail for
-                # all tokens as a security measure. If aud=[], all tokens will pass (as is the default value).
-                aud = aud.split(',') if aud is not None else [None]
+            verify_aud, aud = verify_aud_claim()
             # Prepare JWTClaims validation
             # can be populated with claims that are required to be present in the payload of the token
             claims_options = {
@@ -195,14 +199,15 @@ def token_auth():
                                     # currently if a token is valid that means request is authenticated
                                     "authenticated": True}
                 return await handler(request)
+            # Testing the exceptions is done in integration tests
             except MissingClaimError as e:
-                raise BeaconUnauthorised(obj, request.host, "invalid_token", f'Missing claim(s): {e}')
+                raise BeaconUnauthorised(obj, request.host, "invalid_token", f'Missing claim(s): {e}')  # pragma: no cover
             except ExpiredTokenError as e:
-                raise BeaconUnauthorised(obj, request.host, "invalid_token", f'Expired signature: {e}')
+                raise BeaconUnauthorised(obj, request.host, "invalid_token", f'Expired signature: {e}')  # pragma: no cover
             except InvalidClaimError as e:
-                raise BeaconForbidden(obj, request.host, f'Token info not corresponding with claim: {e}')
+                raise BeaconForbidden(obj, request.host, f'Token info not corresponding with claim: {e}')  # pragma: no cover
             except InvalidTokenError as e:
-                raise BeaconUnauthorised(obj, request.host, "invalid_token", f'Invalid authorization token: {e}')
+                raise BeaconUnauthorised(obj, request.host, "invalid_token", f'Invalid authorization token: {e}')  # pragma: no cover
         else:
             request["token"] = {"bona_fide_status": False,
                                 "permissions": None,

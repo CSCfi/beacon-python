@@ -82,7 +82,8 @@ async def initialize(app):
 
 async def destroy(app):
     """Upon server close, close the DB connection pool."""
-    await app['pool'].close()
+    # will defer this to asyncpg
+    await app['pool'].close()  # pragma: no cover
 
 
 def set_cors(server):

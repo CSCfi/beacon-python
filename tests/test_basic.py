@@ -3,9 +3,11 @@ import aiohttp
 from beacon_api.utils.db_load import parse_arguments, init_beacon_db, main
 from beacon_api.conf.config import init_db_pool
 from beacon_api.api.query import access_resolution
+from beacon_api.utils.validate import token_scheme_check, verify_aud_claim
 from beacon_api.permissions.ga4gh import get_ga4gh_controlled, get_ga4gh_bona_fide
 from .test_app import PARAMS
 from testfixtures import TempDirectory
+from test.support import EnvironmentVarGuard
 
 
 def mock_token(bona_fide, permissions, auth):
@@ -104,6 +106,22 @@ class TestBasicFunctions(asynctest.TestCase):
         """Test run asyncio main beacon init."""
         main()
         mock_init.assert_called()
+
+    def test_aud_claim(self):
+        """Test aud claim function."""
+        env = EnvironmentVarGuard()
+        env.set('JWT_AUD', "aud1,aud2")
+        result = verify_aud_claim()
+        # Because it is false we expect it not to be parsed
+        expected = (False, [])
+        self.assertEqual(result, expected)
+        env.unset('JWT_AUD')
+
+    def test_token_scheme_check_bad(self):
+        """Test token scheme no token."""
+        # This might never happen, yet lets prepare for it
+        with self.assertRaises(aiohttp.web_exceptions.HTTPUnauthorized):
+            token_scheme_check("", 'https', {}, 'localhost')
 
     def test_access_resolution_base(self):
         """Test assumptions for access resolution.
