@@ -1,6 +1,6 @@
 """Parse permissions and statuses from ELIXIR token for GA4GH claim.
 
-Current implementation is based on https://github.com/ga4gh/data-security/blob/master/AAI/AAIConnectProfile.md#embedded-document-token-format
+Current implementation is based on https://github.com/ga4gh/data-security/blob/master/AAI/AAIConnectProfile.md
 
 The ELIXIR AAI JWT payload contains a GA4GH Passport claim in the scope:
 
