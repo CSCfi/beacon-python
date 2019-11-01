@@ -161,7 +161,7 @@ async def get_ga4gh_permissions(token):
             header, payload = await decode_passport(encoded_passport)
             # Sort passports that carry dataset permissions
             pass_type = payload.get('ga4gh_visa_v1', {}).get('type')
-            if pass_type == 'ControlledAccessGrants':
+            if pass_type == 'ControlledAccessGrants':  # nosec
                 dataset_passports.append((encoded_passport, header))
             # Sort passports that MAY carry bona fide status information
             if pass_type in ['AcceptedTermsAndPolicies', 'ResearcherStatus']:

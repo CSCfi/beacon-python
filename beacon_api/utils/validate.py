@@ -188,7 +188,7 @@ def token_auth():
                 # Retrieve GA4GH Passports from /userinfo and process them into dataset permissions and bona fide status
                 bona_fide_status = False
                 dataset_permissions = set()
-                check_ga4gh_token(decoded_data, token, bona_fide_status, dataset_permissions)
+                await check_ga4gh_token(decoded_data, token, bona_fide_status, dataset_permissions)
 
                 LOG.info(f'Bona fide after: {bona_fide_status}')
                 LOG.info(f'Permissions after: {dataset_permissions}')
