@@ -110,19 +110,19 @@ class TestBasicFunctions(asynctest.TestCase):
         with self.assertRaises(aiohttp.web_exceptions.HTTPInternalServerError):
             await retrieve_user_data('bad_token')
 
-    @aioresponses()
-    async def test_bad_none_retrieve_user_data(self, m):
-        """Test a failing userdata call because response didn't have ga4gh format."""
-        m.get("http://test.csc.fi/userinfo", payload={"not_ga4gh": [{}]})
-        user_data = await retrieve_user_data('good_token')
-        self.assertEqual(user_data, None)
+    # @aioresponses()
+    # async def test_bad_none_retrieve_user_data(self, m):
+    #     """Test a failing userdata call because response didn't have ga4gh format."""
+    #     m.get("http://test.csc.fi/userinfo", payload={"not_ga4gh": [{}]})
+    #     user_data = await retrieve_user_data('good_token')
+    #     self.assertEqual(user_data, None)
 
-    @aioresponses()
-    async def test_good_retrieve_user_data(self, m):
-        """Test a passing call to retrieve user data."""
-        m.get("http://test.csc.fi/userinfo", payload={"ga4gh": [{}]})
-        user_data = await retrieve_user_data('good_token')
-        self.assertEqual(user_data, [{}])
+    # @aioresponses()
+    # async def test_good_retrieve_user_data(self, m):
+    #     """Test a passing call to retrieve user data."""
+    #     m.get("http://test.csc.fi/userinfo", payload={"ga4gh": [{}]})
+    #     user_data = await retrieve_user_data('good_token')
+    #     self.assertEqual(user_data, [{}])
 
     @aioresponses()
     async def test_get_key(self, m):

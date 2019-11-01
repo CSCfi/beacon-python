@@ -7,7 +7,7 @@ The ELIXIR AAI JWT payload contains a GA4GH Passport claim in the scope:
 .. code-block:: javascript
 
     {
-        "scope": "ga4gh_passport_v1",
+        "scope": "openid ga4gh_passport_v1",
         ...
     }
 
@@ -87,11 +87,23 @@ import json
 import aiohttp
 
 from authlib.jose import jwt
-from authlib.jose.errors import MissingClaimError, InvalidClaimError, ExpiredTokenError, InvalidTokenError
 
 from ..api.exceptions import BeaconServerError
 from ..utils.logging import LOG
 from ..conf import OAUTH2_CONFIG
+
+
+async def check_ga4gh_token(decoded_data, token, bona_fide_status, dataset_permissions):
+    """Check the token for GA4GH claims."""
+    if 'scope' in decoded_data:
+        ga4gh_scopes = ['openid', 'ga4gh_passport_v1']
+        token_scopes = decoded_data.get('scope').split(' ')
+        LOG.info(f'GA4H Required scopes: {ga4gh_scopes}')
+        LOG.info(f'Token scopes: {token_scopes}')
+        LOG.info(f'Bona fide before: {bona_fide_status}')
+        LOG.info(f'Permissions before: {dataset_permissions}')
+        if all(scope in token_scopes for scope in ga4gh_scopes):
+            dataset_permissions, bona_fide_status = await get_ga4gh_permissions(token)
 
 
 async def decode_passport(encoded_passport):
@@ -148,10 +160,11 @@ async def get_ga4gh_permissions(token):
             # Decode passport
             header, payload = await decode_passport(encoded_passport)
             # Sort passports that carry dataset permissions
-            if payload.get('ga4gh_visa_v1', {}).get('type') == 'ControlledAccessGrants':
+            pass_type = payload.get('ga4gh_visa_v1', {}).get('type')
+            if pass_type == 'ControlledAccessGrants':
                 dataset_passports.append((encoded_passport, header))
             # Sort passports that MAY carry bona fide status information
-            if payload.get('ga4gh_visa_v1', {}).get('type') in ['AcceptedTermsAndPolicies', 'ResearcherStatus']:
+            if pass_type in ['AcceptedTermsAndPolicies', 'ResearcherStatus']:
                 bona_fide_passports.append((encoded_passport, header, payload))
 
     # Parse dataset passports to extract dataset permissions and validate them
@@ -227,20 +240,8 @@ async def validate_passport(passport):
         decoded_passport.validate()
         # Return decoded and validated payload contents
         return decoded_passport
-    except MissingClaimError as e:
-        LOG.error(f'Missing claim(s): {e}')
-        pass
-    except ExpiredTokenError as e:
-        LOG.error(f'Expired signature: {e}')
-        pass
-    except InvalidClaimError as e:
-        LOG.error(f'Token info not corresponding with claim: {e}')
-        pass
-    except InvalidTokenError as e:
-        LOG.error(f'Invalid authorization token: {e}')
-        pass
-
-    return None
+    except Exception as e:
+        LOG.error(f"Something went wrong when processing JWT tokens: {e}")
 
 
 async def get_ga4gh_controlled(passports):
@@ -274,35 +275,31 @@ async def get_ga4gh_bona_fide(passports):
         # Check for the `type` of visa to determine if to look for `terms` or `status`
         #
         # CHECK FOR TERMS
-        if passport[2].get('ga4gh_visa_v1', {}).get('type') == 'AcceptedTermsAndPolicies':
-            # Check if the visa contains a bona fide value
-            if passport[2].get('ga4gh_visa_v1', {}).get('value') == OAUTH2_CONFIG.bona_fide_value:
-                # This passport has the correct type and value, next step is to validate it
-                #
-                # Decode passport and validate its contents
-                # If the validation passes, terms will be set to True
-                # If the validation fails, an exception will be raised
-                # (and ignored since it's not fatal), and terms will remain False
-                await validate_passport(passport)
-                # The token is validated, therefore the terms are accepted
-                terms = True
+        passport_type = passport[2].get('ga4gh_visa_v1', {}).get('type')
+        passport_value = passport[2].get('ga4gh_visa_v1', {}).get('value')
+        if passport_type in 'AcceptedTermsAndPolicies' and passport_value == OAUTH2_CONFIG.bona_fide_value:
+            # This passport has the correct type and value, next step is to validate it
+            #
+            # Decode passport and validate its contents
+            # If the validation passes, terms will be set to True
+            # If the validation fails, an exception will be raised
+            # (and ignored since it's not fatal), and terms will remain False
+            await validate_passport(passport)
+            # The token is validated, therefore the terms are accepted
+            terms = True
         #
         # CHECK FOR STATUS
-        if passport[2].get('ga4gh_visa_v1', {}).get('type') == 'ResearcherStatus':
+        if passport_value == OAUTH2_CONFIG.bona_fide_value and passport_type == 'ResearcherStatus':
             # Check if the visa contains a bona fide value
-            if passport[2].get('ga4gh_visa_v1', {}).get('value') == OAUTH2_CONFIG.bona_fide_value:
-                # This passport has the correct type and value, next step is to validate it
-                #
-                # Decode passport and validate its contents
-                # If the validation passes, status will be set to True
-                # If the validation fails, an exception will be raised
-                # (and ignored since it's not fatal), and status will remain False
-                await validate_passport(passport)
-                # The token is validated, therefore the status is accepted
-                status = True
+            # This passport has the correct type and value, next step is to validate it
+            #
+            # Decode passport and validate its contents
+            # If the validation passes, status will be set to True
+            # If the validation fails, an exception will be raised
+            # (and ignored since it's not fatal), and status will remain False
+            await validate_passport(passport)
+            # The token is validated, therefore the status is accepted
+            status = True
 
-    if terms and status:
         # User has agreed to terms and has been recognized by a peer, return True for Bona Fide status
-        return True
-
-    return False
+    return terms and status

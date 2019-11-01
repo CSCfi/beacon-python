@@ -37,14 +37,14 @@ def generate_token(issuer):
         "iss": issuer,
         "aud": "audience",
         "exp": 9999999999,
-        "sub": "smth@elixir-europe.org"
+        "sub": "smth@smth.org"
     }
     token = jwt.encode(header, payload, pem).decode('utf-8')
     return token, pem
 
 
 def generate_bad_token():
-    """Mock ELIXIR AAI token."""
+    """Mock AAI token."""
     pem = {
         "kty": "oct",
         "kid": "018c0ae5-4d9b-471b-bfd6-eef314bc7037",
@@ -286,7 +286,7 @@ class AppTestCase(AioHTTPTestCase):
     @asynctest.mock.patch('beacon_api.app.query_request_handler', side_effect=json.dumps(PARAMS))
     @unittest_run_loop
     async def test_valid_token_get_query(self, mock_handler, mock_object):
-        """Test valid token GET query endpoint, invalid scheme."""
+        """Test valid token GET query endpoint."""
         token = os.environ.get('TOKEN')
         resp = await self.client.request("POST", "/query",
                                          data=json.dumps(PARAMS),

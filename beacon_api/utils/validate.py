@@ -13,7 +13,7 @@ from aiocache import cached
 from aiocache.serializers import JsonSerializer
 from ..api.exceptions import BeaconUnauthorised, BeaconBadRequest, BeaconForbidden, BeaconServerError
 from ..conf import OAUTH2_CONFIG
-from ..permissions.ga4gh import get_ga4gh_permissions
+from ..permissions.ga4gh import check_ga4gh_token
 from jsonschema import Draft7Validator, validators
 from jsonschema.exceptions import ValidationError
 
@@ -183,19 +183,13 @@ def token_auth():
                 # for now the permissions just reflects that the data can be decoded from token
                 # the bona fide status is checked against ELIXIR AAI by default or the URL from config
                 # the bona_fide_status is specific to ELIXIR Tokens
-                #
+                dataset_permissions, bona_fide_status = [], ''
+
                 # Retrieve GA4GH Passports from /userinfo and process them into dataset permissions and bona fide status
                 bona_fide_status = False
                 dataset_permissions = set()
-                required_scopes = ['openid', 'ga4gh_passport_v1']
-                token_scopes = decoded_data.get('scope').split(' ')
-                LOG.info(f'Required scopes: {required_scopes}')
-                LOG.info(f'Token scopes: {token_scopes}')
-                LOG.info(f'Bona fide before: {bona_fide_status}')
-                LOG.info(f'Permissions before: {dataset_permissions}')
-                if all(scope in token_scopes for scope in required_scopes):
-                    dataset_permissions, bona_fide_status = await get_ga4gh_permissions(token)
-                #
+                check_ga4gh_token(decoded_data, token, bona_fide_status, dataset_permissions)
+
                 LOG.info(f'Bona fide after: {bona_fide_status}')
                 LOG.info(f'Permissions after: {dataset_permissions}')
                 controlled_datasets = set()
