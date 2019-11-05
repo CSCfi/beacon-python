@@ -164,6 +164,12 @@ f9BjIARRfVrbxVxiZHjU6zL6jY5QJdh1QCmENoejj_ytspMmGW7yMRxzUqgxcAqOBpVm0b-_mW3HoBdj
         self.assertTrue(isinstance(result, dict))
         self.assertTrue(result["keys"][0]['alg'], 'RSA256')
 
+    @asynctest.mock.patch('beacon_api.permissions.ga4gh.LOG')
+    async def test_get_jwk_bad(self, mock_log):
+        """Test get JWK exception log."""
+        await get_jwk('http://test.csc.fi/jwk')
+        mock_log.error.assert_called_with("Could not retrieve JWK from http://test.csc.fi/jwk")
+
     @asynctest.mock.patch('beacon_api.utils.validate.OAUTH2_CONFIG', return_value={'server': None})
     async def test_bad_get_key(self, oauth_none):
         """Test bad test_get_key."""

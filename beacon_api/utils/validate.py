@@ -206,7 +206,7 @@ def token_auth():
                 raise BeaconUnauthorised(obj, request.host, "invalid_token", f'Expired signature: {e}')  # pragma: no cover
             except InvalidClaimError as e:
                 raise BeaconForbidden(obj, request.host, f'Token info not corresponding with claim: {e}')  # pragma: no cover
-            except InvalidTokenError as e:
+            except InvalidTokenError as e:  # pragma: no cover
                 raise BeaconUnauthorised(obj, request.host, "invalid_token", f'Invalid authorization token: {e}')  # pragma: no cover
         else:
             request["token"] = {"bona_fide_status": False,

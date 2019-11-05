@@ -6,14 +6,9 @@ from beacon_api.api.query import access_resolution
 from beacon_api.utils.validate import token_scheme_check, verify_aud_claim
 from beacon_api.permissions.ga4gh import get_ga4gh_controlled, get_ga4gh_bona_fide, validate_passport
 from beacon_api.permissions.ga4gh import check_ga4gh_token, decode_passport, get_ga4gh_permissions
-from deploy.test.mock_auth import generate_token
-from .test_app import PARAMS
+from .test_app import PARAMS, generate_token
 from testfixtures import TempDirectory
 from test.support import EnvironmentVarGuard
-# Hack to import a function from beyond top-level package
-# used for test_decode_passport() to get a real token
-import sys
-sys.path.append("..")
 
 
 def mock_token(bona_fide, permissions, auth):
@@ -368,19 +363,21 @@ class TestBasicFunctions(asynctest.TestCase):
 
     @asynctest.mock.patch('beacon_api.permissions.ga4gh.get_jwk')
     @asynctest.mock.patch('beacon_api.permissions.ga4gh.jwt')
-    async def test_validate_passport(self, m_jwt, m_jwk):
+    @asynctest.mock.patch('beacon_api.permissions.ga4gh.LOG')
+    async def test_validate_passport(self, mock_log, m_jwt, m_jwk):
         """Test passport validation."""
         m_jwk.return_value = 'jwk'
         # Test: validation passed
         m_jwt.return_value = MockDecodedPassport()
         await validate_passport({})
-        #
-        # This test doesn't work
-        #
+
         # # Test: validation failed
-        # m_jwt.return_value = MockDecodedPassport(validated=False)
+        m_jwt.return_value = MockDecodedPassport(validated=False)
         # with self.assertRaises(Exception):
-        #     await validate_passport({})
+        await validate_passport({})
+        # we are not raising the exception we are just doing a log
+        # need to assert the log called
+        mock_log.error.assert_called_with("Something went wrong when processing JWT tokens: 1")
 
     @asynctest.mock.patch('beacon_api.permissions.ga4gh.get_ga4gh_permissions')
     async def test_check_ga4gh_token(self, m_get_perms):
@@ -404,9 +401,9 @@ class TestBasicFunctions(asynctest.TestCase):
 
     async def test_decode_passport(self):
         """Test key-less JWT decoding."""
-        _, token, _ = generate_token()
+        token, _ = generate_token('http://test.csc.fi')
         header, payload = await decode_passport(token)
-        self.assertEqual(header.get('alg'), 'RS256')
+        self.assertEqual(header.get('alg'), 'HS256')
         self.assertEqual(payload.get('iss'), 'http://test.csc.fi')
 
     @asynctest.mock.patch('beacon_api.permissions.ga4gh.get_ga4gh_bona_fide')
