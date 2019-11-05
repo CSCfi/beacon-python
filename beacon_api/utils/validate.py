@@ -183,19 +183,13 @@ def token_auth():
                 # for now the permissions just reflects that the data can be decoded from token
                 # the bona fide status is checked against ELIXIR AAI by default or the URL from config
                 # the bona_fide_status is specific to ELIXIR Tokens
-                dataset_permissions, bona_fide_status = [], ''
-
                 # Retrieve GA4GH Passports from /userinfo and process them into dataset permissions and bona fide status
-                bona_fide_status = False
-                dataset_permissions = set()
-                await check_ga4gh_token(decoded_data, token, bona_fide_status, dataset_permissions)
-
-                LOG.info(f'Bona fide after: {bona_fide_status}')
-                LOG.info(f'Permissions after: {dataset_permissions}')
-                controlled_datasets = set()
+                dataset_permissions, bona_fide_status = set(), False
+                dataset_permissions, bona_fide_status = await check_ga4gh_token(decoded_data, token, bona_fide_status, dataset_permissions)
                 # currently we offer module for parsing GA4GH permissions, but multiple claims and providers can be utilised
                 # by updating the set, meaning replicating the line below with the permissions function and its associated claim
                 # For GA4GH DURI permissions (ELIXIR Permissions API 2.0)
+                controlled_datasets = set()
                 controlled_datasets.update(dataset_permissions)
                 all_controlled = list(controlled_datasets) if bool(controlled_datasets) else None
                 request["token"] = {"bona_fide_status": bona_fide_status,

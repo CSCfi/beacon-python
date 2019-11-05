@@ -95,15 +95,16 @@ from ..conf import OAUTH2_CONFIG
 
 async def check_ga4gh_token(decoded_data, token, bona_fide_status, dataset_permissions):
     """Check the token for GA4GH claims."""
+    LOG.debug('Checking GA4GH claims from scope.')
+
     if 'scope' in decoded_data:
         ga4gh_scopes = ['openid', 'ga4gh_passport_v1']
         token_scopes = decoded_data.get('scope').split(' ')
-        LOG.info(f'GA4H Required scopes: {ga4gh_scopes}')
-        LOG.info(f'Token scopes: {token_scopes}')
-        LOG.info(f'Bona fide before: {bona_fide_status}')
-        LOG.info(f'Permissions before: {dataset_permissions}')
+
         if all(scope in token_scopes for scope in ga4gh_scopes):
             dataset_permissions, bona_fide_status = await get_ga4gh_permissions(token)
+
+    return dataset_permissions, bona_fide_status
 
 
 async def decode_passport(encoded_passport):
