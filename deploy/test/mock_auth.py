@@ -27,17 +27,11 @@ def generate_token():
         "sub": "requester@elixir-europe.org",
         "aud": ["aud2", "aud3"],
         "azp": "azp",
-        "scope": "openid ga4gh",
+        "scope": "openid ga4gh_passport_v1",
         "iss": "http://test.csc.fi",
         "exp": 9999999999,
         "iat": 1561621913,
-        "jti": "6ad7aa42-3e9c-4833-bd16-765cb80c2102",
-        "ga4gh_userinfo_claims": [
-            "ga4gh.AffiliationAndRole",
-            "ga4gh.ControlledAccessGrants",
-            "ga4gh.AcceptedTermsAndPolicies",
-            "ga4gh.ResearcherStatus"
-        ]
+        "jti": "6ad7aa42-3e9c-4833-bd16-765cb80c2102"
     }
     empty_payload = {
         "sub": "requester@elixir-europe.org",
@@ -46,11 +40,77 @@ def generate_token():
         "iat": 1547794655,
         "jti": "6ad7aa42-3e9c-4833-bd16-765cb80c2102"
     }
+    # Craft 4 passports, 2 for bona fide status and 2 for dataset permissions
+    # passport for bona fide: terms
+    passport_terms = {
+        "iss": "http://test.csc.fi",
+        "sub": "requester@elixir-europe.org",
+        "ga4gh_visa_v1": {
+            "type": "AcceptedTermsAndPolicies",
+            "value": "https://doi.org/10.1038/s41431-018-0219-y",
+            "source": "https://ga4gh.org/duri/no_org",
+            "by": "dac",
+            "asserted": 1568699331
+        },
+        "iat": 1571144438,
+        "exp": 99999999999,
+        "jti": "bed0aff9-29b1-452c-b776-a6f2200b6db1"
+    }
+    # passport for bona fide: status
+    passport_status = {
+        "iss": "http://test.csc.fi",
+        "sub": "requester@elixir-europe.org",
+        "ga4gh_visa_v1": {
+            "type": "ResearcherStatus",
+            "value": "https://doi.org/10.1038/s41431-018-0219-y",
+            "source": "https://ga4gh.org/duri/no_org",
+            "by": "peer",
+            "asserted": 1568699331
+        },
+        "iat": 1571144438,
+        "exp": 99999999999,
+        "jti": "722ddde1-617d-4651-992d-f0fdde77bf29"
+    }
+    # passport for dataset permissions 1
+    passport_dataset1 = {
+        "iss": "http://test.csc.fi",
+        "sub": "requester@elixir-europe.org",
+        "ga4gh_visa_v1": {
+            "type": "ControlledAccessGrants",
+            "value": "https://www.ebi.ac.uk/ega/urn:hg:1000genome:controlled",
+            "source": "https://ga4gh.org/duri/no_org",
+            "by": "self",
+            "asserted": 1568699331
+        },
+        "iat": 1571144438,
+        "exp": 99999999999,
+        "jti": "d1d7b521-bd6b-433d-b2d5-3d874aab9d55"
+    }
+    # passport for dataset permissions 2
+    passport_dataset2 = {
+        "iss": "http://test.csc.fi",
+        "sub": "requester@elixir-europe.org",
+        "ga4gh_visa_v1": {
+            "type": "ControlledAccessGrants",
+            "value": "https://www.ebi.ac.uk/ega/urn:hg:1000genome:controlled1",
+            "source": "https://ga4gh.org/duri/no_org",
+            "by": "dac",
+            "asserted": 1568699331
+        },
+        "iat": 1571144438,
+        "exp": 99999999999,
+        "jti": "9fa600d6-4148-47c1-b708-36c4ba2e980e"
+    }
     public_jwk = jwk.dumps(public_key, kty='RSA')
     private_jwk = jwk.dumps(pem, kty='RSA')
     dataset_encoded = jwt.encode(header, dataset_payload, private_jwk).decode('utf-8')
     empty_encoded = jwt.encode(header, empty_payload, private_jwk).decode('utf-8')
-    return (public_jwk, dataset_encoded, empty_encoded)
+    passport_terms_encoded = jwt.encode(header, passport_terms, private_jwk).decode('utf-8')
+    passport_status_encoded = jwt.encode(header, passport_status, private_jwk).decode('utf-8')
+    passport_dataset1_encoded = jwt.encode(header, passport_dataset1, private_jwk).decode('utf-8')
+    passport_dataset2_encoded = jwt.encode(header, passport_dataset2, private_jwk).decode('utf-8')
+    return (public_jwk, dataset_encoded, empty_encoded, passport_terms_encoded, passport_status_encoded,
+            passport_dataset1_encoded, passport_dataset2_encoded)
 
 
 DATA = generate_token()
@@ -75,42 +135,12 @@ async def userinfo(request):
         data = {}
     else:
         data = {
-            "ga4gh": {
-                "AcceptedTermsAndPolicies": [
-                    {
-                        "value": "https://doi.org/10.1038/s41431-018-0219-y",
-                        "source": "https://ga4gh.org/duri/no_org",
-                        "by": "self",
-                        "asserted": 1539069213,
-                        "expires": 9999999999
-                    }
-                ],
-                "ResearcherStatus": [
-                    {
-                        "value": "https://doi.org/10.1038/s41431-018-0219-y",
-                        "source": "https://ga4gh.org/duri/no_org",
-                        "by": "peer",
-                        "asserted": 1539017776,
-                        "expires": 9999999999
-                    }
-                ],
-                "ControlledAccessGrants": [
-                    {
-                        "value": "https://www.ebi.ac.uk/ega/urn:hg:1000genome",
-                        "source": "https://ga4gh.org/duri/no_org",
-                        "by": "dac",
-                        "asserted": 1559893314,
-                        "expires": 9999999999
-                    },
-                    {
-                        "value": "https://www.ebi.ac.uk/ega/urn:hg:1000genome:controlled",
-                        "source": "https://ga4gh.org/duri/no_org",
-                        "by": "dac",
-                        "asserted": 1559897355,
-                        "expires": 9999999999
-                    }
-                ]
-            }
+            "ga4gh_passport_v1": [
+                DATA[3],
+                DATA[4],
+                DATA[5],
+                DATA[6]
+            ]
         }
     return web.json_response(data)
 

@@ -4,8 +4,9 @@ from beacon_api.utils.db_load import parse_arguments, init_beacon_db, main
 from beacon_api.conf.config import init_db_pool
 from beacon_api.api.query import access_resolution
 from beacon_api.utils.validate import token_scheme_check, verify_aud_claim
-from beacon_api.permissions.ga4gh import get_ga4gh_controlled, get_ga4gh_bona_fide
-from .test_app import PARAMS
+from beacon_api.permissions.ga4gh import get_ga4gh_controlled, get_ga4gh_bona_fide, validate_passport
+from beacon_api.permissions.ga4gh import check_ga4gh_token, decode_passport, get_ga4gh_permissions
+from .test_app import PARAMS, generate_token
 from testfixtures import TempDirectory
 from test.support import EnvironmentVarGuard
 
@@ -15,6 +16,21 @@ def mock_token(bona_fide, permissions, auth):
     return {"bona_fide_status": bona_fide,
             "permissions": permissions,
             "authenticated": auth}
+
+
+class MockDecodedPassport:
+    """Mock JWT."""
+
+    def __init__(self, validated=True):
+        """Initialise mock JWT."""
+        self.validated = validated
+
+    def validate(self):
+        """Invoke validate."""
+        if self.validated:
+            return True
+        else:
+            raise Exception
 
 
 class MockBeaconDB:
@@ -290,104 +306,150 @@ class TestBasicFunctions(asynctest.TestCase):
         with self.assertRaises(aiohttp.web_exceptions.HTTPForbidden):
             access_resolution(request, token, host, [], [], [8])
 
-    @asynctest.mock.patch('beacon_api.permissions.ga4gh.retrieve_user_data')
-    async def test_ga4gh_controlled(self, userinfo):
+    @asynctest.mock.patch('beacon_api.permissions.ga4gh.validate_passport')
+    async def test_ga4gh_controlled(self, m_validation):
         """Test ga4gh permissions claim parsing."""
-        userinfo.return_value = {
-            "ControlledAccessGrants": [
-                {
-                    "value": "https://www.ebi.ac.uk/ega/EGAD000000000001",
-                    "source": "https://ega-archive.org/dacs/EGAC00000000001",
-                    "by": "dac",
-                    "authoriser": "john.doe@dac.org",
-                    "asserted": 1546300800,
-                    "expires": 1577836800
-                },
-                {
-                    "value": "https://www.ebi.ac.uk/ega/EGAD000000000002",
-                    "source": "https://ega-archive.org/dacs/EGAC00000000001",
-                    "by": "dac",
-                    "authoriser": "john.doe@dac.org",
-                    "asserted": 1546300800,
-                    "expires": 1577836800
-                },
-                {
-                    "value": "no-prefix-dataset",
-                    "source": "https://ega-archive.org/dacs/EGAC00000000001",
-                    "by": "dac",
-                    "authoriser": "john.doe@dac.org",
-                    "asserted": 1546300800,
-                    "expires": 1577836800
-                }
-            ]
-        }
-        # Good test: claims OK, userinfo OK
-        token_claim = ["ga4gh.ControlledAccessGrants"]
-        token = 'this_is_a_jwt'
-        datasets = await get_ga4gh_controlled(token, token_claim)
-        self.assertEqual(datasets, {'EGAD000000000001', 'EGAD000000000002', 'no-prefix-dataset'})  # has permissions
-        # Bad test: no claims, userinfo OK
-        token_claim = []
-        token = 'this_is_a_jwt'
-        datasets = await get_ga4gh_controlled(token, token_claim)
-        self.assertEqual(datasets, set())  # doesn't have permissions
-        # Bad test: claims OK, no userinfo
-        userinfo.return_value = {}
-        token_claim = ["ga4gh.ControlledAccessGrants"]
-        token = 'this_is_a_jwt'
-        datasets = await get_ga4gh_controlled(token, token_claim)
-        self.assertEqual(datasets, set())  # doesn't have permissions
-        # Bad test: no claims, no userinfo
-        token_claim = []
-        token = 'this_is_a_jwt'
-        datasets = await get_ga4gh_controlled(token, token_claim)
-        self.assertEqual(datasets, set())  # doesn't have permissions
+        # Test: no passports, no permissions
+        datasets = await get_ga4gh_controlled([])
+        self.assertEqual(datasets, set())
+        # Test: 1 passport, 1 unique dataset, 1 permission
+        passport = {"ga4gh_visa_v1": {"type": "ControlledAccessGrants",
+                                      "value": "https://institution.org/EGAD01",
+                                      "source": "https://ga4gh.org/duri/no_org",
+                                      "by": "self",
+                                      "asserted": 1539069213,
+                                      "expires": 4694742813}}
+        m_validation.return_value = passport
+        dataset = await get_ga4gh_controlled([{}])  # one passport
+        self.assertEqual(dataset, {'EGAD01'})
+        # Test: 2 passports, 1 unique dataset, 1 permission (permissions must not be duplicated)
+        passport = {"ga4gh_visa_v1": {"type": "ControlledAccessGrants",
+                                      "value": "https://institution.org/EGAD01",
+                                      "source": "https://ga4gh.org/duri/no_org",
+                                      "by": "self",
+                                      "asserted": 1539069213,
+                                      "expires": 4694742813}}
+        m_validation.return_value = passport
+        dataset = await get_ga4gh_controlled([{}, {}])  # two passports
+        self.assertEqual(dataset, {'EGAD01'})
+        # Test: 2 passports, 2 unique datasets, 2 permissions
+        # Can't test this case with the current design!
+        # Would need a way for validate_passport() to mock two different results
 
-    @asynctest.mock.patch('beacon_api.permissions.ga4gh.retrieve_user_data')
-    async def test_ga4gh_bona_fide(self, userinfo):
+    async def test_ga4gh_bona_fide(self):
         """Test ga4gh statuses claim parsing."""
-        userinfo.return_value = {
-            "AcceptedTermsAndPolicies": [
-                {
-                    "value": "https://doi.org/10.1038/s41431-018-0219-y",
-                    "source": "https://ga4gh.org/duri/no_org",
-                    "by": "self",
-                    "asserted": 1539069213,
-                    "expires": 4694742813
-                }
-            ],
-            "ResearcherStatus": [
-                {
-                    "value": "https://doi.org/10.1038/s41431-018-0219-y",
-                    "source": "https://ga4gh.org/duri/no_org",
-                    "by": "peer",
-                    "asserted": 1539017776,
-                    "expires": 1593165413
-                }
-            ]
-        }
-        # Good test: claims OK, userinfo OK
-        token_claim = ["ga4gh.AcceptedTermsAndPolicies", "ga4gh.ResearcherStatus"]
-        token = 'this_is_a_jwt'
-        bona_fide_status = await get_ga4gh_bona_fide(token, token_claim)
+        passports = [("enc", "header", {
+                     "ga4gh_visa_v1": {"type": "AcceptedTermsAndPolicies",
+                                       "value": "https://doi.org/10.1038/s41431-018-0219-y",
+                                       "source": "https://ga4gh.org/duri/no_org",
+                                       "by": "self",
+                                       "asserted": 1539069213,
+                                       "expires": 4694742813}
+                     }),
+                     ("enc", "header", {
+                      "ga4gh_visa_v1": {"type": "ResearcherStatus",
+                                        "value": "https://doi.org/10.1038/s41431-018-0219-y",
+                                        "source": "https://ga4gh.org/duri/no_org",
+                                        "by": "peer",
+                                        "asserted": 1539017776,
+                                        "expires": 1593165413}})]
+        # Good test: both required passport types contained the correct value
+        bona_fide_status = await get_ga4gh_bona_fide(passports)
         self.assertEqual(bona_fide_status, True)  # has bona fide
-        # Bad test: no claims, userinfo OK
-        token_claim = []
-        token = 'this_is_a_jwt'
-        bona_fide_status = await get_ga4gh_bona_fide(token, token_claim)
+        # Bad test: missing passports of required type
+        passports_empty = []
+        bona_fide_status = await get_ga4gh_bona_fide(passports_empty)
         self.assertEqual(bona_fide_status, False)  # doesn't have bona fide
-        # Bad test: claims OK, no userinfo
-        userinfo.return_value = {}
-        token_claim = ["ga4gh.AcceptedTermsAndPolicies", "ga4gh.ResearcherStatus"]
-        token = 'this_is_a_jwt'
-        bona_fide_status = await get_ga4gh_bona_fide(token, token_claim)
-        self.assertEqual(bona_fide_status, False)  # doesn't have bona fide
-        # Bad test: no claims, no userinfo
-        userinfo.return_value = {}
-        token_claim = []
-        token = 'this_is_a_jwt'
-        bona_fide_status = await get_ga4gh_bona_fide(token, token_claim)
-        self.assertEqual(bona_fide_status, False)  # doesn't have bona fide
+
+    @asynctest.mock.patch('beacon_api.permissions.ga4gh.get_jwk')
+    @asynctest.mock.patch('beacon_api.permissions.ga4gh.jwt')
+    @asynctest.mock.patch('beacon_api.permissions.ga4gh.LOG')
+    async def test_validate_passport(self, mock_log, m_jwt, m_jwk):
+        """Test passport validation."""
+        m_jwk.return_value = 'jwk'
+        # Test: validation passed
+        m_jwt.return_value = MockDecodedPassport()
+        await validate_passport({})
+
+        # # Test: validation failed
+        m_jwt.return_value = MockDecodedPassport(validated=False)
+        # with self.assertRaises(Exception):
+        await validate_passport({})
+        # we are not raising the exception we are just doing a log
+        # need to assert the log called
+        mock_log.error.assert_called_with("Something went wrong when processing JWT tokens: 1")
+
+    @asynctest.mock.patch('beacon_api.permissions.ga4gh.get_ga4gh_permissions')
+    async def test_check_ga4gh_token(self, m_get_perms):
+        """Test token scopes."""
+        # Test: no scope found
+        decoded_data = {}
+        dataset_permissions, bona_fide_status = await check_ga4gh_token(decoded_data, {}, False, set())
+        self.assertEqual(dataset_permissions, set())
+        self.assertEqual(bona_fide_status, False)
+        # Test: scope is ok, but no claims
+        decoded_data = {'scope': ''}
+        dataset_permissions, bona_fide_status = await check_ga4gh_token(decoded_data, {}, False, set())
+        self.assertEqual(dataset_permissions, set())
+        self.assertEqual(bona_fide_status, False)
+        # Test: scope is ok, claims are ok
+        m_get_perms.return_value = {'EGAD01'}, True
+        decoded_data = {'scope': 'openid ga4gh_passport_v1'}
+        dataset_permissions, bona_fide_status = await check_ga4gh_token(decoded_data, {}, False, set())
+        self.assertEqual(dataset_permissions, {'EGAD01'})
+        self.assertEqual(bona_fide_status, True)
+
+    async def test_decode_passport(self):
+        """Test key-less JWT decoding."""
+        token, _ = generate_token('http://test.csc.fi')
+        header, payload = await decode_passport(token)
+        self.assertEqual(header.get('alg'), 'HS256')
+        self.assertEqual(payload.get('iss'), 'http://test.csc.fi')
+
+    @asynctest.mock.patch('beacon_api.permissions.ga4gh.get_ga4gh_bona_fide')
+    @asynctest.mock.patch('beacon_api.permissions.ga4gh.get_ga4gh_controlled')
+    @asynctest.mock.patch('beacon_api.permissions.ga4gh.decode_passport')
+    @asynctest.mock.patch('beacon_api.permissions.ga4gh.retrieve_user_data')
+    async def test_get_ga4gh_permissions(self, m_userinfo, m_decode, m_controlled, m_bonafide):
+        """Test GA4GH permissions main function."""
+        # Test: no data (nothing)
+        m_userinfo.return_value = [{}]
+        header = {}
+        payload = {}
+        m_decode.return_value = header, payload
+        m_controlled.return_value = set()
+        m_bonafide.return_value = False
+        dataset_permissions, bona_fide_status = await get_ga4gh_permissions('token')
+        self.assertEqual(dataset_permissions, set())
+        self.assertEqual(bona_fide_status, False)
+        # Test: permissions
+        m_userinfo.return_value = [{}]
+        header = {}
+        payload = {
+            'ga4gh_visa_v1': {
+                'type': 'ControlledAccessGrants'
+            }
+        }
+        m_decode.return_value = header, payload
+        m_controlled.return_value = {'EGAD01'}
+        m_bonafide.return_value = False
+        dataset_permissions, bona_fide_status = await get_ga4gh_permissions('token')
+        self.assertEqual(dataset_permissions, {'EGAD01'})
+        self.assertEqual(bona_fide_status, False)
+        # Test: bona fide
+        m_userinfo.return_value = [{}]
+        header = {}
+        payload = {
+            'ga4gh_visa_v1': {
+                'type': 'ResearcherStatus'
+            }
+        }
+        m_decode.return_value = header, payload
+        m_controlled.return_value = set()
+        m_bonafide.return_value = True
+        dataset_permissions, bona_fide_status = await get_ga4gh_permissions('token')
+        self.assertEqual(dataset_permissions, set())
+        self.assertEqual(bona_fide_status, True)
 
 
 if __name__ == '__main__':

@@ -3,7 +3,7 @@ from beacon_api.api.query import query_request_handler
 import asynctest
 from beacon_api.schemas import load_schema
 from beacon_api.utils.validate import get_key
-from beacon_api.permissions.ga4gh import retrieve_user_data
+from beacon_api.permissions.ga4gh import retrieve_user_data, get_jwk
 import jsonschema
 import json
 import aiohttp
@@ -120,7 +120,7 @@ class TestBasicFunctions(asynctest.TestCase):
     @aioresponses()
     async def test_good_retrieve_user_data(self, m):
         """Test a passing call to retrieve user data."""
-        m.get("http://test.csc.fi/userinfo", payload={"ga4gh": [{}]})
+        m.get("http://test.csc.fi/userinfo", payload={"ga4gh_passport_v1": [{}]})
         user_data = await retrieve_user_data('good_token')
         self.assertEqual(user_data, [{}])
 
@@ -145,6 +145,30 @@ f9BjIARRfVrbxVxiZHjU6zL6jY5QJdh1QCmENoejj_ytspMmGW7yMRxzUqgxcAqOBpVm0b-_mW3HoBdj
         # key = load_pem_public_key(result.encode('utf-8'), backend=default_backend())
         self.assertTrue(isinstance(result, dict))
         self.assertTrue(result["keys"][0]['alg'], 'RSA256')
+
+    @aioresponses()
+    async def test_get_jwk(self, m):
+        """Test get JWK."""
+        data = {
+            "keys": [
+                {
+                    "alg": "RS256",
+                    "kty": "RSA",
+                    "use": "sig",
+                    "n": "public_key",
+                    "e": "AQAB"
+                }
+            ]}
+        m.get("http://test.csc.fi/jwk", payload=data)
+        result = await get_jwk('http://test.csc.fi/jwk')
+        self.assertTrue(isinstance(result, dict))
+        self.assertTrue(result["keys"][0]['alg'], 'RSA256')
+
+    @asynctest.mock.patch('beacon_api.permissions.ga4gh.LOG')
+    async def test_get_jwk_bad(self, mock_log):
+        """Test get JWK exception log."""
+        await get_jwk('http://test.csc.fi/jwk')
+        mock_log.error.assert_called_with("Could not retrieve JWK from http://test.csc.fi/jwk")
 
     @asynctest.mock.patch('beacon_api.utils.validate.OAUTH2_CONFIG', return_value={'server': None})
     async def test_bad_get_key(self, oauth_none):

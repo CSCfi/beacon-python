@@ -308,7 +308,7 @@ class DatabaseTestCase(asynctest.TestCase):
     @asynctest.mock.patch('beacon_api.utils.db_load.LOG')
     @asynctest.mock.patch('beacon_api.utils.db_load.asyncpg.connect')
     async def test_insert_variants(self, db_mock, mock_log):
-        """Test load_datafile."""
+        """Test insert variants."""
         db_mock.return_value = Connection()
         await self._db.connection()
         db_mock.assert_called()
