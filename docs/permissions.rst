@@ -10,11 +10,14 @@ As per Beacon specification there are three types of permissions:
   e.g. ELIXIR bona_fide or researcher status. Requires a JWT Token;
 * ``CONTROLLED`` - data available for users that have been granted access to a protected resource by a Data Access Committee (DAC).
 
+.. note:: In this page we are illustrating permissions according to:
+          `GA4GH Authentication and Authorization Infrastructure (AAI) OpenID Connect Profile <https://github.com/ga4gh/data-security/blob/master/AAI/AAIConnectProfile.md>`_.
 
 Registered Data
 ---------------
 
 For retrieving ``REGISTERED`` permissions the function below forwards the TOKEN to another server
+(e.g ELIXIR ``userinfo`` endpoint)
 that validates the information in the token is for a registered user/token and retrieves a JSON
 message that contains data regarding the Bona Fide status. Custom servers can be set up to mimic this functionality.
 
@@ -28,7 +31,7 @@ researcher.
 
 .. literalinclude:: /../beacon_api/permissions/ga4gh.py
    :language: python
-   :lines: 103-128
+   :lines: 267-305
 
 .. note:: The ``ga4gh.AcceptedTermsAndPolicies`` and ``ga4gh.ResearcherStatus`` keys' values must be equal to those mandated by GA4GH.
 
@@ -47,21 +50,22 @@ there is no standard way for delivering access to datasets via JWT Tokens
 and each AAI authority provides different claims with different structures.
 
 By default we include :meth:`beacon_api.permissions.ga4gh` add-on that offers the means to retrieve
-permissions following the `GA4GH format <https://docs.google.com/document/d/11Wg-uL75ypU5eNu2p_xh9gspmbGtmLzmdq5VfPHBirE>`_ via a token provided by ELIXIR AAI.
+permissions following the `GA4GH format <https://docs.google.com/document/d/11Wg-uL75ypU5eNu2p_xh9gspmbGtmLzmdq5VfPHBirE>`_
+via a token provided by ELIXIR AAI.
 
 If a token contains ``ga4gh_userinfo_claims`` JWT claim with ``ga4gh.ControlledAccessGrants``, these are parsed
 and retrieved as illustrated in:
 
 .. literalinclude:: /../beacon_api/permissions/ga4gh.py
    :language: python
-   :lines: 85-100
+   :lines: 248-264
 
 The permissions are then passed in :meth:`beacon_api.utils.validate` as illustrated below:
 
 .. literalinclude:: /../beacon_api/utils/validate.py
    :language: python
    :dedent: 16
-   :lines: 179-192
+   :lines: 183-200
 
 If there is no claim for GA4GH permissions as illustrated above, they will not be added to
 ``controlled_datasets``.
