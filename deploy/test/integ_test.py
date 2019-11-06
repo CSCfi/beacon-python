@@ -389,7 +389,7 @@ async def test_17():
         async with session.post('http://localhost:5050/query', data=json.dumps(payload)) as resp:
             data = await resp.json()
             assert data['exists'] is True, sys.exit('Query POST Endpoint Error!')
-            assert len(data['datasetAlleleResponses']) == 1, sys.exit('Should be able to retrieve both requested.')
+            assert len(data['datasetAlleleResponses']) == 2, sys.exit('Should be able to retrieve both requested.')
 
 
 async def test_18():
@@ -701,7 +701,7 @@ async def test_32():
     async with aiohttp.ClientSession() as session:
         async with session.get('http://localhost:5050/service-info') as resp:
             data = await resp.json()
-            # GA4GH Discovery Service-Info is small and its length should be between 3 and 6, when the Beacon info is very long
+            # GA4GH Discovery Service-Info is small and its length should be at least 5 (required keys), when the Beacon info is very long
             # https://github.com/ga4gh-discovery/service-info/blob/develop/service-info.yaml
             assert len(data) >= 5, 'Service info size error'  # ga4gh service-info has 5 required keys, and option to add custom keys
             assert data['type'].startswith('org.ga4gh:beacon'), 'Service type error'  # a new key used in beacon network
