@@ -13,7 +13,7 @@ __author__ = CONFIG_INFO.author
 __license__ = CONFIG_INFO.license
 __copyright__ = CONFIG_INFO.copyright
 __docs_url__ = CONFIG_INFO.docs_url
-__handover_drs__ = CONFIG_INFO.handover_drs
+__handover_drs__ = CONFIG_INFO.handover_drs.rstrip("/")
 __handover_datasets__ = CONFIG_INFO.handover_datasets
 __handover_beacon__ = CONFIG_INFO.handover_beacon
 __handover_base__ = CONFIG_INFO.handover_base
@@ -26,7 +26,6 @@ __alturl__ = CONFIG_INFO.alturl
 __createtime__ = CONFIG_INFO.createtime
 __updatetime__ = datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ')  # Every restart of the application means an update to it
 
-
 __org_id__ = CONFIG_INFO.org_id
 __org_name__ = CONFIG_INFO.org_name
 __org_description__ = CONFIG_INFO.org_description
@@ -37,3 +36,7 @@ __org_logoUrl__ = CONFIG_INFO.org_logoUrl
 __org_info__ = {'orgInfo': CONFIG_INFO.org_info}
 
 __sample_queries__ = SAMPLE_QUERIES
+
+# GA4GH Discovery
+__service_type__ = f'{CONFIG_INFO.service_type}:{__apiVersion__}'
+__service_env__ = CONFIG_INFO.environment

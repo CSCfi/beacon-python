@@ -29,7 +29,7 @@ variantcount: SELECT count(*) FROM beacon_data_table;
 CREATE TABLE IF NOT EXISTS beacon_dataset_counts_table (
     datasetId VARCHAR(128),
     callCount INTEGER DEFAULT NULL,
-    variantCount INTEGER DEFAULT NULL
+    variantCount BIGINT DEFAULT NULL
 );
 
 CREATE TABLE IF NOT EXISTS beacon_data_table (

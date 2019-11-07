@@ -13,7 +13,7 @@ from aiocache import cached
 from aiocache.serializers import JsonSerializer
 from ..api.exceptions import BeaconUnauthorised, BeaconBadRequest, BeaconForbidden, BeaconServerError
 from ..conf import OAUTH2_CONFIG
-from ..permissions.ga4gh import get_ga4gh_controlled, get_ga4gh_bona_fide
+from ..permissions.ga4gh import check_ga4gh_token
 from jsonschema import Draft7Validator, validators
 from jsonschema.exceptions import ValidationError
 
@@ -54,7 +54,8 @@ def extend_with_default(validator_class):
         for error in validate_properties(
             validator, properties, instance, schema,
         ):
-            yield error
+            # Difficult to unit test
+            yield error  # pragma: no cover
 
     return validators.extend(
         validator_class, {"properties": set_defaults},
@@ -76,8 +77,6 @@ def validate(schema):
         @wraps(func)
         async def wrapped(*args):
             request = args[-1]
-            if not isinstance(request, web.Request):
-                raise BeaconBadRequest(request, request.host, "invalid request", "This does not seem a valid HTTP Request.")
             try:
                 _, obj = await parse_request_object(request)
             except Exception:
@@ -121,7 +120,21 @@ def token_scheme_check(token, scheme, obj, host):
         raise BeaconUnauthorised(obj, host, "invalid_token", 'Invalid token scheme, Bearer required.')
 
     if token is None:
-        raise BeaconUnauthorised(obj, host, "invalid_token", 'Token cannot be empty.')
+        # Might never happen
+        raise BeaconUnauthorised(obj, host, "invalid_token", 'Token cannot be empty.')  # pragma: no cover
+
+
+def verify_aud_claim():
+    """Verify audience claim."""
+    aud = []
+    verify_aud = OAUTH2_CONFIG.verify_aud  # Option to skip verification of `aud` claim
+    if verify_aud:
+        aud = os.environ.get('JWT_AUD', OAUTH2_CONFIG.audience)  # List of intended audiences of token
+        # if verify_aud is set to True, we expect that a desired aud is then supplied.
+        # However, if verify_aud=True and no aud is supplied, we use aud=[None] which will fail for
+        # all tokens as a security measure. If aud=[], all tokens will pass (as is the default value).
+        aud = aud.split(',') if aud is not None else [None]
+    return verify_aud, aud
 
 
 def token_auth():
@@ -132,8 +145,6 @@ def token_auth():
     """
     @web.middleware
     async def token_middleware(request, handler):
-        if not isinstance(request, web.Request):
-            raise BeaconBadRequest(request, request.host, "invalid request", "This does not seem a valid HTTP Request.")
         if request.path in ['/query'] and 'Authorization' in request.headers:
             _, obj = await parse_request_object(request)
             try:
@@ -147,14 +158,7 @@ def token_auth():
 
             # Token decoding parameters
             key = await get_key()  # JWK used to decode token with
-            aud = []
-            verify_aud = OAUTH2_CONFIG.verify_aud  # Option to skip verification of `aud` claim
-            if verify_aud:
-                aud = os.environ.get('JWT_AUD', OAUTH2_CONFIG.audience)  # List of intended audiences of token
-                # if verify_aud is set to True, we expect that a desired aud is then supplied.
-                # However, if verify_aud=True and no aud is supplied, we use aud=[None] which will fail for
-                # all tokens as a security measure. If aud=[], all tokens will pass (as is the default value).
-                aud = aud.split(',') if aud is not None else [None]
+            verify_aud, aud = verify_aud_claim()
             # Prepare JWTClaims validation
             # can be populated with claims that are required to be present in the payload of the token
             claims_options = {
@@ -172,22 +176,22 @@ def token_auth():
             }
 
             try:
-                decodedData = jwt.decode(token, key, claims_options=claims_options)  # decode the token
-                decodedData.validate()  # validate the token contents
+                decoded_data = jwt.decode(token, key, claims_options=claims_options)  # decode the token
+                decoded_data.validate()  # validate the token contents
                 LOG.info('Auth Token Decoded.')
-                LOG.info(f'Identified as {decodedData["sub"]} user by {decodedData["iss"]}.')
+                LOG.info(f'Identified as {decoded_data["sub"]} user by {decoded_data["iss"]}.')
                 # for now the permissions just reflects that the data can be decoded from token
                 # the bona fide status is checked against ELIXIR AAI by default or the URL from config
                 # the bona_fide_status is specific to ELIXIR Tokens
-                controlled_datasets = set()
+                # Retrieve GA4GH Passports from /userinfo and process them into dataset permissions and bona fide status
+                dataset_permissions, bona_fide_status = set(), False
+                dataset_permissions, bona_fide_status = await check_ga4gh_token(decoded_data, token, bona_fide_status, dataset_permissions)
                 # currently we offer module for parsing GA4GH permissions, but multiple claims and providers can be utilised
                 # by updating the set, meaning replicating the line below with the permissions function and its associated claim
                 # For GA4GH DURI permissions (ELIXIR Permissions API 2.0)
-                controlled_datasets.update(await get_ga4gh_controlled(token,
-                                                                      decodedData["ga4gh_userinfo_claims"]) if "ga4gh_userinfo_claims" in decodedData else {})
+                controlled_datasets = set()
+                controlled_datasets.update(dataset_permissions)
                 all_controlled = list(controlled_datasets) if bool(controlled_datasets) else None
-                # For Bona Fide status in GA4GH format
-                bona_fide_status = await get_ga4gh_bona_fide(token, decodedData["ga4gh_userinfo_claims"]) if "ga4gh_userinfo_claims" in decodedData else False
                 request["token"] = {"bona_fide_status": bona_fide_status,
                                     # permissions key will hold the actual permissions found in the token/userinfo e.g. GA4GH permissions
                                     "permissions": all_controlled,
@@ -195,14 +199,15 @@ def token_auth():
                                     # currently if a token is valid that means request is authenticated
                                     "authenticated": True}
                 return await handler(request)
+            # Testing the exceptions is done in integration tests
             except MissingClaimError as e:
-                raise BeaconUnauthorised(obj, request.host, "invalid_token", f'Missing claim(s): {e}')
+                raise BeaconUnauthorised(obj, request.host, "invalid_token", f'Missing claim(s): {e}')  # pragma: no cover
             except ExpiredTokenError as e:
-                raise BeaconUnauthorised(obj, request.host, "invalid_token", f'Expired signature: {e}')
+                raise BeaconUnauthorised(obj, request.host, "invalid_token", f'Expired signature: {e}')  # pragma: no cover
             except InvalidClaimError as e:
-                raise BeaconForbidden(obj, request.host, f'Token info not corresponding with claim: {e}')
-            except InvalidTokenError as e:
-                raise BeaconUnauthorised(obj, request.host, "invalid_token", f'Invalid authorization token: {e}')
+                raise BeaconForbidden(obj, request.host, f'Token info not corresponding with claim: {e}')  # pragma: no cover
+            except InvalidTokenError as e:  # pragma: no cover
+                raise BeaconUnauthorised(obj, request.host, "invalid_token", f'Invalid authorization token: {e}')  # pragma: no cover
         else:
             request["token"] = {"bona_fide_status": False,
                                 "permissions": None,
