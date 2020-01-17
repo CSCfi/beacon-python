@@ -94,6 +94,8 @@ def set_cors(server):
             allow_credentials=True,
             expose_headers="*",
             allow_headers="*",
+            allow_methods=["GET", "POST", "OPTIONS"],
+            max_age=86400,
         )
     })
     # Apply CORS to endpoints
