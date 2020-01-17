@@ -4,7 +4,7 @@ Instructions
 .. note:: In order to run ``beacon-python`` Web Server requirements are as specified below:
 
   * Python 3.6+;
-  * running DB `PostgreSQL Server <https://www.postgresql.org/>`_  9.6+.
+  * running DB `PostgreSQL Server <https://www.postgresql.org/>`_  9.6+ (recommended 11.6).
 
 .. _env-setup:
 
@@ -164,7 +164,7 @@ Starting PostgreSQL using Docker:
                -e POSTGRES_PASSWORD=beacon \
                -e POSTGRES_DB=beacondb \
                -v "$PWD/data":/docker-entrypoint-initdb.d
-               -p 5432:5432 postgres:9.6
+               -p 5432:5432 postgres:11.6
 
 .. hint:: If one has their own database the ``beacon_init`` utility can be skipped,
           and make use of their own database by:
