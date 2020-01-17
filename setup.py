@@ -45,10 +45,10 @@ setup(name='beacon_api',
           'Programming Language :: Python :: 3.6',
           'Programming Language :: Python :: 3.7',
       ],
-      install_requires=['aiohttp', 'asyncpg', 'authlib',
-                        'jsonschema', 'gunicorn==19.9.0'],
+      install_requires=['aiohttp', 'asyncpg', 'authlib', 'aiohttp_cors',
+                        'jsonschema', 'gunicorn>=20.0.1'],
       extras_require={
-          'test': ['coverage', 'pytest', 'pytest-cov',
+          'test': ['coverage==4.5.4', 'pytest', 'pytest-cov',
                    'coveralls', 'testfixtures', 'tox',
                    'flake8', 'flake8-docstrings', 'asynctest', 'aioresponses'],
           'docs': [

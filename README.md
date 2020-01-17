@@ -11,7 +11,7 @@ Documentation: https://beacon-python.readthedocs.io
 
 `beacon-python` Web Server requires:
 * Python 3.6+;
-* running DB [PostgreSQL Server](https://www.postgresql.org/) 9.6+.
+* running DB [PostgreSQL Server](https://www.postgresql.org/) 9.6+ (recommended 11.6).
 
 ```shell
 git clone https://github.com/CSCfi/beacon-python
@@ -30,7 +30,7 @@ docker run -e POSTGRES_USER=beacon \
            -e POSTGRES_PASSWORD=beacon \
            -v "$PWD/data":/docker-entrypoint-initdb.d
            -e POSTGRES_DB=beacondb \
-           -p 5432:5432 postgres:9.6
+           -p 5432:5432 postgres:11.6
 ```
 
 #### Run beacon-python
