@@ -61,8 +61,8 @@ jobs:
       name: "Integration Tests"
       python: 3.6
       before_script:
-        - wget https://github.com/openshift/source-to-image/releases/download/v1.1.12/source-to-image-v1.1.12-2a783420-linux-amd64.tar.gz
-        - tar -xvf source-to-image-v1.1.12-2a783420-linux-amd64.tar.gz
+        - wget https://github.com/openshift/source-to-image/releases/download/v1.2.0/source-to-image-v1.2.0-2a579ecd-linux-amd64.tar.gz
+        - tar -xvf source-to-image-v1.2.0-2a579ecd-linux-amd64.tar.gz
         - sudo cp s2i /usr/local/bin
         - s2i build . centos/python-36-centos7 cscfi/beacon-python
         - cd deploy/test
