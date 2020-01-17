@@ -38,5 +38,7 @@ __org_info__ = {'orgInfo': CONFIG_INFO.org_info}
 __sample_queries__ = SAMPLE_QUERIES
 
 # GA4GH Discovery
-__service_type__ = f'{CONFIG_INFO.service_type}:{__apiVersion__}'
+__service_type__ = {'group': f'{CONFIG_INFO.service_group}',
+                    'artifact': f'{CONFIG_INFO.service_artifact}',
+                    'version': f'{__apiVersion__}'}
 __service_env__ = CONFIG_INFO.environment
