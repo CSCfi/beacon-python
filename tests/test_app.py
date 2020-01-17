@@ -102,12 +102,12 @@ class AppTestCase(AioHTTPTestCase):
         await caches.get('default').delete("jwk_key")
 
     @unittest_run_loop
-    async def test_info(self):
-        """Test the info endpoint.
+    async def test_beacon_info(self):
+        """Test the Beacon info endpoint.
 
         The status should always be 200.
         """
-        with asynctest.mock.patch('beacon_api.app.beacon_info', side_effect={"smth": "value"}):
+        with asynctest.mock.patch('beacon_api.app.beacon_info', return_value={"id": "value"}):
             resp = await self.client.request("GET", "/")
         assert 200 == resp.status
 
@@ -117,7 +117,7 @@ class AppTestCase(AioHTTPTestCase):
 
         The status should always be 200.
         """
-        with asynctest.mock.patch('beacon_api.app.beacon_info', side_effect={"smth": "value"}):
+        with asynctest.mock.patch('beacon_api.app.ga4gh_info', return_value={"id": "value"}):
             resp = await self.client.request("GET", "/service-info")
         assert 200 == resp.status
 
@@ -128,6 +128,15 @@ class AppTestCase(AioHTTPTestCase):
         The status should always be 405.
         """
         resp = await self.client.request("POST", "/")
+        assert 405 == resp.status
+
+    @unittest_run_loop
+    async def test_post_service_info(self):
+        """Test the service-info endpoint with POST.
+
+        The status should always be 405.
+        """
+        resp = await self.client.request("POST", "/service-info")
         assert 405 == resp.status
 
     @unittest_run_loop

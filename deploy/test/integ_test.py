@@ -704,5 +704,6 @@ async def test_32():
             # GA4GH Discovery Service-Info is small and its length should be at least 5 (required keys), when the Beacon info is very long
             # https://github.com/ga4gh-discovery/service-info/blob/develop/service-info.yaml
             assert len(data) >= 5, 'Service info size error'  # ga4gh service-info has 5 required keys, and option to add custom keys
-            assert data['type'].startswith('org.ga4gh:beacon'), 'Service type error'  # a new key used in beacon network
+            assert data['type'].get('group'), 'Service type error'  # a new key used in beacon network
+            assert data['type']['group'].startswith('org.ga4gh'), 'Service type error'  # a new key used in beacon network
             assert resp.status == 200, 'HTTP Status code error'

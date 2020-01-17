@@ -1,4 +1,4 @@
-from beacon_api.api.info import beacon_info
+from beacon_api.api.info import beacon_info, ga4gh_info
 from beacon_api.api.query import query_request_handler
 import asynctest
 from beacon_api.schemas import load_schema
@@ -61,6 +61,13 @@ class TestBasicFunctions(asynctest.TestCase):
         self.assertEqual(jsonschema.validate(json.loads(
             json.dumps(result)), load_schema('info')), None)
         db_metadata.assert_called()
+
+    async def test_ga4gh_info(self):
+        """Test info metadata response."""
+        result = await ga4gh_info('localhost')
+        # if it is none no error occurred
+        self.assertEqual(jsonschema.validate(json.loads(
+            json.dumps(result)), load_schema('service-info')), None)
 
     @asynctest.mock.patch('beacon_api.api.query.find_datasets')
     @asynctest.mock.patch('beacon_api.api.query.fetch_datasets_access')

@@ -1,0 +1,91 @@
+{
+    "definitions": {},
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "id",
+      "name",
+      "type",
+      "description",
+      "organization",
+      "version"
+    ],
+    "properties": {
+      "id": {
+        "type": "string",
+        "pattern": "^(.*)$"
+      },
+      "name": {
+        "type": "string",
+        "pattern": "^(.*)$"
+      },
+      "type": {
+        "type": "object",
+        "required": [
+          "group",
+          "artifact",
+          "version"
+        ],
+        "properties": {
+          "group": {
+            "type": "string",
+            "pattern": "^(.*)$"
+          },
+          "artifact": {
+            "type": "string",
+            "pattern": "^(.*)$"
+          },
+          "version": {
+            "type": "string",
+            "pattern": "^(.*)$"
+          }
+        }
+      },
+      "description": {
+        "type": "string",
+        "pattern": "^(.*)$"
+      },
+      "organization": {
+        "type": "object",
+        "required": [
+          "name",
+          "url"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "pattern": "^(.*)$"
+          },
+          "url": {
+            "type": "string",
+            "pattern": "^(.*)$"
+          }
+        }
+      },
+      "contactUrl": {
+        "type": "string",
+        "pattern": "^(.*)$"
+      },
+      "documentationUrl": {
+        "type": "string",
+        "pattern": "^(.*)$"
+      },
+      "createdAt": {
+        "type": "string",
+        "pattern": "^(.*)$"
+      },
+      "updatedAt": {
+        "type": "string",
+        "pattern": "^(.*)$"
+      },
+      "environment": {
+        "type": "string",
+        "pattern": "^(.*)$"
+      },
+      "version": {
+        "type": "string",
+        "pattern": "^(.*)$"
+      }
+    }
+  }
+  
