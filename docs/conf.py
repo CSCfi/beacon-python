@@ -134,7 +134,7 @@ today_fmt = '%B %d, %Y'
 
 def setup(app):
     """Add custom stylesheet."""
-    app.add_stylesheet('custom.css')
+    app.add_css_file('custom.css')
 
 
 # -- Other stuff ----------------------------------------------------------

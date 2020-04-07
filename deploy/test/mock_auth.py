@@ -118,8 +118,11 @@ DATA = generate_token()
 
 async def jwk_response(request):
     """Mock JSON Web Key server."""
-    data = [DATA[0]]
-    data[0]['kid'] = 'rsa1'
+    keys = [DATA[0]]
+    keys[0]['kid'] = 'rsa1'
+    data = {
+        "keys": keys
+    }
     return web.json_response(data)
 
 

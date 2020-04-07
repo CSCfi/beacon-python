@@ -3,7 +3,6 @@
 from aiohttp import web
 from authlib.jose import jwt
 from authlib.jose.errors import MissingClaimError, InvalidClaimError, ExpiredTokenError, InvalidTokenError
-import json
 import re
 import aiohttp
 import os
@@ -33,9 +32,8 @@ async def parse_request_object(request):
         items = {k: (int(v) if k in int_params else v) for k, v in request.rel_url.query.items()}
         if 'datasetIds' in items:
             items['datasetIds'] = request.rel_url.query.get('datasetIds').split(',')
-        obj = json.dumps(items)
         LOG.info('Parsed GET request parameters.')
-        return request.method, json.loads(obj)
+        return request.method, items
 
 
 # TO DO if required do not set default
