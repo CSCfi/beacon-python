@@ -121,8 +121,8 @@ def main():
     # sslcontext.load_cert_chain(ssl_certfile, ssl_keyfile)
     # sslcontext = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
     # sslcontext.check_hostname = False
-    web.run_app(init(), host=os.environ.get('HOST', '0.0.0.0'),
-                port=os.environ.get('PORT', '5050'),
+    web.run_app(init(), host=os.environ.get('HOST', '0.0.0.0'),  # nosec
+                port=os.environ.get('PORT', '5050'),  # nosec
                 shutdown_timeout=0, ssl_context=None)
 
 
