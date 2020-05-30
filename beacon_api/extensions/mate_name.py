@@ -31,7 +31,7 @@ async def fetch_fusion_dataset(db_pool, assembly_id, position, chromosome, refer
             refbase = None if not reference else handle_wildcard(reference)
             try:
                 if misses:
-                    # For MISS and ALL. We have already found all datasets with maching variants,
+                    # For MISS and ALL. We have already found all datasets with machting variants,
                     # so now just get one post per accessible, remaining datasets.
                     query = """SELECT DISTINCT ON (datasetId)
                                datasetId as "datasetId", accessType as "accessType",

@@ -42,7 +42,7 @@ class BeaconBadRequest(web.HTTPBadRequest):
     """Exception returns with 400 code and a custom error message.
 
     The method is called if one of the required parameters are missing or invalid.
-    Used in conjuction with JSON Schema validator.
+    Used in conjunction with JSON Schema validator.
     """
 
     def __init__(self, request, host, error):
@@ -56,7 +56,7 @@ class BeaconUnauthorised(web.HTTPUnauthorized):
     """HTTP Exception returns with 401 code with a custom error message.
 
     The method is called if the user is not registered or if the token from the authentication has expired.
-    Used in conjuction with Token authentication aiohttp middleware.
+    Used in conjunction with Token authentication aiohttp middleware.
     """
 
     def __init__(self, request, host, error, error_message):
@@ -76,7 +76,7 @@ class BeaconForbidden(web.HTTPForbidden):
 
     `'Resource not granted for authenticated user or resource protected for all users.'`.
     The method is called if the dataset is protected or if the user is authenticated
-    but not granted the resource. Used in conjuction with Token authentication aiohttp middleware.
+    but not granted the resource. Used in conjunction with Token authentication aiohttp middleware.
     """
 
     def __init__(self, request, host, error):

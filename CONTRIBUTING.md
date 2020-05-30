@@ -26,7 +26,7 @@ Once submitted, the Pull Request will go through a review process, meaning we wi
 #### Git Branches
 
 We use `dev` branch as the main development branch and `master` as the releases branch.
-All Pull Requests related to features should be done agains `dev` branch, releases Pull Requests should be done agains `master` branch.
+All Pull Requests related to features should be done against `dev` branch, releases Pull Requests should be done against `master` branch.
 
 Give your branch a short descriptive name (like the names between the `<>` below) and prefix the name with something representative for that branch:
 

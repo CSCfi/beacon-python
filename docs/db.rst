@@ -3,7 +3,7 @@
 Database
 ========
 
-We use a PostgreSQL database (recomended version 11.6) for working with beacon data.
+We use a PostgreSQL database (recommended version 11.6) for working with beacon data.
 For more information on setting up the database consult :ref:`database-setup`.
 
 .. attention:: We recommend https://pgtune.leopard.in.ua/ for establishing PostgreSQL
