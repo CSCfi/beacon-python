@@ -65,7 +65,7 @@ DefaultValidatingDraft7Validator = extend_with_default(Draft7Validator)
 
 def validate(schema):
     """
-    Validate against JSON schema an return something.
+    Validate against JSON schema and return errors, if any.
 
     Return a parsed object if there is a POST.
     If there is a get do not return anything just validate.
