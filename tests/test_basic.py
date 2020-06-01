@@ -3,7 +3,7 @@ import aiohttp
 from beacon_api.utils.db_load import parse_arguments, init_beacon_db, main
 from beacon_api.conf.config import init_db_pool
 from beacon_api.api.query import access_resolution
-from beacon_api.utils.validate import token_scheme_check, verify_aud_claim
+from beacon_api.utils.validate_jwt import token_scheme_check, verify_aud_claim
 from beacon_api.permissions.ga4gh import get_ga4gh_controlled, get_ga4gh_bona_fide, validate_passport
 from beacon_api.permissions.ga4gh import check_ga4gh_token, decode_passport, get_ga4gh_permissions
 from .test_app import PARAMS, generate_token

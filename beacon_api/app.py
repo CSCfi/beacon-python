@@ -13,7 +13,8 @@ from .api.query import query_request_handler
 from .conf.config import init_db_pool
 from .schemas import load_schema
 from .utils.logging import LOG
-from .utils.validate import validate, token_auth, parse_request_object
+from .utils.validate_json import validate, parse_request_object
+from .utils.validate_jwt import token_auth
 import uvloop
 import asyncio
 import json

@@ -6,7 +6,7 @@ write their implementation for parsing a specific JWT token claim
 that contains ``CONTROLLED`` permissions to datasets.
 
 Each file added in this module will consist of a function for parsing a permissions claim
-from a JWT token. Then this function MUST be added to ``utils.validate`` module in order
+from a JWT token. Then this function MUST be added to ``utils.validate_jwt`` module in order
 to pass permissions when retrieving datasets from the database.
 
 To avoid collisions check that your claim for permissions does not conflict with existing ones:
