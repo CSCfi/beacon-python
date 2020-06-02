@@ -59,7 +59,8 @@ Utility Functions
 
     beacon_api.utils.logging
     beacon_api.utils.db_load
-    beacon_api.utils.validate
+    beacon_api.utils.validate_json
+    beacon_api.utils.validate_jwt
     beacon_api.utils.data_query
 
 ******************

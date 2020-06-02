@@ -1,99 +1,18 @@
-"""JSON Request/Response Validation and Token authentication."""
+"""JSON Token authentication."""
 
+from ..permissions.ga4gh import check_ga4gh_token
+from aiocache import cached
+from aiocache.serializers import JsonSerializer
+from ..api.exceptions import BeaconUnauthorised, BeaconForbidden, BeaconServerError
 from aiohttp import web
 from authlib.jose import jwt
 from authlib.jose.errors import MissingClaimError, InvalidClaimError, ExpiredTokenError, InvalidTokenError
 import re
 import aiohttp
 import os
-from functools import wraps
 from .logging import LOG
-from aiocache import cached
-from aiocache.serializers import JsonSerializer
-from ..api.exceptions import BeaconUnauthorised, BeaconBadRequest, BeaconForbidden, BeaconServerError
 from ..conf import OAUTH2_CONFIG
-from ..permissions.ga4gh import check_ga4gh_token
-from jsonschema import Draft7Validator, validators
-from jsonschema.exceptions import ValidationError
-
-
-async def parse_request_object(request):
-    """Parse as JSON Object depending on the request method.
-
-    For POST request parse the body, while for the GET request parse the query parameters.
-    """
-    if request.method == 'POST':
-        LOG.info('Parsed POST request body.')
-        return request.method, await request.json()  # we are always expecting JSON
-
-    if request.method == 'GET':
-        # GET parameters are returned as strings
-        int_params = ['start', 'end', 'endMax', 'endMin', 'startMax', 'startMin']
-        items = {k: (int(v) if k in int_params else v) for k, v in request.rel_url.query.items()}
-        if 'datasetIds' in items:
-            items['datasetIds'] = request.rel_url.query.get('datasetIds').split(',')
-        LOG.info('Parsed GET request parameters.')
-        return request.method, items
-
-
-# TO DO if required do not set default
-def extend_with_default(validator_class):
-    """Include default values present in JSON Schema.
-
-    Source: https://python-jsonschema.readthedocs.io/en/latest/faq/#why-doesn-t-my-schema-s-default-property-set-the-default-on-my-instance
-    """
-    validate_properties = validator_class.VALIDATORS["properties"]
-
-    def set_defaults(validator, properties, instance, schema):
-        for property, subschema in properties.items():
-            if "default" in subschema:
-                instance.setdefault(property, subschema["default"])
-
-        for error in validate_properties(
-            validator, properties, instance, schema,
-        ):
-            # Difficult to unit test
-            yield error  # pragma: no cover
-
-    return validators.extend(
-        validator_class, {"properties": set_defaults},
-    )
-
-
-DefaultValidatingDraft7Validator = extend_with_default(Draft7Validator)
-
-
-def validate(schema):
-    """
-    Validate against JSON schema an return something.
-
-    Return a parsed object if there is a POST.
-    If there is a get do not return anything just validate.
-    """
-    def wrapper(func):
-
-        @wraps(func)
-        async def wrapped(*args):
-            request = args[-1]
-            try:
-                _, obj = await parse_request_object(request)
-            except Exception:
-                raise BeaconServerError("Could not properly parse the provided Request Body as JSON.")
-            try:
-                # jsonschema.validate(obj, schema)
-                LOG.info('Validate against JSON schema.')
-                DefaultValidatingDraft7Validator(schema).validate(obj)
-            except ValidationError as e:
-                if len(e.path) > 0:
-                    LOG.error(f'Bad Request: {e.message} caused by input: {e.instance} in {e.path[0]}')
-                    raise BeaconBadRequest(obj, request.host, f"Provided input: '{e.instance}' does not seem correct for field: '{e.path[0]}'")
-                else:
-                    LOG.error(f'Bad Request: {e.message} caused by input: {e.instance}')
-                    raise BeaconBadRequest(obj, request.host, f"Provided input: '{e.instance}' does not seem correct because: '{e.message}'")
-
-            return await func(*args)
-        return wrapped
-    return wrapper
+from .validate_json import parse_request_object
 
 
 # This can be something that lives longer as it is unlikely to change

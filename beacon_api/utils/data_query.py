@@ -1,4 +1,4 @@
-"""Query DB and prepare data for reponse."""
+"""Query DB and prepare data for response."""
 
 from datetime import datetime
 from functools import partial
@@ -156,7 +156,7 @@ async def fetch_filtered_dataset(db_pool, assembly_id, position, chromosome, ref
             refbase = None if not reference else handle_wildcard(reference)
             try:
                 if misses:
-                    # For MISS and ALL. We have already found all datasets with maching variants,
+                    # For MISS and ALL. We have already found all datasets with matching variants,
                     # so now just get one post per accessible, remaining datasets.
                     query = """SELECT DISTINCT ON (datasetId)
                                datasetId as "datasetId", accessType as "accessType",

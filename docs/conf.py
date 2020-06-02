@@ -97,7 +97,7 @@ autosummary_generate = True
 
 # -- Options for HTML output ----------------------------------------------
 
-html_title = 'Beacon-python API'
+html_title = 'beacon-python API'
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.

@@ -13,7 +13,8 @@ from .api.query import query_request_handler
 from .conf.config import init_db_pool
 from .schemas import load_schema
 from .utils.logging import LOG
-from .utils.validate import validate, token_auth, parse_request_object
+from .utils.validate_json import validate, parse_request_object
+from .utils.validate_jwt import token_auth
 import uvloop
 import asyncio
 import json
@@ -121,8 +122,8 @@ def main():
     # sslcontext.load_cert_chain(ssl_certfile, ssl_keyfile)
     # sslcontext = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
     # sslcontext.check_hostname = False
-    web.run_app(init(), host=os.environ.get('HOST', '0.0.0.0'),
-                port=os.environ.get('PORT', '5050'),
+    web.run_app(init(), host=os.environ.get('HOST', '0.0.0.0'),  # nosec
+                port=os.environ.get('PORT', '5050'),  # nosec
                 shutdown_timeout=0, ssl_context=None)
 
 

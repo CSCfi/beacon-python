@@ -52,11 +52,16 @@ jobs:
         - pip install tox-travis
       script: tox -e docs
     - stage: tests
+      name: "Check Spelling Errors"
+      before_script:
+        - curl -L https://git.io/misspell | bash
+      script: bin/misspell -error docs/*
+    - stage: tests
       name: "Python Code Security Tests"
       python: 3.6
       before_script:
         - pip install tox-travis
-      script: tox -e bandit
+      script: tox -e bandit  
     - stage: integtests
       name: "Integration Tests"
       python: 3.6
