@@ -5,6 +5,7 @@ reference + alternate bases/variant type combination, as well as matching
 start or end position.
 """
 
+from typing import Dict
 from ..utils.logging import LOG
 from .. import __apiVersion__, __handover_beacon__, __handover_drs__
 from ..utils.data_query import filter_exists, find_datasets, fetch_datasets_access
@@ -58,7 +59,7 @@ def access_resolution(request, token, host, public_data, registered_data, contro
     return permissions, list(access)
 
 
-async def query_request_handler(params):
+async def query_request_handler(params) -> Dict:
     """Handle the parameters of the query endpoint in order to find the required datasets.
 
     params = db_pool, method, request, token, host

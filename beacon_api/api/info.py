@@ -6,6 +6,7 @@ and their associated metadata.
 .. note:: See ``beacon_api`` root folder ``__init__.py`` for changing values used here.
 """
 
+from typing import Dict
 from .. import __apiVersion__, __title__, __version__, __description__, __url__, __alturl__, __handover_beacon__
 from .. import __createtime__, __updatetime__, __org_id__, __org_name__, __org_description__
 from .. import __org_address__, __org_logoUrl__, __org_welcomeUrl__, __org_info__, __org_contactUrl__
@@ -17,7 +18,7 @@ from aiocache.serializers import JsonSerializer
 
 
 @cached(ttl=60, key="ga4gh_info", serializer=JsonSerializer())
-async def ga4gh_info(host):
+async def ga4gh_info(host: str) -> Dict:
     """Construct the `Beacon` app information dict in GA4GH Discovery format.
 
     :return beacon_info: A dict that contain information about the ``Beacon`` endpoint.
@@ -43,7 +44,7 @@ async def ga4gh_info(host):
 
 
 @cached(ttl=60, key="info_key", serializer=JsonSerializer())
-async def beacon_info(host, pool):
+async def beacon_info(host: str, pool) -> Dict:
     """Construct the `Beacon` app information dict.
 
     :return beacon_info: A dict that contain information about the ``Beacon`` endpoint.
