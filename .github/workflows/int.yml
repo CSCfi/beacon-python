@@ -1,0 +1,58 @@
+name: Integration Tests
+
+on: [pull_request]
+
+jobs:
+  build:
+    strategy:
+      max-parallel: 4
+      matrix:
+        os: [ubuntu-latest]
+        python-version: [3.7]
+    
+    runs-on: ${{ matrix.os }}
+
+    name: Integration Tests
+    
+    steps:
+    - uses: actions/checkout@v1
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install requirements
+      run: |
+        wget https://github.com/openshift/source-to-image/releases/download/v1.2.0/source-to-image-v1.2.0-2a579ecd-linux-amd64.tar.gz
+        tar -xvf source-to-image-v1.2.0-2a579ecd-linux-amd64.tar.gz
+        sudo cp s2i /usr/local/bin
+        pip install aiohttp
+        pip install requests
+    - name: Build image
+      run:  |
+        s2i build . centos/python-36-centos7 cscfi/beacon-python
+        
+    - name: Start Services
+      run: |
+        pushd deploy/test
+        docker-compose up -d
+        sleep 10
+        docker exec test_beacon_1 beacon_init data/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz data/example_metadata.json
+        docker exec test_beacon_1 beacon_init data/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz /exdata/example_metadata_registered.json
+        docker exec test_beacon_1 beacon_init data/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz /exdata/example_metadata_controlled.json
+        docker exec test_beacon_1 beacon_init data/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz /exdata/example_metadata_controlled1.json
+
+    - name: Run Integration test
+      run: |
+        pushd deploy/test
+        python run_tests.py
+
+    - name: Collect logs from docker
+      if: ${{ failure() }}
+      run: cd deploy && docker-compose logs --no-color -t > ../tests/dockerlogs || true
+
+    - name: Persist log files
+      if: ${{ failure() }}
+      uses: actions/upload-artifact@v1
+      with:
+        name: test_debugging_help
+        path: tests

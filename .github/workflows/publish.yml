@@ -1,0 +1,49 @@
+name: Publish Docker image
+
+on:
+  release:
+    types: [published]
+  push:
+    branches: [master]
+
+jobs:
+  push_to_registry:
+    name: Push Beacon Docker image to Docker Hub
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Login to DockerHub Registry
+        run: echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+      - name: Get the version
+        id: vars
+        run: echo ::set-output name=tag::$(echo ${GITHUB_REF:10})
+      - name: Build the tagged Docker image
+        run: docker build . --file Dockerfile --tag cscfi/beacon-python:${{steps.vars.outputs.tag}}
+      - name: Push the tagged Docker image
+        run: docker push cscfi/beacon-python:${{steps.vars.outputs.tag}}
+      - name: Build the latest Docker image
+        run: docker build . --file Dockerfile --tag cscfi/beacon-python:latest
+      - name: Push the latest Docker image
+        run: docker push cscfi/beacon-python:latest
+  push_data_to_registry:
+    name: Push Dataloader Docker image to Docker Hub
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Login to DockerHub Registry
+        run: echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+      - name: Get the version
+        id: vars
+        run: echo ::set-output name=tag::$(echo ${GITHUB_REF:10})
+      - name: Build the tagged Docker image
+        run: |
+          pushd deploy/test
+          docker build . --file Dockerfile --tag cscfi/beacon-dataloader:${{steps.vars.outputs.tag}}
+      - name: Push the tagged Docker image
+        run: docker push cscfi/beacon-dataloader:${{steps.vars.outputs.tag}}
+      - name: Build the latest Docker image
+        run: |
+          pushd deploy/test
+          docker build . --file Dockerfile --tag cscfi/beacon-dataloader:latest
+      - name: Push the latest Docker image
+        run: docker push cscfi/beacon-dataloader:latest
