@@ -1,21 +1,26 @@
 """JSON Request/Response Validation."""
 
 from functools import wraps
+from aiohttp import web
 from .logging import LOG
 from ..api.exceptions import BeaconBadRequest, BeaconServerError
 
 from jsonschema import Draft7Validator, validators
 from jsonschema.exceptions import ValidationError
 
+from typing import Dict, Tuple
 
-async def parse_request_object(request):
+
+async def parse_request_object(request: web.Request) -> Tuple[str, Dict]:
     """Parse as JSON Object depending on the request method.
 
     For POST request parse the body, while for the GET request parse the query parameters.
     """
+    items = dict()
+
     if request.method == 'POST':
         LOG.info('Parsed POST request body.')
-        return request.method, await request.json()  # we are always expecting JSON
+        items = await request.json()  # we are always expecting JSON
 
     if request.method == 'GET':
         # GET parameters are returned as strings
@@ -24,10 +29,10 @@ async def parse_request_object(request):
         if 'datasetIds' in items:
             items['datasetIds'] = request.rel_url.query.get('datasetIds').split(',')
         LOG.info('Parsed GET request parameters.')
-        return request.method, items
+
+    return request.method, items
 
 
-# TO DO if required do not set default
 def extend_with_default(validator_class):
     """Include default values present in JSON Schema.
 
