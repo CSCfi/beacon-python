@@ -4,7 +4,7 @@ import inspect
 import asyncio
 
 
-async def main():
+async def main() -> None:
     """Run the tests."""
     LOG.debug('Start integration tests')
     # tests 18, 19 and 20 are also tested in the unit tests

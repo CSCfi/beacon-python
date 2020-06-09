@@ -5,11 +5,12 @@ from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.backends import default_backend
 from authlib.jose import jwt, jwk
+from typing import Tuple
 
 
-def generate_token():
+def generate_token() -> Tuple:
     """Generate RSA Key pair to be used to sign token and the JWT Token itself."""
-    private_key = rsa.generate_private_key(public_exponent=65537, key_size=1024, backend=default_backend())
+    private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048, backend=default_backend())
     public_key = private_key.public_key().public_bytes(encoding=serialization.Encoding.PEM, format=serialization.PublicFormat.SubjectPublicKeyInfo)
     pem = private_key.private_bytes(encoding=serialization.Encoding.PEM,
                                     format=serialization.PrivateFormat.TraditionalOpenSSL,
@@ -116,7 +117,7 @@ def generate_token():
 DATA = generate_token()
 
 
-async def jwk_response(request):
+async def jwk_response(request: web.Request) -> web.Response:
     """Mock JSON Web Key server."""
     keys = [DATA[0]]
     keys[0]['kid'] = 'rsa1'
@@ -126,13 +127,13 @@ async def jwk_response(request):
     return web.json_response(data)
 
 
-async def tokens_response(request):
+async def tokens_response(request: web.Request) -> web.Response:
     """Serve generated tokens."""
     data = [DATA[1], DATA[2]]
     return web.json_response(data)
 
 
-async def userinfo(request):
+async def userinfo(request: web.Request) -> web.Response:
     """Mock an authentication to ELIXIR AAI for GA4GH claims."""
     if request.headers.get('Authorization').split(' ')[1] == DATA[2]:
         data = {}
@@ -148,7 +149,7 @@ async def userinfo(request):
     return web.json_response(data)
 
 
-def init():
+def init() -> web.Application:
     """Start server."""
     app = web.Application()
     app.router.add_get('/jwk', jwk_response)
