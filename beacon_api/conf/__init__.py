@@ -1,22 +1,30 @@
 """Beacon Python Application Configuration."""
 
 import json
-import os
+from os import environ
 from configparser import ConfigParser
 from collections import namedtuple
 from distutils.util import strtobool
+from pathlib import Path
+
+from typing import Any, Dict, List, Union
 
 
-def parse_drspaths(paths):
+def convert(dictionary: Dict) -> tuple:
+    """Convert dictionary to Named tuple."""
+    return namedtuple('Config', dictionary.keys())(**dictionary)
+
+
+def parse_drspaths(paths: str) -> List:
     """Parse handover configuration."""
     return [p.strip().split(',', 2) for p in paths.split('\n') if p.split()]
 
 
-def parse_config_file(path):
+def parse_config_file(path) -> Any:
     """Parse configuration file."""
     config = ConfigParser()
     config.read(path)
-    config_vars = {
+    config_vars: Dict[str, Union[str, int, List[str]]] = {
         'title': config.get('beacon_general_info', 'title'),
         'version': config.get('beacon_general_info', 'version'),
         'author': config.get('beacon_general_info', 'author'),
@@ -45,17 +53,17 @@ def parse_config_file(path):
         'org_logoUrl': config.get('organisation_info', 'org_logoUrl'),
         'org_info': config.get('organisation_info', 'org_info')
     }
-    return namedtuple("Config", config_vars.keys())(*config_vars.values())
+    return convert(config_vars)
 
 
-CONFIG_INFO = parse_config_file(os.environ.get('CONFIG_FILE', os.path.join(os.path.dirname(__file__), 'config.ini')))
+CONFIG_INFO = parse_config_file(environ.get('CONFIG_FILE', str(Path(__file__).resolve().parent.joinpath('config.ini'))))
 
 
-def parse_oauth2_config_file(path):
+def parse_oauth2_config_file(path) -> Any:
     """Parse configuration file."""
     config = ConfigParser()
     config.read(path)
-    config_vars = {
+    config_vars: Dict[str, Union[str, bool, None]] = {
         'server': config.get('oauth2', 'server'),
         'issuers': config.get('oauth2', 'issuers'),
         'userinfo': config.get('oauth2', 'userinfo'),
@@ -63,10 +71,10 @@ def parse_oauth2_config_file(path):
         'verify_aud': bool(strtobool(config.get('oauth2', 'verify_aud'))),
         'bona_fide_value': config.get('oauth2', 'bona_fide_value')
     }
-    return namedtuple("Config", config_vars.keys())(*config_vars.values())
+    return convert(config_vars)
 
 
-OAUTH2_CONFIG = parse_oauth2_config_file(os.environ.get('CONFIG_FILE', os.path.join(os.path.dirname(__file__), 'config.ini')))
+OAUTH2_CONFIG = parse_oauth2_config_file(environ.get('CONFIG_FILE', str(Path(__file__).resolve().parent.joinpath('config.ini'))))
 # Sample query file should be of format [{BeaconAlleleRequest}] https://github.com/ga4gh-beacon/specification/
-sampleq_file = os.environ.get('SAMPLEQUERY_FILE', os.path.join(os.path.dirname(__file__), 'sample_queries.json'))
-SAMPLE_QUERIES = json.load(open(sampleq_file)) if os.path.isfile(sampleq_file) else []
+sampleq_file = Path(environ.get('SAMPLEQUERY_FILE', str(Path(__file__).resolve().parent.joinpath('sample_queries.json'))))
+SAMPLE_QUERIES = json.load(open(sampleq_file)) if sampleq_file.is_file() else []
