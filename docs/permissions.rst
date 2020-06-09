@@ -65,7 +65,7 @@ The permissions are then passed in :meth:`beacon_api.utils.validate_jwt` as illu
 .. literalinclude:: /../beacon_api/utils/validate_jwt.py
    :language: python
    :dedent: 16
-   :lines: 101-118
+   :lines: 101-123
 
 If there is no claim for GA4GH permissions as illustrated above, they will not be added to
 ``controlled_datasets``.

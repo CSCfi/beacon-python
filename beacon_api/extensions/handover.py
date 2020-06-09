@@ -13,8 +13,11 @@ def add_handover(response: Dict) -> Dict:
     return response
 
 
-def make_handover(paths: List[List[str]], datasetIds: List[str], chr: str = '', start: int = 0,
-                  end: int = 0, ref: str = '', alt: str = '', variant: str = '') -> List[Dict]:
+def make_handover(paths: List[List[str]],
+                  datasetIds: List[str],
+                  chr: str = '',
+                  start: int = 0, end: int = 0,
+                  ref: str = '', alt: str = '', variant: str = '') -> List[Dict]:
     """Create one handover for each path (specified in config)."""
     alt = alt if alt else variant
     handovers = []

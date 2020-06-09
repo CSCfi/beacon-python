@@ -2,7 +2,9 @@
 
 from datetime import datetime
 from functools import partial
-from typing import Dict, List
+from typing import Dict, List, Optional
+
+from typing import Tuple
 from .logging import LOG
 from ..api.exceptions import BeaconServerError
 from ..extensions.handover import add_handover
@@ -61,7 +63,7 @@ def transform_metadata(record) -> Dict:
     return response
 
 
-async def fetch_datasets_access(db_pool, datasets):
+async def fetch_datasets_access(db_pool, datasets: Optional[List]):
     """Retrieve CONTROLLED datasets."""
     public = []
     registered = []
@@ -215,7 +217,7 @@ async def fetch_filtered_dataset(db_pool, assembly_id, position, chromosome, ref
                 raise BeaconServerError(f'Query dataset DB error: {e}')
 
 
-def filter_exists(include_dataset, datasets) -> List[str]:
+def filter_exists(include_dataset: str, datasets: List) -> List[str]:
     """Return those datasets responses that the `includeDatasetResponses` parameter decides.
 
     Look at the exist parameter in each returned dataset to established HIT or MISS.
@@ -234,8 +236,11 @@ def filter_exists(include_dataset, datasets) -> List[str]:
 
 
 async def find_datasets(db_pool,
-                        assembly_id, position, chromosome, reference, alternate,
-                        dataset_ids, access_type, include_dataset) -> List:
+                        assembly_id: str,
+                        position: Tuple[Optional[int], ...],
+                        chromosome: str, reference: str, alternate: Tuple,
+                        dataset_ids: List[str], access_type: List,
+                        include_dataset: str) -> List:
     """Find datasets based on filter parameters.
 
     This also takes into consideration the token value as to establish permissions.

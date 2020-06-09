@@ -11,7 +11,7 @@ from ..utils.logging import LOG
 from ..conf import CONFIG_INFO
 
 
-def process_exception_data(request: web.Request,
+def process_exception_data(request: Dict,
                            host: str,
                            error_code: int,
                            error: str) -> Dict:
@@ -49,7 +49,7 @@ class BeaconBadRequest(web.HTTPBadRequest):
     Used in conjunction with JSON Schema validator.
     """
 
-    def __init__(self, request: web.Request,
+    def __init__(self, request: Dict,
                  host: str, error: str) -> None:
         """Return custom bad request exception."""
         data = process_exception_data(request, host, 400, error)
@@ -64,7 +64,7 @@ class BeaconUnauthorised(web.HTTPUnauthorized):
     Used in conjunction with Token authentication aiohttp middleware.
     """
 
-    def __init__(self, request: web.Request,
+    def __init__(self, request: Dict,
                  host: str, error: str, error_message: str) -> None:
         """Return custom unauthorized exception."""
         data = process_exception_data(request, host, 401, error)
@@ -85,7 +85,7 @@ class BeaconForbidden(web.HTTPForbidden):
     but not granted the resource. Used in conjunction with Token authentication aiohttp middleware.
     """
 
-    def __init__(self, request: web.Request,
+    def __init__(self, request: Dict,
                  host: str, error: str) -> None:
         """Return custom forbidden exception."""
         data = process_exception_data(request, host, 403, error)

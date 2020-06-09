@@ -5,7 +5,7 @@ reference + alternate bases/variant type combination, as well as matching
 start or end position.
 """
 
-from typing import Dict, Tuple, List
+from typing import Dict, Tuple, List, Optional
 from ..utils.logging import LOG
 from .. import __apiVersion__, __handover_beacon__, __handover_drs__
 from ..utils.data_query import filter_exists, find_datasets, fetch_datasets_access
@@ -14,7 +14,11 @@ from ..extensions.mate_name import find_fusion
 from .exceptions import BeaconUnauthorised, BeaconForbidden, BeaconBadRequest
 
 
-def access_resolution(request, token, host, public_data, registered_data, controlled_data) -> Tuple[List[str], List[str]]:
+def access_resolution(request: Dict, token: Dict,
+                      host: str,
+                      public_data: List[str],
+                      registered_data: List[str],
+                      controlled_data: List[str]) -> Tuple[List[str], List[str]]:
     """Determine the access level for a user.
 
     Depends on user bona_fide_status, and by default it should be PUBLIC.
@@ -93,9 +97,9 @@ async def query_request_handler(params: Tuple) -> Dict:
         raise BeaconBadRequest(request, params[4], "endMin value Must be smaller than endMax value")
     if request.get("startMin") and request.get("startMin") > request.get("startMax"):
         raise BeaconBadRequest(request, params[4], "startMin value Must be smaller than startMax value")
-    requested_position = (request.get("start", None), request.get("end", None),
-                          request.get("startMin", None), request.get("startMax", None),
-                          request.get("endMin", None), request.get("endMax", None))
+    requested_position: Tuple[Optional[int], ...] = (request.get("start", None), request.get("end", None),
+                                                     request.get("startMin", None), request.get("startMax", None),
+                                                     request.get("endMin", None), request.get("endMax", None))
 
     # Get dataset ids that were requested, sort by access level
     # If request is empty (default case) the three dataset variables contain all datasets by access level

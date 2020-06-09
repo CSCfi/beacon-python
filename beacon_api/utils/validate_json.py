@@ -8,7 +8,7 @@ from ..api.exceptions import BeaconBadRequest, BeaconServerError
 from jsonschema import Draft7Validator, validators
 from jsonschema.exceptions import ValidationError
 
-from typing import Dict, Tuple
+from typing import Dict, Tuple, Callable, Any
 
 
 async def parse_request_object(request: web.Request) -> Tuple[str, Dict]:
@@ -33,7 +33,7 @@ async def parse_request_object(request: web.Request) -> Tuple[str, Dict]:
     return request.method, items
 
 
-def extend_with_default(validator_class):
+def extend_with_default(validator_class: Draft7Validator) -> Draft7Validator:
     """Include default values present in JSON Schema.
 
     Source: https://python-jsonschema.readthedocs.io/en/latest/faq/#why-doesn-t-my-schema-s-default-property-set-the-default-on-my-instance
@@ -59,7 +59,7 @@ def extend_with_default(validator_class):
 DefaultValidatingDraft7Validator = extend_with_default(Draft7Validator)
 
 
-def validate(schema):
+def validate(schema: Dict) -> Callable[[Any], Any]:
     """
     Validate against JSON schema and return errors, if any.
 

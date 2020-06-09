@@ -83,11 +83,12 @@ Bona Fide status is read from GA4GH RI claims of the type "AcceptedTermsAndPolic
 """
 import base64
 import json
-from typing import Dict, List
+from typing import Dict, List, Tuple
 
 import aiohttp
 
 from authlib.jose import jwt
+from authlib.jose import JWTClaims
 from typing import Optional
 
 from ..api.exceptions import BeaconServerError
@@ -95,7 +96,10 @@ from ..utils.logging import LOG
 from ..conf import OAUTH2_CONFIG
 
 
-async def check_ga4gh_token(decoded_data, token, bona_fide_status, dataset_permissions):
+async def check_ga4gh_token(decoded_data: JWTClaims,
+                            token: str,
+                            bona_fide_status: bool,
+                            dataset_permissions: set) -> Tuple[set, bool]:
     """Check the token for GA4GH claims."""
     LOG.debug('Checking GA4GH claims from scope.')
 
@@ -109,7 +113,7 @@ async def check_ga4gh_token(decoded_data, token, bona_fide_status, dataset_permi
     return dataset_permissions, bona_fide_status
 
 
-async def decode_passport(encoded_passport) -> List[Dict]:
+async def decode_passport(encoded_passport: str) -> List[Dict]:
     """Return decoded header and payload from encoded passport JWT.
 
     Public-key-less decoding inspired by the PyJWT library https://github.com/jpadilla/pyjwt
@@ -117,8 +121,8 @@ async def decode_passport(encoded_passport) -> List[Dict]:
     LOG.debug('Decoding GA4GH passport.')
 
     # Convert the token string into bytes for processing, and split it into segments
-    encoded_passport = encoded_passport.encode('utf-8')  # `header.payload.signature`
-    data, _ = encoded_passport.rsplit(b'.', 1)  # data contains header and payload segments, the ignored segment is the signature segment
+    decoded_passport = encoded_passport.encode('utf-8')  # `header.payload.signature`
+    data, _ = decoded_passport.rsplit(b'.', 1)  # data contains header and payload segments, the ignored segment is the signature segment
     segments = data.split(b'.', 1)  # [header, payload]
 
     # Intermediary container
@@ -178,7 +182,7 @@ async def get_ga4gh_permissions(token: str) -> tuple:
     return dataset_permissions, bona_fide_status
 
 
-async def retrieve_user_data(token: str) -> Optional[Dict]:
+async def retrieve_user_data(token: str) -> Optional[str]:
     """Retrieve GA4GH user data."""
     LOG.debug('Contacting ELIXIR AAI /userinfo.')
     headers = {"Authorization": f"Bearer {token}"}
@@ -207,7 +211,7 @@ async def get_jwk(url: str) -> Optional[Dict]:
         return None
 
 
-async def validate_passport(passport):
+async def validate_passport(passport: List) -> JWTClaims:
     """Decode a passport and validate its contents."""
     LOG.debug('Validating passport.')
 
@@ -247,7 +251,7 @@ async def validate_passport(passport):
         LOG.error(f"Something went wrong when processing JWT tokens: {e}")
 
 
-async def get_ga4gh_controlled(passports) -> set:
+async def get_ga4gh_controlled(passports: List) -> set:
     """Retrieve dataset permissions from GA4GH passport visas."""
     # We only want to get datasets once, thus the set which prevents duplicates
     LOG.info("Parsing GA4GH dataset permissions.")
@@ -266,7 +270,7 @@ async def get_ga4gh_controlled(passports) -> set:
     return datasets
 
 
-async def get_ga4gh_bona_fide(passports) -> bool:
+async def get_ga4gh_bona_fide(passports: List) -> bool:
     """Retrieve Bona Fide status from GA4GH JWT claim."""
     LOG.info("Parsing GA4GH bona fide claims.")
 

@@ -5,6 +5,7 @@ from ..api.exceptions import BeaconServerError
 from .handover import add_handover
 from ..utils.data_query import handle_wildcard, transform_misses, transform_record
 from .. import __handover_drs__
+from typing import Tuple, List, Optional
 
 
 async def fetch_fusion_dataset(db_pool, assembly_id, position, chromosome, reference, mate,
@@ -111,7 +112,13 @@ async def fetch_fusion_dataset(db_pool, assembly_id, position, chromosome, refer
                 raise BeaconServerError(f'Query dataset DB error: {e}')
 
 
-async def find_fusion(db_pool, assembly_id, position, chromosome, reference, mate, dataset_ids, access_type, include_dataset):
+async def find_fusion(db_pool,
+                      assembly_id: str,
+                      position: Tuple[Optional[int], ...],
+                      chromosome: str, reference: str,
+                      mate: str,
+                      dataset_ids: List[str], access_type: List,
+                      include_dataset: str) -> List:
     """Find datasets based on filter parameters.
 
     This also takes into consideration the token value as to establish permissions.
