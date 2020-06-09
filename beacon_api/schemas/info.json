@@ -1,7 +1,459 @@
 {
-  "definitions": {},
   "type": "object",
   "additionalProperties": false,
+  "definitions": {
+    "string": {
+      "$id": "$/definitions/string",
+      "type": "string",
+      "pattern": "^(.*)$"
+    },
+    "orgType": {
+      "$id": "$/definitions/orgType",
+      "type": "string",
+      "enum": ["UNRESTRICTED", "LIMITED", "UNRESTRICTED_OBLIGATORY", "LIMITED_OBLIGATORY", "FORBIDDEN"]
+    },
+    "orgPurpose": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "$ref": "#/definitions/string"
+          },
+          "obligatory": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "consentDataUse": {
+      "$id": "$/definitions/consentDataUse",
+      "type": "object",
+      "required": [
+        "primaryCategory",
+        "version"
+      ],
+      "properties": {
+        "primaryCategory": {
+          "type": "object",
+          "required": [
+            "code"
+          ],
+          "properties": {
+            "code": {
+              "$ref": "#/definitions/string"
+            },
+            "description": {
+              "$ref": "#/definitions/string"
+            }
+          }
+        },
+        "secondaryCategories": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "code"
+            ],
+            "properties": {
+              "code": {
+                "$ref": "#/definitions/string"
+              },
+              "description": {
+                "$ref": "#/definitions/string"
+              }
+            }
+          }
+        },
+        "requirements": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "code"
+            ],
+            "properties": {
+              "code": {
+                "$ref": "#/definitions/string"
+              },
+              "description": {
+                "$ref": "#/definitions/string"
+              }
+            }
+          }
+        },
+        "version": {
+          "type": "string"
+        }
+      }
+    },
+    "adamDataUse": {
+      "$id":"$/definitions/adamDataUse",
+      "type": "object",
+      "required": [
+        "header",
+        "profile",
+        "terms",
+        "metaConditions"
+      ],
+      "properties": {
+        "header": {
+          "type": "object",
+          "properties": {
+            "matrixName": {
+              "$ref": "#/definitions/string"
+            },
+            "matrixVersion": {
+              "$ref": "#/definitions/string"
+            },
+            "matrixReferences": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/string"
+              }
+            },
+            "matrixProfileCreateDate": {
+              "$ref": "#/definitions/string"
+            },
+            "matrixProfileUpdates": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "date": {
+                    "$ref": "#/definitions/string"
+                  },
+                  "description": {
+                    "$ref": "#/definitions/string"
+                  }
+                }
+              }
+            },
+            "resourceName": {
+              "$ref": "#/definitions/string"
+            },
+            "resourceReferences": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/string"
+              }
+            },
+            "resourceDescription": {
+              "$ref": "#/definitions/string"
+            },
+            "resourceDataLevel": {
+              "type": "string",
+              "enum": ["UNKNOWN", "DATABASE", "METADATA",
+                       "SUMMARISED", "DATASET", "RECORDSET", "RECORD", "RECORDFIELD"]
+            },
+            "resourceContactNames": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "$ref": "#/definitions/string"
+                  },
+                  "email": {
+                    "$ref": "#/definitions/string"
+                  }
+                }
+              }
+            },
+            "resourceContactOrganisations": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/string"
+              }
+            }
+          }
+        },
+        "profile": {
+          "type": "object",
+          "properties": {
+            "country": {
+              "type": "string",
+              "enum": ["UNRESTRICTED", "LIMITED"]
+            },
+            "allowedCountries": {
+              "$ref": "#/definitions/orgPurpose"
+            },
+            "organisation": {
+              "type": "string",
+              "enum": ["UNRESTRICTED", "LIMITED"]
+            },
+            "allowedOrganisations": {
+              "$ref": "#/definitions/orgPurpose"
+            },
+            "nonProfitOrganisation": {
+              "$ref": "#/definitions/orgType"
+            },
+            "allowedNonProfitOrganisations": {
+              "$ref": "#/definitions/orgPurpose"
+            },
+            "profitOrganisation": {
+              "$ref": "#/definitions/orgType"
+            },
+            "allowedProfitOrganisations": {
+              "$ref": "#/definitions/orgPurpose"
+            },
+            "person": {
+              "type": "string",
+              "enum": ["UNRESTRICTED", "LIMITED"]
+            },
+            "allowedPersons": {
+              "$ref": "#/definitions/orgPurpose"
+            },
+            "academicProfessional": {
+              "$ref": "#/definitions/orgType"
+            },
+            "allowedAcademicProfessionals": {
+              "$ref": "#/definitions/orgPurpose"
+            },
+            "clinicalProfessional": {
+              "$ref": "#/definitions/orgType"
+            },
+            "allowedClinicalProfessionals": {
+              "$ref": "#/definitions/orgPurpose"
+            },
+            "profitProfessional": {
+              "$ref": "#/definitions/orgType"
+            },
+            "allowedProfitProfessionals": {
+              "$ref": "#/definitions/orgPurpose"
+            },
+            "nonProfessional": {
+              "$ref": "#/definitions/orgType"
+            },
+            "allowedNonProfessionals": {
+              "$ref": "#/definitions/orgPurpose"
+            },
+            "nonProfitPurpose": {
+              "$ref": "#/definitions/orgType"
+            },
+            "allowedNonProfitPurposes": {
+              "$ref": "#/definitions/orgPurpose"
+            },
+            "profitPurpose": {
+              "$ref": "#/definitions/orgType"
+            },
+            "allowedProfitPurposes": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "description": {
+                    "$ref": "#/definitions/string"
+                  },
+                  "obligatory": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            },
+            "researchPurpose": {
+              "$ref": "#/definitions/orgType"
+            },
+            "allowedResearchPurposes": {
+              "$ref": "#/definitions/orgPurpose"
+            },
+            "allowedResearchProfiles": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum" : [ "OTHER", "METHODS", "CONTROL", "POPULATION", "ANCESTRY", "BIOMEDICAL", "FUNDAMENTAL", "GENETIC", "DRUG", "DISEASE", "GENDER", "AGE" ]
+                  },
+                  "description": {
+                    "$ref": "#/definitions/string"
+                  },
+                  "restriction": {
+                    "$ref": "#/definitions/orgType"
+                  }
+                }
+              }
+            },
+            "clinicalPurpose": {
+              "$ref": "#/definitions/string"
+            },
+            "allowedClinicalPurpose": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "description": {
+                    "$ref": "#/definitions/string"
+                  },
+                  "obligatory": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            },
+            "allowedClinicalProfiles": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum" : [ "OTHER", "DECISION_SUPPORT", "DISEASE" ]
+                  },
+                  "description": {
+                    "$ref": "#/definitions/string"
+                  },
+                  "restriction": {
+                    "type": "string",
+                    "enum" : [ "OTHER", "DECISION_SUPPORT", "DISEASE" ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "terms": {
+          "type": "object",
+          "properties": {
+            "noAuthorizationTerms": {
+              "type": "boolean"
+            },
+            "whichAuthorizationTerms": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/string"
+              }
+            },
+            "noPublicationTerms": {
+              "type": "boolean"
+            },
+            "whichPublicationTerms": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/string"
+              }
+            },
+            "noTimelineTerms": {
+              "type": "boolean"
+            },
+            "whichTimelineTerms": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/string"
+              }
+            },
+            "noSecurityTerms": {
+              "type": "boolean"
+            },
+            "whichSecurityTerms": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/string"
+              }
+            },
+            "noExpungingTerms": {
+              "type": "boolean"
+            },
+            "whichExpungingTerms": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/string"
+              }
+            },
+            "noLinkingTerms": {
+              "type": "boolean"
+            },
+            "whichLinkingTerms": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/string"
+              }
+            },
+            "noRecontactTerms": {
+              "type": "boolean"
+            },
+            "allowedRecontactTerms": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/string"
+              }
+            },
+            "compulsoryRecontactTerms": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/string"
+              }
+            },
+            "noIPClaimTerms": {
+              "type": "boolean"
+            },
+            "whichIPClaimTerms": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/string"
+              }
+            },
+            "noReportingTerms": {
+              "type": "boolean"
+            },
+            "whichReportingTerms": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/string"
+              }
+            },
+            "noCollaborationTerms": {
+              "type": "boolean"
+            },
+            "whichCollaborationTerms": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/string"
+              }
+            },
+            "noPaymentTerms": {
+              "type": "boolean"
+            },
+            "whichPaymentTerms": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/string"
+              }
+            }
+          }
+        },
+        "metaConditions": {
+          "type": "object",
+          "properties": {
+            "sharingMode": {
+              "type": "string",
+              "enum" : [ "UNKNOWN", "DISCOVERY", "ACCESS", "DISCOVERY_AND_ACCESS" ]
+            },
+            "multipleObligationsRule": {
+              "type": "string",
+              "enum" : [ "MEET_ALL_OBLIGATIONS", "MEET_AT_LEAST_ONE_OBLIGATION" ]
+            },
+            "noOtherConditions": {
+              "type": "boolean"
+            },
+            "whichOtherConditions": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/string"
+              }
+            },
+            "sensitivePopulations": {
+              "type": "boolean"
+            },
+            "uniformConsent": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    }
+  },
   "required": [
     "id",
     "name",
@@ -11,16 +463,13 @@
   ],
   "properties": {
     "id": {
-      "type": "string",
-      "pattern": "^(.*)$"
+      "$ref": "#/definitions/string"
     },
     "name": {
-      "type": "string",
-      "pattern": "^(.*)$"
+      "$ref": "#/definitions/string"
     },
     "apiVersion": {
-      "type": "string",
-      "pattern": "^(.*)$"
+      "$ref": "#/definitions/string"
     },
     "organization": {
       "type": "object",
@@ -30,32 +479,25 @@
       ],
       "properties": {
         "id": {
-          "type": "string",
-          "pattern": "^(.*)$"
+          "$ref": "#/definitions/string"
         },
         "name": {
-          "type": "string",
-          "pattern": "^(.*)$"
+          "$ref": "#/definitions/string"
         },
         "description": {
-          "type": "string",
-          "pattern": "^(.*)$"
+          "$ref": "#/definitions/string"
         },
         "address": {
-          "type": "string",
-          "pattern": "^(.*)$"
+          "$ref": "#/definitions/string"
         },
         "welcomeUrl": {
-          "type": "string",
-          "pattern": "^(.*)$"
+          "$ref": "#/definitions/string"
         },
         "contactUrl": {
-          "type": "string",
-          "pattern": "^(.*)$"
+          "$ref": "#/definitions/string"
         },
         "logoUrl": {
-          "type": "string",
-          "pattern": "^(.*)$"
+          "$ref": "#/definitions/string"
         },
         "info": {
           "type": "object"
@@ -63,28 +505,22 @@
       }
     },
     "description": {
-      "type": "string",
-      "pattern": "^(.*)$"
+      "$ref": "#/definitions/string"
     },
     "version": {
-      "type": "string",
-      "pattern": "^(.*)$"
+      "$ref": "#/definitions/string"
     },
     "welcomeUrl": {
-      "type": "string",
-      "pattern": "^(.*)$"
+      "$ref": "#/definitions/string"
     },
     "alternativeUrl": {
-      "type": "string",
-      "pattern": "^(.*)$"
+      "$ref": "#/definitions/string"
     },
     "createDateTime": {
-      "type": "string",
-      "pattern": "^(.*)$"
+      "$ref": "#/definitions/string"
     },
     "updateDateTime": {
-      "type": "string",
-      "pattern": "^(.*)$"
+      "$ref": "#/definitions/string"
     },
     "datasets": {
       "type": "array",
@@ -99,32 +535,26 @@
         ],
         "properties": {
           "id": {
-            "type": "string",
-            "pattern": "^(.*)$"
+            "$ref": "#/definitions/string"
           },
           "name": {
-            "type": "string",
-            "pattern": "^(.*)$"
+            "$ref": "#/definitions/string"
           },
           "description": {
-            "type": "string",
-            "pattern": "^(.*)$"
+            "$ref": "#/definitions/string"
           },
           "assemblyId": {
             "type": "string",
             "pattern": "^((GRCh|hg)[0-9]+([.]?p[0-9]+)?)$"
           },
           "createDateTime": {
-            "type": "string",
-            "pattern": "^(.*)$"
+            "$ref": "#/definitions/string"
           },
           "updateDateTime": {
-            "type": "string",
-            "pattern": "^(.*)$"
+            "$ref": "#/definitions/string"
           },
           "version": {
-            "type": "string",
-            "pattern": "^(.*)$"
+            "$ref": "#/definitions/string"
           },
           "variantCount": {
             "type": "integer",
@@ -153,607 +583,10 @@
             ],
             "properties": {
               "consentCodeDataUse": {
-                "type": "object",
-                "required": [
-                  "primaryCategory",
-                  "version"
-                ],
-                "properties": {
-                  "primaryCategory": {
-                    "type": "object",
-                    "required": [
-                      "code"
-                    ],
-                    "properties": {
-                      "code": {
-                        "type": "string",
-                        "pattern": "^(.*)$"
-                      },
-                      "description": {
-                        "type": "string",
-                        "pattern": "^(.*)$"
-                      }
-                    }
-                  },
-                  "secondaryCategories": {
-                    "type": "array",
-                    "items": {
-                      "type": "object",
-                      "required": [
-                        "code"
-                      ],
-                      "properties": {
-                        "code": {
-                          "type": "string",
-                          "pattern": "^(.*)$"
-                        },
-                        "description": {
-                          "type": "string",
-                          "pattern": "^(.*)$"
-                        }
-                      }
-                    }
-                  },
-                  "requirements": {
-                    "type": "array",
-                    "items": {
-                      "type": "object",
-                      "required": [
-                        "code"
-                      ],
-                      "properties": {
-                        "code": {
-                          "type": "string",
-                          "pattern": "^(.*)$"
-                        },
-                        "description": {
-                          "type": "string",
-                          "pattern": "^(.*)$"
-                        }
-                      }
-                    }
-                  },
-                  "version": {
-                    "type": "string"
-                  }
-                }
+                "$ref": "#/definitions/consentDataUse"
               },
               "adamDataUse": {
-                "type": "object",
-                "required": [
-                  "header",
-                  "profile",
-                  "terms",
-                  "metaConditions"
-                ],
-                "properties": {
-                  "header": {
-                    "type": "object",
-                    "properties": {
-                      "matrixName": {
-                        "type": "string",
-                        "pattern": "^(.*)$"
-                      },
-                      "matrixVersion": {
-                        "type": "string",
-                        "pattern": "^(.*)$"
-                      },
-                      "matrixReferences": {
-                        "type": "array",
-                        "items": {
-                          "type": "string",
-                          "pattern": "^(.*)$"
-                        }
-                      },
-                      "matrixProfileCreateDate": {
-                        "type": "string",
-                        "pattern": "^(.*)$"
-                      },
-                      "matrixProfileUpdates": {
-                        "type": "array",
-                        "items": {
-                          "type": "object",
-                          "properties": {
-                            "date": {
-                              "type": "string",
-                              "pattern": "^(.*)$"
-                            },
-                            "description": {
-                              "type": "string",
-                              "pattern": "^(.*)$"
-                            }
-                          }
-                        }
-                      },
-                      "resourceName": {
-                        "type": "string",
-                        "pattern": "^(.*)$"
-                      },
-                      "resourceReferences": {
-                        "type": "array",
-                        "items": {
-                          "type": "string",
-                          "pattern": "^(.*)$"
-                        }
-                      },
-                      "resourceDescription": {
-                        "type": "string",
-                        "pattern": "^(.*)$"
-                      },
-                      "resourceDataLevel": {
-                        "type": "string",
-                        "enum": ["UNKNOWN", "DATABASE", "METADATA",
-                                 "SUMMARISED", "DATASET", "RECORDSET", "RECORD", "RECORDFIELD"]
-                      },
-                      "resourceContactNames": {
-                        "type": "array",
-                        "items": {
-                          "type": "object",
-                          "properties": {
-                            "name": {
-                              "type": "string",
-                              "pattern": "^(.*)$"
-                            },
-                            "email": {
-                              "type": "string",
-                              "pattern": "^(.*)$"
-                            }
-                          }
-                        }
-                      },
-                      "resourceContactOrganisations": {
-                        "type": "array",
-                        "items": {
-                          "type": "string",
-                          "pattern": "^(.*)$"
-                        }
-                      }
-                    }
-                  },
-                  "profile": {
-                    "type": "object",
-                    "properties": {
-                      "country": {
-                        "type": "string",
-                        "enum": ["UNRESTRICTED", "LIMITED"]
-                      },
-                      "allowedCountries": {
-                        "type": "array",
-                        "items": {
-                          "type": "object",
-                          "properties": {
-                            "description": {
-                              "type": "string",
-                              "pattern": "^(.*)$"
-                            },
-                            "obligatory": {
-                              "type": "boolean"
-                            }
-                          }
-                        }
-                      },
-                      "organisation": {
-                        "type": "string",
-                        "enum": ["UNRESTRICTED", "LIMITED"]
-                      },
-                      "allowedOrganisations": {
-                        "type": "array",
-                        "items": {
-                          "type": "object",
-                          "properties": {
-                            "description": {
-                              "type": "string",
-                              "pattern": "^(.*)$"
-                            },
-                            "obligatory": {
-                              "type": "boolean"
-                            }
-                          }
-                        }
-                      },
-                      "nonProfitOrganisation": {
-                        "type": "string",
-                        "enum": ["UNRESTRICTED", "LIMITED", "UNRESTRICTED_OBLIGATORY", "LIMITED_OBLIGATORY", "FORBIDDEN"]
-                      },
-                      "allowedNonProfitOrganisations": {
-                        "type": "array",
-                        "items": {
-                          "type": "object",
-                          "properties": {
-                            "description": {
-                              "type": "string",
-                              "pattern": "^(.*)$"
-                            },
-                            "obligatory": {
-                              "type": "boolean"
-                            }
-                          }
-                        }
-                      },
-                      "profitOrganisation": {
-                        "type": "string",
-                        "enum": ["UNRESTRICTED", "LIMITED", "UNRESTRICTED_OBLIGATORY", "LIMITED_OBLIGATORY", "FORBIDDEN"]
-                      },
-                      "allowedProfitOrganisations": {
-                        "type": "array",
-                        "items": {
-                          "type": "object",
-                          "properties": {
-                            "description": {
-                              "type": "string",
-                              "pattern": "^(.*)$"
-                            },
-                            "obligatory": {
-                              "type": "boolean"
-                            }
-                          }
-                        }
-                      },
-                      "person": {
-                        "type": "string",
-                        "enum": ["UNRESTRICTED", "LIMITED"]
-                      },
-                      "allowedPersons": {
-                        "type": "array",
-                        "items": {
-                          "type": "object",
-                          "properties": {
-                            "description": {
-                              "type": "string",
-                              "pattern": "^(.*)$"
-                            },
-                            "obligatory": {
-                              "type": "boolean"
-                            }
-                          }
-                        }
-                      },
-                      "academicProfessional": {
-                        "type": "string",
-                        "enum": ["UNRESTRICTED", "LIMITED", "UNRESTRICTED_OBLIGATORY", "LIMITED_OBLIGATORY", "FORBIDDEN"]
-                      },
-                      "allowedAcademicProfessionals": {
-                        "type": "array",
-                        "items": {
-                          "type": "object",
-                          "properties": {
-                            "description": {
-                              "type": "string",
-                              "pattern": "^(.*)$"
-                            },
-                            "obligatory": {
-                              "type": "boolean"
-                            }
-                          }
-                        }
-                      },
-                      "clinicalProfessional": {
-                        "type": "string",
-                        "enum": ["UNRESTRICTED", "LIMITED", "UNRESTRICTED_OBLIGATORY", "LIMITED_OBLIGATORY", "FORBIDDEN"]
-                      },
-                      "allowedClinicalProfessionals": {
-                        "type": "array",
-                        "items": {
-                          "type": "object",
-                          "properties": {
-                            "description": {
-                              "type": "string",
-                              "pattern": "^(.*)$"
-                            },
-                            "obligatory": {
-                              "type": "boolean"
-                            }
-                          }
-                        }
-                      },
-                      "profitProfessional": {
-                        "type": "string",
-                        "enum": ["UNRESTRICTED", "LIMITED", "UNRESTRICTED_OBLIGATORY", "LIMITED_OBLIGATORY", "FORBIDDEN"]
-                      },
-                      "allowedProfitProfessionals": {
-                        "type": "array",
-                        "items": {
-                          "type": "object",
-                          "properties": {
-                            "description": {
-                              "type": "string",
-                              "pattern": "^(.*)$"
-                            },
-                            "obligatory": {
-                              "type": "boolean"
-                            }
-                          }
-                        }
-                      },
-                      "nonProfessional": {
-                        "type": "string",
-                        "enum": ["UNRESTRICTED", "LIMITED", "UNRESTRICTED_OBLIGATORY", "LIMITED_OBLIGATORY", "FORBIDDEN"]
-                      },
-                      "allowedNonProfessionals": {
-                        "type": "array",
-                        "items": {
-                          "type": "object",
-                          "properties": {
-                            "description": {
-                              "type": "string",
-                              "pattern": "^(.*)$"
-                            },
-                            "obligatory": {
-                              "type": "boolean"
-                            }
-                          }
-                        }
-                      },
-                      "nonProfitPurpose": {
-                        "type": "string",
-                        "enum": ["UNRESTRICTED", "LIMITED", "UNRESTRICTED_OBLIGATORY", "LIMITED_OBLIGATORY", "FORBIDDEN"]
-                      },
-                      "allowedNonProfitPurposes": {
-                        "type": "array",
-                        "items": {
-                          "type": "object",
-                          "properties": {
-                            "description": {
-                              "type": "string",
-                              "pattern": "^(.*)$"
-                            },
-                            "obligatory": {
-                              "type": "boolean"
-                            }
-                          }
-                        }
-                      },
-                      "profitPurpose": {
-                        "type": "string",
-                        "enum": ["UNRESTRICTED", "LIMITED", "UNRESTRICTED_OBLIGATORY", "LIMITED_OBLIGATORY", "FORBIDDEN"]
-                      },
-                      "allowedProfitPurposes": {
-                        "type": "array",
-                        "items": {
-                          "type": "object",
-                          "properties": {
-                            "description": {
-                              "type": "string",
-                              "pattern": "^(.*)$"
-                            },
-                            "obligatory": {
-                              "type": "boolean"
-                            }
-                          }
-                        }
-                      },
-                      "researchPurpose": {
-                        "type": "string",
-                        "enum": ["UNRESTRICTED", "LIMITED", "UNRESTRICTED_OBLIGATORY", "LIMITED_OBLIGATORY", "FORBIDDEN"]
-                      },
-                      "allowedResearchPurposes": {
-                        "type": "array",
-                        "items": {
-                          "type": "object",
-                          "properties": {
-                            "description": {
-                              "type": "string",
-                              "pattern": "^(.*)$"
-                            },
-                            "obligatory": {
-                              "type": "boolean"
-                            }
-                          }
-                        }
-                      },
-                      "allowedResearchProfiles": {
-                        "type": "array",
-                        "items": {
-                          "type": "object",
-                          "properties": {
-                            "type": {
-                              "type": "string",
-                              "enum" : [ "OTHER", "METHODS", "CONTROL", "POPULATION", "ANCESTRY", "BIOMEDICAL", "FUNDAMENTAL", "GENETIC", "DRUG", "DISEASE", "GENDER", "AGE" ]
-                            },
-                            "description": {
-                              "type": "string",
-                              "pattern": "^(.*)$"
-                            },
-                            "restriction": {
-                              "type": "string",
-                              "enum": ["UNRESTRICTED", "LIMITED", "UNRESTRICTED_OBLIGATORY", "LIMITED_OBLIGATORY", "FORBIDDEN"]
-                            }
-                          }
-                        }
-                      },
-                      "clinicalPurpose": {
-                        "type": "string",
-                        "pattern": "^(.*)$"
-                      },
-                      "allowedClinicalPurpose": {
-                        "type": "array",
-                        "items": {
-                          "type": "object",
-                          "properties": {
-                            "description": {
-                              "type": "string",
-                              "pattern": "^(.*)$"
-                            },
-                            "obligatory": {
-                              "type": "boolean"
-                            }
-                          }
-                        }
-                      },
-                      "allowedClinicalProfiles": {
-                        "type": "array",
-                        "items": {
-                          "type": "object",
-                          "properties": {
-                            "type": {
-                              "type": "string",
-                              "enum" : [ "OTHER", "DECISION_SUPPORT", "DISEASE" ]
-                            },
-                            "description": {
-                              "type": "string",
-                              "pattern": "^(.*)$"
-                            },
-                            "restriction": {
-                              "type": "string",
-                              "enum" : [ "OTHER", "DECISION_SUPPORT", "DISEASE" ]
-                            }
-                          }
-                        }
-                      }
-                    }
-                  },
-                  "terms": {
-                    "type": "object",
-                    "properties": {
-                      "noAuthorizationTerms": {
-                        "type": "boolean"
-                      },
-                      "whichAuthorizationTerms": {
-                        "type": "array",
-                        "items": {
-                          "type": "string",
-                          "pattern": "^(.*)$"
-                        }
-                      },
-                      "noPublicationTerms": {
-                        "type": "boolean"
-                      },
-                      "whichPublicationTerms": {
-                        "type": "array",
-                        "items": {
-                          "type": "string",
-                          "pattern": "^(.*)$"
-                        }
-                      },
-                      "noTimelineTerms": {
-                        "type": "boolean"
-                      },
-                      "whichTimelineTerms": {
-                        "type": "array",
-                        "items": {
-                          "type": "string",
-                          "pattern": "^(.*)$"
-                        }
-                      },
-                      "noSecurityTerms": {
-                        "type": "boolean"
-                      },
-                      "whichSecurityTerms": {
-                        "type": "array",
-                        "items": {
-                          "type": "string",
-                          "pattern": "^(.*)$"
-                        }
-                      },
-                      "noExpungingTerms": {
-                        "type": "boolean"
-                      },
-                      "whichExpungingTerms": {
-                        "type": "array",
-                        "items": {
-                          "type": "string",
-                          "pattern": "^(.*)$"
-                        }
-                      },
-                      "noLinkingTerms": {
-                        "type": "boolean"
-                      },
-                      "whichLinkingTerms": {
-                        "type": "array",
-                        "items": {
-                          "type": "string",
-                          "pattern": "^(.*)$"
-                        }
-                      },
-                      "noRecontactTerms": {
-                        "type": "boolean"
-                      },
-                      "allowedRecontactTerms": {
-                        "type": "array",
-                        "items": {
-                          "type": "string",
-                          "pattern": "^(.*)$"
-                        }
-                      },
-                      "compulsoryRecontactTerms": {
-                        "type": "array",
-                        "items": {
-                          "type": "string",
-                          "pattern": "^(.*)$"
-                        }
-                      },
-                      "noIPClaimTerms": {
-                        "type": "boolean"
-                      },
-                      "whichIPClaimTerms": {
-                        "type": "array",
-                        "items": {
-                          "type": "string",
-                          "pattern": "^(.*)$"
-                        }
-                      },
-                      "noReportingTerms": {
-                        "type": "boolean"
-                      },
-                      "whichReportingTerms": {
-                        "type": "array",
-                        "items": {
-                          "type": "string",
-                          "pattern": "^(.*)$"
-                        }
-                      },
-                      "noCollaborationTerms": {
-                        "type": "boolean"
-                      },
-                      "whichCollaborationTerms": {
-                        "type": "array",
-                        "items": {
-                          "type": "string",
-                          "pattern": "^(.*)$"
-                        }
-                      },
-                      "noPaymentTerms": {
-                        "type": "boolean"
-                      },
-                      "whichPaymentTerms": {
-                        "type": "array",
-                        "items": {
-                          "type": "string",
-                          "pattern": "^(.*)$"
-                        }
-                      }
-                    }
-                  },
-                  "metaConditions": {
-                    "type": "object",
-                    "properties": {
-                      "sharingMode": {
-                        "type": "string",
-                        "enum" : [ "UNKNOWN", "DISCOVERY", "ACCESS", "DISCOVERY_AND_ACCESS" ]
-                      },
-                      "multipleObligationsRule": {
-                        "type": "string",
-                        "enum" : [ "MEET_ALL_OBLIGATIONS", "MEET_AT_LEAST_ONE_OBLIGATION" ]
-                      },
-                      "noOtherConditions": {
-                        "type": "boolean"
-                      },
-                      "whichOtherConditions": {
-                        "type": "array",
-                        "items": {
-                          "type": "string",
-                          "pattern": "^(.*)$"
-                        }
-                      },
-                      "sensitivePopulations": {
-                        "type": "boolean"
-                      },
-                      "uniformConsent": {
-                        "type": "boolean"
-                      }
-                    }
-                  }
-                }
+                "$ref": "#/definitions/adamDataUse"
               }
             }
           }

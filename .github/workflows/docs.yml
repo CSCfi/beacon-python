@@ -1,0 +1,41 @@
+name: Documentation Checks
+
+on: [push]
+
+jobs:
+  spell_check:
+    strategy:
+      max-parallel: 4
+      matrix:
+        os: [ubuntu-latest]
+    
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - name: Spell check install
+      run: curl -L https://git.io/misspell | bash
+    - name: Spell check docs
+      run: bin/misspell -error docs/*
+
+  code_docs:
+    strategy:
+      max-parallel: 4
+      matrix:
+        os: [ubuntu-latest]
+        python-version: [3.7]
+    
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install tox tox-gh-actions
+    - name: Run docs tests
+      run: tox -e docs
+    
