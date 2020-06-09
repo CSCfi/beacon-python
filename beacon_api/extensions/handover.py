@@ -1,9 +1,10 @@
 """Prepare Handover."""
 
+from typing import Dict, List
 from .. import __handover_drs__, __handover_datasets__, __handover_base__
 
 
-def add_handover(response):
+def add_handover(response: Dict) -> Dict:
     """Add handover to a dataset response."""
     response["datasetHandover"] = make_handover(__handover_datasets__, [response['datasetId']],
                                                 response['referenceName'], response['start'],
@@ -12,7 +13,8 @@ def add_handover(response):
     return response
 
 
-def make_handover(paths, datasetIds, chr='', start=0, end=0, ref='', alt='', variant=''):
+def make_handover(paths, datasetIds, chr: str = '', start: int = 0,
+                  end: int = 0, ref: str = '', alt: str = '', variant: str = '') -> List[Dict]:
     """Create one handover for each path (specified in config)."""
     alt = alt if alt else variant
     handovers = []
