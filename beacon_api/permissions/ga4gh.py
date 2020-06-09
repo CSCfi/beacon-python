@@ -83,10 +83,12 @@ Bona Fide status is read from GA4GH RI claims of the type "AcceptedTermsAndPolic
 """
 import base64
 import json
+from typing import Dict, List
 
 import aiohttp
 
 from authlib.jose import jwt
+from typing import Optional
 
 from ..api.exceptions import BeaconServerError
 from ..utils.logging import LOG
@@ -107,7 +109,7 @@ async def check_ga4gh_token(decoded_data, token, bona_fide_status, dataset_permi
     return dataset_permissions, bona_fide_status
 
 
-async def decode_passport(encoded_passport):
+async def decode_passport(encoded_passport) -> List[Dict]:
     """Return decoded header and payload from encoded passport JWT.
 
     Public-key-less decoding inspired by the PyJWT library https://github.com/jpadilla/pyjwt
@@ -139,12 +141,12 @@ async def decode_passport(encoded_passport):
     return decoded_data
 
 
-async def get_ga4gh_permissions(token):
+async def get_ga4gh_permissions(token: str) -> tuple:
     """Retrieve GA4GH passports (JWTs) from ELIXIR AAI and process them into tangible permissions."""
     LOG.info('Handling permissions.')
 
     # Return variables
-    dataset_permissions = []
+    dataset_permissions = set()
     bona_fide_status = False
 
     # Intermediary containers
@@ -176,7 +178,7 @@ async def get_ga4gh_permissions(token):
     return dataset_permissions, bona_fide_status
 
 
-async def retrieve_user_data(token):
+async def retrieve_user_data(token: str) -> Optional[Dict]:
     """Retrieve GA4GH user data."""
     LOG.debug('Contacting ELIXIR AAI /userinfo.')
     headers = {"Authorization": f"Bearer {token}"}
@@ -190,7 +192,7 @@ async def retrieve_user_data(token):
         raise BeaconServerError("Could not retrieve GA4GH user data from ELIXIR AAI.")
 
 
-async def get_jwk(url):
+async def get_jwk(url: str) -> Optional[Dict]:
     """Get JWK set keys to validate JWT."""
     LOG.debug('Retrieving JWK.')
     try:
@@ -202,7 +204,7 @@ async def get_jwk(url):
         # This is not a fatal error, it just means that we are unable to validate the permissions,
         # but the process should continue even if the validation of one token fails
         LOG.error(f'Could not retrieve JWK from {url}')
-        pass
+        return None
 
 
 async def validate_passport(passport):
@@ -245,7 +247,7 @@ async def validate_passport(passport):
         LOG.error(f"Something went wrong when processing JWT tokens: {e}")
 
 
-async def get_ga4gh_controlled(passports):
+async def get_ga4gh_controlled(passports) -> set:
     """Retrieve dataset permissions from GA4GH passport visas."""
     # We only want to get datasets once, thus the set which prevents duplicates
     LOG.info("Parsing GA4GH dataset permissions.")
@@ -264,7 +266,7 @@ async def get_ga4gh_controlled(passports):
     return datasets
 
 
-async def get_ga4gh_bona_fide(passports):
+async def get_ga4gh_bona_fide(passports) -> bool:
     """Retrieve Bona Fide status from GA4GH JWT claim."""
     LOG.info("Parsing GA4GH bona fide claims.")
 

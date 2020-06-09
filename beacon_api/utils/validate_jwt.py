@@ -1,5 +1,6 @@
 """JSON Token authentication."""
 
+from typing import List, Callable
 from ..permissions.ga4gh import check_ga4gh_token
 from aiocache import cached
 from aiocache.serializers import JsonSerializer
@@ -9,7 +10,7 @@ from authlib.jose import jwt
 from authlib.jose.errors import MissingClaimError, InvalidClaimError, ExpiredTokenError, InvalidTokenError
 import re
 import aiohttp
-import os
+from os import environ
 from .logging import LOG
 from ..conf import OAUTH2_CONFIG
 from .validate_json import parse_request_object
@@ -19,7 +20,7 @@ from .validate_json import parse_request_object
 @cached(ttl=3600, key="jwk_key", serializer=JsonSerializer())
 async def get_key():
     """Get OAuth2 public key and transform it to usable pem key."""
-    existing_key = os.environ.get('PUBLIC_KEY', None)
+    existing_key = environ.get('PUBLIC_KEY', None)
     if existing_key is not None:
         return existing_key
     try:
@@ -41,20 +42,24 @@ def token_scheme_check(token, scheme, obj, host):
         raise BeaconUnauthorised(obj, host, "invalid_token", 'Token cannot be empty.')  # pragma: no cover
 
 
-def verify_aud_claim():
+def verify_aud_claim() -> tuple:
     """Verify audience claim."""
-    aud = []
+    aud: List[str] = []
     verify_aud = OAUTH2_CONFIG.verify_aud  # Option to skip verification of `aud` claim
     if verify_aud:
-        aud = os.environ.get('JWT_AUD', OAUTH2_CONFIG.audience)  # List of intended audiences of token
+        temp_aud = environ.get('JWT_AUD', OAUTH2_CONFIG.audience)  # List of intended audiences of token
         # if verify_aud is set to True, we expect that a desired aud is then supplied.
         # However, if verify_aud=True and no aud is supplied, we use aud=[None] which will fail for
         # all tokens as a security measure. If aud=[], all tokens will pass (as is the default value).
-        aud = aud.split(',') if aud is not None else [None]
+        if temp_aud is not None:
+            aud = temp_aud.split(',')
+        else:
+            aud.append[None]
+
     return verify_aud, aud
 
 
-def token_auth():
+def token_auth() -> Callable:
     """Check if token is valid and authenticate.
 
     Decided against: https://github.com/hzlmn/aiohttp-jwt, as we need to verify

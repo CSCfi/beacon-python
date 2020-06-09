@@ -15,7 +15,7 @@ def convert(dictionary: Dict) -> tuple:
     return namedtuple('Config', dictionary.keys())(**dictionary)
 
 
-def parse_drspaths(paths: str) -> List:
+def parse_drspaths(paths: str) -> List[List[str]]:
     """Parse handover configuration."""
     return [p.strip().split(',', 2) for p in paths.split('\n') if p.split()]
 
@@ -24,7 +24,7 @@ def parse_config_file(path) -> Any:
     """Parse configuration file."""
     config = ConfigParser()
     config.read(path)
-    config_vars: Dict[str, Union[str, int, List[str]]] = {
+    config_vars: Dict[str, Union[str, int, List[List[str]]]] = {
         'title': config.get('beacon_general_info', 'title'),
         'version': config.get('beacon_general_info', 'version'),
         'author': config.get('beacon_general_info', 'author'),
@@ -59,7 +59,7 @@ def parse_config_file(path) -> Any:
 CONFIG_INFO = parse_config_file(environ.get('CONFIG_FILE', str(Path(__file__).resolve().parent.joinpath('config.ini'))))
 
 
-def parse_oauth2_config_file(path) -> Any:
+def parse_oauth2_config_file(path: str) -> Any:
     """Parse configuration file."""
     config = ConfigParser()
     config.read(path)
