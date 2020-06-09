@@ -26,3 +26,5 @@ jobs:
       run: tox -e flake8
     - name: Do bandit static check with tox
       run: tox -e bandit
+    - name: Do typing check with tox
+      run: tox -e mypy
