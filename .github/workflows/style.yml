@@ -26,5 +26,7 @@ jobs:
       run: tox -e flake8
     - name: Do bandit static check with tox
       run: tox -e bandit
+    - name: Install libcurl-devel
+      run: sudo apt-get install libcurl4-openssl-dev
     - name: Do typing check with tox
       run: tox -e mypy
