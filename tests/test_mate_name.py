@@ -19,11 +19,10 @@ class TestDataQueryFunctions(asynctest.TestCase):
     async def test_find_fusion(self, mock_filtered):
         """Test find datasets."""
         mock_filtered.return_value = []
-        token = dict()
-        token["bona_fide_status"] = False
-        result = await find_fusion(None, 'GRCh38', None, 'Y', 'T', 'C', [], token, "NONE")
+        access_type = list()
+        result = await find_fusion(None, 'GRCh38', (), 'Y', 'T', 'C', [], access_type, "NONE")
         self.assertEqual(result, [])
-        result_miss = await find_fusion(None, 'GRCh38', None, 'Y', 'T', 'C', [], token, "MISS")
+        result_miss = await find_fusion(None, 'GRCh38', (), 'Y', 'T', 'C', [], access_type, "MISS")
         self.assertEqual(result_miss, [])
 
     async def test_fetch_fusion_dataset_call(self):

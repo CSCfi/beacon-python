@@ -204,7 +204,7 @@ class TestBasicFunctions(asynctest.TestCase):
         token = mock_token(True, ["5", "6"], True)
         host = 'localhost'
         result = access_resolution(request, token, host, ["1", "2"], ["3", "4"], ["5", "6"])
-        self.assertListEqual(result[0], ['PUBLIC', 'REGISTERED' ,'CONTROLLED'])
+        self.assertListEqual(result[0], ['PUBLIC', 'REGISTERED', 'CONTROLLED'])
         intermediate_list = result[1]
         intermediate_list.sort()
         self.assertListEqual(["1", "2", "3", "4", "5", "6"], intermediate_list)
@@ -434,7 +434,7 @@ class TestBasicFunctions(asynctest.TestCase):
         m_decode.return_value = header, payload
         m_controlled.return_value = set()
         m_bonafide.return_value = False
-        dataset_permissions, bona_fide_status = await get_ga4gh_permissions('token')
+        dataset_permissions, bona_fide_status = await get_ga4gh_permissions({})
         self.assertEqual(dataset_permissions, set())
         self.assertEqual(bona_fide_status, False)
         # Test: permissions
@@ -448,7 +448,7 @@ class TestBasicFunctions(asynctest.TestCase):
         m_decode.return_value = header, payload
         m_controlled.return_value = {'EGAD01'}
         m_bonafide.return_value = False
-        dataset_permissions, bona_fide_status = await get_ga4gh_permissions('token')
+        dataset_permissions, bona_fide_status = await get_ga4gh_permissions({})
         self.assertEqual(dataset_permissions, {'EGAD01'})
         self.assertEqual(bona_fide_status, False)
         # Test: bona fide
@@ -462,7 +462,7 @@ class TestBasicFunctions(asynctest.TestCase):
         m_decode.return_value = header, payload
         m_controlled.return_value = set()
         m_bonafide.return_value = True
-        dataset_permissions, bona_fide_status = await get_ga4gh_permissions('token')
+        dataset_permissions, bona_fide_status = await get_ga4gh_permissions({})
         self.assertEqual(dataset_permissions, set())
         self.assertEqual(bona_fide_status, True)
 

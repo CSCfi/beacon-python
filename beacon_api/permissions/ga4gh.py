@@ -97,7 +97,7 @@ from ..conf import OAUTH2_CONFIG
 
 
 async def check_ga4gh_token(decoded_data: JWTClaims,
-                            token: str,
+                            token: Dict,
                             bona_fide_status: bool,
                             dataset_permissions: set) -> Tuple[set, bool]:
     """Check the token for GA4GH claims."""
@@ -145,7 +145,7 @@ async def decode_passport(encoded_passport: str) -> List[Dict]:
     return decoded_data
 
 
-async def get_ga4gh_permissions(token: str) -> tuple:
+async def get_ga4gh_permissions(token: Dict) -> tuple:
     """Retrieve GA4GH passports (JWTs) from ELIXIR AAI and process them into tangible permissions."""
     LOG.info('Handling permissions.')
 
@@ -182,7 +182,7 @@ async def get_ga4gh_permissions(token: str) -> tuple:
     return dataset_permissions, bona_fide_status
 
 
-async def retrieve_user_data(token: str) -> Optional[str]:
+async def retrieve_user_data(token: Dict) -> Optional[str]:
     """Retrieve GA4GH user data."""
     LOG.debug('Contacting ELIXIR AAI /userinfo.')
     headers = {"Authorization": f"Bearer {token}"}
@@ -211,7 +211,7 @@ async def get_jwk(url: str) -> Optional[Dict]:
         return None
 
 
-async def validate_passport(passport: List) -> JWTClaims:
+async def validate_passport(passport: Dict) -> JWTClaims:
     """Decode a passport and validate its contents."""
     LOG.debug('Validating passport.')
 
