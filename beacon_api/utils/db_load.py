@@ -54,7 +54,7 @@ from .logging import LOG
 class BeaconDB:
     """Database connection and operations."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Start database routines."""
         LOG.info('Start database routines')
         self._conn = None
@@ -230,7 +230,7 @@ class BeaconDB:
             LOG.info(metadata)
             LOG.info('Metadata has been parsed')
             try:
-                LOG.info(f'Attempting to insert metadata to database')
+                LOG.info('Attempting to insert metadata to database')
                 await self._conn.execute("""INSERT INTO beacon_dataset_table
                                          (name, datasetId, description, assemblyId,
                                          createDateTime, updateDateTime, version,

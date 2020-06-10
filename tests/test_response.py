@@ -2,7 +2,7 @@ from beacon_api.api.info import beacon_info, ga4gh_info
 from beacon_api.api.query import query_request_handler
 import asynctest
 from beacon_api.schemas import load_schema
-from beacon_api.utils.validate import get_key
+from beacon_api.utils.validate_jwt import get_key
 from beacon_api.permissions.ga4gh import retrieve_user_data, get_jwk
 import jsonschema
 import json
@@ -177,7 +177,7 @@ f9BjIARRfVrbxVxiZHjU6zL6jY5QJdh1QCmENoejj_ytspMmGW7yMRxzUqgxcAqOBpVm0b-_mW3HoBdj
         await get_jwk('http://test.csc.fi/jwk')
         mock_log.error.assert_called_with("Could not retrieve JWK from http://test.csc.fi/jwk")
 
-    @asynctest.mock.patch('beacon_api.utils.validate.OAUTH2_CONFIG', return_value={'server': None})
+    @asynctest.mock.patch('beacon_api.utils.validate_jwt.OAUTH2_CONFIG', return_value={'server': None})
     async def test_bad_get_key(self, oauth_none):
         """Test bad test_get_key."""
         with self.assertRaises(aiohttp.web_exceptions.HTTPInternalServerError):

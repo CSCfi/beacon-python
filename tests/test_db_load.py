@@ -225,7 +225,7 @@ class DatabaseTestCase(asynctest.TestCase):
         db_mock.assert_called()
         result = await self._db.check_tables(['DATATSET1', 'DATATSET2'])
         # No Missing tables
-        assert result == []
+        self.assertEqual(result, [])
 
     @asynctest.mock.patch('beacon_api.utils.db_load.LOG')
     @asynctest.mock.patch('beacon_api.utils.db_load.asyncpg.connect')
@@ -314,7 +314,7 @@ class DatabaseTestCase(asynctest.TestCase):
         db_mock.assert_called()
         await self._db.insert_variants('DATASET1', ['C'])
         # Should assert logs
-        mock_log.info.mock_calls = [f'Received 1 variants for insertion to DATASET1',
+        mock_log.info.mock_calls = ['Received 1 variants for insertion to DATASET1',
                                     'Insert variants into the database']
 
     @asynctest.mock.patch('beacon_api.utils.db_load.LOG')

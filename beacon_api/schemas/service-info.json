@@ -1,7 +1,13 @@
 {
-    "definitions": {},
     "type": "object",
     "additionalProperties": false,
+    "definitions": {
+      "string": {
+        "$id": "$/definitions/string",
+        "type": "string",
+        "pattern": "^(.*)$"
+      }
+    },
     "required": [
       "id",
       "name",
@@ -12,12 +18,10 @@
     ],
     "properties": {
       "id": {
-        "type": "string",
-        "pattern": "^(.*)$"
+        "$ref": "#/definitions/string"
       },
       "name": {
-        "type": "string",
-        "pattern": "^(.*)$"
+        "$ref": "#/definitions/string"
       },
       "type": {
         "type": "object",
@@ -28,22 +32,18 @@
         ],
         "properties": {
           "group": {
-            "type": "string",
-            "pattern": "^(.*)$"
+            "$ref": "#/definitions/string"
           },
           "artifact": {
-            "type": "string",
-            "pattern": "^(.*)$"
+            "$ref": "#/definitions/string"
           },
           "version": {
-            "type": "string",
-            "pattern": "^(.*)$"
+            "$ref": "#/definitions/string"
           }
         }
       },
       "description": {
-        "type": "string",
-        "pattern": "^(.*)$"
+        "$ref": "#/definitions/string"
       },
       "organization": {
         "type": "object",
@@ -53,38 +53,30 @@
         ],
         "properties": {
           "name": {
-            "type": "string",
-            "pattern": "^(.*)$"
+            "$ref": "#/definitions/string"
           },
           "url": {
-            "type": "string",
-            "pattern": "^(.*)$"
+            "$ref": "#/definitions/string"
           }
         }
       },
       "contactUrl": {
-        "type": "string",
-        "pattern": "^(.*)$"
+        "$ref": "#/definitions/string"
       },
       "documentationUrl": {
-        "type": "string",
-        "pattern": "^(.*)$"
+        "$ref": "#/definitions/string"
       },
       "createdAt": {
-        "type": "string",
-        "pattern": "^(.*)$"
+        "$ref": "#/definitions/string"
       },
       "updatedAt": {
-        "type": "string",
-        "pattern": "^(.*)$"
+        "$ref": "#/definitions/string"
       },
       "environment": {
-        "type": "string",
-        "pattern": "^(.*)$"
+        "$ref": "#/definitions/string"
       },
       "version": {
-        "type": "string",
-        "pattern": "^(.*)$"
+        "$ref": "#/definitions/string"
       }
     }
   }

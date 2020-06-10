@@ -4,13 +4,17 @@ API specification requires custom messages upon error.
 """
 
 import json
+from typing import Dict
 from aiohttp import web
 from .. import __apiVersion__
 from ..utils.logging import LOG
 from ..conf import CONFIG_INFO
 
 
-def process_exception_data(request, host, error_code, error):
+def process_exception_data(request: Dict,
+                           host: str,
+                           error_code: int,
+                           error: str) -> Dict:
     """Return request data as dictionary.
 
     Generates custom exception messages based on request parameters.
@@ -42,10 +46,11 @@ class BeaconBadRequest(web.HTTPBadRequest):
     """Exception returns with 400 code and a custom error message.
 
     The method is called if one of the required parameters are missing or invalid.
-    Used in conjuction with JSON Schema validator.
+    Used in conjunction with JSON Schema validator.
     """
 
-    def __init__(self, request, host, error):
+    def __init__(self, request: Dict,
+                 host: str, error: str) -> None:
         """Return custom bad request exception."""
         data = process_exception_data(request, host, 400, error)
         super().__init__(text=json.dumps(data), content_type="application/json")
@@ -56,10 +61,11 @@ class BeaconUnauthorised(web.HTTPUnauthorized):
     """HTTP Exception returns with 401 code with a custom error message.
 
     The method is called if the user is not registered or if the token from the authentication has expired.
-    Used in conjuction with Token authentication aiohttp middleware.
+    Used in conjunction with Token authentication aiohttp middleware.
     """
 
-    def __init__(self, request, host, error, error_message):
+    def __init__(self, request: Dict,
+                 host: str, error: str, error_message: str) -> None:
         """Return custom unauthorized exception."""
         data = process_exception_data(request, host, 401, error)
         headers_401 = {"WWW-Authenticate": f"Bearer realm=\"{CONFIG_INFO.url}\"\n\
@@ -76,10 +82,11 @@ class BeaconForbidden(web.HTTPForbidden):
 
     `'Resource not granted for authenticated user or resource protected for all users.'`.
     The method is called if the dataset is protected or if the user is authenticated
-    but not granted the resource. Used in conjuction with Token authentication aiohttp middleware.
+    but not granted the resource. Used in conjunction with Token authentication aiohttp middleware.
     """
 
-    def __init__(self, request, host, error):
+    def __init__(self, request: Dict,
+                 host: str, error: str) -> None:
         """Return custom forbidden exception."""
         data = process_exception_data(request, host, 403, error)
         super().__init__(content_type="application/json", text=json.dumps(data))
@@ -92,7 +99,7 @@ class BeaconServerError(web.HTTPInternalServerError):
     The 500 error is not specified by the Beacon API, thus as simple error would do.
     """
 
-    def __init__(self, error):
+    def __init__(self, error: str) -> None:
         """Return custom forbidden exception."""
         data = {'errorCode': 500,
                 'errorMessage': error}

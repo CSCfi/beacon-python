@@ -27,7 +27,7 @@ with requests.get('http://localhost:8000/tokens') as resp:
     TOKEN_EMPTY = result[1]
 
 
-async def test_1():
+async def test_1() -> None:
     """Test the info endpoint.
 
     Info endpoint should respond with 4 datasets all in the list specified above.
@@ -44,7 +44,7 @@ async def test_1():
                 sys.exit('Info Endpoint Error!')
 
 
-async def test_2():
+async def test_2() -> None:
     """Test query GET endpoint.
 
     Send a query with alternateBases. Expect data to be found (200).
@@ -67,7 +67,7 @@ async def test_2():
                 sys.exit('Query GET Endpoint Error!')
 
 
-async def test_3():
+async def test_3() -> None:
     """Test query GET endpoint.
 
     Send a query with variantType. Expect data to be found (200).
@@ -88,7 +88,7 @@ async def test_3():
                 sys.exit('Query GET Endpoint Error!')
 
 
-async def test_4():
+async def test_4() -> None:
     """Test query GET endpoint.
 
     Send a query with missing required params. Expect a bad request (400).
@@ -111,7 +111,7 @@ async def test_4():
                 sys.exit('Query GET Endpoint Error!')
 
 
-async def test_5():
+async def test_5() -> None:
     """Test query GET endpoint.
 
     Send a query with wildcard alternateBases. Expect data to be found (200).
@@ -133,7 +133,7 @@ async def test_5():
                 sys.exit('Query GET Endpoint Error!')
 
 
-async def test_6():
+async def test_6() -> None:
     """Test query POST endpoint.
 
     Send a query with alternateBases. Expect data to be found (200).
@@ -160,7 +160,7 @@ async def test_6():
                 sys.exit('Query POST Endpoint Error!')
 
 
-async def test_7():
+async def test_7() -> None:
     """Test query POST endpoint.
 
     Send a query with variantType. Expect data to be found (200).
@@ -185,7 +185,7 @@ async def test_7():
                 sys.exit('Query POST Endpoint Error!')
 
 
-async def test_8():
+async def test_8() -> None:
     """Test query POST endpoint.
 
     Send a query with missing required params. Expect a bad request (400).
@@ -209,7 +209,7 @@ does not seem correct because: ''referenceName' is a required property'"
                 sys.exit('Query POST Endpoint Error!')
 
 
-async def test_9():
+async def test_9() -> None:
     """Test query GET endpoint.
 
     Send a query with wildcard alternateBases. Expect no data to be found exists=false, but query was good (200).
@@ -224,7 +224,7 @@ async def test_9():
             assert data['exists'] is False, sys.exit('Query GET Endpoint Error!')
 
 
-async def test_10():
+async def test_10() -> None:
     """Test query POST endpoint.
 
     Send a query targeted to a REGISTERED dataset without bona_fide_status. Expect failure (401).
@@ -245,7 +245,7 @@ async def test_10():
             assert resp.status == 401, 'HTTP Status code error'
 
 
-async def test_11():
+async def test_11() -> None:
     """Test query POST endpoint.
 
     Send a query targeted to a CONTROLLED dataset without token perms. Expect failure (401).
@@ -266,7 +266,7 @@ async def test_11():
             assert resp.status == 401, 'HTTP Status code error'
 
 
-async def test_12():
+async def test_12() -> None:
     """Test query POST endpoint.
 
     Send a multiquery targeting PUBLIC and CONTROLLED datasets without token perms. Expect only public data to be shown (200).
@@ -286,7 +286,7 @@ async def test_12():
             assert len(data['datasetAlleleResponses']) == 1, sys.exit('Should be able to retrieve only public.')
 
 
-async def test_13():
+async def test_13() -> None:
     """Test query POST endpoint.
 
     Send a multiquery targeting PUBLIC and REGISTERED datasets with bona_fide_status. Expect data to be found (200).
@@ -307,7 +307,7 @@ async def test_13():
             assert len(data['datasetAlleleResponses']) == 2, sys.exit('Should be able to retrieve both requested.')
 
 
-async def test_14():
+async def test_14() -> None:
     """Test query POST endpoint.
 
     Send a multiquery targeting REGISTERED and CONTROLLED datasets with bona_fide_status and token perms. Expect data to be found (200).
@@ -328,7 +328,7 @@ async def test_14():
             assert len(data['datasetAlleleResponses']) == 2, sys.exit('Should be able to retrieve both requested.')
 
 
-async def test_15():
+async def test_15() -> None:
     """Test query POST endpoint.
 
     Send a query targeting CONTROLLED dataset without token perms. Expect failure (403).
@@ -350,7 +350,7 @@ async def test_15():
             assert resp.status == 401, 'HTTP Status code error'
 
 
-async def test_16():
+async def test_16() -> None:
     """Test query POST endpoint.
 
     Send a query targeting REGISTERED dataset with token, but no bona fide. Expect failure (403).
@@ -371,7 +371,7 @@ async def test_16():
             assert resp.status == 401, 'HTTP Status code error'
 
 
-async def test_17():
+async def test_17() -> None:
     """Test query POST endpoint.
 
     Send a query targeting two CONTROLLED dataset with token perms, having access only to one of them. Expect data to be found (200).
@@ -392,7 +392,7 @@ async def test_17():
             assert len(data['datasetAlleleResponses']) == 2, sys.exit('Should be able to retrieve both requested.')
 
 
-async def test_18():
+async def test_18() -> None:
     """Test query POST endpoint.
 
     Send a query with bad end parameter. Expect failure (400).
@@ -412,7 +412,7 @@ async def test_18():
             assert resp.status == 400, 'HTTP Status code error'
 
 
-async def test_19():
+async def test_19() -> None:
     """Test query POST endpoint.
 
     Send a query with bad start min/max parameters. Expect failure (400).
@@ -432,7 +432,7 @@ async def test_19():
             assert resp.status == 400, 'HTTP Status code error'
 
 
-async def test_20():
+async def test_20() -> None:
     """Test query POST endpoint.
 
     Send a query with bad end min/max parameters. Expect failure (400).
@@ -452,7 +452,7 @@ async def test_20():
             assert resp.status == 400, 'HTTP Status code error'
 
 
-async def test_21():
+async def test_21() -> None:
     """Test query POST endpoint.
 
     Send a query for non-existing variant targeting PUBLIC and CONTROLLED datasets with token perms, using MISS.
@@ -474,7 +474,7 @@ async def test_21():
             assert len(data['datasetAlleleResponses']) == 2, sys.exit('Should be able to retrieve only public.')
 
 
-async def test_22():
+async def test_22() -> None:
     """Test query POST endpoint.
 
     Send a query for non-existing variant targeting CONTROLLED datasets with token perms, using MISS.
@@ -496,7 +496,7 @@ async def test_22():
             assert len(data['datasetAlleleResponses']) == 1, sys.exit('Should be able to retrieve only public.')
 
 
-async def test_23():
+async def test_23() -> None:
     """Test query POST endpoint.
 
     Send a query for targeting a non-existing PUBLIC datasets, using ALL.
@@ -518,7 +518,7 @@ async def test_23():
             assert len(data['datasetAlleleResponses']) == 0, sys.exit('Should be able to retrieve only public.')
 
 
-async def test_24():
+async def test_24() -> None:
     """Test query POST endpoint.
 
     Send a query for targeting one existing and one non-existing PUBLIC datasets, using ALL.
@@ -540,7 +540,7 @@ async def test_24():
             assert len(data['datasetAlleleResponses']) == 1, sys.exit('Should be able to retrieve only public.')
 
 
-async def test_25():
+async def test_25() -> None:
     """Test query POST endpoint.
 
     Send a query for non-existing variant targeting three datasets, using ALL.
@@ -562,7 +562,7 @@ async def test_25():
             assert len(data['datasetAlleleResponses']) == 3, sys.exit('Should be able to retrieve data for all datasets.')
 
 
-async def test_26():
+async def test_26() -> None:
     """Test query POST endpoint.
 
     Send a query for non-existing variant targeting three datasets, using MISS.
@@ -584,7 +584,7 @@ async def test_26():
             assert len(data['datasetAlleleResponses']) == 3, sys.exit('Should be able to retrieve missing datasets.')
 
 
-async def test_27():
+async def test_27() -> None:
     """Test query POST endpoint.
 
     Send a query targeting three datasets, using MISS.
@@ -606,7 +606,7 @@ async def test_27():
             assert len(data['datasetAlleleResponses']) == 0, sys.exit('Should not be able to retrieve any datasets.')
 
 
-async def test_28():
+async def test_28() -> None:
     """Test query POST endpoint.
 
     Test BND query when end is smaller than start, with variantType and no mateName. Expect two hits, one for each direction (200).
@@ -628,7 +628,7 @@ async def test_28():
             assert len(data['datasetAlleleResponses']) == 2, sys.exit('Should not be able to retrieve any datasets.')
 
 
-async def test_29():
+async def test_29() -> None:
     """Test query POST endpoint.
 
     Test BND query with mateName and no variantType. Expect two hits, one for each direction (200).
@@ -649,7 +649,7 @@ async def test_29():
             assert len(data['datasetAlleleResponses']) == 2, sys.exit('Should not be able to retrieve any datasets.')
 
 
-async def test_30():
+async def test_30() -> None:
     """Test query POST endpoint.
 
     Test mateName query without variantType, where end is smaller than start.
@@ -671,7 +671,7 @@ async def test_30():
             assert resp.status == 400, 'HTTP Status code error'
 
 
-async def test_31():
+async def test_31() -> None:
     """Test query POST endpoint.
 
     Test mateName query with startMin and startMax with no end params. Expect good query (200).
@@ -692,7 +692,7 @@ async def test_31():
             assert resp.status == 200, 'HTTP Status code error'
 
 
-async def test_32():
+async def test_32() -> None:
     """Test the GA4GH Discovery info endpoint.
 
     Discovery endpoint should be smaller than Beacon info endpoint.

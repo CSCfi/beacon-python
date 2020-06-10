@@ -13,7 +13,8 @@ from .api.query import query_request_handler
 from .conf.config import init_db_pool
 from .schemas import load_schema
 from .utils.logging import LOG
-from .utils.validate import validate, token_auth, parse_request_object
+from .utils.validate_json import validate, parse_request_object
+from .utils.validate_jwt import token_auth
 import uvloop
 import asyncio
 import json
@@ -27,7 +28,7 @@ asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 # ----------------------------------------------------------------------------------------------------------------------
 @routes.get('/')  # For Beacon API Specification
 @routes.get('/service-info')  # For GA4GH Discovery Specification
-async def beacon_get(request):
+async def beacon_get(request: web.Request) -> web.Response:
     """
     Use the HTTP protocol 'GET' to return a Json object of all the necessary info on the beacon and the API.
 
@@ -53,7 +54,7 @@ async def beacon_get(request):
 # These could be put under a @route.view('/query')
 @routes.get('/query')
 @validate(load_schema("query"))
-async def beacon_get_query(request):
+async def beacon_get_query(request: web.Request) -> web.Response:
     """Find datasets using GET endpoint."""
     method, processed_request = await parse_request_object(request)
     params = request.app['pool'], method, processed_request, request["token"], request.host
@@ -63,7 +64,7 @@ async def beacon_get_query(request):
 
 @routes.post('/query')
 @validate(load_schema("query"))
-async def beacon_post_query(request):
+async def beacon_post_query(request: web.Request) -> web.Response:
     """Find datasets using POST endpoint."""
     method, processed_request = await parse_request_object(request)
     params = request.app['pool'], method, processed_request, request["token"], request.host
@@ -71,7 +72,7 @@ async def beacon_post_query(request):
     return web.json_response(response, content_type='application/json', dumps=json.dumps)
 
 
-async def initialize(app):
+async def initialize(app: web.Application) -> None:
     """Spin up DB a connection pool with the HTTP server."""
     # TO DO check if table and Database exist
     # and maybe exit gracefully or at least wait for a bit
@@ -80,7 +81,7 @@ async def initialize(app):
     set_cors(app)
 
 
-async def destroy(app):
+async def destroy(app: web.Application) -> None:
     """Upon server close, close the DB connection pool."""
     # will defer this to asyncpg
     await app['pool'].close()  # pragma: no cover
@@ -103,7 +104,7 @@ def set_cors(server):
         cors.add(route)
 
 
-async def init():
+async def init() -> web.Application:
     """Initialise server."""
     beacon = web.Application(middlewares=[token_auth()])
     beacon.router.add_routes(routes)
@@ -121,13 +122,13 @@ def main():
     # sslcontext.load_cert_chain(ssl_certfile, ssl_keyfile)
     # sslcontext = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
     # sslcontext.check_hostname = False
-    web.run_app(init(), host=os.environ.get('HOST', '0.0.0.0'),
-                port=os.environ.get('PORT', '5050'),
+    web.run_app(init(), host=os.environ.get('HOST', '0.0.0.0'),  # nosec
+                port=os.environ.get('PORT', '5050'),  # nosec
                 shutdown_timeout=0, ssl_context=None)
 
 
 if __name__ == '__main__':
     if sys.version_info < (3, 6):
-        LOG.error("beacon-python requires python3.6")
+        LOG.error("beacon-python requires python 3.6")
         sys.exit(1)
     main()

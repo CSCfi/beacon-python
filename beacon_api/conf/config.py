@@ -16,11 +16,12 @@ At this point we also initialize a connection pool that the API is going to use 
 
 import os
 import asyncpg
+from typing import Awaitable
 
 DB_SCHEMA = os.environ.get('DATABASE_SCHEMA', None)
 
 
-async def init_db_pool():
+async def init_db_pool() -> Awaitable:
     """Create a connection pool.
 
     As we will have frequent requests to the database it is recommended to create a connection pool.
