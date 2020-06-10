@@ -2,13 +2,16 @@
 
 from datetime import datetime
 from functools import partial
+from typing import Dict, List, Optional
+
+from typing import Tuple
 from .logging import LOG
 from ..api.exceptions import BeaconServerError
 from ..extensions.handover import add_handover
 from .. import __handover_drs__
 
 
-def transform_record(record):
+def transform_record(record) -> Dict:
     """Format the record we got from the database to adhere to the response schema."""
     response = dict(record)
     response["referenceBases"] = response.pop("referenceBases")  # NOT part of beacon specification
@@ -27,7 +30,7 @@ def transform_record(record):
     return response
 
 
-def transform_misses(record):
+def transform_misses(record) -> Dict:
     """Format the missed datasets record we got from the database to adhere to the response schema."""
     response = dict(record)
     response["referenceBases"] = ''  # NOT part of beacon specification
@@ -48,7 +51,7 @@ def transform_misses(record):
     return response
 
 
-def transform_metadata(record):
+def transform_metadata(record) -> Dict:
     """Format the metadata record we got from the database to adhere to the response schema."""
     response = dict(record)
     response["info"] = {"accessType": response.pop("accessType")}
@@ -60,7 +63,7 @@ def transform_metadata(record):
     return response
 
 
-async def fetch_datasets_access(db_pool, datasets):
+async def fetch_datasets_access(db_pool, datasets: Optional[List]):
     """Retrieve CONTROLLED datasets."""
     public = []
     registered = []
@@ -120,7 +123,7 @@ async def fetch_dataset_metadata(db_pool, datasets=None, access_type=None):
                 raise BeaconServerError(f'Query metadata DB error: {e}')
 
 
-def handle_wildcard(sequence):
+def handle_wildcard(sequence) -> List:
     """Construct PostgreSQL friendly wildcard string."""
     if 'N' in sequence:
         # Wildcard(s) found, use wildcard notation
@@ -214,22 +217,30 @@ async def fetch_filtered_dataset(db_pool, assembly_id, position, chromosome, ref
                 raise BeaconServerError(f'Query dataset DB error: {e}')
 
 
-def filter_exists(include_dataset, datasets):
+def filter_exists(include_dataset: str, datasets: List) -> List[str]:
     """Return those datasets responses that the `includeDatasetResponses` parameter decides.
 
     Look at the exist parameter in each returned dataset to established HIT or MISS.
     """
+    data = []
     if include_dataset == 'ALL':
-        return datasets
+        data = datasets
     elif include_dataset == 'NONE':
-        return []
+        data = []
     elif include_dataset == 'HIT':
-        return [d for d in datasets if d['exists'] is True]
+        data = [d for d in datasets if d['exists'] is True]
     elif include_dataset == 'MISS':
-        return [d for d in datasets if d['exists'] is False]
+        data = [d for d in datasets if d['exists'] is False]
+
+    return data
 
 
-async def find_datasets(db_pool, assembly_id, position, chromosome, reference, alternate, dataset_ids, access_type, include_dataset):
+async def find_datasets(db_pool,
+                        assembly_id: str,
+                        position: Tuple[Optional[int], ...],
+                        chromosome: str, reference: str, alternate: Tuple,
+                        dataset_ids: List[str], access_type: List,
+                        include_dataset: str) -> List:
     """Find datasets based on filter parameters.
 
     This also takes into consideration the token value as to establish permissions.

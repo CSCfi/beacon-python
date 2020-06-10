@@ -9,16 +9,17 @@ Schemas available:
 * ``response.json`` - beacon API JSON response.
 """
 
-import os
 import json
+from typing import Dict
+from pathlib import Path
 
 
-def load_schema(name):
+def load_schema(name: str) -> Dict:
     """Load JSON schemas."""
-    module_path = os.path.dirname(__file__)
-    path = os.path.join(module_path, '{0}.json'.format(name))
+    module_path = Path(__file__).resolve().parent
+    path = module_path.joinpath(f'{name}.json')
 
-    with open(os.path.abspath(path), 'r') as fp:
+    with open(str(path), 'r') as fp:
         data = fp.read()
 
     return json.loads(data)

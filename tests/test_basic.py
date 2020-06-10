@@ -147,8 +147,11 @@ class TestBasicFunctions(asynctest.TestCase):
         request = PARAMS
         token = mock_token(False, [], False)
         host = 'localhost'
-        result = access_resolution(request, token, host, [1, 2], [3, 4], [5, 6])
-        assert result == (['PUBLIC'], [1, 2])
+        result = access_resolution(request, token, host, ["1", "2"], ["3", "4"], ["5", "6"])
+        self.assertListEqual(result[0], ['PUBLIC'])
+        intermediate_list = result[1]
+        intermediate_list.sort()
+        self.assertListEqual(["1", "2"], intermediate_list)
 
     def test_access_resolution_no_controlled(self):
         """Test assumptions for access resolution for token but no controlled datasets.
@@ -158,8 +161,11 @@ class TestBasicFunctions(asynctest.TestCase):
         request = PARAMS
         token = mock_token(False, [], True)
         host = 'localhost'
-        result = access_resolution(request, token, host, [1, 2], [3, 4], [5, 6])
-        assert result == (['PUBLIC'], [1, 2])
+        result = access_resolution(request, token, host, ["1", "2"], ["3", "4"], ["5", "6"])
+        self.assertListEqual(result[0], ['PUBLIC'])
+        intermediate_list = result[1]
+        intermediate_list.sort()
+        self.assertListEqual(["1", "2"], intermediate_list)
 
     def test_access_resolution_registered(self):
         """Test assumptions for access resolution for token with just bona_fide.
@@ -169,8 +175,11 @@ class TestBasicFunctions(asynctest.TestCase):
         request = PARAMS
         token = mock_token(True, [], True)
         host = 'localhost'
-        result = access_resolution(request, token, host, [1, 2], [3, 4], [5, 6])
-        assert result == (['PUBLIC', 'REGISTERED'], [1, 2, 3, 4])
+        result = access_resolution(request, token, host, ["1", "2"], ["3", "4"], ["5", "6"])
+        self.assertListEqual(result[0], ['PUBLIC', 'REGISTERED'])
+        intermediate_list = result[1]
+        intermediate_list.sort()
+        self.assertListEqual(["1", "2", "3", "4"], intermediate_list)
 
     def test_access_resolution_controlled_no_registered(self):
         """Test assumptions for access resolution for token and no bona_fide.
@@ -178,10 +187,13 @@ class TestBasicFunctions(asynctest.TestCase):
         It is based on the result of fetch_datasets_access function.
         """
         request = PARAMS
-        token = mock_token(False, [5, 6], True)
+        token = mock_token(False, ["5", "6"], True)
         host = 'localhost'
-        result = access_resolution(request, token, host, [1, 2], [3, 4], [5, 6])
-        assert result == (['PUBLIC', 'CONTROLLED'], [1, 2, 5, 6])
+        result = access_resolution(request, token, host, ["1", "2"], ["3", "4"], ["5", "6"])
+        self.assertListEqual(result[0], ['PUBLIC', 'CONTROLLED'])
+        intermediate_list = result[1]
+        intermediate_list.sort()
+        self.assertListEqual(["1", "2", "5", "6"], intermediate_list)
 
     def test_access_resolution_controlled_registered(self):
         """Test assumptions for access resolution for token and bona_fide.
@@ -189,10 +201,13 @@ class TestBasicFunctions(asynctest.TestCase):
         It is based on the result of fetch_datasets_access function.
         """
         request = PARAMS
-        token = mock_token(True, [5, 6], True)
+        token = mock_token(True, ["5", "6"], True)
         host = 'localhost'
-        result = access_resolution(request, token, host, [1, 2], [3, 4], [5, 6])
-        assert result == (['PUBLIC', 'REGISTERED', 'CONTROLLED'], [1, 2, 3, 4, 5, 6])
+        result = access_resolution(request, token, host, ["1", "2"], ["3", "4"], ["5", "6"])
+        self.assertListEqual(result[0], ['PUBLIC', 'REGISTERED', 'CONTROLLED'])
+        intermediate_list = result[1]
+        intermediate_list.sort()
+        self.assertListEqual(["1", "2", "3", "4", "5", "6"], intermediate_list)
 
     def test_access_resolution_bad_registered(self):
         """Test assumptions for access resolution for requested registered Unauthorized.
@@ -203,7 +218,7 @@ class TestBasicFunctions(asynctest.TestCase):
         token = mock_token(False, [], False)
         host = 'localhost'
         with self.assertRaises(aiohttp.web_exceptions.HTTPUnauthorized):
-            access_resolution(request, token, host, [], [3], [])
+            access_resolution(request, token, host, [], ["3"], [])
 
     def test_access_resolution_no_registered2(self):
         """Test assumptions for access resolution for requested registered Forbidden.
@@ -214,7 +229,7 @@ class TestBasicFunctions(asynctest.TestCase):
         token = mock_token(False, [], True)
         host = 'localhost'
         with self.assertRaises(aiohttp.web_exceptions.HTTPForbidden):
-            access_resolution(request, token, host, [], [4], [])
+            access_resolution(request, token, host, [], ["4"], [])
 
     def test_access_resolution_controlled_forbidden(self):
         """Test assumptions for access resolution for requested controlled Forbidden.
@@ -225,7 +240,7 @@ class TestBasicFunctions(asynctest.TestCase):
         token = mock_token(False, [7], True)
         host = 'localhost'
         with self.assertRaises(aiohttp.web_exceptions.HTTPForbidden):
-            access_resolution(request, token, host, [], [6], [])
+            access_resolution(request, token, host, [], ["6"], [])
 
     def test_access_resolution_controlled_unauthorized(self):
         """Test assumptions for access resolution for requested controlled Unauthorized.
@@ -236,7 +251,7 @@ class TestBasicFunctions(asynctest.TestCase):
         token = mock_token(False, [], False)
         host = 'localhost'
         with self.assertRaises(aiohttp.web_exceptions.HTTPUnauthorized):
-            access_resolution(request, token, host, [], [5], [])
+            access_resolution(request, token, host, [], ["5"], [])
 
     def test_access_resolution_controlled_no_perms(self):
         """Test assumptions for access resolution for requested controlled Forbidden.
@@ -244,10 +259,10 @@ class TestBasicFunctions(asynctest.TestCase):
         It is based on the result of fetch_datasets_access function.
         """
         request = PARAMS
-        token = mock_token(False, [7], True)
+        token = mock_token(False, ["7"], True)
         host = 'localhost'
-        result = access_resolution(request, token, host, [2], [6], [])
-        assert result == (['PUBLIC'], [2])
+        result = access_resolution(request, token, host, ["2"], ["6"], [])
+        self.assertEqual(result, (['PUBLIC'], ["2"]))
 
     def test_access_resolution_controlled_some(self):
         """Test assumptions for access resolution for requested controlled some datasets.
@@ -255,10 +270,10 @@ class TestBasicFunctions(asynctest.TestCase):
         It is based on the result of fetch_datasets_access function.
         """
         request = PARAMS
-        token = mock_token(False, [5], True)
+        token = mock_token(False, ["5"], True)
         host = 'localhost'
-        result = access_resolution(request, token, host, [], [], [5, 6])
-        assert result == (['CONTROLLED'], [5])
+        result = access_resolution(request, token, host, [], [], ["5", "6"])
+        self.assertEqual(result, (['CONTROLLED'], ["5"]))
 
     def test_access_resolution_controlled_no_perms_public(self):
         """Test assumptions for access resolution for requested controlled and public, returning public only.
@@ -268,8 +283,8 @@ class TestBasicFunctions(asynctest.TestCase):
         request = PARAMS
         token = mock_token(False, [], False)
         host = 'localhost'
-        result = access_resolution(request, token, host, [1], [], [5])
-        assert result == (['PUBLIC'], [1])
+        result = access_resolution(request, token, host, ["1"], [], ["5"])
+        self.assertEqual(result, (['PUBLIC'], ["1"]))
 
     def test_access_resolution_controlled_no_perms_bonafide(self):
         """Test assumptions for access resolution for requested controlled and registered, returning registered only.
@@ -279,8 +294,8 @@ class TestBasicFunctions(asynctest.TestCase):
         request = PARAMS
         token = mock_token(True, [], True)
         host = 'localhost'
-        result = access_resolution(request, token, host, [], [4], [7])
-        assert result == (['REGISTERED'], [4])
+        result = access_resolution(request, token, host, [], ["4"], ["7"])
+        self.assertEqual(result, (['REGISTERED'], ["4"]))
 
     def test_access_resolution_controlled_never_reached(self):
         """Test assumptions for access resolution for requested controlled unauthorized.
@@ -292,7 +307,7 @@ class TestBasicFunctions(asynctest.TestCase):
         token = mock_token(False, None, False)
         host = 'localhost'
         with self.assertRaises(aiohttp.web_exceptions.HTTPUnauthorized):
-            access_resolution(request, token, host, [], [], [8])
+            access_resolution(request, token, host, [], [], ["8"])
 
     def test_access_resolution_controlled_never_reached2(self):
         """Test assumptions for access resolution for requested controlled forbidden.
@@ -304,7 +319,7 @@ class TestBasicFunctions(asynctest.TestCase):
         token = mock_token(False, None, True)
         host = 'localhost'
         with self.assertRaises(aiohttp.web_exceptions.HTTPForbidden):
-            access_resolution(request, token, host, [], [], [8])
+            access_resolution(request, token, host, [], [], ["8"])
 
     @asynctest.mock.patch('beacon_api.permissions.ga4gh.validate_passport')
     async def test_ga4gh_controlled(self, m_validation):
@@ -419,7 +434,7 @@ class TestBasicFunctions(asynctest.TestCase):
         m_decode.return_value = header, payload
         m_controlled.return_value = set()
         m_bonafide.return_value = False
-        dataset_permissions, bona_fide_status = await get_ga4gh_permissions('token')
+        dataset_permissions, bona_fide_status = await get_ga4gh_permissions({})
         self.assertEqual(dataset_permissions, set())
         self.assertEqual(bona_fide_status, False)
         # Test: permissions
@@ -433,7 +448,7 @@ class TestBasicFunctions(asynctest.TestCase):
         m_decode.return_value = header, payload
         m_controlled.return_value = {'EGAD01'}
         m_bonafide.return_value = False
-        dataset_permissions, bona_fide_status = await get_ga4gh_permissions('token')
+        dataset_permissions, bona_fide_status = await get_ga4gh_permissions({})
         self.assertEqual(dataset_permissions, {'EGAD01'})
         self.assertEqual(bona_fide_status, False)
         # Test: bona fide
@@ -447,7 +462,7 @@ class TestBasicFunctions(asynctest.TestCase):
         m_decode.return_value = header, payload
         m_controlled.return_value = set()
         m_bonafide.return_value = True
-        dataset_permissions, bona_fide_status = await get_ga4gh_permissions('token')
+        dataset_permissions, bona_fide_status = await get_ga4gh_permissions({})
         self.assertEqual(dataset_permissions, set())
         self.assertEqual(bona_fide_status, True)
 

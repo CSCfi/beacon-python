@@ -54,7 +54,7 @@ from .logging import LOG
 class BeaconDB:
     """Database connection and operations."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Start database routines."""
         LOG.info('Start database routines')
         self._conn = None

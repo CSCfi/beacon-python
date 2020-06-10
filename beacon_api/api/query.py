@@ -5,6 +5,7 @@ reference + alternate bases/variant type combination, as well as matching
 start or end position.
 """
 
+from typing import Dict, Tuple, List, Optional
 from ..utils.logging import LOG
 from .. import __apiVersion__, __handover_beacon__, __handover_drs__
 from ..utils.data_query import filter_exists, find_datasets, fetch_datasets_access
@@ -13,7 +14,11 @@ from ..extensions.mate_name import find_fusion
 from .exceptions import BeaconUnauthorised, BeaconForbidden, BeaconBadRequest
 
 
-def access_resolution(request, token, host, public_data, registered_data, controlled_data):
+def access_resolution(request: Dict, token: Dict,
+                      host: str,
+                      public_data: List[str],
+                      registered_data: List[str],
+                      controlled_data: List[str]) -> Tuple[List[str], List[str]]:
     """Determine the access level for a user.
 
     Depends on user bona_fide_status, and by default it should be PUBLIC.
@@ -23,12 +28,12 @@ def access_resolution(request, token, host, public_data, registered_data, contro
     # unless the request is for specific datasets
     if public_data:
         permissions.append("PUBLIC")
-    access = set(public_data)  # empty if no datasets are given
+    accessible_datasets = set(public_data)  # empty if no datasets are given
 
     # for now we are expecting that the permissions are a list of datasets
     if registered_data and token["bona_fide_status"] is True:
         permissions.append("REGISTERED")
-        access = access.union(set(registered_data))
+        accessible_datasets = accessible_datasets.union(set(registered_data))
     # if user requests public datasets do not throw an error
     # if both registered and controlled datasets are request this will be shown first
     elif registered_data and not public_data:
@@ -43,7 +48,7 @@ def access_resolution(request, token, host, public_data, registered_data, contro
         # Default event, when user doesn't specify dataset ids
         # Contains only dataset ids from token that are present at beacon
         controlled_access = set(controlled_data).intersection(set(token['permissions']))
-        access = access.union(controlled_access)
+        accessible_datasets = accessible_datasets.union(controlled_access)
         if controlled_access:
             permissions.append("CONTROLLED")
     # if user requests public datasets do not throw an error
@@ -54,11 +59,12 @@ def access_resolution(request, token, host, public_data, registered_data, contro
             raise BeaconUnauthorised(request, host, "missing_token", 'Unauthorized access to dataset(s), missing token.')
         # token is present, but is missing perms (user authed but no access)
         raise BeaconForbidden(request, host, 'Access to dataset(s) is forbidden.')
-    LOG.info(f"Accesible datasets are: {list(access)}.")
-    return permissions, list(access)
+
+    LOG.info(f"Accesible datasets are: {list(accessible_datasets)}.")
+    return permissions, list(accessible_datasets)
 
 
-async def query_request_handler(params):
+async def query_request_handler(params: Tuple) -> Dict:
     """Handle the parameters of the query endpoint in order to find the required datasets.
 
     params = db_pool, method, request, token, host
@@ -91,18 +97,20 @@ async def query_request_handler(params):
         raise BeaconBadRequest(request, params[4], "endMin value Must be smaller than endMax value")
     if request.get("startMin") and request.get("startMin") > request.get("startMax"):
         raise BeaconBadRequest(request, params[4], "startMin value Must be smaller than startMax value")
-    requested_position = (request.get("start", None), request.get("end", None),
-                          request.get("startMin", None), request.get("startMax", None),
-                          request.get("endMin", None), request.get("endMax", None))
+    requested_position: Tuple[Optional[int], ...] = (request.get("start", None), request.get("end", None),
+                                                     request.get("startMin", None), request.get("startMax", None),
+                                                     request.get("endMin", None), request.get("endMax", None))
 
     # Get dataset ids that were requested, sort by access level
     # If request is empty (default case) the three dataset variables contain all datasets by access level
     # Datasets are further filtered using permissions from token
     public_datasets, registered_datasets, controlled_datasets = await fetch_datasets_access(params[0], request.get("datasetIds"))
-    access_type, accessible_datasets = access_resolution(request, params[3], params[4], public_datasets,
-                                                         registered_datasets, controlled_datasets)
+    access_type, accessible_datasets = access_resolution(request,
+                                                         params[3], params[4],
+                                                         public_datasets, registered_datasets, controlled_datasets)
     if 'mateName' in request or alleleRequest.get('variantType') == 'BND':
-        datasets = await find_fusion(params[0], request.get("assemblyId"), requested_position, request.get("referenceName"),
+        datasets = await find_fusion(params[0],
+                                     request.get("assemblyId"), requested_position, request.get("referenceName"),
                                      request.get("referenceBases"), request.get('mateName'),
                                      accessible_datasets, access_type, request.get("includeDatasetResponses", "NONE"))
     else:
@@ -122,4 +130,5 @@ async def query_request_handler(params):
 
     if __handover_drs__:
         beacon_response['beaconHandover'] = make_handover(__handover_beacon__, [x['datasetId'] for x in datasets])
+
     return beacon_response
