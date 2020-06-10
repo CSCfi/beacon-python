@@ -42,7 +42,7 @@ jobs:
       - name: Build the tagged Docker image
         if:  ${{ steps.vars.outputs.tag != '/master' }}
         run: |
-          pushd deploy/test
+          pushd deploy/dataloader
           docker build . --file Dockerfile --tag cscfi/beacon-dataloader:${{steps.vars.outputs.tag}}
       - name: Push the tagged Docker image
         if:  ${{ steps.vars.outputs.tag != '/master' }}
@@ -50,7 +50,7 @@ jobs:
       - name: Build the latest Docker image
         if:  ${{ steps.vars.outputs.tag == '/master' }}
         run: |
-          pushd deploy/test
+          pushd deploy/dataloader
           docker build . --file Dockerfile --tag cscfi/beacon-dataloader:latest
       - name: Push the latest Docker image
         if:  ${{ steps.vars.outputs.tag == '/master' }}
