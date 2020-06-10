@@ -109,7 +109,7 @@ class AppTestCase(AioHTTPTestCase):
         """
         with asynctest.mock.patch('beacon_api.app.beacon_info', return_value={"id": "value"}):
             resp = await self.client.request("GET", "/")
-        assert 200 == resp.status
+        self.assertEqual(200, resp.status)
 
     @unittest_run_loop
     async def test_ga4gh_info(self):
@@ -119,7 +119,7 @@ class AppTestCase(AioHTTPTestCase):
         """
         with asynctest.mock.patch('beacon_api.app.ga4gh_info', return_value={"id": "value"}):
             resp = await self.client.request("GET", "/service-info")
-        assert 200 == resp.status
+        self.assertEqual(200, resp.status)
 
     @unittest_run_loop
     async def test_post_info(self):
@@ -128,7 +128,7 @@ class AppTestCase(AioHTTPTestCase):
         The status should always be 405.
         """
         resp = await self.client.request("POST", "/")
-        assert 405 == resp.status
+        self.assertEqual(405, resp.status)
 
     @unittest_run_loop
     async def test_post_service_info(self):
@@ -137,19 +137,19 @@ class AppTestCase(AioHTTPTestCase):
         The status should always be 405.
         """
         resp = await self.client.request("POST", "/service-info")
-        assert 405 == resp.status
+        self.assertEqual(405, resp.status)
 
     @unittest_run_loop
     async def test_empty_get_query(self):
         """Test empty GET query endpoint."""
         resp = await self.client.request("GET", "/query")
-        assert 400 == resp.status
+        self.assertEqual(400, resp.status)
 
     @unittest_run_loop
     async def test_empty_post_query(self):
         """Test empty POST query endpoint."""
         resp = await self.client.request("POST", "/query", data=json.dumps({}))
-        assert 400 == resp.status
+        self.assertEqual(400, resp.status)
 
     @unittest_run_loop
     async def test_bad_start_post_query(self):
@@ -164,7 +164,7 @@ class AppTestCase(AioHTTPTestCase):
                      "assemblyId": "GRCh38",
                      "includeDatasetResponses": "HIT"}
         resp = await self.client.request("POST", "/query", data=json.dumps(bad_start))
-        assert 400 == resp.status
+        self.assertEqual(400, resp.status)
 
     @unittest_run_loop
     async def test_bad_start2_post_query(self):
@@ -179,7 +179,7 @@ class AppTestCase(AioHTTPTestCase):
                      "assemblyId": "GRCh38",
                      "includeDatasetResponses": "HIT"}
         resp = await self.client.request("POST", "/query", data=json.dumps(bad_start))
-        assert 400 == resp.status
+        self.assertEqual(400, resp.status)
 
     @unittest_run_loop
     async def test_bad_startend_post_query(self):
@@ -192,7 +192,7 @@ class AppTestCase(AioHTTPTestCase):
                      "assemblyId": "GRCh38",
                      "includeDatasetResponses": "HIT"}
         resp = await self.client.request("POST", "/query", data=json.dumps(bad_start))
-        assert 400 == resp.status
+        self.assertEqual(400, resp.status)
 
     @unittest_run_loop
     async def test_bad_startminmax_post_query(self):
@@ -205,7 +205,7 @@ class AppTestCase(AioHTTPTestCase):
                      "assemblyId": "GRCh38",
                      "includeDatasetResponses": "HIT"}
         resp = await self.client.request("POST", "/query", data=json.dumps(bad_start))
-        assert 400 == resp.status
+        self.assertEqual(400, resp.status)
 
     @unittest_run_loop
     async def test_bad_endminmax_post_query(self):
@@ -218,7 +218,7 @@ class AppTestCase(AioHTTPTestCase):
                      "assemblyId": "GRCh38",
                      "includeDatasetResponses": "HIT"}
         resp = await self.client.request("POST", "/query", data=json.dumps(bad_start))
-        assert 400 == resp.status
+        self.assertEqual(400, resp.status)
 
     @asynctest.mock.patch('beacon_api.app.parse_request_object', side_effect=mock_parse_request_object)
     @asynctest.mock.patch('beacon_api.app.query_request_handler')
@@ -233,7 +233,7 @@ class AppTestCase(AioHTTPTestCase):
                       "includeDatasetResponses": "HIT"}
         mock_handler.side_effect = json.dumps(good_start)
         resp = await self.client.request("POST", "/query", data=json.dumps(good_start))
-        assert 200 == resp.status
+        self.assertEqual(200, resp.status)
 
     @asynctest.mock.patch('beacon_api.app.parse_request_object', side_effect=mock_parse_request_object)
     @asynctest.mock.patch('beacon_api.app.query_request_handler')
@@ -249,7 +249,7 @@ class AppTestCase(AioHTTPTestCase):
                       "includeDatasetResponses": "HIT"}
         mock_handler.side_effect = json.dumps(good_start)
         resp = await self.client.request("POST", "/query", data=json.dumps(good_start))
-        assert 200 == resp.status
+        self.assertEqual(200, resp.status)
 
     @asynctest.mock.patch('beacon_api.app.parse_request_object', side_effect=mock_parse_request_object)
     @asynctest.mock.patch('beacon_api.app.query_request_handler')
@@ -265,7 +265,7 @@ class AppTestCase(AioHTTPTestCase):
                       "includeDatasetResponses": "HIT"}
         mock_handler.side_effect = json.dumps(good_start)
         resp = await self.client.request("POST", "/query", data=json.dumps(good_start))
-        assert 200 == resp.status
+        self.assertEqual(200, resp.status)
 
     @unittest_run_loop
     async def test_unauthorized_no_token_post_query(self):
@@ -273,7 +273,7 @@ class AppTestCase(AioHTTPTestCase):
         resp = await self.client.request("POST", "/query",
                                          data=json.dumps(PARAMS),
                                          headers={'Authorization': "Bearer"})
-        assert 401 == resp.status
+        self.assertEqual(401, resp.status)
 
     @unittest_run_loop
     async def test_unauthorized_token_post_query(self):
@@ -281,7 +281,7 @@ class AppTestCase(AioHTTPTestCase):
         resp = await self.client.request("POST", "/query",
                                          data=json.dumps(PARAMS),
                                          headers={'Authorization': f"Bearer {self.bad_token}"})
-        assert 403 == resp.status
+        self.assertEqual(403, resp.status)
 
     @unittest_run_loop
     async def test_invalid_scheme_get_query(self):
@@ -289,7 +289,7 @@ class AppTestCase(AioHTTPTestCase):
         params = '?assemblyId=GRCh38&referenceName=1&start=10000&referenceBases=A&alternateBases=T&datasetIds=dataset1'
         resp = await self.client.request("GET", f"/query{params}",
                                          headers={'Authorization': "SMTH x"})
-        assert 401 == resp.status
+        self.assertEqual(401, resp.status)
 
     @asynctest.mock.patch('beacon_api.app.parse_request_object', side_effect=mock_parse_request_object)
     @asynctest.mock.patch('beacon_api.app.query_request_handler', side_effect=json.dumps(PARAMS))
@@ -300,13 +300,13 @@ class AppTestCase(AioHTTPTestCase):
         resp = await self.client.request("POST", "/query",
                                          data=json.dumps(PARAMS),
                                          headers={'Authorization': f"Bearer {token}"})
-        assert 200 == resp.status
+        self.assertEqual(200, resp.status)
 
     @unittest_run_loop
     async def test_bad_json_post_query(self):
         """Test bad json POST query endpoint."""
         resp = await self.client.request("POST", "/query", data="")
-        assert 500 == resp.status
+        self.assertEqual(500, resp.status)
 
     @asynctest.mock.patch('beacon_api.app.parse_request_object', side_effect=mock_parse_request_object)
     @asynctest.mock.patch('beacon_api.app.query_request_handler', side_effect=json.dumps(PARAMS))
@@ -316,7 +316,7 @@ class AppTestCase(AioHTTPTestCase):
         params = '?assemblyId=GRCh38&referenceName=1&start=10000&referenceBases=A&alternateBases=T'
         with asynctest.mock.patch('beacon_api.app.initialize', side_effect=create_db_mock):
             resp = await self.client.request("GET", f"/query{params}")
-        assert 200 == resp.status
+        self.assertEqual(200, resp.status)
 
     @asynctest.mock.patch('beacon_api.app.parse_request_object', side_effect=mock_parse_request_object)
     @asynctest.mock.patch('beacon_api.app.query_request_handler', side_effect=json.dumps(PARAMS))
@@ -324,7 +324,7 @@ class AppTestCase(AioHTTPTestCase):
     async def test_valid_post_query(self, mock_handler, mock_object):
         """Test valid POST query endpoint."""
         resp = await self.client.request("POST", "/query", data=json.dumps(PARAMS))
-        assert 200 == resp.status
+        self.assertEqual(200, resp.status)
 
 
 class AppTestCaseForbidden(AioHTTPTestCase):
@@ -358,7 +358,7 @@ class AppTestCaseForbidden(AioHTTPTestCase):
         resp = await self.client.request("POST", "/query",
                                          data=json.dumps(PARAMS),
                                          headers={'Authorization': f"Bearer {token}"})
-        assert 403 == resp.status
+        self.assertEqual(403, resp.status)
 
 
 class TestBasicFunctionsApp(asynctest.TestCase):
