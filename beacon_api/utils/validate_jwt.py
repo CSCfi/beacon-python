@@ -7,7 +7,7 @@ from aiocache.serializers import JsonSerializer
 from ..api.exceptions import BeaconUnauthorised, BeaconForbidden, BeaconServerError
 from aiohttp import web
 from authlib.jose import jwt
-from authlib.jose.errors import MissingClaimError, InvalidClaimError, ExpiredTokenError, InvalidTokenError
+from authlib.jose.errors import MissingClaimError, InvalidClaimError, ExpiredTokenError, InvalidTokenError, DecodeError
 import re
 import aiohttp
 from os import environ
@@ -131,6 +131,8 @@ def token_auth() -> Callable:
                 raise BeaconForbidden(obj, request.host, f'Token info not corresponding with claim: {e}')  # pragma: no cover
             except InvalidTokenError as e:  # pragma: no cover
                 raise BeaconUnauthorised(obj, request.host, "invalid_token", f'Invalid authorization token: {e}')  # pragma: no cover
+            except DecodeError as e:  # pragma: no cover
+                raise BeaconUnauthorised(obj, request.host, "invalid_token", f'Invalid JWT format: {e}')  # pragma: no cover
         else:
             request["token"] = {"bona_fide_status": False,
                                 "permissions": None,
