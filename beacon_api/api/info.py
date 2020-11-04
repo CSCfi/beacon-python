@@ -25,20 +25,20 @@ async def ga4gh_info(host: str) -> Dict:
     """
     beacon_info = {
         # TO DO implement some fallback mechanism for ID
-        'id': '.'.join(reversed(host.split('.'))),
-        'name': __title__,
+        "id": ".".join(reversed(host.split("."))),
+        "name": __title__,
         "type": __service_type__,
-        'description': __description__,
+        "description": __description__,
         "organization": {
             "name": __org_name__,
             "url": __org_welcomeUrl__,
         },
-        'contactUrl': __org_contactUrl__,
-        'documentationUrl': __docs_url__,
-        'createdAt': __createtime__,
-        'updatedAt': __updatetime__,
-        'environment': __service_env__,
-        'version': __version__
+        "contactUrl": __org_contactUrl__,
+        "documentationUrl": __docs_url__,
+        "createdAt": __createtime__,
+        "updatedAt": __updatetime__,
+        "environment": __service_env__,
+        "version": __version__,
     }
     return beacon_info
 
@@ -53,60 +53,48 @@ async def beacon_info(host: str, pool) -> Dict:
 
     # If one sets up a beacon it is recommended to adjust these sample requests
     # for instance by adding a list of other samples in beacon_api/conf/sample_queries.json
-    sample_allele_request = [{
-        "alternateBases": "G",
-        "referenceBases": "A",
-        "referenceName": "MT",
-        "start": 14036,
-        "assemblyId": "GRCh38",
-        "includeDatasetResponses": "ALL"
-    }, {
-        "variantType": "DUP",
-        "referenceBases": "C",
-        "referenceName": "19",
-        "start": 36909436,
-        "assemblyId": "GRCh38",
-        "datasetIds": [
-            "urn:hg:1000genome"
-        ],
-        "includeDatasetResponses": "HIT"},
+    sample_allele_request = [
+        {"alternateBases": "G", "referenceBases": "A", "referenceName": "MT", "start": 14036, "assemblyId": "GRCh38", "includeDatasetResponses": "ALL"},
         {
-        "variantType": "INS",
-        "referenceBases": "C",
-        "referenceName": "1",
-        "start": 104431389,
-        "assemblyId": "GRCh38"
-    }
+            "variantType": "DUP",
+            "referenceBases": "C",
+            "referenceName": "19",
+            "start": 36909436,
+            "assemblyId": "GRCh38",
+            "datasetIds": ["urn:hg:1000genome"],
+            "includeDatasetResponses": "HIT",
+        },
+        {"variantType": "INS", "referenceBases": "C", "referenceName": "1", "start": 104431389, "assemblyId": "GRCh38"},
     ]
 
     organization = {
-        'id': __org_id__,
-        'name': __org_name__,
-        'description': __org_description__,
-        'address': __org_address__,
-        'welcomeUrl': __org_welcomeUrl__,
-        'contactUrl': __org_contactUrl__,
-        'logoUrl': __org_logoUrl__,
-        'info': __org_info__,
+        "id": __org_id__,
+        "name": __org_name__,
+        "description": __org_description__,
+        "address": __org_address__,
+        "welcomeUrl": __org_welcomeUrl__,
+        "contactUrl": __org_contactUrl__,
+        "logoUrl": __org_logoUrl__,
+        "info": __org_info__,
     }
 
     beacon_info = {
         # TO DO implement some fallback mechanism for ID
-        'id': '.'.join(reversed(host.split('.'))),
-        'name': __title__,
-        'apiVersion': __apiVersion__,
-        'organization': organization,
-        'description': __description__,
-        'version': __version__,
-        'welcomeUrl': __url__,
-        'alternativeUrl': __alturl__,
-        'createDateTime': __createtime__,
-        'updateDateTime': __updatetime__,
-        'datasets': beacon_dataset,
-        'sampleAlleleRequests': __sample_queries__ or sample_allele_request,
-        'info': {"achievement": "World's first 1.0 Beacon"},
+        "id": ".".join(reversed(host.split("."))),
+        "name": __title__,
+        "apiVersion": __apiVersion__,
+        "organization": organization,
+        "description": __description__,
+        "version": __version__,
+        "welcomeUrl": __url__,
+        "alternativeUrl": __alturl__,
+        "createDateTime": __createtime__,
+        "updateDateTime": __updatetime__,
+        "datasets": beacon_dataset,
+        "sampleAlleleRequests": __sample_queries__ or sample_allele_request,
+        "info": {"achievement": "World's first 1.0 Beacon"},
     }
 
     if __handover_drs__:
-        beacon_info['beaconHandover'] = make_handover(__handover_beacon__, [x['id'] for x in beacon_dataset])
+        beacon_info["beaconHandover"] = make_handover(__handover_beacon__, [x["id"] for x in beacon_dataset])
     return beacon_info

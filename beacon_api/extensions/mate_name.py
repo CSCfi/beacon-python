@@ -8,8 +8,7 @@ from .. import __handover_drs__
 from typing import Tuple, List, Optional
 
 
-async def fetch_fusion_dataset(db_pool, assembly_id, position, chromosome, reference, mate,
-                               datasets=None, access_type=None, misses=False):
+async def fetch_fusion_dataset(db_pool, assembly_id, position, chromosome, reference, mate, datasets=None, access_type=None, misses=False):
     """Execute filter datasets.
 
     There is an Uber query that aims to retrieve specific for data for mate fusion table.
@@ -43,8 +42,7 @@ async def fetch_fusion_dataset(db_pool, assembly_id, position, chromosome, refer
                                AND coalesce(datasetId = any($1::varchar[]), false);
                                """
                     statement = await connection.prepare(query)
-                    db_response = await statement.fetch(datasets_query, access_query, assembly_id,
-                                                        chromosome)
+                    db_response = await statement.fetch(datasets_query, access_query, assembly_id, chromosome)
 
                 else:
 
@@ -94,11 +92,9 @@ async def fetch_fusion_dataset(db_pool, assembly_id, position, chromosome, refer
                                 AND coalesce(a.datasetId = any($1::varchar[]), false);
                                 """
                 statement = await connection.prepare(query)
-                db_response = await statement.fetch(datasets_query, access_query, assembly_id,
-                                                    mate, refbase,
-                                                    start_pos, end_pos,
-                                                    startMax_pos, startMin_pos,
-                                                    endMin_pos, endMax_pos, chromosome)
+                db_response = await statement.fetch(
+                    datasets_query, access_query, assembly_id, mate, refbase, start_pos, end_pos, startMax_pos, startMin_pos, endMin_pos, endMax_pos, chromosome
+                )
                 LOG.info(f"Query for dataset(s): {datasets} that are {access_type} matching conditions.")
                 datasets = []
                 for record in list(db_response):
@@ -109,16 +105,20 @@ async def fetch_fusion_dataset(db_pool, assembly_id, position, chromosome, refer
                     datasets.append(processed)
                 return datasets
             except Exception as e:
-                raise BeaconServerError(f'Query dataset DB error: {e}')
+                raise BeaconServerError(f"Query dataset DB error: {e}")
 
 
-async def find_fusion(db_pool,
-                      assembly_id: str,
-                      position: Tuple[Optional[int], ...],
-                      chromosome: str, reference: str,
-                      mate: str,
-                      dataset_ids: List[str], access_type: List,
-                      include_dataset: str) -> List:
+async def find_fusion(
+    db_pool,
+    assembly_id: str,
+    position: Tuple[Optional[int], ...],
+    chromosome: str,
+    reference: str,
+    mate: str,
+    dataset_ids: List[str],
+    access_type: List,
+    include_dataset: str,
+) -> List:
     """Find datasets based on filter parameters.
 
     This also takes into consideration the token value as to establish permissions.
@@ -128,7 +128,7 @@ async def find_fusion(db_pool,
     response = []
     fetch_call = partial(fetch_fusion_dataset, db_pool, assembly_id, position, chromosome, reference, mate)
     hit_datasets = await fetch_call(dataset_ids, access_type)
-    if include_dataset in ['ALL', 'MISS']:
+    if include_dataset in ["ALL", "MISS"]:
         accessible_missing = set(dataset_ids).difference([item["datasetId"] for item in hit_datasets])
         miss_datasets = await fetch_call(accessible_missing, access_type, misses=True)
 
