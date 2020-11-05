@@ -96,16 +96,13 @@ from ..utils.logging import LOG
 from ..conf import OAUTH2_CONFIG
 
 
-async def check_ga4gh_token(decoded_data: JWTClaims,
-                            token: Dict,
-                            bona_fide_status: bool,
-                            dataset_permissions: set) -> Tuple[set, bool]:
+async def check_ga4gh_token(decoded_data: JWTClaims, token: str, bona_fide_status: bool, dataset_permissions: set) -> Tuple[set, bool]:
     """Check the token for GA4GH claims."""
-    LOG.debug('Checking GA4GH claims from scope.')
+    LOG.debug("Checking GA4GH claims from scope.")
 
-    if 'scope' in decoded_data:
-        ga4gh_scopes = ['openid', 'ga4gh_passport_v1']
-        token_scopes = decoded_data.get('scope').split(' ')
+    if "scope" in decoded_data:
+        ga4gh_scopes = ["openid", "ga4gh_passport_v1"]
+        token_scopes = decoded_data.get("scope").split(" ")
 
         if all(scope in token_scopes for scope in ga4gh_scopes):
             dataset_permissions, bona_fide_status = await get_ga4gh_permissions(token)
@@ -118,12 +115,12 @@ async def decode_passport(encoded_passport: str) -> List[Dict]:
 
     Public-key-less decoding inspired by the PyJWT library https://github.com/jpadilla/pyjwt
     """
-    LOG.debug('Decoding GA4GH passport.')
+    LOG.debug("Decoding GA4GH passport.")
 
     # Convert the token string into bytes for processing, and split it into segments
-    decoded_passport = encoded_passport.encode('utf-8')  # `header.payload.signature`
-    data, _ = decoded_passport.rsplit(b'.', 1)  # data contains header and payload segments, the ignored segment is the signature segment
-    segments = data.split(b'.', 1)  # [header, payload]
+    decoded_passport = encoded_passport.encode("utf-8")  # `header.payload.signature`
+    data, _ = decoded_passport.rsplit(b".", 1)  # data contains header and payload segments, the ignored segment is the signature segment
+    segments = data.split(b".", 1)  # [header, payload]
 
     # Intermediary container
     verified_segments = []
@@ -133,21 +130,21 @@ async def decode_passport(encoded_passport: str) -> List[Dict]:
     for segment in segments:
         rem = len(segment) % 4
         if rem > 0:
-            segment += b'=' * (4 - rem)
+            segment += b"=" * (4 - rem)
         verified_segments.append(segment)
 
     # Decode the verified token segments
     decoded_segments = [base64.urlsafe_b64decode(seg) for seg in verified_segments]
 
     # Convert the decoded segment bytes into dicts for easy access
-    decoded_data = [json.loads(seg.decode('utf-8')) for seg in decoded_segments]
+    decoded_data = [json.loads(seg.decode("utf-8")) for seg in decoded_segments]
 
     return decoded_data
 
 
-async def get_ga4gh_permissions(token: Dict) -> tuple:
+async def get_ga4gh_permissions(token: str) -> Tuple[set, bool]:
     """Retrieve GA4GH passports (JWTs) from ELIXIR AAI and process them into tangible permissions."""
-    LOG.info('Handling permissions.')
+    LOG.info("Handling permissions.")
 
     # Return variables
     dataset_permissions = set()
@@ -167,11 +164,11 @@ async def get_ga4gh_permissions(token: Dict) -> tuple:
             # Decode passport
             header, payload = await decode_passport(encoded_passport)
             # Sort passports that carry dataset permissions
-            pass_type = payload.get('ga4gh_visa_v1', {}).get('type')
-            if pass_type == 'ControlledAccessGrants':  # nosec
+            pass_type = payload.get("ga4gh_visa_v1", {}).get("type")
+            if pass_type == "ControlledAccessGrants":  # nosec
                 dataset_passports.append((encoded_passport, header))
             # Sort passports that MAY carry bona fide status information
-            if pass_type in ['AcceptedTermsAndPolicies', 'ResearcherStatus']:
+            if pass_type in ["AcceptedTermsAndPolicies", "ResearcherStatus"]:
                 bona_fide_passports.append((encoded_passport, header, payload))
 
     # Parse dataset passports to extract dataset permissions and validate them
@@ -182,15 +179,15 @@ async def get_ga4gh_permissions(token: Dict) -> tuple:
     return dataset_permissions, bona_fide_status
 
 
-async def retrieve_user_data(token: Dict) -> Optional[str]:
+async def retrieve_user_data(token: str) -> Optional[str]:
     """Retrieve GA4GH user data."""
-    LOG.debug('Contacting ELIXIR AAI /userinfo.')
+    LOG.debug("Contacting ELIXIR AAI /userinfo.")
     headers = {"Authorization": f"Bearer {token}"}
     try:
         async with aiohttp.ClientSession(headers=headers) as session:
             async with session.get(OAUTH2_CONFIG.userinfo) as r:
                 json_body = await r.json()
-                LOG.info('Retrieve GA4GH user data from ELIXIR AAI.')
+                LOG.info("Retrieve GA4GH user data from ELIXIR AAI.")
                 return json_body.get("ga4gh_passport_v1", None)
     except Exception:
         raise BeaconServerError("Could not retrieve GA4GH user data from ELIXIR AAI.")
@@ -198,7 +195,7 @@ async def retrieve_user_data(token: Dict) -> Optional[str]:
 
 async def get_jwk(url: str) -> Optional[Dict]:
     """Get JWK set keys to validate JWT."""
-    LOG.debug('Retrieving JWK.')
+    LOG.debug("Retrieving JWK.")
     try:
         async with aiohttp.ClientSession() as session:
             async with session.get(url) as r:
@@ -207,13 +204,13 @@ async def get_jwk(url: str) -> Optional[Dict]:
     except Exception:
         # This is not a fatal error, it just means that we are unable to validate the permissions,
         # but the process should continue even if the validation of one token fails
-        LOG.error(f'Could not retrieve JWK from {url}')
+        LOG.error(f"Could not retrieve JWK from {url}")
         return None
 
 
 async def validate_passport(passport: Dict) -> JWTClaims:
     """Decode a passport and validate its contents."""
-    LOG.debug('Validating passport.')
+    LOG.debug("Validating passport.")
 
     # Passports from `get_ga4gh_controlled()` will be of form
     # passport[0] -> encoded passport (JWT)
@@ -227,11 +224,7 @@ async def validate_passport(passport: Dict) -> JWTClaims:
     # The `aud` claim will be ignored, because Beacon has no prior knowledge
     # as to where the token has originated from, and is therefore unable to
     # verify the intended audience. Other claims will be validated as per usual.
-    claims_options = {
-        "aud": {
-            "essential": False
-        }
-    }
+    claims_options = {"aud": {"essential": False}}
 
     # Attempt to decode the token and validate its contents
     # None of the exceptions are fatal, and will not raise an exception
@@ -240,7 +233,7 @@ async def validate_passport(passport: Dict) -> JWTClaims:
     try:
         # Get JWK for this passport from a third party provider
         # The JWK will be requested from a URL that is given in the `jku` claim in the header
-        passport_key = await get_jwk(passport[1].get('jku'))
+        passport_key = await get_jwk(passport[1].get("jku"))
         # Decode the JWT using public key
         decoded_passport = jwt.decode(passport[0], passport_key, claims_options=claims_options)
         # Validate the JWT signature
@@ -263,7 +256,7 @@ async def get_ga4gh_controlled(passports: List) -> set:
         # Extract dataset id from validated passport
         # The dataset value will be of form `https://institution.org/urn:dataset:1000`
         # the extracted dataset will always be the last list element when split with `/`
-        dataset = validated_passport.get('ga4gh_visa_v1', {}).get('value').split('/')[-1]
+        dataset = validated_passport.get("ga4gh_visa_v1", {}).get("value").split("/")[-1]
         # Add dataset to set
         datasets.add(dataset)
 
@@ -282,9 +275,9 @@ async def get_ga4gh_bona_fide(passports: List) -> bool:
         # Check for the `type` of visa to determine if to look for `terms` or `status`
         #
         # CHECK FOR TERMS
-        passport_type = passport[2].get('ga4gh_visa_v1', {}).get('type')
-        passport_value = passport[2].get('ga4gh_visa_v1', {}).get('value')
-        if passport_type in 'AcceptedTermsAndPolicies' and passport_value == OAUTH2_CONFIG.bona_fide_value:
+        passport_type = passport[2].get("ga4gh_visa_v1", {}).get("type")
+        passport_value = passport[2].get("ga4gh_visa_v1", {}).get("value")
+        if passport_type in "AcceptedTermsAndPolicies" and passport_value == OAUTH2_CONFIG.bona_fide_value:
             # This passport has the correct type and value, next step is to validate it
             #
             # Decode passport and validate its contents
@@ -296,7 +289,7 @@ async def get_ga4gh_bona_fide(passports: List) -> bool:
             terms = True
         #
         # CHECK FOR STATUS
-        if passport_value == OAUTH2_CONFIG.bona_fide_value and passport_type == 'ResearcherStatus':
+        if passport_value == OAUTH2_CONFIG.bona_fide_value and passport_type == "ResearcherStatus":
             # Check if the visa contains a bona fide value
             # This passport has the correct type and value, next step is to validate it
             #

@@ -11,33 +11,32 @@ from ..utils.logging import LOG
 from ..conf import CONFIG_INFO
 
 
-def process_exception_data(request: Dict,
-                           host: str,
-                           error_code: int,
-                           error: str) -> Dict:
+def process_exception_data(request: Dict, host: str, error_code: int, error: str) -> Dict:
     """Return request data as dictionary.
 
     Generates custom exception messages based on request parameters.
     """
-    data = {'beaconId': '.'.join(reversed(host.split('.'))),
-            "apiVersion": __apiVersion__,
-            'exists': None,
-            'error': {'errorCode': error_code,
-                      'errorMessage': error},
-            'alleleRequest': {'referenceName': request.get("referenceName", None),
-                              'referenceBases': request.get("referenceBases", None),
-                              'includeDatasetResponses': request.get("includeDatasetResponses", "NONE"),
-                              'assemblyId': request.get("assemblyId", None)},
-            # showing empty datasetsAlleRsponse as no datasets found
-            # A null/None would represent no data while empty array represents
-            # none found or error and corresponds with exists null/None
-            'datasetAlleleResponses': []}
+    data = {
+        "beaconId": ".".join(reversed(host.split("."))),
+        "apiVersion": __apiVersion__,
+        "exists": None,
+        "error": {"errorCode": error_code, "errorMessage": error},
+        "alleleRequest": {
+            "referenceName": request.get("referenceName", None),
+            "referenceBases": request.get("referenceBases", None),
+            "includeDatasetResponses": request.get("includeDatasetResponses", "NONE"),
+            "assemblyId": request.get("assemblyId", None),
+        },
+        # showing empty datasetsAlleRsponse as no datasets found
+        # A null/None would represent no data while empty array represents
+        # none found or error and corresponds with exists null/None
+        "datasetAlleleResponses": [],
+    }
     # include datasetIds only if they are specified
     # as per specification if they don't exist all datatsets will be queried
     # Only one of `alternateBases` or `variantType` is required, validated by schema
-    oneof_fields = ["alternateBases", "variantType", "start", "end", "startMin", "startMax",
-                    "endMin", "endMax", "datasetIds"]
-    data['alleleRequest'].update({k: request.get(k) for k in oneof_fields if k in request})
+    oneof_fields = ["alternateBases", "variantType", "start", "end", "startMin", "startMax", "endMin", "endMax", "datasetIds"]
+    data["alleleRequest"].update({k: request.get(k) for k in oneof_fields if k in request})
 
     return data
 
@@ -49,12 +48,11 @@ class BeaconBadRequest(web.HTTPBadRequest):
     Used in conjunction with JSON Schema validator.
     """
 
-    def __init__(self, request: Dict,
-                 host: str, error: str) -> None:
+    def __init__(self, request: Dict, host: str, error: str) -> None:
         """Return custom bad request exception."""
         data = process_exception_data(request, host, 400, error)
         super().__init__(text=json.dumps(data), content_type="application/json")
-        LOG.error(f'401 ERROR MESSAGE: {error}')
+        LOG.error(f"401 ERROR MESSAGE: {error}")
 
 
 class BeaconUnauthorised(web.HTTPUnauthorized):
@@ -64,17 +62,21 @@ class BeaconUnauthorised(web.HTTPUnauthorized):
     Used in conjunction with Token authentication aiohttp middleware.
     """
 
-    def __init__(self, request: Dict,
-                 host: str, error: str, error_message: str) -> None:
+    def __init__(self, request: Dict, host: str, error: str, error_message: str) -> None:
         """Return custom unauthorized exception."""
         data = process_exception_data(request, host, 401, error)
-        headers_401 = {"WWW-Authenticate": f"Bearer realm=\"{CONFIG_INFO.url}\"\n\
-                         error=\"{error}\"\n\
-                         error_description=\"{error_message}\""}
-        super().__init__(content_type="application/json", text=json.dumps(data),
-                         # we use auth scheme Bearer by default
-                         headers=headers_401)
-        LOG.error(f'401 ERROR MESSAGE: {error}')
+        headers_401 = {
+            "WWW-Authenticate": f'Bearer realm="{CONFIG_INFO.url}"\n\
+                         error="{error}"\n\
+                         error_description="{error_message}"'
+        }
+        super().__init__(
+            content_type="application/json",
+            text=json.dumps(data),
+            # we use auth scheme Bearer by default
+            headers=headers_401,
+        )
+        LOG.error(f"401 ERROR MESSAGE: {error}")
 
 
 class BeaconForbidden(web.HTTPForbidden):
@@ -85,12 +87,11 @@ class BeaconForbidden(web.HTTPForbidden):
     but not granted the resource. Used in conjunction with Token authentication aiohttp middleware.
     """
 
-    def __init__(self, request: Dict,
-                 host: str, error: str) -> None:
+    def __init__(self, request: Dict, host: str, error: str) -> None:
         """Return custom forbidden exception."""
         data = process_exception_data(request, host, 403, error)
         super().__init__(content_type="application/json", text=json.dumps(data))
-        LOG.error(f'403 ERROR MESSAGE: {error}')
+        LOG.error(f"403 ERROR MESSAGE: {error}")
 
 
 class BeaconServerError(web.HTTPInternalServerError):
@@ -101,7 +102,6 @@ class BeaconServerError(web.HTTPInternalServerError):
 
     def __init__(self, error: str) -> None:
         """Return custom forbidden exception."""
-        data = {'errorCode': 500,
-                'errorMessage': error}
+        data = {"errorCode": 500, "errorMessage": error}
         super().__init__(content_type="application/json", text=json.dumps(data))
-        LOG.error(f'500 ERROR MESSAGE: {error}')
+        LOG.error(f"500 ERROR MESSAGE: {error}")
