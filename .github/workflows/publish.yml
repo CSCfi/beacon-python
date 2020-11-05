@@ -66,10 +66,9 @@ jobs:
           file: ./deploy/dataloader/Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.prep.outputs.tagsData }}
-          cache-from: type=registry,ref=cscfi/swift-ui:latest
+          cache-from: type=registry,ref=cscfi/beacon-dataloader:latest
           cache-to: type=inline
           labels: |
             org.opencontainers.image.source=${{ github.event.repository.clone_url }}
             org.opencontainers.image.created=${{ steps.prep.outputs.created }}
             org.opencontainers.image.revision=${{ github.sha }}
-
