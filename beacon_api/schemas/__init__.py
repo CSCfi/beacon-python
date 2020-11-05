@@ -17,9 +17,9 @@ from pathlib import Path
 def load_schema(name: str) -> Dict:
     """Load JSON schemas."""
     module_path = Path(__file__).resolve().parent
-    path = module_path.joinpath(f'{name}.json')
+    path = module_path.joinpath(f"{name}.json")
 
-    with open(str(path), 'r') as fp:
+    with open(str(path), "r") as fp:
         data = fp.read()
 
     return json.loads(data)

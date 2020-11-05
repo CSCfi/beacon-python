@@ -33,9 +33,9 @@ def transform_record(record) -> Dict:
 def transform_misses(record) -> Dict:
     """Format the missed datasets record we got from the database to adhere to the response schema."""
     response = dict(record)
-    response["referenceBases"] = ''  # NOT part of beacon specification
-    response["alternateBases"] = ''  # NOT part of beacon specification
-    response["variantType"] = ''  # NOT part of beacon specification
+    response["referenceBases"] = ""  # NOT part of beacon specification
+    response["alternateBases"] = ""  # NOT part of beacon specification
+    response["variantType"] = ""  # NOT part of beacon specification
     response["start"] = 0  # NOT part of beacon specification
     response["end"] = 0  # NOT part of beacon specification
     response["frequency"] = 0
@@ -55,10 +55,10 @@ def transform_metadata(record) -> Dict:
     """Format the metadata record we got from the database to adhere to the response schema."""
     response = dict(record)
     response["info"] = {"accessType": response.pop("accessType")}
-    if 'createDateTime' in response and isinstance(response["createDateTime"], datetime):
-        response["createDateTime"] = response.pop("createDateTime").strftime('%Y-%m-%dT%H:%M:%SZ')
-    if 'updateDateTime' in record and isinstance(response["updateDateTime"], datetime):
-        response["updateDateTime"] = response.pop("updateDateTime").strftime('%Y-%m-%dT%H:%M:%SZ')
+    if "createDateTime" in response and isinstance(response["createDateTime"], datetime):
+        response["createDateTime"] = response.pop("createDateTime").strftime("%Y-%m-%dT%H:%M:%SZ")
+    if "updateDateTime" in record and isinstance(response["updateDateTime"], datetime):
+        response["updateDateTime"] = response.pop("updateDateTime").strftime("%Y-%m-%dT%H:%M:%SZ")
 
     return response
 
@@ -78,15 +78,15 @@ async def fetch_datasets_access(db_pool, datasets: Optional[List]):
                 statement = await connection.prepare(query)
                 db_response = await statement.fetch(datasets_query)
                 for record in list(db_response):
-                    if record['accesstype'] == 'PUBLIC':
-                        public.append(record['datasetid'])
-                    if record['accesstype'] == 'REGISTERED':
-                        registered.append(record['datasetid'])
-                    if record['accesstype'] == 'CONTROLLED':
-                        controlled.append(record['datasetid'])
+                    if record["accesstype"] == "PUBLIC":
+                        public.append(record["datasetid"])
+                    if record["accesstype"] == "REGISTERED":
+                        registered.append(record["datasetid"])
+                    if record["accesstype"] == "CONTROLLED":
+                        controlled.append(record["datasetid"])
                 return public, registered, controlled
             except Exception as e:
-                raise BeaconServerError(f'Query available datasets DB error: {e}')
+                raise BeaconServerError(f"Query available datasets DB error: {e}")
 
 
 async def fetch_dataset_metadata(db_pool, datasets=None, access_type=None):
@@ -120,12 +120,12 @@ async def fetch_dataset_metadata(db_pool, datasets=None, access_type=None):
                     metadata.append(transform_metadata(record))
                 return metadata
             except Exception as e:
-                raise BeaconServerError(f'Query metadata DB error: {e}')
+                raise BeaconServerError(f"Query metadata DB error: {e}")
 
 
 def handle_wildcard(sequence) -> List:
     """Construct PostgreSQL friendly wildcard string."""
-    if 'N' in sequence:
+    if "N" in sequence:
         # Wildcard(s) found, use wildcard notation
         return [f"%{sequence.replace('N', '_')}%"]
     else:
@@ -133,8 +133,7 @@ def handle_wildcard(sequence) -> List:
         return [sequence]
 
 
-async def fetch_filtered_dataset(db_pool, assembly_id, position, chromosome, reference, alternate,
-                                 datasets=None, access_type=None, misses=False):
+async def fetch_filtered_dataset(db_pool, assembly_id, position, chromosome, reference, alternate, datasets=None, access_type=None, misses=False):
     """Execute filter datasets.
 
     There is an Uber query that aims to be all inclusive.
@@ -170,8 +169,7 @@ async def fetch_filtered_dataset(db_pool, assembly_id, position, chromosome, ref
                                AND coalesce(datasetId = any($1::varchar[]), false);
                                """
                     statement = await connection.prepare(query)
-                    db_response = await statement.fetch(datasets_query, access_query, assembly_id,
-                                                        chromosome)
+                    db_response = await statement.fetch(datasets_query, access_query, assembly_id, chromosome)
 
                 else:
                     # UBER QUERY - TBD if it is what we need
@@ -198,11 +196,21 @@ async def fetch_filtered_dataset(db_pool, assembly_id, position, chromosome, ref
                                """
 
                     statement = await connection.prepare(query)
-                    db_response = await statement.fetch(datasets_query, access_query, assembly_id, chromosome,
-                                                        variant, altbase, refbase,
-                                                        start_pos, end_pos,
-                                                        startMax_pos, startMin_pos,
-                                                        endMin_pos, endMax_pos)
+                    db_response = await statement.fetch(
+                        datasets_query,
+                        access_query,
+                        assembly_id,
+                        chromosome,
+                        variant,
+                        altbase,
+                        refbase,
+                        start_pos,
+                        end_pos,
+                        startMax_pos,
+                        startMin_pos,
+                        endMin_pos,
+                        endMax_pos,
+                    )
 
                 LOG.info(f"Query for dataset(s): {datasets} that are {access_type} matching conditions.")
                 datasets = []
@@ -214,7 +222,7 @@ async def fetch_filtered_dataset(db_pool, assembly_id, position, chromosome, ref
                     datasets.append(processed)
                 return datasets
             except Exception as e:
-                raise BeaconServerError(f'Query dataset DB error: {e}')
+                raise BeaconServerError(f"Query dataset DB error: {e}")
 
 
 def filter_exists(include_dataset: str, datasets: List) -> List[str]:
@@ -223,24 +231,29 @@ def filter_exists(include_dataset: str, datasets: List) -> List[str]:
     Look at the exist parameter in each returned dataset to established HIT or MISS.
     """
     data = []
-    if include_dataset == 'ALL':
+    if include_dataset == "ALL":
         data = datasets
-    elif include_dataset == 'NONE':
+    elif include_dataset == "NONE":
         data = []
-    elif include_dataset == 'HIT':
-        data = [d for d in datasets if d['exists'] is True]
-    elif include_dataset == 'MISS':
-        data = [d for d in datasets if d['exists'] is False]
+    elif include_dataset == "HIT":
+        data = [d for d in datasets if d["exists"] is True]
+    elif include_dataset == "MISS":
+        data = [d for d in datasets if d["exists"] is False]
 
     return data
 
 
-async def find_datasets(db_pool,
-                        assembly_id: str,
-                        position: Tuple[Optional[int], ...],
-                        chromosome: str, reference: str, alternate: Tuple,
-                        dataset_ids: List[str], access_type: List,
-                        include_dataset: str) -> List:
+async def find_datasets(
+    db_pool,
+    assembly_id: str,
+    position: Tuple[Optional[int], ...],
+    chromosome: str,
+    reference: str,
+    alternate: Tuple,
+    dataset_ids: List[str],
+    access_type: List,
+    include_dataset: str,
+) -> List:
     """Find datasets based on filter parameters.
 
     This also takes into consideration the token value as to establish permissions.
@@ -250,7 +263,7 @@ async def find_datasets(db_pool,
     response = []
     fetch_call = partial(fetch_filtered_dataset, db_pool, assembly_id, position, chromosome, reference, alternate)
     hit_datasets = await fetch_call(dataset_ids, access_type)
-    if include_dataset in ['ALL', 'MISS']:
+    if include_dataset in ["ALL", "MISS"]:
         accessible_missing = set(dataset_ids).difference([item["datasetId"] for item in hit_datasets])
         miss_datasets = await fetch_call(accessible_missing, access_type, misses=True)
 

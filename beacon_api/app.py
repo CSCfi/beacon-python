@@ -26,8 +26,8 @@ asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 # ----------------------------------------------------------------------------------------------------------------------
 #                                         INFO END POINT OPERATIONS
 # ----------------------------------------------------------------------------------------------------------------------
-@routes.get('/')  # For Beacon API Specification
-@routes.get('/service-info')  # For GA4GH Discovery Specification
+@routes.get("/")  # For Beacon API Specification
+@routes.get("/service-info")  # For GA4GH Discovery Specification
 async def beacon_get(request: web.Request) -> web.Response:
     """
     Use the HTTP protocol 'GET' to return a Json object of all the necessary info on the beacon and the API.
@@ -37,13 +37,13 @@ async def beacon_get(request: web.Request) -> web.Response:
     :type beacon: Dict
     :return beacon: The method returns an example Beacon characteristic to beacon info endpoint.
     """
-    LOG.info('GET request to the info endpoint.')
-    if str(request.rel_url) == '/service-info':
-        LOG.info('Using GA4GH Discovery format for Service Info.')
+    LOG.info("GET request to the info endpoint.")
+    if str(request.rel_url) == "/service-info":
+        LOG.info("Using GA4GH Discovery format for Service Info.")
         response = await ga4gh_info(request.host)
     else:
-        LOG.info('Using Beacon API Specification format for Service Info.')
-        db_pool = request.app['pool']
+        LOG.info("Using Beacon API Specification format for Service Info.")
+        db_pool = request.app["pool"]
         response = await beacon_info(request.host, db_pool)
     return web.json_response(response)
 
@@ -52,53 +52,56 @@ async def beacon_get(request: web.Request) -> web.Response:
 #                                         QUERY END POINT OPERATIONS
 # ----------------------------------------------------------------------------------------------------------------------
 # These could be put under a @route.view('/query')
-@routes.get('/query')
+@routes.get("/query")
 @validate(load_schema("query"))
 async def beacon_get_query(request: web.Request) -> web.Response:
     """Find datasets using GET endpoint."""
     method, processed_request = await parse_request_object(request)
-    params = request.app['pool'], method, processed_request, request["token"], request.host
+    params = request.app["pool"], method, processed_request, request["token"], request.host
     response = await query_request_handler(params)
-    return web.json_response(response, content_type='application/json', dumps=json.dumps)
+    return web.json_response(response, content_type="application/json", dumps=json.dumps)
 
 
-@routes.post('/query')
+@routes.post("/query")
 @validate(load_schema("query"))
 async def beacon_post_query(request: web.Request) -> web.Response:
     """Find datasets using POST endpoint."""
     method, processed_request = await parse_request_object(request)
-    params = request.app['pool'], method, processed_request, request["token"], request.host
+    params = request.app["pool"], method, processed_request, request["token"], request.host
     response = await query_request_handler(params)
-    return web.json_response(response, content_type='application/json', dumps=json.dumps)
+    return web.json_response(response, content_type="application/json", dumps=json.dumps)
 
 
 async def initialize(app: web.Application) -> None:
     """Spin up DB a connection pool with the HTTP server."""
     # TO DO check if table and Database exist
     # and maybe exit gracefully or at least wait for a bit
-    LOG.debug('Create PostgreSQL connection pool.')
-    app['pool'] = await init_db_pool()
+    LOG.debug("Create PostgreSQL connection pool.")
+    app["pool"] = await init_db_pool()
     set_cors(app)
 
 
 async def destroy(app: web.Application) -> None:
     """Upon server close, close the DB connection pool."""
     # will defer this to asyncpg
-    await app['pool'].close()  # pragma: no cover
+    await app["pool"].close()  # pragma: no cover
 
 
 def set_cors(server):
     """Set CORS rules."""
     # Configure CORS settings
-    cors = aiohttp_cors.setup(server, defaults={
-        "*": aiohttp_cors.ResourceOptions(
-            allow_credentials=True,
-            expose_headers="*",
-            allow_headers="*",
-            allow_methods=["GET", "POST", "OPTIONS"],
-            max_age=86400,
-        )
-    })
+    cors = aiohttp_cors.setup(
+        server,
+        defaults={
+            "*": aiohttp_cors.ResourceOptions(
+                allow_credentials=True,
+                expose_headers="*",
+                allow_headers="*",
+                allow_methods=["GET", "POST", "OPTIONS"],
+                max_age=86400,
+            )
+        },
+    )
     # Apply CORS to endpoints
     for route in list(server.router.routes()):
         cors.add(route)
@@ -122,12 +125,10 @@ def main():
     # sslcontext.load_cert_chain(ssl_certfile, ssl_keyfile)
     # sslcontext = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
     # sslcontext.check_hostname = False
-    web.run_app(init(), host=os.environ.get('HOST', '0.0.0.0'),  # nosec
-                port=os.environ.get('PORT', '5050'),  # nosec
-                shutdown_timeout=0, ssl_context=None)
+    web.run_app(init(), host=os.environ.get("HOST", "0.0.0.0"), port=os.environ.get("PORT", "5050"), shutdown_timeout=0, ssl_context=None)  # nosec  # nosec
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     if sys.version_info < (3, 6):
         LOG.error("beacon-python requires python 3.6")
         sys.exit(1)
