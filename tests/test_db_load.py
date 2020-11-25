@@ -312,7 +312,7 @@ class DatabaseTestCase(asynctest.TestCase):
         db_mock.return_value = Connection()
         await self._db.connection()
         db_mock.assert_called()
-        await self._db.insert_variants('DATASET1', ['C'])
+        await self._db.insert_variants('DATASET1', ['C'], 1)
         # Should assert logs
         mock_log.info.mock_calls = ['Received 1 variants for insertion to DATASET1',
                                     'Insert variants into the database']
