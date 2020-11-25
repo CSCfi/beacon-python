@@ -67,7 +67,7 @@ class MockBeaconDB:
         """Mimic load_metadata."""
         pass
 
-    async def load_datafile(self, vcf, datafile, datasetId):
+    async def load_datafile(self, vcf, datafile, datasetId, min_ac=1):
         """Mimic load_datafile."""
         return ["datasetId", "variants"]
 
