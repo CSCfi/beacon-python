@@ -160,10 +160,11 @@ Starting PostgreSQL using Docker:
 .. code-block:: console
 
     cd beacon-python
-    docker run -e POSTGRES_USER=beacon \
+    docker run -d \
+               -e POSTGRES_USER=beacon \
                -e POSTGRES_PASSWORD=beacon \
                -e POSTGRES_DB=beacondb \
-               -v "$PWD/data":/docker-entrypoint-initdb.d
+               -v "$PWD/data":/docker-entrypoint-initdb.d \
                -p 5432:5432 postgres:11.6
 
 .. hint:: If one has their own database the ``beacon_init`` utility can be skipped,
@@ -182,19 +183,25 @@ For loading datasets to database we provide the ``beacon_init`` utility:
 
 .. code-block:: console
 
-    ╰─$ beacon_init --help
-    usage: beacon_init [-h] datafile metadata
+    $ beacon_init --help
+    usage: beacon_init [-h] [--samples SAMPLES]
+                      [--min_allele_count MIN_ALLELE_COUNT]
+                      datafile metadata
 
     Load datafiles with associated metadata into the beacon database. See example
     data and metadata files in the /data directory.
 
     positional arguments:
-      datafile    .vcf file containing variant information
-      metadata    .json file containing metadata associated to datafile
+      datafile              .vcf file containing variant information
+      metadata              .json file containing metadata associated to datafile
 
     optional arguments:
-      --samples   comma separated string of samples to process
-      -h, --help  show this help message and exit
+      -h, --help            show this help message and exit
+      --samples SAMPLES     comma separated string of samples to process.
+                            EXPERIMENTAL
+      --min_allele_count MIN_ALLELE_COUNT
+                            minimum allele count can be raised to ignore rare
+                            variants. Default value is 1
 
 As an example, a dataset metadata could be:
 
@@ -221,11 +228,17 @@ For loading data into the database we can proceed as follows:
 
     $ beacon_init data/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz data/example_metadata.json
 
-For loading data into the database from selected samples only we can proceed as follows:
+(EXPERIMENTAL) For loading data into the database from selected samples only we can proceed as follows:
 
 .. code-block:: console
 
     $ beacon_init data/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz data/example_metadata.json --samples HG0001,HG0002,HG0003
+
+For ignoring rare alleles, set a minimum allele count with ``--min_allele_count``:
+
+.. code-block:: console
+
+    $ beacon_init data/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz data/example_metadata.json --min_allele_count 20
 
 .. note:: One dataset can have multiple files, in order to add more files to one dataset, repeat the command above.
           The parameters ``callCount`` and ``variantCount`` from the metadata file reflect values of the entire dataset.

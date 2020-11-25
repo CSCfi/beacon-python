@@ -37,6 +37,7 @@ Below are the two ways of running this module (pip installed and uninstalled).
 """
 
 import os
+import sys
 import argparse
 import json
 import itertools
@@ -46,6 +47,7 @@ import asyncio
 import asyncpg
 from cyvcf2 import VCF
 
+from pathlib import Path
 from datetime import datetime
 
 from .logging import LOG
@@ -280,19 +282,19 @@ class BeaconDB:
         for first in iterator:
             yield itertools.chain([first], itertools.islice(iterator, size - 1))
 
-    async def load_datafile(self, vcf, datafile, dataset_id, n=1000):
+    async def load_datafile(self, vcf, datafile, dataset_id, n=1000, min_ac=1):
         """Parse data from datafile and send it to be inserted."""
         LOG.info(f"Read data from {datafile}")
         try:
             LOG.info("Generate database queue(s)")
             data = self._chunks(vcf, n)
             for record in data:
-                await self.insert_variants(dataset_id, list(record))
+                await self.insert_variants(dataset_id, list(record), min_ac)
             LOG.info(f"{datafile} has been processed")
         except Exception as e:
             LOG.error(f"AN ERROR OCCURRED WHILE GENERATING DB QUEUE -> {e}")
 
-    async def insert_variants(self, dataset_id, variants):
+    async def insert_variants(self, dataset_id, variants, min_ac):
         """Insert variant data to the database."""
         LOG.info(f"Received {len(variants)} variants for insertion to {dataset_id}")
         try:
@@ -301,67 +303,82 @@ class BeaconDB:
                 LOG.info("Insert variants into the database")
                 for variant in variants:
                     # params = (frequency, count, actual variant Type)
-                    # Nothing interesting on the variant with no aaf
-                    # because none of the samples have it
-                    if variant.aaf > 0:
-                        params = self._unpack(variant)
-                        # Coordinates that are read from VCF are 1-based,
-                        # cyvcf2 reads them as 0-based, and they are inserted into the DB as such
+                    params = self._unpack(variant)
+                    # Coordinates that are read from VCF are 1-based,
+                    # cyvcf2 reads them as 0-based, and they are inserted into the DB as such
 
-                        # We Process Breakend Records into a different table for now
-                        if params[5] != []:
-                            # await self.insert_mates(dataset_id, variant, params)
-                            # Most likely there will be only one BND per Record
-                            for bnd in params[5]:
+                    # params may carry single variants [1] or packed variants [20, 15, 10, 1]
+                    # The first check prunes for single variants, packed variants must be removed afterwards
+                    if params[1][0] >= min_ac:
+                        # Remove packed variants that don't meet the minimum allele count requirements
+                        # Packed variants are always ordered from largest to smallest, this process starts
+                        # popping values from the right (small) side until there are no more small values to pop
+                        while params[1][-1] < min_ac:
+                            params[0].pop()  # aaf
+                            params[1].pop()  # ac
+                            params[2].pop()  # vt
+                            params[3].pop()  # alt
+                            if len(params[5]) > 0:
+                                params[5].pop()  # bnd
+
+                        # Nothing interesting on the variant with no aaf
+                        # because none of the samples have it
+                        if variant.aaf > 0:
+
+                            # We Process Breakend Records into a different table for now
+                            if params[5] != []:
+                                # await self.insert_mates(dataset_id, variant, params)
+                                # Most likely there will be only one BND per Record
+                                for bnd in params[5]:
+                                    await self._conn.execute(
+                                        """INSERT INTO beacon_mate_table
+                                                            (datasetId, chromosome, chromosomeStart, chromosomePos,
+                                                            mate, mateStart, matePos, reference, alternate, alleleCount,
+                                                            callCount, frequency, "end")
+                                                            SELECT ($1), ($2), ($3), ($4),
+                                                            ($5), ($6), ($7), ($8), t.alt, t.ac, ($11), t.freq, ($13)
+                                                            FROM (SELECT unnest($9::varchar[]) alt, unnest($10::integer[]) ac,
+                                                            unnest($12::float[]) freq) t
+                                                            ON CONFLICT (datasetId, chromosome, mate, chromosomePos, matePos)
+                                                            DO NOTHING""",
+                                        dataset_id,
+                                        variant.CHROM.replace("chr", ""),
+                                        variant.start,
+                                        variant.ID,
+                                        bnd[0].replace("chr", ""),
+                                        bnd[1],
+                                        bnd[6],
+                                        variant.REF,
+                                        params[3],
+                                        params[1],
+                                        params[4],
+                                        params[0],
+                                        variant.end,
+                                    )
+                            else:
                                 await self._conn.execute(
-                                    """INSERT INTO beacon_mate_table
-                                                         (datasetId, chromosome, chromosomeStart, chromosomePos,
-                                                         mate, mateStart, matePos, reference, alternate, alleleCount,
-                                                         callCount, frequency, "end")
-                                                         SELECT ($1), ($2), ($3), ($4),
-                                                         ($5), ($6), ($7), ($8), t.alt, t.ac, ($11), t.freq, ($13)
-                                                         FROM (SELECT unnest($9::varchar[]) alt, unnest($10::integer[]) ac,
-                                                         unnest($12::float[]) freq) t
-                                                         ON CONFLICT (datasetId, chromosome, mate, chromosomePos, matePos)
-                                                         DO NOTHING""",
+                                    """INSERT INTO beacon_data_table
+                                                        (datasetId, chromosome, start, reference, alternate,
+                                                        "end", aggregatedVariantType, alleleCount, callCount, frequency, variantType)
+                                                        SELECT ($1), ($2), ($3), ($4), t.alt, ($6), ($7), t.ac, ($9), t.freq, t.vt
+                                                        FROM (SELECT unnest($5::varchar[]) alt, unnest($8::integer[]) ac,
+                                                        unnest($10::float[]) freq, unnest($11::varchar[]) as vt) t
+                                                        ON CONFLICT (datasetId, chromosome, start, reference, alternate)
+                                                        DO NOTHING""",
                                     dataset_id,
                                     variant.CHROM.replace("chr", ""),
                                     variant.start,
-                                    variant.ID,
-                                    bnd[0].replace("chr", ""),
-                                    bnd[1],
-                                    bnd[6],
                                     variant.REF,
                                     params[3],
+                                    variant.end,
+                                    variant.var_type.upper(),
                                     params[1],
                                     params[4],
                                     params[0],
-                                    variant.end,
+                                    params[2],
                                 )
-                        else:
-                            await self._conn.execute(
-                                """INSERT INTO beacon_data_table
-                                                     (datasetId, chromosome, start, reference, alternate,
-                                                     "end", aggregatedVariantType, alleleCount, callCount, frequency, variantType)
-                                                     SELECT ($1), ($2), ($3), ($4), t.alt, ($6), ($7), t.ac, ($9), t.freq, t.vt
-                                                     FROM (SELECT unnest($5::varchar[]) alt, unnest($8::integer[]) ac,
-                                                     unnest($10::float[]) freq, unnest($11::varchar[]) as vt) t
-                                                     ON CONFLICT (datasetId, chromosome, start, reference, alternate)
-                                                     DO NOTHING""",
-                                dataset_id,
-                                variant.CHROM.replace("chr", ""),
-                                variant.start,
-                                variant.REF,
-                                params[3],
-                                variant.end,
-                                variant.var_type.upper(),
-                                params[1],
-                                params[4],
-                                params[0],
-                                params[2],
-                            )
 
-                        LOG.debug("Variants have been inserted")
+                            LOG.debug("Variants have been inserted")
         except Exception as e:
             LOG.error(f"AN ERROR OCCURRED WHILE ATTEMPTING TO INSERT VARIANTS -> {e}")
 
@@ -379,6 +396,7 @@ async def init_beacon_db(arguments=None):
     """Run database operations here."""
     # Fetch command line arguments
     args = parse_arguments(arguments)
+    validate_arguments(args)
 
     # Initialise the database connection
     db = BeaconDB()
@@ -400,10 +418,20 @@ async def init_beacon_db(arguments=None):
     dataset_id = await db.load_metadata(vcf, args.metadata, args.datafile)
 
     # Insert data into the database
-    await db.load_datafile(vcf, args.datafile, dataset_id)
+    await db.load_datafile(vcf, args.datafile, dataset_id, min_ac=int(args.min_allele_count))
 
     # Close the database connection
     await db.close()
+
+
+def validate_arguments(arguments):
+    """Check that given arguments are valid."""
+    if not Path(arguments.datafile).is_file():
+        sys.exit(f"Could not find datafile: {arguments.datafile}")
+    if not Path(arguments.metadata).is_file():
+        sys.exit(f"Could not find metadata file: {arguments.metadata}")
+    if not arguments.min_allele_count.isdigit():
+        sys.exit(f"Minimum allele count --min_allele_count must be a positive integer, received: {arguments.min_allele_count}")
 
 
 def parse_arguments(arguments):
@@ -415,7 +443,8 @@ def parse_arguments(arguments):
     )
     parser.add_argument("datafile", help=".vcf file containing variant information")
     parser.add_argument("metadata", help=".json file containing metadata associated to datafile")
-    parser.add_argument("--samples", default=None, help="comma separated string of samples to process")
+    parser.add_argument("--samples", default=None, help="comma separated string of samples to process. EXPERIMENTAL")
+    parser.add_argument("--min_allele_count", default="1", help="minimum allele count can be raised to ignore rare variants. Default value is 1")
     return parser.parse_args(arguments)
 
 
