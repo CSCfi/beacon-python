@@ -59,7 +59,7 @@ class MockBeaconDB:
         """Mimic create_tables."""
         pass
 
-    async def insert_variants(self, dataset_id, variants, len_samples):
+    async def insert_variants(self, dataset_id, variants, min_ac):
         """Mimic insert_variants."""
         pass
 
@@ -67,7 +67,7 @@ class MockBeaconDB:
         """Mimic load_metadata."""
         pass
 
-    async def load_datafile(self, vcf, datafile, datasetId, min_ac=1):
+    async def load_datafile(self, vcf, datafile, datasetId, n=1000, min_ac=1):
         """Mimic load_datafile."""
         return ["datasetId", "variants"]
 
