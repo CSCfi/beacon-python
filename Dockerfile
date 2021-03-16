@@ -1,4 +1,4 @@
-FROM python:3.7-alpine3.9 as BUILD
+FROM python:3.7-alpine3.13 as BUILD
 
 RUN apk add --update \
     && apk add --no-cache build-base curl-dev linux-headers bash git musl-dev\
@@ -13,7 +13,7 @@ RUN pip install --upgrade pip && \
     pip install -r /root/beacon/requirements.txt && \
     pip install /root/beacon
 
-FROM python:3.7-alpine3.9
+FROM python:3.7-alpine3.13
 
 RUN apk add --no-cache --update bash
 
