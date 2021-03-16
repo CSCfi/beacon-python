@@ -15,9 +15,11 @@ services:
       - ./mate.sql:/docker-entrypoint-initdb.d/mate.sql:ro
   beacon:
     hostname: beacon
-    image: cscfi/beacon-python
+    image: localhost:5000/beacon-python
     volumes:
       - ./auth_test.ini:/auth_test.ini
+      - ../../data/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz:/exdata/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz
+      - ../../data/example_metadata.json:/exdata/example_metadata.json
       - ./example_metadata_controlled.json:/exdata/example_metadata_controlled.json
       - ./example_metadata_controlled1.json:/exdata/example_metadata_controlled1.json
       - ./example_metadata_registered.json:/exdata/example_metadata_registered.json
@@ -35,7 +37,7 @@ services:
     restart: on-failure
   mockauth:
     hostname: mockauth
-    image: cscfi/beacon-python
+    image: localhost:5000/beacon-python
     ports:
       - 8000:8000
     volumes:
