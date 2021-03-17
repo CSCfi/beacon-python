@@ -34,7 +34,7 @@ setup(
     install_requires=["asyncpg", "aiohttp", "authlib", "aiohttp_cors", "jsonschema", "gunicorn>=20.0.1", "ujson", "uvloop", "aiocache", "ujson", "aiomcache"],
     extras_require={
         "vcf": ["cyvcf2==0.10.1; python_version < '3.7'", "numpy", "cyvcf2; python_version >= '3.7'", "Cython"],
-        "test": ["coverage==4.5.4", "pytest<5.4", "pytest-cov", "coveralls", "testfixtures", "tox", "flake8", "flake8-docstrings", "asynctest", "aioresponses"],
+        "test": ["coverage==5.5", "pytest<5.4", "pytest-cov", "coveralls", "testfixtures", "tox", "flake8", "flake8-docstrings", "asynctest", "aioresponses"],
         "docs": ["sphinx >= 1.4", "sphinx_rtd_theme"],
     },
 )
