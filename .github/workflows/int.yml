@@ -1,6 +1,7 @@
 name: Integration Tests
 
-on: [pull_request]
+on:
+  pull_request:
 
 jobs:
   build:
@@ -13,6 +14,12 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     name: Integration Tests
+
+    services:
+      registry:
+        image: registry:2
+        ports:
+          - 5000:5000
     
     steps:
     - uses: actions/checkout@v2
@@ -20,31 +27,39 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
+  
     - name: Install requirements
       run: |
-        wget https://github.com/openshift/source-to-image/releases/download/v1.2.0/source-to-image-v1.2.0-2a579ecd-linux-amd64.tar.gz
-        tar -xvf source-to-image-v1.2.0-2a579ecd-linux-amd64.tar.gz
-        sudo cp s2i /usr/local/bin
         pip install aiohttp
         pip install requests
-    - name: Build image
-      run:  |
-        s2i build . centos/python-36-centos7 cscfi/beacon-python
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+      with:
+        driver-opts: network=host
+    
+    - name: Build
+      uses: docker/build-push-action@v2
+      with:
+        context: .
+        push: true
+        file: ./Dockerfile
+        tags: localhost:5000/beacon-python:latest
+        cache-from: localhost:5000/beacon-python:latest
+        cache-to: type=local,dest=/tmp/.buildx-cache
         
     - name: Start Services
       run: |
-        pushd deploy/test
-        docker-compose up -d
+        docker-compose -f deploy/test/docker-compose.yml up -d
         sleep 10
-        docker exec test_beacon_1 beacon_init data/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz data/example_metadata.json
-        docker exec test_beacon_1 beacon_init data/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz /exdata/example_metadata_registered.json
-        docker exec test_beacon_1 beacon_init data/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz /exdata/example_metadata_controlled.json
-        docker exec test_beacon_1 beacon_init data/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz /exdata/example_metadata_controlled1.json
+        docker exec test_beacon_1 beacon_init /exdata/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz /exdata/example_metadata.json
+        docker exec test_beacon_1 beacon_init /exdata/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz /exdata/example_metadata_registered.json
+        docker exec test_beacon_1 beacon_init /exdata/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz /exdata/example_metadata_controlled.json
+        docker exec test_beacon_1 beacon_init /exdata/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz /exdata/example_metadata_controlled1.json
 
     - name: Run Integration test
       run: |
-        pushd deploy/test
-        python run_tests.py
+        python deploy/test/run_tests.py
 
     - name: Collect logs from docker
       if: ${{ failure() }}
