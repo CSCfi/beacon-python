@@ -5,7 +5,7 @@ jsonschema==3.2.0
 Cython==0.29.23
 cyvcf2==0.10.1; python_version < '3.7'
 cyvcf2; python_version >= '3.7'
-tox==3.23.0
+tox==3.23.1
 uvloop==0.14.0; python_version < '3.7'
 uvloop==0.15.2; python_version >= '3.7'
 aiocache==0.11.1
