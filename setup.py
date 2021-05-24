@@ -18,7 +18,12 @@ setup(
     # If any package contains *.json, or config in *.ini, include them:
     package_data={"": ["*.json", "*.ini"]},
     include_package_data=True,
-    entry_points={"console_scripts": ["beacon=beacon_api.app:main", "beacon_init=beacon_api.utils.db_load:main"]},
+    entry_points={
+        "console_scripts": [
+            "beacon=beacon_api.app:main",
+            "beacon_init=beacon_api.utils.db_load:main",
+        ]
+    },
     platforms="any",
     classifiers=[
         "Development Status :: 5 - Production/Stable",
@@ -47,8 +52,25 @@ setup(
         "aiomcache==0.6.0",
     ],
     extras_require={
-        "vcf": ["cyvcf2==0.10.1; python_version < '3.7'", "numpy", "cyvcf2; python_version >= '3.7'", "Cython"],
-        "test": ["coverage==5.5", "pytest<6.3", "pytest-cov", "coveralls", "testfixtures", "tox", "flake8", "flake8-docstrings", "asynctest", "aioresponses"],
-        "docs": ["sphinx >= 1.4", "sphinx_rtd_theme"],
+        "vcf": [
+            "cyvcf2==0.10.1; python_version < '3.7'",
+            "numpy==1.20.3",
+            "cyvcf2; python_version >= '3.7'",
+            "Cython==0.29.23",
+        ],
+        "test": [
+            "coverage==5.5",
+            "pytest<6.3",
+            "pytest-cov==2.12.0",
+            "coveralls==3.0.1",
+            "testfixtures==6.17.1",
+            "tox==3.23.1",
+            "flake8==3.9.2",
+            "flake8-docstrings==1.6.0",
+            "asynctest==0.13.0",
+            "aioresponses==0.7.2",
+            "black==21.4b2",
+        ],
+        "docs": ["sphinx >= 1.4", "sphinx_rtd_theme==0.5.2"],
     },
 )
