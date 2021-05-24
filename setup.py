@@ -32,7 +32,7 @@ setup(
         "Programming Language :: Python :: 3.7",
     ],
     install_requires=[
-        "asyncpg==0.22.0",
+        "asyncpg==0.23.0",
         "aiohttp==3.7.4.post0",
         "Authlib==0.15.3",
         "aiohttp-cors==0.7.0",
