@@ -10,5 +10,5 @@ uvloop==0.15.2; python_version >= '3.7'
 aiocache==0.11.1
 ujson==4.0.2
 aiomcache==0.6.0
-Authlib==0.15.3
+Authlib==0.15.4
 gunicorn==20.1.0
