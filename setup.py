@@ -44,7 +44,7 @@ setup(
         "jsonschema==3.2.0",
         "gunicorn==20.1.0",
         "uvloop==0.14.0; python_version < '3.7'",
-        "uvloop==0.15.2; python_version >= '3.7'",
+        "uvloop==0.15.3; python_version >= '3.7'",
         "cyvcf2==0.10.1; python_version < '3.7'",
         "cyvcf2; python_version >= '3.7'",
         "aiocache==0.11.1",
