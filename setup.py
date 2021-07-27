@@ -62,7 +62,7 @@ setup(
             "coverage==5.5",
             "pytest<6.3",
             "pytest-cov==2.12.1",
-            "coveralls==3.1.0",
+            "coveralls==3.2.0",
             "testfixtures==6.18.0",
             "tox==3.24.0",
             "flake8==3.9.2",
