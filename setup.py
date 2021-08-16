@@ -48,7 +48,7 @@ setup(
         "cyvcf2==0.10.1; python_version < '3.7'",
         "cyvcf2; python_version >= '3.7'",
         "aiocache==0.11.1",
-        "ujson==4.0.2",
+        "ujson==4.1.0",
         "aiomcache==0.6.0",
     ],
     extras_require={
