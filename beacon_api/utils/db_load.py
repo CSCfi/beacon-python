@@ -452,10 +452,10 @@ def main():
     """Run the beacon_init script."""
     # TO DO add this to setup to run from command line
     # allow arguments to be passed from command line
-    asyncio.get_event_loop().run_until_complete(init_beacon_db())
-    # TO DO Python3.7 will become that
-    # maybe we should move to 3.7
-    # asyncio.run(main())
+    if sys.version_info >= (3, 7):
+        asyncio.run(init_beacon_db())
+    else:
+        asyncio.get_event_loop().run_until_complete(init_beacon_db())
 
 
 if __name__ == "__main__":
