@@ -41,7 +41,7 @@ setup(
         "aiohttp==3.7.4.post0",
         "Authlib==0.15.4",
         "aiohttp-cors==0.7.0",
-        "jsonschema==3.2.0",
+        "jsonschema==4.0.1",
         "gunicorn==20.1.0",
         "uvloop==0.14.0; python_version < '3.7'",
         "uvloop==0.16.0; python_version >= '3.7'",
