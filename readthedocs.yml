@@ -4,7 +4,7 @@ build:
     image: latest
 requirements_file: docs/docs.txt
 python:
-   version: 3.7
+   version: 3.8
    use_system_site_packages: true
    setup_py_install: true
    extra_requirements:
