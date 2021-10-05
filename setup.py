@@ -60,7 +60,7 @@ setup(
             "Cython==0.29.24",
         ],
         "test": [
-            "coverage==5.5",
+            "coverage==6.0",
             "pytest<6.3",
             "pytest-cov==3.0.0",
             "coveralls==3.2.0",
