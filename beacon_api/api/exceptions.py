@@ -3,7 +3,7 @@
 API specification requires custom messages upon error.
 """
 
-import json
+import ujson
 from typing import Dict
 from aiohttp import web
 from .. import __apiVersion__
@@ -51,7 +51,7 @@ class BeaconBadRequest(web.HTTPBadRequest):
     def __init__(self, request: Dict, host: str, error: str) -> None:
         """Return custom bad request exception."""
         data = process_exception_data(request, host, 400, error)
-        super().__init__(text=json.dumps(data), content_type="application/json")
+        super().__init__(text=ujson.dumps(data, escape_forward_slashes=False), content_type="application/json")
         LOG.error(f"401 ERROR MESSAGE: {error}")
 
 
@@ -72,7 +72,7 @@ class BeaconUnauthorised(web.HTTPUnauthorized):
         }
         super().__init__(
             content_type="application/json",
-            text=json.dumps(data),
+            text=ujson.dumps(data, escape_forward_slashes=False),
             # we use auth scheme Bearer by default
             headers=headers_401,
         )
@@ -90,7 +90,7 @@ class BeaconForbidden(web.HTTPForbidden):
     def __init__(self, request: Dict, host: str, error: str) -> None:
         """Return custom forbidden exception."""
         data = process_exception_data(request, host, 403, error)
-        super().__init__(content_type="application/json", text=json.dumps(data))
+        super().__init__(content_type="application/json", text=ujson.dumps(data, escape_forward_slashes=False))
         LOG.error(f"403 ERROR MESSAGE: {error}")
 
 
@@ -103,5 +103,5 @@ class BeaconServerError(web.HTTPInternalServerError):
     def __init__(self, error: str) -> None:
         """Return custom forbidden exception."""
         data = {"errorCode": 500, "errorMessage": error}
-        super().__init__(content_type="application/json", text=json.dumps(data))
+        super().__init__(content_type="application/json", text=ujson.dumps(data, escape_forward_slashes=False))
         LOG.error(f"500 ERROR MESSAGE: {error}")

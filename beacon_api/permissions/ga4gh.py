@@ -82,7 +82,7 @@ Bona Fide status is read from GA4GH RI claims of the type "AcceptedTermsAndPolic
 
 """
 import base64
-import json
+import ujson
 from typing import Dict, List, Tuple
 
 import aiohttp
@@ -137,7 +137,7 @@ async def decode_passport(encoded_passport: str) -> List[Dict]:
     decoded_segments = [base64.urlsafe_b64decode(seg) for seg in verified_segments]
 
     # Convert the decoded segment bytes into dicts for easy access
-    decoded_data = [json.loads(seg.decode("utf-8")) for seg in decoded_segments]
+    decoded_data = [ujson.loads(seg.decode("utf-8")) for seg in decoded_segments]
 
     return decoded_data
 

@@ -39,7 +39,7 @@ Below are the two ways of running this module (pip installed and uninstalled).
 import os
 import sys
 import argparse
-import json
+import ujson
 import itertools
 import re
 
@@ -232,7 +232,7 @@ class BeaconDB:
                 # read metadata from given JSON file
                 # TO DO: parse metadata directly from datafile if possible
                 LOG.info(meta_file)
-                metadata = json.load(meta_file)
+                metadata = ujson.load(meta_file)
             LOG.info(metadata)
             LOG.info("Metadata has been parsed")
             try:

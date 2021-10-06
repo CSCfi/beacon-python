@@ -9,7 +9,7 @@ Schemas available:
 * ``response.json`` - beacon API JSON response.
 """
 
-import json
+import ujson
 from typing import Dict
 from pathlib import Path
 
@@ -22,4 +22,4 @@ def load_schema(name: str) -> Dict:
     with open(str(path), "r") as fp:
         data = fp.read()
 
-    return json.loads(data)
+    return ujson.loads(data)
