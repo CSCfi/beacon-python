@@ -39,7 +39,7 @@ setup(
     install_requires=[
         "asyncpg==0.24.0",
         "aiohttp==3.7.4.post0",
-        "Authlib==0.15.4",
+        "Authlib==0.15.5",
         "aiohttp-cors==0.7.0",
         "jsonschema==3.2.0; python_version < '3.7'",
         "jsonschema==4.1.0; python_version >= '3.7'",
