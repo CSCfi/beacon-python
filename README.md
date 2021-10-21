@@ -28,7 +28,7 @@ It is recommended to start PostgreSQL using [Docker](https://www.docker.com/):
 ```shell
 docker run -e POSTGRES_USER=beacon \
            -e POSTGRES_PASSWORD=beacon \
-           -v "$PWD/data":/docker-entrypoint-initdb.d
+           -v "$PWD/data":/docker-entrypoint-initdb.d \
            -e POSTGRES_DB=beacondb \
            -p 5432:5432 postgres:11.6
 ```
