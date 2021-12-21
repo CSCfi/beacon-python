@@ -57,7 +57,7 @@ setup(
             "cyvcf2==0.10.1; python_version < '3.7'",
             "numpy==1.21.5",
             "cyvcf2; python_version >= '3.7'",
-            "Cython==0.29.25",
+            "Cython==0.29.26",
         ],
         "test": [
             "coverage==6.2",
