@@ -1,22 +1,24 @@
-FROM python:3.8-alpine3.13 as BUILD
+FROM python:3.8-alpine3.15 as BUILD
 
 RUN apk add --update \
     && apk add --no-cache build-base curl-dev linux-headers bash git musl-dev\
-    && apk add --no-cache libressl-dev libffi-dev autoconf bzip2-dev xz-dev\
+    && apk add --no-cache openssl-dev libffi-dev autoconf bzip2-dev xz-dev\
     && apk add --no-cache python3-dev rust cargo \
     && rm -rf /var/cache/apk/*
 
 COPY requirements.txt /root/beacon/requirements.txt
-COPY setup.py /root/beacon/setup.py
-COPY beacon_api /root/beacon/beacon_api
 
 ENV CYTHONIZE=1
 
 RUN pip install --upgrade pip && \
-    pip install -r /root/beacon/requirements.txt && \
-    pip install /root/beacon
+    pip install Cython==0.29.26 && \
+    pip install -r /root/beacon/requirements.txt
 
-FROM python:3.8-alpine3.13
+COPY setup.py /root/beacon/setup.py
+COPY beacon_api /root/beacon/beacon_api
+RUN pip install /root/beacon
+
+FROM python:3.8-alpine3.15
 
 RUN apk add --no-cache --update bash
 
