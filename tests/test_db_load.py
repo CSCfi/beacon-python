@@ -177,23 +177,23 @@ class DatabaseTestCase(asynctest.TestCase):
         19	112	.	A	G	10	.	.	GT:HQ	0|0:10,10	0|0:10,10	0/1:3,3
         20	14370	rs6054257	G	A	29	PASS	NS=3;DP=14;AF=0.5;DB;H2	GT:GQ:DP:HQ	0|0:48:1:51,51	1|0:48:8:51,51	1/1:43:5:.,.
         chrM 15011 . T C . PASS . GT:GQ:DP:RO:QR:AO:QA:GL 1:160:970:0:0:968:31792:-2860.58,0 1:160:970:0:0:968:31792:-2860.58,0"""
-        self.datafile = self._dir.write('data.csv', self.data.encode('utf-8'))
+        self.datafile = self._dir.write("data.csv", self.data.encode("utf-8"))
 
     def tearDown(self):
         """Close database connection after tests."""
         self._dir.cleanup_all()
 
-    @asynctest.mock.patch('beacon_api.utils.db_load.asyncpg.connect')
+    @asynctest.mock.patch("beacon_api.utils.db_load.asyncpg.connect")
     async def test_rchop(self, db_mock):
         """Test rchop for SVTYPE."""
         db_mock.return_value = Connection()
         await self._db.connection()
-        result = self._db._rchop('INS:ME:LINE1', ":LINE1")
-        self.assertEqual('INS:ME', result)
-        result_no_ending = self._db._rchop('INS', ":LINE1")
-        self.assertEqual('INS', result_no_ending)
+        result = self._db._rchop("INS:ME:LINE1", ":LINE1")
+        self.assertEqual("INS:ME", result)
+        result_no_ending = self._db._rchop("INS", ":LINE1")
+        self.assertEqual("INS", result_no_ending)
 
-    @asynctest.mock.patch('beacon_api.utils.db_load.asyncpg.connect')
+    @asynctest.mock.patch("beacon_api.utils.db_load.asyncpg.connect")
     async def test_handle_type(self, db_mock):
         """Test handle type."""
         db_mock.return_value = Connection()
@@ -203,32 +203,32 @@ class DatabaseTestCase(asynctest.TestCase):
         result_tuple = self._db._handle_type((0.1, 0.2), float)
         self.assertEqual([0.1, 0.2], result_tuple)
 
-    @asynctest.mock.patch('beacon_api.utils.db_load.asyncpg.connect')
+    @asynctest.mock.patch("beacon_api.utils.db_load.asyncpg.connect")
     async def test_bnd_parts(self, db_mock):
         """Test breakend parsing parts."""
         db_mock.return_value = Connection()
         await self._db.connection()
-        result = self._db._bnd_parts('[CHR17:31356925[N', '126_2')
-        self.assertEqual(('chr17', 31356925, True, True, 'N', True, '126_2'), result)
+        result = self._db._bnd_parts("[CHR17:31356925[N", "126_2")
+        self.assertEqual(("chr17", 31356925, True, True, "N", True, "126_2"), result)
 
-    @asynctest.mock.patch('beacon_api.utils.db_load.asyncpg')
+    @asynctest.mock.patch("beacon_api.utils.db_load.asyncpg")
     async def test_connection(self, db_mock):
         """Test database URL fetching."""
         await self._db.connection()
         db_mock.connect.assert_called()
 
-    @asynctest.mock.patch('beacon_api.utils.db_load.asyncpg.connect')
+    @asynctest.mock.patch("beacon_api.utils.db_load.asyncpg.connect")
     async def test_check_tables(self, db_mock):
         """Test checking tables."""
         db_mock.return_value = Connection()
         await self._db.connection()
         db_mock.assert_called()
-        result = await self._db.check_tables(['DATATSET1', 'DATATSET2'])
+        result = await self._db.check_tables(["DATATSET1", "DATATSET2"])
         # No Missing tables
         self.assertEqual(result, [])
 
-    @asynctest.mock.patch('beacon_api.utils.db_load.LOG')
-    @asynctest.mock.patch('beacon_api.utils.db_load.asyncpg.connect')
+    @asynctest.mock.patch("beacon_api.utils.db_load.LOG")
+    @asynctest.mock.patch("beacon_api.utils.db_load.asyncpg.connect")
     async def test_create_tables(self, db_mock, mock_log):
         """Test creating tables."""
         sql = """CREATE TABLE IF NOT EXISTS beacon_data_table (
@@ -238,24 +238,24 @@ class DatabaseTestCase(asynctest.TestCase):
         db_mock.return_value = Connection()
         await self._db.connection()
         db_mock.assert_called()
-        sql_file = self._dir.write('sql.init', sql.encode('utf-8'))
+        sql_file = self._dir.write("sql.init", sql.encode("utf-8"))
         await self._db.create_tables(sql_file)
         # Should assert logs
-        mock_log.info.assert_called_with('Tables have been created')
+        mock_log.info.assert_called_with("Tables have been created")
 
-    @asynctest.mock.patch('beacon_api.utils.db_load.LOG')
-    @asynctest.mock.patch('beacon_api.utils.db_load.asyncpg.connect')
+    @asynctest.mock.patch("beacon_api.utils.db_load.LOG")
+    @asynctest.mock.patch("beacon_api.utils.db_load.asyncpg.connect")
     async def test_create_tables_exception(self, db_mock, mock_log):
         """Test creating tables exception."""
         db_mock.return_value = ConnectionException()
         await self._db.connection()
-        await self._db.create_tables('sql.init')
+        await self._db.create_tables("sql.init")
         log = "AN ERROR OCCURRED WHILE ATTEMPTING TO CREATE TABLES -> [Errno 2] No such file or directory: 'sql.init'"
         mock_log.error.assert_called_with(log)
 
-    @asynctest.mock.patch('beacon_api.utils.db_load.LOG')
-    @asynctest.mock.patch('beacon_api.utils.db_load.asyncpg.connect')
-    @asynctest.mock.patch('beacon_api.utils.db_load.VCF')
+    @asynctest.mock.patch("beacon_api.utils.db_load.LOG")
+    @asynctest.mock.patch("beacon_api.utils.db_load.asyncpg.connect")
+    @asynctest.mock.patch("beacon_api.utils.db_load.VCF")
     async def test_load_metadata(self, mock_vcf, db_mock, mock_log):
         """Test load metadata."""
         metadata = """{"name": "ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf",
@@ -270,65 +270,61 @@ class DatabaseTestCase(asynctest.TestCase):
         db_mock.return_value = Connection()
         await self._db.connection()
         db_mock.assert_called()
-        metafile = self._dir.write('data.json', metadata.encode('utf-8'))
-        vcf = asynctest.mock.MagicMock(name='samples')
+        metafile = self._dir.write("data.json", metadata.encode("utf-8"))
+        vcf = asynctest.mock.MagicMock(name="samples")
         vcf.samples.return_value = [1, 2, 3]
         await self._db.load_metadata(vcf, metafile, self.datafile)
         # Should assert logs
-        mock_log.info.mock_calls = [f'Parsing metadata from {metafile}',
-                                    'Metadata has been parsed']
+        mock_log.info.mock_calls = [f"Parsing metadata from {metafile}", "Metadata has been parsed"]
 
-    @asynctest.mock.patch('beacon_api.utils.db_load.LOG')
-    @asynctest.mock.patch('beacon_api.utils.db_load.asyncpg.connect')
+    @asynctest.mock.patch("beacon_api.utils.db_load.LOG")
+    @asynctest.mock.patch("beacon_api.utils.db_load.asyncpg.connect")
     async def test_load_metadata_exception(self, db_mock, mock_log):
         """Test load metadata error."""
         db_mock.return_value = ConnectionException()
         await self._db.connection()
-        vcf = asynctest.mock.MagicMock(name='samples')
+        vcf = asynctest.mock.MagicMock(name="samples")
         vcf.samples.return_value = [1, 2, 3]
-        await self._db.load_metadata(vcf, 'meta.are', 'datafile')
+        await self._db.load_metadata(vcf, "meta.are", "datafile")
         log = "AN ERROR OCCURRED WHILE ATTEMPTING TO PARSE METADATA -> [Errno 2] No such file or directory: 'meta.are'"
         mock_log.error.assert_called_with(log)
 
-    @asynctest.mock.patch('beacon_api.utils.db_load.LOG')
-    @asynctest.mock.patch('beacon_api.utils.db_load.asyncpg.connect')
+    @asynctest.mock.patch("beacon_api.utils.db_load.LOG")
+    @asynctest.mock.patch("beacon_api.utils.db_load.asyncpg.connect")
     async def test_load_datafile(self, db_mock, mock_log):
         """Test load_datafile."""
         db_mock.return_value = Connection()
-        vcf = asynctest.mock.MagicMock(name='samples')
-        vcf.return_value = [{'record': 1}, {'record': 2}, {'records': 3}]
-        vcf.samples.return_value = [{'record': 1}, {'record': 2}, {'records': 3}]
+        vcf = asynctest.mock.MagicMock(name="samples")
+        vcf.return_value = [{"record": 1}, {"record": 2}, {"records": 3}]
+        vcf.samples.return_value = [{"record": 1}, {"record": 2}, {"records": 3}]
         await self._db.connection()
         db_mock.assert_called()
-        await self._db.load_datafile(vcf, self.datafile, 'DATASET1')
+        await self._db.load_datafile(vcf, self.datafile, "DATASET1")
         # Should assert logs
-        mock_log.info.mock_calls = [f'Read data from {self.datafile}',
-                                    f'{self.datafile} has been processed']
+        mock_log.info.mock_calls = [f"Read data from {self.datafile}", f"{self.datafile} has been processed"]
 
-    @asynctest.mock.patch('beacon_api.utils.db_load.LOG')
-    @asynctest.mock.patch('beacon_api.utils.db_load.asyncpg.connect')
+    @asynctest.mock.patch("beacon_api.utils.db_load.LOG")
+    @asynctest.mock.patch("beacon_api.utils.db_load.asyncpg.connect")
     async def test_insert_variants(self, db_mock, mock_log):
         """Test insert variants."""
         db_mock.return_value = Connection()
         await self._db.connection()
         db_mock.assert_called()
-        await self._db.insert_variants('DATASET1', ['C'], 1)
+        await self._db.insert_variants("DATASET1", ["C"], 1)
         # Should assert logs
-        mock_log.info.mock_calls = ['Received 1 variants for insertion to DATASET1',
-                                    'Insert variants into the database']
+        mock_log.info.mock_calls = ["Received 1 variants for insertion to DATASET1", "Insert variants into the database"]
 
-    @asynctest.mock.patch('beacon_api.utils.db_load.LOG')
-    @asynctest.mock.patch('beacon_api.utils.db_load.asyncpg.connect')
+    @asynctest.mock.patch("beacon_api.utils.db_load.LOG")
+    @asynctest.mock.patch("beacon_api.utils.db_load.asyncpg.connect")
     async def test_close(self, db_mock, mock_log):
         """Test database URL close."""
         db_mock.return_value = Connection()
         await self._db.connection()
         await self._db.close()
-        mock_log.info.mock_calls = ['Mark the database connection to be closed',
-                                    'The database connection has been closed']
+        mock_log.info.mock_calls = ["Mark the database connection to be closed", "The database connection has been closed"]
 
-    @asynctest.mock.patch('beacon_api.utils.db_load.LOG')
-    @asynctest.mock.patch('beacon_api.utils.db_load.asyncpg.connect')
+    @asynctest.mock.patch("beacon_api.utils.db_load.LOG")
+    @asynctest.mock.patch("beacon_api.utils.db_load.asyncpg.connect")
     async def test_close_error(self, db_mock, mock_log):
         """Test database URL close error."""
         db_mock.return_value = ConnectionException()
@@ -337,35 +333,35 @@ class DatabaseTestCase(asynctest.TestCase):
         log = "AN ERROR OCCURRED WHILE ATTEMPTING TO CLOSE DATABASE CONNECTION -> 'ConnectionException' object has no attribute 'close'"
         mock_log.error.assert_called_with(log)
 
-    @asynctest.mock.patch('beacon_api.utils.db_load.LOG')
-    @asynctest.mock.patch('beacon_api.utils.db_load.asyncpg.connect')
+    @asynctest.mock.patch("beacon_api.utils.db_load.LOG")
+    @asynctest.mock.patch("beacon_api.utils.db_load.asyncpg.connect")
     async def test_unpack(self, db_mock, mock_log):
         """Test database URL fetching."""
         db_mock.return_value = Connection()
         await self._db.connection()
-        inf1 = INFO((1), 'i', 3, None)
-        variant_1 = Variant(['C'], 'T', inf1, 0.7, 'indel', 3)
+        inf1 = INFO((1), "i", 3, None)
+        variant_1 = Variant(["C"], "T", inf1, 0.7, "indel", 3)
         result = self._db._unpack(variant_1)
-        self.assertEqual(([0.3333333333333333], [1], ['SNP'], ['C'], 3, []), result)
-        inf2 = INFO(1, 'M', 3, None)
-        variant_2 = Variant(['AT', 'A'], 'ATA', inf2, 0.7, 'mnp', 3)
+        self.assertEqual(([0.3333333333333333], [1], ["SNP"], ["C"], 3, []), result)
+        inf2 = INFO(1, "M", 3, None)
+        variant_2 = Variant(["AT", "A"], "ATA", inf2, 0.7, "mnp", 3)
         result = self._db._unpack(variant_2)
-        self.assertEqual(([0.3333333333333333], [1], ['DEL', 'DEL'], ['AT', 'A'], 3, []), result)
-        inf3 = INFO((1), 'S', 3, 0.5)
-        variant_3 = Variant(['TC'], 'T', inf3, 0.7, 'snp', 3)
+        self.assertEqual(([0.3333333333333333], [1], ["DEL", "DEL"], ["AT", "A"], 3, []), result)
+        inf3 = INFO((1), "S", 3, 0.5)
+        variant_3 = Variant(["TC"], "T", inf3, 0.7, "snp", 3)
         result = self._db._unpack(variant_3)
-        self.assertEqual(([0.5], [1], ['INS'], ['TC'], 3, []), result)
-        inf4 = INFO((1), '<INS:ME>', 3, None, 'BND')
-        variant_4 = Variant(['TC'], 'T', inf4, 0.7, 'snp', 3)
+        self.assertEqual(([0.5], [1], ["INS"], ["TC"], 3, []), result)
+        inf4 = INFO((1), "<INS:ME>", 3, None, "BND")
+        variant_4 = Variant(["TC"], "T", inf4, 0.7, "snp", 3)
         result = self._db._unpack(variant_4)
-        self.assertEqual(([0.3333333333333333], [1], ['SNP'], ['TC'], 3, []), result)
-        inf5 = INFO((1), 'S', 3, None, '<INS:ME>')
-        variant_5 = Variant(['TC'], 'T', inf5, 0.7, 'ins', 3)
+        self.assertEqual(([0.3333333333333333], [1], ["SNP"], ["TC"], 3, []), result)
+        inf5 = INFO((1), "S", 3, None, "<INS:ME>")
+        variant_5 = Variant(["TC"], "T", inf5, 0.7, "ins", 3)
         result5 = self._db._unpack(variant_5)
-        self.assertEqual(([0.3333333333333333], [1], ['INS'], ['TC'], 3, []), result5)
+        self.assertEqual(([0.3333333333333333], [1], ["INS"], ["TC"], 3, []), result5)
 
-    @asynctest.mock.patch('beacon_api.utils.db_load.LOG')
-    @asynctest.mock.patch('beacon_api.utils.db_load.asyncpg.connect')
+    @asynctest.mock.patch("beacon_api.utils.db_load.LOG")
+    @asynctest.mock.patch("beacon_api.utils.db_load.asyncpg.connect")
     async def test_chunks(self, db_mock, mock_log):
         """Test database URL fetching."""
         db_mock.return_value = Connection()
@@ -378,5 +374,5 @@ class DatabaseTestCase(asynctest.TestCase):
         self.assertEqual([[(1, 2)], [(2, 3)]], lines)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
