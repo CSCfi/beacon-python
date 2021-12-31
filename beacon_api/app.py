@@ -127,11 +127,11 @@ def main():
     # sslcontext.check_hostname = False
     web.run_app(
         init(),
-        host=os.environ.get("HOST", "0.0.0.0"),
+        host=os.environ.get("HOST", "0.0.0.0"),  # nosec
         port=os.environ.get("PORT", "5050"),
         shutdown_timeout=0,
         ssl_context=None,
-    )  # nosec  # nosec
+    )
 
 
 if __name__ == "__main__":

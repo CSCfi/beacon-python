@@ -35,7 +35,17 @@ def process_exception_data(request: Dict, host: str, error_code: int, error: str
     # include datasetIds only if they are specified
     # as per specification if they don't exist all datatsets will be queried
     # Only one of `alternateBases` or `variantType` is required, validated by schema
-    oneof_fields = ["alternateBases", "variantType", "start", "end", "startMin", "startMax", "endMin", "endMax", "datasetIds"]
+    oneof_fields = [
+        "alternateBases",
+        "variantType",
+        "start",
+        "end",
+        "startMin",
+        "startMax",
+        "endMin",
+        "endMax",
+        "datasetIds",
+    ]
     data["alleleRequest"].update({k: request.get(k) for k in oneof_fields if k in request})
 
     return data
@@ -65,11 +75,7 @@ class BeaconUnauthorised(web.HTTPUnauthorized):
     def __init__(self, request: Dict, host: str, error: str, error_message: str) -> None:
         """Return custom unauthorized exception."""
         data = process_exception_data(request, host, 401, error)
-        headers_401 = {
-            "WWW-Authenticate": f'Bearer realm="{CONFIG_INFO.url}"\n\
-                         error="{error}"\n\
-                         error_description="{error_message}"'
-        }
+        headers_401 = {"WWW-Authenticate": f"""Bearer realm=\"{CONFIG_INFO.url}\",error=\"{error},\" error_description=\"{error_message}\""""}
         super().__init__(
             content_type="application/json",
             text=ujson.dumps(data, escape_forward_slashes=False),

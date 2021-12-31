@@ -1,6 +1,6 @@
 from beacon_api.api.info import beacon_info, ga4gh_info
 from beacon_api.api.query import query_request_handler
-import asynctest
+import unittest
 from beacon_api.schemas import load_schema
 from beacon_api.utils.validate_jwt import get_key
 from beacon_api.permissions.ga4gh import retrieve_user_data, get_jwk
@@ -56,14 +56,14 @@ mock_data = [
 ]
 
 
-class TestBasicFunctions(asynctest.TestCase):
+class TestBasicFunctions(unittest.IsolatedAsyncioTestCase):
     """Test supporting functions."""
 
-    @asynctest.mock.patch("beacon_api.api.info.fetch_dataset_metadata")
+    @unittest.mock.patch("beacon_api.api.info.fetch_dataset_metadata")
     async def test_beacon_info(self, db_metadata):
         """Test info metadata response."""
         db_metadata.return_value = [mock_dataset_metadata]
-        pool = asynctest.CoroutineMock()
+        pool = unittest.mock.AsyncMock()
         result = await beacon_info("localhost", pool)
         # if it is none no error occurred
         self.assertEqual(jsonschema.validate(json.loads(json.dumps(result)), load_schema("info")), None)
@@ -75,13 +75,13 @@ class TestBasicFunctions(asynctest.TestCase):
         # if it is none no error occurred
         self.assertEqual(jsonschema.validate(json.loads(json.dumps(result)), load_schema("service-info")), None)
 
-    @asynctest.mock.patch("beacon_api.api.query.find_datasets")
-    @asynctest.mock.patch("beacon_api.api.query.fetch_datasets_access")
+    @unittest.mock.patch("beacon_api.api.query.find_datasets")
+    @unittest.mock.patch("beacon_api.api.query.fetch_datasets_access")
     async def test_beacon_query(self, fetch_req_datasets, data_find):
         """Test query data response."""
         data_find.return_value = mock_data
         fetch_req_datasets.return_value = mock_controlled
-        pool = asynctest.CoroutineMock()
+        pool = unittest.mock.AsyncMock()
         request = {
             "assemblyId": "GRCh38",
             "referenceName": "MT",
@@ -97,13 +97,13 @@ class TestBasicFunctions(asynctest.TestCase):
         self.assertEqual(jsonschema.validate(json.loads(json.dumps(result)), load_schema("response")), None)
         data_find.assert_called()
 
-    @asynctest.mock.patch("beacon_api.api.query.find_fusion")
-    @asynctest.mock.patch("beacon_api.api.query.fetch_datasets_access")
+    @unittest.mock.patch("beacon_api.api.query.find_fusion")
+    @unittest.mock.patch("beacon_api.api.query.fetch_datasets_access")
     async def test_beacon_query_bnd(self, fetch_req_datasets, data_find):
         """Test query data response."""
         data_find.return_value = mock_data
         fetch_req_datasets.return_value = mock_controlled
-        pool = asynctest.CoroutineMock()
+        pool = unittest.mock.AsyncMock()
         request = {
             "assemblyId": "GRCh38",
             "referenceName": "MT",
@@ -171,13 +171,13 @@ f9BjIARRfVrbxVxiZHjU6zL6jY5QJdh1QCmENoejj_ytspMmGW7yMRxzUqgxcAqOBpVm0b-_mW3HoBdj
         self.assertTrue(isinstance(result, dict))
         self.assertTrue(result["keys"][0]["alg"], "RSA256")
 
-    @asynctest.mock.patch("beacon_api.permissions.ga4gh.LOG")
+    @unittest.mock.patch("beacon_api.permissions.ga4gh.LOG")
     async def test_get_jwk_bad(self, mock_log):
         """Test get JWK exception log."""
         await get_jwk("http://test.csc.fi/jwk")
         mock_log.error.assert_called_with("Could not retrieve JWK from http://test.csc.fi/jwk")
 
-    @asynctest.mock.patch("beacon_api.utils.validate_jwt.OAUTH2_CONFIG", return_value={"server": None})
+    @unittest.mock.patch("beacon_api.utils.validate_jwt.OAUTH2_CONFIG", return_value={"server": None})
     async def test_bad_get_key(self, oauth_none):
         """Test bad test_get_key."""
         with self.assertRaises(aiohttp.web_exceptions.HTTPInternalServerError):

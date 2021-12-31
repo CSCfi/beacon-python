@@ -46,7 +46,6 @@ setup(
         "uvloop==0.16.0",
         "cyvcf2==0.30.14",
         "aiocache==0.11.1",
-        "aiomcache==0.6.0",
         "ujson==5.1.0",
     ],
     extras_require={
@@ -63,7 +62,6 @@ setup(
             "tox==3.24.4",
             "flake8==4.0.1",
             "flake8-docstrings==1.6.0",
-            "asynctest==0.13.0",
             "aioresponses==0.7.2",
             "black==21.12b0",
         ],
