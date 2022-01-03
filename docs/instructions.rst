@@ -208,7 +208,7 @@ As an example, a dataset metadata could be:
 .. code-block:: javascript
 
     {
-        "name": "1000 genomoe",
+        "name": "1000 genome",
         "datasetId": "urn:hg:1000genome",
         "description": "Data from 1000 genome project",
         "assemblyId": "GRCh38",

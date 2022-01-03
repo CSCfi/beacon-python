@@ -60,7 +60,7 @@ Example Response:
       "updateDateTime": "2018-12-01T10:28:07Z",
       "datasets": [{
         "id": "urn:hg:1000genome",
-        "name": "1000 genomoe",
+        "name": "1000 genome",
         "externalUrl": "ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/",
         "description": "Data from 1000 genome project",
         "assemblyId": "GRCh38",
