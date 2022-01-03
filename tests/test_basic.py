@@ -1,4 +1,4 @@
-import asynctest
+import unittest
 import aiohttp
 from beacon_api.utils.db_load import parse_arguments, init_beacon_db, main
 from beacon_api.conf.config import init_db_pool
@@ -13,9 +13,7 @@ from test.support import EnvironmentVarGuard
 
 def mock_token(bona_fide, permissions, auth):
     """Mock a processed token."""
-    return {"bona_fide_status": bona_fide,
-            "permissions": permissions,
-            "authenticated": auth}
+    return {"bona_fide_status": bona_fide, "permissions": permissions, "authenticated": auth}
 
 
 class MockDecodedPassport:
@@ -53,7 +51,7 @@ class MockBeaconDB:
 
     async def check_tables(self, array):
         """Mimic check_tables."""
-        return ['DATASET1', 'DATASET2']
+        return ["DATASET1", "DATASET2"]
 
     async def create_tables(self, sql_file):
         """Mimic create_tables."""
@@ -72,7 +70,7 @@ class MockBeaconDB:
         return ["datasetId", "variants"]
 
 
-class TestBasicFunctions(asynctest.TestCase):
+class TestBasicFunctions(unittest.IsolatedAsyncioTestCase):
     """Test supporting functions."""
 
     def setUp(self):
@@ -85,21 +83,21 @@ class TestBasicFunctions(asynctest.TestCase):
 
     def test_parser(self):
         """Test argument parsing."""
-        parsed = parse_arguments(['/path/to/datafile.csv', '/path/to/metadata.json'])
-        self.assertEqual(parsed.datafile, '/path/to/datafile.csv')
-        self.assertEqual(parsed.metadata, '/path/to/metadata.json')
+        parsed = parse_arguments(["/path/to/datafile.csv", "/path/to/metadata.json"])
+        self.assertEqual(parsed.datafile, "/path/to/datafile.csv")
+        self.assertEqual(parsed.metadata, "/path/to/metadata.json")
 
-    @asynctest.mock.patch('beacon_api.conf.config.asyncpg')
+    @unittest.mock.patch("beacon_api.conf.config.asyncpg")
     async def test_init_pool(self, db_mock):
         """Test database connection pool creation."""
-        db_mock.return_value = asynctest.CoroutineMock(name='create_pool')
-        db_mock.create_pool = asynctest.CoroutineMock()
+        db_mock.return_value = unittest.mock.AsyncMock(name="create_pool")
+        db_mock.create_pool = unittest.mock.AsyncMock()
         await init_db_pool()
         db_mock.create_pool.assert_called()
 
-    @asynctest.mock.patch('beacon_api.utils.db_load.LOG')
-    @asynctest.mock.patch('beacon_api.utils.db_load.BeaconDB')
-    @asynctest.mock.patch('beacon_api.utils.db_load.VCF')
+    @unittest.mock.patch("beacon_api.utils.db_load.LOG")
+    @unittest.mock.patch("beacon_api.utils.db_load.BeaconDB")
+    @unittest.mock.patch("beacon_api.utils.db_load.VCF")
     async def test_init_beacon_db(self, mock_vcf, db_mock, mock_log):
         """Test beacon_init db call."""
         db_mock.return_value = MockBeaconDB()
@@ -110,14 +108,16 @@ class TestBasicFunctions(asynctest.TestCase):
                     "sampleCount": 2504,
                     "externalUrl": "https://datasethost.org/dataset1",
                     "accessType": "PUBLIC"}"""
-        metafile = self._dir.write('data.json', metadata.encode('utf-8'))
+        metafile = self._dir.write("data.json", metadata.encode("utf-8"))
         data = """MOCK VCF file"""
-        datafile = self._dir.write('data.vcf', data.encode('utf-8'))
+        datafile = self._dir.write("data.vcf", data.encode("utf-8"))
         await init_beacon_db([datafile, metafile])
-        mock_log.info.mock_calls = ['Mark the database connection to be closed',
-                                    'The database connection has been closed']
+        mock_log.info.mock_calls = [
+            "Mark the database connection to be closed",
+            "The database connection has been closed",
+        ]
 
-    @asynctest.mock.patch('beacon_api.utils.db_load.init_beacon_db')
+    @unittest.mock.patch("beacon_api.utils.db_load.init_beacon_db")
     def test_main_db(self, mock_init):
         """Test run asyncio main beacon init."""
         main()
@@ -126,18 +126,18 @@ class TestBasicFunctions(asynctest.TestCase):
     def test_aud_claim(self):
         """Test aud claim function."""
         env = EnvironmentVarGuard()
-        env.set('JWT_AUD', "aud1,aud2")
+        env.set("JWT_AUD", "aud1,aud2")
         result = verify_aud_claim()
         # Because it is false we expect it not to be parsed
         expected = (False, [])
         self.assertEqual(result, expected)
-        env.unset('JWT_AUD')
+        env.unset("JWT_AUD")
 
     def test_token_scheme_check_bad(self):
         """Test token scheme no token."""
         # This might never happen, yet lets prepare for it
         with self.assertRaises(aiohttp.web_exceptions.HTTPUnauthorized):
-            token_scheme_check("", 'https', {}, 'localhost')
+            token_scheme_check("", "https", {}, "localhost")
 
     def test_access_resolution_base(self):
         """Test assumptions for access resolution.
@@ -146,9 +146,9 @@ class TestBasicFunctions(asynctest.TestCase):
         """
         request = PARAMS
         token = mock_token(False, [], False)
-        host = 'localhost'
+        host = "localhost"
         result = access_resolution(request, token, host, ["1", "2"], ["3", "4"], ["5", "6"])
-        self.assertListEqual(result[0], ['PUBLIC'])
+        self.assertListEqual(result[0], ["PUBLIC"])
         intermediate_list = result[1]
         intermediate_list.sort()
         self.assertListEqual(["1", "2"], intermediate_list)
@@ -160,9 +160,9 @@ class TestBasicFunctions(asynctest.TestCase):
         """
         request = PARAMS
         token = mock_token(False, [], True)
-        host = 'localhost'
+        host = "localhost"
         result = access_resolution(request, token, host, ["1", "2"], ["3", "4"], ["5", "6"])
-        self.assertListEqual(result[0], ['PUBLIC'])
+        self.assertListEqual(result[0], ["PUBLIC"])
         intermediate_list = result[1]
         intermediate_list.sort()
         self.assertListEqual(["1", "2"], intermediate_list)
@@ -174,9 +174,9 @@ class TestBasicFunctions(asynctest.TestCase):
         """
         request = PARAMS
         token = mock_token(True, [], True)
-        host = 'localhost'
+        host = "localhost"
         result = access_resolution(request, token, host, ["1", "2"], ["3", "4"], ["5", "6"])
-        self.assertListEqual(result[0], ['PUBLIC', 'REGISTERED'])
+        self.assertListEqual(result[0], ["PUBLIC", "REGISTERED"])
         intermediate_list = result[1]
         intermediate_list.sort()
         self.assertListEqual(["1", "2", "3", "4"], intermediate_list)
@@ -188,9 +188,9 @@ class TestBasicFunctions(asynctest.TestCase):
         """
         request = PARAMS
         token = mock_token(False, ["5", "6"], True)
-        host = 'localhost'
+        host = "localhost"
         result = access_resolution(request, token, host, ["1", "2"], ["3", "4"], ["5", "6"])
-        self.assertListEqual(result[0], ['PUBLIC', 'CONTROLLED'])
+        self.assertListEqual(result[0], ["PUBLIC", "CONTROLLED"])
         intermediate_list = result[1]
         intermediate_list.sort()
         self.assertListEqual(["1", "2", "5", "6"], intermediate_list)
@@ -202,9 +202,9 @@ class TestBasicFunctions(asynctest.TestCase):
         """
         request = PARAMS
         token = mock_token(True, ["5", "6"], True)
-        host = 'localhost'
+        host = "localhost"
         result = access_resolution(request, token, host, ["1", "2"], ["3", "4"], ["5", "6"])
-        self.assertListEqual(result[0], ['PUBLIC', 'REGISTERED', 'CONTROLLED'])
+        self.assertListEqual(result[0], ["PUBLIC", "REGISTERED", "CONTROLLED"])
         intermediate_list = result[1]
         intermediate_list.sort()
         self.assertListEqual(["1", "2", "3", "4", "5", "6"], intermediate_list)
@@ -216,7 +216,7 @@ class TestBasicFunctions(asynctest.TestCase):
         """
         request = PARAMS
         token = mock_token(False, [], False)
-        host = 'localhost'
+        host = "localhost"
         with self.assertRaises(aiohttp.web_exceptions.HTTPUnauthorized):
             access_resolution(request, token, host, [], ["3"], [])
 
@@ -227,7 +227,7 @@ class TestBasicFunctions(asynctest.TestCase):
         """
         request = PARAMS
         token = mock_token(False, [], True)
-        host = 'localhost'
+        host = "localhost"
         with self.assertRaises(aiohttp.web_exceptions.HTTPForbidden):
             access_resolution(request, token, host, [], ["4"], [])
 
@@ -238,7 +238,7 @@ class TestBasicFunctions(asynctest.TestCase):
         """
         request = PARAMS
         token = mock_token(False, [7], True)
-        host = 'localhost'
+        host = "localhost"
         with self.assertRaises(aiohttp.web_exceptions.HTTPForbidden):
             access_resolution(request, token, host, [], ["6"], [])
 
@@ -249,7 +249,7 @@ class TestBasicFunctions(asynctest.TestCase):
         """
         request = PARAMS
         token = mock_token(False, [], False)
-        host = 'localhost'
+        host = "localhost"
         with self.assertRaises(aiohttp.web_exceptions.HTTPUnauthorized):
             access_resolution(request, token, host, [], ["5"], [])
 
@@ -260,9 +260,9 @@ class TestBasicFunctions(asynctest.TestCase):
         """
         request = PARAMS
         token = mock_token(False, ["7"], True)
-        host = 'localhost'
+        host = "localhost"
         result = access_resolution(request, token, host, ["2"], ["6"], [])
-        self.assertEqual(result, (['PUBLIC'], ["2"]))
+        self.assertEqual(result, (["PUBLIC"], ["2"]))
 
     def test_access_resolution_controlled_some(self):
         """Test assumptions for access resolution for requested controlled some datasets.
@@ -271,9 +271,9 @@ class TestBasicFunctions(asynctest.TestCase):
         """
         request = PARAMS
         token = mock_token(False, ["5"], True)
-        host = 'localhost'
+        host = "localhost"
         result = access_resolution(request, token, host, [], [], ["5", "6"])
-        self.assertEqual(result, (['CONTROLLED'], ["5"]))
+        self.assertEqual(result, (["CONTROLLED"], ["5"]))
 
     def test_access_resolution_controlled_no_perms_public(self):
         """Test assumptions for access resolution for requested controlled and public, returning public only.
@@ -282,9 +282,9 @@ class TestBasicFunctions(asynctest.TestCase):
         """
         request = PARAMS
         token = mock_token(False, [], False)
-        host = 'localhost'
+        host = "localhost"
         result = access_resolution(request, token, host, ["1"], [], ["5"])
-        self.assertEqual(result, (['PUBLIC'], ["1"]))
+        self.assertEqual(result, (["PUBLIC"], ["1"]))
 
     def test_access_resolution_controlled_no_perms_bonafide(self):
         """Test assumptions for access resolution for requested controlled and registered, returning registered only.
@@ -293,9 +293,9 @@ class TestBasicFunctions(asynctest.TestCase):
         """
         request = PARAMS
         token = mock_token(True, [], True)
-        host = 'localhost'
+        host = "localhost"
         result = access_resolution(request, token, host, [], ["4"], ["7"])
-        self.assertEqual(result, (['REGISTERED'], ["4"]))
+        self.assertEqual(result, (["REGISTERED"], ["4"]))
 
     def test_access_resolution_controlled_never_reached(self):
         """Test assumptions for access resolution for requested controlled unauthorized.
@@ -305,7 +305,7 @@ class TestBasicFunctions(asynctest.TestCase):
         """
         request = PARAMS
         token = mock_token(False, None, False)
-        host = 'localhost'
+        host = "localhost"
         with self.assertRaises(aiohttp.web_exceptions.HTTPUnauthorized):
             access_resolution(request, token, host, [], [], ["8"])
 
@@ -317,57 +317,80 @@ class TestBasicFunctions(asynctest.TestCase):
         """
         request = PARAMS
         token = mock_token(False, None, True)
-        host = 'localhost'
+        host = "localhost"
         with self.assertRaises(aiohttp.web_exceptions.HTTPForbidden):
             access_resolution(request, token, host, [], [], ["8"])
 
-    @asynctest.mock.patch('beacon_api.permissions.ga4gh.validate_passport')
+    @unittest.mock.patch("beacon_api.permissions.ga4gh.validate_passport")
     async def test_ga4gh_controlled(self, m_validation):
         """Test ga4gh permissions claim parsing."""
         # Test: no passports, no permissions
         datasets = await get_ga4gh_controlled([])
         self.assertEqual(datasets, set())
         # Test: 1 passport, 1 unique dataset, 1 permission
-        passport = {"ga4gh_visa_v1": {"type": "ControlledAccessGrants",
-                                      "value": "https://institution.org/EGAD01",
-                                      "source": "https://ga4gh.org/duri/no_org",
-                                      "by": "self",
-                                      "asserted": 1539069213,
-                                      "expires": 4694742813}}
+        passport = {
+            "ga4gh_visa_v1": {
+                "type": "ControlledAccessGrants",
+                "value": "https://institution.org/EGAD01",
+                "source": "https://ga4gh.org/duri/no_org",
+                "by": "self",
+                "asserted": 1539069213,
+                "expires": 4694742813,
+            }
+        }
         m_validation.return_value = passport
         dataset = await get_ga4gh_controlled([{}])  # one passport
-        self.assertEqual(dataset, {'EGAD01'})
+        self.assertEqual(dataset, {"EGAD01"})
         # Test: 2 passports, 1 unique dataset, 1 permission (permissions must not be duplicated)
-        passport = {"ga4gh_visa_v1": {"type": "ControlledAccessGrants",
-                                      "value": "https://institution.org/EGAD01",
-                                      "source": "https://ga4gh.org/duri/no_org",
-                                      "by": "self",
-                                      "asserted": 1539069213,
-                                      "expires": 4694742813}}
+        passport = {
+            "ga4gh_visa_v1": {
+                "type": "ControlledAccessGrants",
+                "value": "https://institution.org/EGAD01",
+                "source": "https://ga4gh.org/duri/no_org",
+                "by": "self",
+                "asserted": 1539069213,
+                "expires": 4694742813,
+            }
+        }
         m_validation.return_value = passport
         dataset = await get_ga4gh_controlled([{}, {}])  # two passports
-        self.assertEqual(dataset, {'EGAD01'})
+        self.assertEqual(dataset, {"EGAD01"})
         # Test: 2 passports, 2 unique datasets, 2 permissions
         # Can't test this case with the current design!
         # Would need a way for validate_passport() to mock two different results
 
     async def test_ga4gh_bona_fide(self):
         """Test ga4gh statuses claim parsing."""
-        passports = [("enc", "header", {
-                     "ga4gh_visa_v1": {"type": "AcceptedTermsAndPolicies",
-                                       "value": "https://doi.org/10.1038/s41431-018-0219-y",
-                                       "source": "https://ga4gh.org/duri/no_org",
-                                       "by": "self",
-                                       "asserted": 1539069213,
-                                       "expires": 4694742813}
-                     }),
-                     ("enc", "header", {
-                      "ga4gh_visa_v1": {"type": "ResearcherStatus",
-                                        "value": "https://doi.org/10.1038/s41431-018-0219-y",
-                                        "source": "https://ga4gh.org/duri/no_org",
-                                        "by": "peer",
-                                        "asserted": 1539017776,
-                                        "expires": 1593165413}})]
+        passports = [
+            (
+                "enc",
+                "header",
+                {
+                    "ga4gh_visa_v1": {
+                        "type": "AcceptedTermsAndPolicies",
+                        "value": "https://doi.org/10.1038/s41431-018-0219-y",
+                        "source": "https://ga4gh.org/duri/no_org",
+                        "by": "self",
+                        "asserted": 1539069213,
+                        "expires": 4694742813,
+                    }
+                },
+            ),
+            (
+                "enc",
+                "header",
+                {
+                    "ga4gh_visa_v1": {
+                        "type": "ResearcherStatus",
+                        "value": "https://doi.org/10.1038/s41431-018-0219-y",
+                        "source": "https://ga4gh.org/duri/no_org",
+                        "by": "peer",
+                        "asserted": 1539017776,
+                        "expires": 1593165413,
+                    }
+                },
+            ),
+        ]
         # Good test: both required passport types contained the correct value
         bona_fide_status = await get_ga4gh_bona_fide(passports)
         self.assertEqual(bona_fide_status, True)  # has bona fide
@@ -376,12 +399,12 @@ class TestBasicFunctions(asynctest.TestCase):
         bona_fide_status = await get_ga4gh_bona_fide(passports_empty)
         self.assertEqual(bona_fide_status, False)  # doesn't have bona fide
 
-    @asynctest.mock.patch('beacon_api.permissions.ga4gh.get_jwk')
-    @asynctest.mock.patch('beacon_api.permissions.ga4gh.jwt')
-    @asynctest.mock.patch('beacon_api.permissions.ga4gh.LOG')
+    @unittest.mock.patch("beacon_api.permissions.ga4gh.get_jwk")
+    @unittest.mock.patch("beacon_api.permissions.ga4gh.jwt")
+    @unittest.mock.patch("beacon_api.permissions.ga4gh.LOG")
     async def test_validate_passport(self, mock_log, m_jwt, m_jwk):
         """Test passport validation."""
-        m_jwk.return_value = 'jwk'
+        m_jwk.return_value = "jwk"
         # Test: validation passed
         m_jwt.return_value = MockDecodedPassport()
         await validate_passport({})
@@ -394,7 +417,7 @@ class TestBasicFunctions(asynctest.TestCase):
         # need to assert the log called
         mock_log.error.assert_called_with("Something went wrong when processing JWT tokens: 1")
 
-    @asynctest.mock.patch('beacon_api.permissions.ga4gh.get_ga4gh_permissions')
+    @unittest.mock.patch("beacon_api.permissions.ga4gh.get_ga4gh_permissions")
     async def test_check_ga4gh_token(self, m_get_perms):
         """Test token scopes."""
         # Test: no scope found
@@ -403,28 +426,28 @@ class TestBasicFunctions(asynctest.TestCase):
         self.assertEqual(dataset_permissions, set())
         self.assertEqual(bona_fide_status, False)
         # Test: scope is ok, but no claims
-        decoded_data = {'scope': ''}
+        decoded_data = {"scope": ""}
         dataset_permissions, bona_fide_status = await check_ga4gh_token(decoded_data, {}, False, set())
         self.assertEqual(dataset_permissions, set())
         self.assertEqual(bona_fide_status, False)
         # Test: scope is ok, claims are ok
-        m_get_perms.return_value = {'EGAD01'}, True
-        decoded_data = {'scope': 'openid ga4gh_passport_v1'}
+        m_get_perms.return_value = {"EGAD01"}, True
+        decoded_data = {"scope": "openid ga4gh_passport_v1"}
         dataset_permissions, bona_fide_status = await check_ga4gh_token(decoded_data, {}, False, set())
-        self.assertEqual(dataset_permissions, {'EGAD01'})
+        self.assertEqual(dataset_permissions, {"EGAD01"})
         self.assertEqual(bona_fide_status, True)
 
     async def test_decode_passport(self):
         """Test key-less JWT decoding."""
-        token, _ = generate_token('http://test.csc.fi')
+        token, _ = generate_token("http://test.csc.fi")
         header, payload = await decode_passport(token)
-        self.assertEqual(header.get('alg'), 'HS256')
-        self.assertEqual(payload.get('iss'), 'http://test.csc.fi')
+        self.assertEqual(header.get("alg"), "HS256")
+        self.assertEqual(payload.get("iss"), "http://test.csc.fi")
 
-    @asynctest.mock.patch('beacon_api.permissions.ga4gh.get_ga4gh_bona_fide')
-    @asynctest.mock.patch('beacon_api.permissions.ga4gh.get_ga4gh_controlled')
-    @asynctest.mock.patch('beacon_api.permissions.ga4gh.decode_passport')
-    @asynctest.mock.patch('beacon_api.permissions.ga4gh.retrieve_user_data')
+    @unittest.mock.patch("beacon_api.permissions.ga4gh.get_ga4gh_bona_fide")
+    @unittest.mock.patch("beacon_api.permissions.ga4gh.get_ga4gh_controlled")
+    @unittest.mock.patch("beacon_api.permissions.ga4gh.decode_passport")
+    @unittest.mock.patch("beacon_api.permissions.ga4gh.retrieve_user_data")
     async def test_get_ga4gh_permissions(self, m_userinfo, m_decode, m_controlled, m_bonafide):
         """Test GA4GH permissions main function."""
         # Test: no data (nothing)
@@ -440,25 +463,17 @@ class TestBasicFunctions(asynctest.TestCase):
         # Test: permissions
         m_userinfo.return_value = [{}]
         header = {}
-        payload = {
-            'ga4gh_visa_v1': {
-                'type': 'ControlledAccessGrants'
-            }
-        }
+        payload = {"ga4gh_visa_v1": {"type": "ControlledAccessGrants"}}
         m_decode.return_value = header, payload
-        m_controlled.return_value = {'EGAD01'}
+        m_controlled.return_value = {"EGAD01"}
         m_bonafide.return_value = False
         dataset_permissions, bona_fide_status = await get_ga4gh_permissions({})
-        self.assertEqual(dataset_permissions, {'EGAD01'})
+        self.assertEqual(dataset_permissions, {"EGAD01"})
         self.assertEqual(bona_fide_status, False)
         # Test: bona fide
         m_userinfo.return_value = [{}]
         header = {}
-        payload = {
-            'ga4gh_visa_v1': {
-                'type': 'ResearcherStatus'
-            }
-        }
+        payload = {"ga4gh_visa_v1": {"type": "ResearcherStatus"}}
         m_decode.return_value = header, payload
         m_controlled.return_value = set()
         m_bonafide.return_value = True
@@ -467,5 +482,5 @@ class TestBasicFunctions(asynctest.TestCase):
         self.assertEqual(bona_fide_status, True)
 
 
-if __name__ == '__main__':
-    asynctest.main()
+if __name__ == "__main__":
+    unittest.main()

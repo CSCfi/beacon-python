@@ -1,0 +1,27 @@
+matrix:
+- name: Markdown
+  aspell:
+    lang: en
+  dictionary:
+    wordlists:
+    - .wordlist.txt
+    encoding: utf-8
+  pipeline:
+  - pyspelling.filters.markdown:
+  - pyspelling.filters.context:
+      context_visible_first: true
+      escapes: '\\[\\`~]'
+      delimiters:
+      # Ignore text between inline back ticks as this is code or hightlight words
+      - open: '(?P<open>`+)'
+        close: '(?P=open)'
+      # Ignore surrounded in <> as in RST it is link
+      - open: '<([A-Za-z0-9-_:.]+)|(https?://[^\\s/$.?#].[^\\s]+|[A-Za-z0-9-_:.]+)'
+        close: '>'
+      # Ignore code in RST starting with $
+      - open: '\$.+'
+        close: ''
+  sources:
+  - 'docs/*.rst'
+  - '**/*.md'
+  default_encoding: utf-8

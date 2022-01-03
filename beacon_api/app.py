@@ -17,7 +17,7 @@ from .utils.validate_json import validate, parse_request_object
 from .utils.validate_jwt import token_auth
 import uvloop
 import asyncio
-import json
+import ujson
 
 routes = web.RouteTableDef()
 asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
@@ -59,7 +59,7 @@ async def beacon_get_query(request: web.Request) -> web.Response:
     method, processed_request = await parse_request_object(request)
     params = request.app["pool"], method, processed_request, request["token"], request.host
     response = await query_request_handler(params)
-    return web.json_response(response, content_type="application/json", dumps=json.dumps)
+    return web.json_response(response, content_type="application/json", dumps=ujson.dumps)
 
 
 @routes.post("/query")
@@ -69,7 +69,7 @@ async def beacon_post_query(request: web.Request) -> web.Response:
     method, processed_request = await parse_request_object(request)
     params = request.app["pool"], method, processed_request, request["token"], request.host
     response = await query_request_handler(params)
-    return web.json_response(response, content_type="application/json", dumps=json.dumps)
+    return web.json_response(response, content_type="application/json", dumps=ujson.dumps)
 
 
 async def initialize(app: web.Application) -> None:
@@ -125,11 +125,17 @@ def main():
     # sslcontext.load_cert_chain(ssl_certfile, ssl_keyfile)
     # sslcontext = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
     # sslcontext.check_hostname = False
-    web.run_app(init(), host=os.environ.get("HOST", "0.0.0.0"), port=os.environ.get("PORT", "5050"), shutdown_timeout=0, ssl_context=None)  # nosec  # nosec
+    web.run_app(
+        init(),
+        host=os.environ.get("HOST", "0.0.0.0"),  # nosec
+        port=os.environ.get("PORT", "5050"),
+        shutdown_timeout=0,
+        ssl_context=None,
+    )
 
 
 if __name__ == "__main__":
-    if sys.version_info < (3, 6):
-        LOG.error("beacon-python requires python 3.6")
+    if sys.version_info < (3, 8):
+        LOG.error("beacon-python requires python 3.8")
         sys.exit(1)
     main()
