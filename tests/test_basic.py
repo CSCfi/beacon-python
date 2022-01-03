@@ -1,4 +1,4 @@
-import asynctest
+import unittest
 import aiohttp
 from beacon_api.utils.db_load import parse_arguments, init_beacon_db, main
 from beacon_api.conf.config import init_db_pool
@@ -70,7 +70,7 @@ class MockBeaconDB:
         return ["datasetId", "variants"]
 
 
-class TestBasicFunctions(asynctest.TestCase):
+class TestBasicFunctions(unittest.IsolatedAsyncioTestCase):
     """Test supporting functions."""
 
     def setUp(self):
@@ -87,17 +87,17 @@ class TestBasicFunctions(asynctest.TestCase):
         self.assertEqual(parsed.datafile, "/path/to/datafile.csv")
         self.assertEqual(parsed.metadata, "/path/to/metadata.json")
 
-    @asynctest.mock.patch("beacon_api.conf.config.asyncpg")
+    @unittest.mock.patch("beacon_api.conf.config.asyncpg")
     async def test_init_pool(self, db_mock):
         """Test database connection pool creation."""
-        db_mock.return_value = asynctest.CoroutineMock(name="create_pool")
-        db_mock.create_pool = asynctest.CoroutineMock()
+        db_mock.return_value = unittest.mock.AsyncMock(name="create_pool")
+        db_mock.create_pool = unittest.mock.AsyncMock()
         await init_db_pool()
         db_mock.create_pool.assert_called()
 
-    @asynctest.mock.patch("beacon_api.utils.db_load.LOG")
-    @asynctest.mock.patch("beacon_api.utils.db_load.BeaconDB")
-    @asynctest.mock.patch("beacon_api.utils.db_load.VCF")
+    @unittest.mock.patch("beacon_api.utils.db_load.LOG")
+    @unittest.mock.patch("beacon_api.utils.db_load.BeaconDB")
+    @unittest.mock.patch("beacon_api.utils.db_load.VCF")
     async def test_init_beacon_db(self, mock_vcf, db_mock, mock_log):
         """Test beacon_init db call."""
         db_mock.return_value = MockBeaconDB()
@@ -112,9 +112,12 @@ class TestBasicFunctions(asynctest.TestCase):
         data = """MOCK VCF file"""
         datafile = self._dir.write("data.vcf", data.encode("utf-8"))
         await init_beacon_db([datafile, metafile])
-        mock_log.info.mock_calls = ["Mark the database connection to be closed", "The database connection has been closed"]
+        mock_log.info.mock_calls = [
+            "Mark the database connection to be closed",
+            "The database connection has been closed",
+        ]
 
-    @asynctest.mock.patch("beacon_api.utils.db_load.init_beacon_db")
+    @unittest.mock.patch("beacon_api.utils.db_load.init_beacon_db")
     def test_main_db(self, mock_init):
         """Test run asyncio main beacon init."""
         main()
@@ -318,7 +321,7 @@ class TestBasicFunctions(asynctest.TestCase):
         with self.assertRaises(aiohttp.web_exceptions.HTTPForbidden):
             access_resolution(request, token, host, [], [], ["8"])
 
-    @asynctest.mock.patch("beacon_api.permissions.ga4gh.validate_passport")
+    @unittest.mock.patch("beacon_api.permissions.ga4gh.validate_passport")
     async def test_ga4gh_controlled(self, m_validation):
         """Test ga4gh permissions claim parsing."""
         # Test: no passports, no permissions
@@ -396,9 +399,9 @@ class TestBasicFunctions(asynctest.TestCase):
         bona_fide_status = await get_ga4gh_bona_fide(passports_empty)
         self.assertEqual(bona_fide_status, False)  # doesn't have bona fide
 
-    @asynctest.mock.patch("beacon_api.permissions.ga4gh.get_jwk")
-    @asynctest.mock.patch("beacon_api.permissions.ga4gh.jwt")
-    @asynctest.mock.patch("beacon_api.permissions.ga4gh.LOG")
+    @unittest.mock.patch("beacon_api.permissions.ga4gh.get_jwk")
+    @unittest.mock.patch("beacon_api.permissions.ga4gh.jwt")
+    @unittest.mock.patch("beacon_api.permissions.ga4gh.LOG")
     async def test_validate_passport(self, mock_log, m_jwt, m_jwk):
         """Test passport validation."""
         m_jwk.return_value = "jwk"
@@ -414,7 +417,7 @@ class TestBasicFunctions(asynctest.TestCase):
         # need to assert the log called
         mock_log.error.assert_called_with("Something went wrong when processing JWT tokens: 1")
 
-    @asynctest.mock.patch("beacon_api.permissions.ga4gh.get_ga4gh_permissions")
+    @unittest.mock.patch("beacon_api.permissions.ga4gh.get_ga4gh_permissions")
     async def test_check_ga4gh_token(self, m_get_perms):
         """Test token scopes."""
         # Test: no scope found
@@ -441,10 +444,10 @@ class TestBasicFunctions(asynctest.TestCase):
         self.assertEqual(header.get("alg"), "HS256")
         self.assertEqual(payload.get("iss"), "http://test.csc.fi")
 
-    @asynctest.mock.patch("beacon_api.permissions.ga4gh.get_ga4gh_bona_fide")
-    @asynctest.mock.patch("beacon_api.permissions.ga4gh.get_ga4gh_controlled")
-    @asynctest.mock.patch("beacon_api.permissions.ga4gh.decode_passport")
-    @asynctest.mock.patch("beacon_api.permissions.ga4gh.retrieve_user_data")
+    @unittest.mock.patch("beacon_api.permissions.ga4gh.get_ga4gh_bona_fide")
+    @unittest.mock.patch("beacon_api.permissions.ga4gh.get_ga4gh_controlled")
+    @unittest.mock.patch("beacon_api.permissions.ga4gh.decode_passport")
+    @unittest.mock.patch("beacon_api.permissions.ga4gh.retrieve_user_data")
     async def test_get_ga4gh_permissions(self, m_userinfo, m_decode, m_controlled, m_bonafide):
         """Test GA4GH permissions main function."""
         # Test: no data (nothing)
@@ -480,4 +483,4 @@ class TestBasicFunctions(asynctest.TestCase):
 
 
 if __name__ == "__main__":
-    asynctest.main()
+    unittest.main()

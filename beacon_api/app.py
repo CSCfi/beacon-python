@@ -125,11 +125,17 @@ def main():
     # sslcontext.load_cert_chain(ssl_certfile, ssl_keyfile)
     # sslcontext = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
     # sslcontext.check_hostname = False
-    web.run_app(init(), host=os.environ.get("HOST", "0.0.0.0"), port=os.environ.get("PORT", "5050"), shutdown_timeout=0, ssl_context=None)  # nosec  # nosec
+    web.run_app(
+        init(),
+        host=os.environ.get("HOST", "0.0.0.0"),  # nosec
+        port=os.environ.get("PORT", "5050"),
+        shutdown_timeout=0,
+        ssl_context=None,
+    )
 
 
 if __name__ == "__main__":
-    if sys.version_info < (3, 6):
-        LOG.error("beacon-python requires python 3.6")
+    if sys.version_info < (3, 8):
+        LOG.error("beacon-python requires python 3.8")
         sys.exit(1)
     main()

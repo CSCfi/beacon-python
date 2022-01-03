@@ -18,9 +18,9 @@ jobs:
 
     - name: Install requirements
       run: |
-        wget https://github.com/openshift/source-to-image/releases/download/v1.2.0/source-to-image-v1.2.0-2a579ecd-linux-amd64.tar.gz
-        tar -xvf source-to-image-v1.2.0-2a579ecd-linux-amd64.tar.gz
+        wget https://github.com/openshift/source-to-image/releases/download/v1.3.1/source-to-image-v1.3.1-a5a77147-linux-amd64.tar.gz
+        tar -xvf source-to-image-v1.3.1-a5a77147-linux-amd64.tar.gz
         sudo cp s2i /usr/local/bin
     - name: Build image
       run:  |
-        s2i build . centos/python-36-centos7 cscfi/beacon-python
+        s2i build . centos/python-38-centos7 cscfi/beacon-python
