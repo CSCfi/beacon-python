@@ -18,7 +18,7 @@ import os
 import asyncpg
 from typing import Awaitable
 
-DB_SCHEMA = os.environ.get('DATABASE_SCHEMA', None)
+DB_SCHEMA = os.environ.get("DATABASE_SCHEMA", None)
 
 
 async def init_db_pool() -> Awaitable:
@@ -26,20 +26,22 @@ async def init_db_pool() -> Awaitable:
 
     As we will have frequent requests to the database it is recommended to create a connection pool.
     """
-    return await asyncpg.create_pool(host=os.environ.get('DATABASE_URL', 'localhost'),
-                                     port=os.environ.get('DATABASE_PORT', '5432'),
-                                     user=os.environ.get('DATABASE_USER', 'beacon'),
-                                     password=os.environ.get('DATABASE_PASSWORD', 'beacon'),
-                                     database=os.environ.get('DATABASE_NAME', 'beacondb'),
-                                     # Multiple schemas can be used, and they need to be comma separated
-                                     server_settings={'search_path': DB_SCHEMA if DB_SCHEMA else 'public'},
-                                     # initializing with 0 connections allows the web server to
-                                     # start and also continue to live
-                                     min_size=0,
-                                     # for now limiting the number of connections in the pool
-                                     max_size=20,
-                                     max_queries=50000,
-                                     timeout=120,
-                                     command_timeout=180,
-                                     max_cached_statement_lifetime=0,
-                                     max_inactive_connection_lifetime=180)
+    return await asyncpg.create_pool(
+        host=os.environ.get("DATABASE_URL", "localhost"),
+        port=os.environ.get("DATABASE_PORT", "5432"),
+        user=os.environ.get("DATABASE_USER", "beacon"),
+        password=os.environ.get("DATABASE_PASSWORD", "beacon"),
+        database=os.environ.get("DATABASE_NAME", "beacondb"),
+        # Multiple schemas can be used, and they need to be comma separated
+        server_settings={"search_path": DB_SCHEMA if DB_SCHEMA else "public"},
+        # initializing with 0 connections allows the web server to
+        # start and also continue to live
+        min_size=0,
+        # for now limiting the number of connections in the pool
+        max_size=20,
+        max_queries=50000,
+        timeout=120,
+        command_timeout=180,
+        max_cached_statement_lifetime=0,
+        max_inactive_connection_lifetime=180,
+    )
