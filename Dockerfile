@@ -1,4 +1,4 @@
-FROM python:3.8-alpine3.15 as BUILD
+FROM python:3.10.1-alpine3.15 as BUILD
 
 RUN apk add --update \
     && apk add --no-cache build-base curl-dev linux-headers bash git musl-dev\
@@ -18,7 +18,7 @@ COPY setup.py /root/beacon/setup.py
 COPY beacon_api /root/beacon/beacon_api
 RUN pip install /root/beacon
 
-FROM python:3.8-alpine3.15
+FROM python:3.10.1-alpine3.15
 
 RUN apk add --no-cache --update bash
 
