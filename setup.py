@@ -55,7 +55,7 @@ setup(
             "Cython==0.29.26",
         ],
         "test": [
-            "coverage==6.2",
+            "coverage==6.3",
             "pytest<6.3",
             "pytest-cov==3.0.0",
             "testfixtures==6.18.3",
