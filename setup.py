@@ -58,7 +58,7 @@ setup(
             "coverage==6.3.2",
             "pytest<7.1",
             "pytest-cov==3.0.0",
-            "testfixtures==6.18.3",
+            "testfixtures==6.18.4",
             "tox==3.24.5",
             "flake8==4.0.1",
             "flake8-docstrings==1.6.0",
