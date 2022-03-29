@@ -7,5 +7,5 @@ cyvcf2==0.30.15
 uvloop==0.16.0
 aiocache==0.11.1
 ujson==5.1.0
-Authlib==0.15.5
+Authlib==1.0.0
 gunicorn==20.1.0
