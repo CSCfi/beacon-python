@@ -6,6 +6,6 @@ Cython==0.29.30
 cyvcf2==0.30.15
 uvloop==0.16.0
 aiocache==0.11.1
-ujson==5.3.0
+ujson==5.4.0
 Authlib==1.0.1
 gunicorn==20.1.0
