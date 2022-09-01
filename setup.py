@@ -60,7 +60,7 @@ setup(
             "pytest-cov==3.0.0",
             "testfixtures==7.0.0",
             "tox==3.25.1",
-            "flake8==5.0.2",
+            "flake8==5.0.4",
             "flake8-docstrings==1.6.0",
             "aioresponses==0.7.3",
             "black==22.6.0",
