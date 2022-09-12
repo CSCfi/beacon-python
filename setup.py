@@ -50,7 +50,7 @@ setup(
     ],
     extras_require={
         "vcf": [
-            "numpy==1.23.2",
+            "numpy==1.23.3",
             "cyvcf2==0.30.16",
             "Cython==0.29.32",
         ],
