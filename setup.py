@@ -43,7 +43,7 @@ setup(
         "aiohttp-cors==0.7.0",
         "jsonschema==4.16.0",
         "gunicorn==20.1.0",
-        "uvloop==0.16.0",
+        "uvloop==0.17.0",
         "cyvcf2==0.30.16",
         "aiocache==0.11.1",
         "ujson==5.5.0",
