@@ -44,14 +44,14 @@ setup(
         "jsonschema==4.16.0",
         "gunicorn==20.1.0",
         "uvloop==0.17.0",
-        "cyvcf2==0.30.16",
+        "cyvcf2==0.30.18",
         "aiocache==0.11.1",
         "ujson==5.5.0",
     ],
     extras_require={
         "vcf": [
             "numpy==1.23.3",
-            "cyvcf2==0.30.16",
+            "cyvcf2==0.30.18",
             "Cython==0.29.32",
         ],
         "test": [
