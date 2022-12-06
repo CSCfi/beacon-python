@@ -46,7 +46,7 @@ setup(
         "uvloop==0.17.0",
         "cyvcf2==0.30.18",
         "aiocache==0.11.1",
-        "ujson==5.5.0",
+        "ujson==5.6.0",
     ],
     extras_require={
         "vcf": [
