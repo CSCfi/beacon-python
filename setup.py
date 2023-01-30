@@ -61,7 +61,7 @@ setup(
             "testfixtures==7.0.4",
             "tox==4.4.2",
             "flake8==6.0.0",
-            "flake8-docstrings==1.6.0",
+            "flake8-docstrings==1.7.0",
             "aioresponses==0.7.4",
             "black==22.12.0",
         ],
