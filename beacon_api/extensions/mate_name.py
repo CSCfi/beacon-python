@@ -45,7 +45,6 @@ async def fetch_fusion_dataset(db_pool, assembly_id, position, chromosome, refer
                     db_response = await statement.fetch(datasets_query, access_query, assembly_id, chromosome)
 
                 else:
-
                     # UBER QUERY - TBD if it is what we need
                     # referenceBases, alternateBases and variantType fields are NOT part of beacon's specification response
                     query = """SELECT a.datasetId as "datasetId", b.accessType as "accessType", a.chromosome as "referenceName",
