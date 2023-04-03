@@ -2,7 +2,7 @@ aiohttp==3.8.4
 aiohttp-cors==0.7.0
 asyncpg==0.27.0
 jsonschema==4.17.3
-Cython==0.29.33
+Cython==0.29.34
 cyvcf2==0.30.18
 uvloop==0.17.0
 aiocache==0.11.1
