@@ -56,7 +56,7 @@ setup(
         ],
         "test": [
             "coverage==7.2.3",
-            "pytest<7.3",
+            "pytest<7.4",
             "pytest-cov==4.0.0",
             "testfixtures==7.1.0",
             "tox==4.4.8",
