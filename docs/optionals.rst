@@ -10,7 +10,7 @@ Handover Protocol
 
 The handover protocol is a feature comparable to `HATEOAS and HAL <https://restfulapi.net/hateoas/>`_. It can be used to convey
 extra information regarding the Beacon service, or the dataset response.
-More information about the handover protocol can be read from the `Beacon Project page <http://docs.genomebeacons.org/beacon-flavours/#ho-beacon-handovers-for-data-delivery>`_ and
+More information about the handover protocol can be read from the `Beacon Project page <http://docs.genomebeacons.org/handovers/>`_ and
 Beacon Specification's `handover issue <https://github.com/ga4gh-beacon/specification/issues/114>`_ at Github.
 
 The handover protocol can be configured in ``config.ini`` as follows:
