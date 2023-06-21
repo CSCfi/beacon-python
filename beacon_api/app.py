@@ -135,7 +135,7 @@ def main():
 
 
 if __name__ == "__main__":
-    if sys.version_info < (3, 8):
-        LOG.error("beacon-python requires python 3.8")
+    if sys.version_info < (3, 10):
+        LOG.error("beacon-python requires python 3.10")
         sys.exit(1)
     main()
