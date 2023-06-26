@@ -33,8 +33,7 @@ setup(
         "Topic :: Internet :: WWW/HTTP :: HTTP Servers",
         "Topic :: Scientific/Engineering :: Bio-Informatics",
         "License :: OSI Approved :: Apache Software License",
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.10",
     ],
     install_requires=[
         "asyncpg==0.27.0",
