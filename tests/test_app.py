@@ -5,7 +5,7 @@ import asyncpg
 import json
 from authlib.jose import jwt
 import os
-from test.support import EnvironmentVarGuard
+from test.support.os_helper import EnvironmentVarGuard
 from aiocache import caches
 
 

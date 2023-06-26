@@ -8,7 +8,7 @@ from beacon_api.permissions.ga4gh import get_ga4gh_controlled, get_ga4gh_bona_fi
 from beacon_api.permissions.ga4gh import check_ga4gh_token, decode_passport, get_ga4gh_permissions
 from .test_app import PARAMS, generate_token
 from testfixtures import TempDirectory
-from test.support import EnvironmentVarGuard
+from test.support.os_helper import EnvironmentVarGuard
 from beacon_api.conf import OAUTH2_CONFIG
 
 
