@@ -44,7 +44,7 @@ setup(
         "gunicorn==21.0.1",
         "uvloop==0.17.0",
         "cyvcf2==0.30.22",
-        "aiocache==0.11.1",
+        "aiocache==0.12.1",
         "ujson==5.8.0",
     ],
     extras_require={
