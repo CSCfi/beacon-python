@@ -38,7 +38,7 @@ setup(
     install_requires=[
         "asyncpg==0.28.0",
         "aiohttp==3.8.4",
-        "Authlib==1.2.0",
+        "Authlib==1.2.1",
         "aiohttp-cors==0.7.0",
         "jsonschema==4.18.3",
         "gunicorn==21.0.1",
@@ -55,10 +55,10 @@ setup(
         ],
         "test": [
             "coverage==7.2.7",
-            "pytest<7.4",
+            "pytest<7.5",
             "pytest-cov==4.1.0",
             "testfixtures==7.1.0",
-            "tox==4.6.2",
+            "tox==4.6.4",
             "flake8==6.0.0",
             "flake8-docstrings==1.7.0",
             "aioresponses==0.7.4",
