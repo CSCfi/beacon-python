@@ -126,7 +126,7 @@ Example Response:
     "createdAt": "2019-09-04T12:00:00Z",
     "updatedAt": "2019-09-05T05:55:18Z",
     "environment": "prod",
-    "version": "1.7.2"
+    "version": "1.10.0"
   }
 
 Query Endpoint
