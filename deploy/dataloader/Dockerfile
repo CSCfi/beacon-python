@@ -1,6 +1,6 @@
 FROM cscfi/beacon-python
 
-RUN apk add --no-cache --update curl-dev lftp
+RUN apt-get install update libcurl-dev lftp
 
 RUN wget https://raw.githubusercontent.com/CSCfi/beacon-python/master/data/example_metadata.json
 RUN wget https://raw.githubusercontent.com/CSCfi/beacon-python/master/data/init.sql
