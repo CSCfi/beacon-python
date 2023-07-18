@@ -163,6 +163,13 @@ async def get_ga4gh_permissions(token: str) -> Tuple[set, bool]:
         for encoded_passport in encoded_passports:
             # Decode passport
             header, payload = await decode_passport(encoded_passport)
+            # If trusted_jkus variable is set, only allow passports with a trusted JKU
+            if not OAUTH2_CONFIG.trusted_jkus == [""]:
+                # Skip passports with untrusted JKUs
+                passport_jku = header.get("jku")
+                if passport_jku not in OAUTH2_CONFIG.trusted_jkus:
+                    LOG.debug("Untrusted JKU.")
+                    continue
             # Sort passports that carry dataset permissions
             pass_type = payload.get("ga4gh_visa_v1", {}).get("type")
             if pass_type == "ControlledAccessGrants":  # nosec

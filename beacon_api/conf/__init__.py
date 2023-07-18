@@ -63,13 +63,14 @@ def parse_oauth2_config_file(path: str) -> Any:
     """Parse configuration file."""
     config = ConfigParser()
     config.read(path)
-    config_vars: Dict[str, Union[str, bool, None]] = {
+    config_vars: Dict[str, Union[str, bool, None, List[str]]] = {
         "server": config.get("oauth2", "server"),
         "issuers": config.get("oauth2", "issuers"),
         "userinfo": config.get("oauth2", "userinfo"),
         "audience": config.get("oauth2", "audience") or None,
         "verify_aud": bool(strtobool(config.get("oauth2", "verify_aud"))),
         "bona_fide_value": config.get("oauth2", "bona_fide_value"),
+        "trusted_jkus": config.get("oauth2", "trusted_jkus", fallback="").split(","),
     }
     return convert(config_vars)
 

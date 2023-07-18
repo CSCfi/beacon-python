@@ -8,7 +8,8 @@ from beacon_api.permissions.ga4gh import get_ga4gh_controlled, get_ga4gh_bona_fi
 from beacon_api.permissions.ga4gh import check_ga4gh_token, decode_passport, get_ga4gh_permissions
 from .test_app import PARAMS, generate_token
 from testfixtures import TempDirectory
-from test.support import EnvironmentVarGuard
+from test.support.os_helper import EnvironmentVarGuard
+from beacon_api.conf import OAUTH2_CONFIG
 
 
 def mock_token(bona_fide, permissions, auth):
@@ -68,6 +69,11 @@ class MockBeaconDB:
     async def load_datafile(self, vcf, datafile, datasetId, n=1000, min_ac=1):
         """Mimic load_datafile."""
         return ["datasetId", "variants"]
+
+
+async def mock_get_ga4gh_controlled(input):
+    """Mock retrieve dataset permissions."""
+    return input
 
 
 class TestBasicFunctions(unittest.IsolatedAsyncioTestCase):
@@ -480,6 +486,51 @@ class TestBasicFunctions(unittest.IsolatedAsyncioTestCase):
         dataset_permissions, bona_fide_status = await get_ga4gh_permissions({})
         self.assertEqual(dataset_permissions, set())
         self.assertEqual(bona_fide_status, True)
+
+
+class TestCaseCheckJku(unittest.IsolatedAsyncioTestCase):
+    """Test case."""
+
+    @unittest.mock.patch("beacon_api.permissions.ga4gh.get_ga4gh_bona_fide")
+    @unittest.mock.patch("beacon_api.permissions.ga4gh.get_ga4gh_controlled", side_effect=mock_get_ga4gh_controlled)
+    @unittest.mock.patch("beacon_api.permissions.ga4gh.decode_passport")
+    @unittest.mock.patch("beacon_api.permissions.ga4gh.retrieve_user_data")
+    async def test_jku_check(self, m_userinfo, m_decode, m_controller, m_bonafide):
+        """Test trusted and untrusted jku."""
+        # Test: trusted jku
+        m_userinfo.return_value = [""]
+        header = {"jku": "http://test.csc.fi/jwk"}
+        payload = {"ga4gh_visa_v1": {"type": "ControlledAccessGrants"}}
+        m_decode.return_value = header, payload
+        m_bonafide.return_value = False
+        dataset_permissions, bona_fide_status = await get_ga4gh_permissions({})
+        self.assertEqual(dataset_permissions, [("", header)])
+        self.assertEqual(bona_fide_status, False)
+        # Test: untrusted jku
+        m_userinfo.return_value = [""]
+        header = {"jku": "untrusted_jku"}
+        payload = {"ga4gh_visa_v1": {"type": "ControlledAccessGrants"}}
+        m_decode.return_value = header, payload
+        m_bonafide.return_value = False
+        dataset_permissions, bona_fide_status = await get_ga4gh_permissions({})
+        self.assertEqual(dataset_permissions, [])
+        self.assertEqual(bona_fide_status, False)
+
+    @unittest.mock.patch("beacon_api.permissions.ga4gh.OAUTH2_CONFIG", new=OAUTH2_CONFIG._replace(trusted_jkus=[""]))
+    @unittest.mock.patch("beacon_api.permissions.ga4gh.get_ga4gh_bona_fide")
+    @unittest.mock.patch("beacon_api.permissions.ga4gh.get_ga4gh_controlled", side_effect=mock_get_ga4gh_controlled)
+    @unittest.mock.patch("beacon_api.permissions.ga4gh.decode_passport")
+    @unittest.mock.patch("beacon_api.permissions.ga4gh.retrieve_user_data")
+    async def test_jku_check_not_active(self, m_userinfo, m_decode, m_controller, m_bonafide):
+        """Test if jku check is skipped when trusted_jkus config var is not set."""
+        m_userinfo.return_value = [""]
+        header = {"jku": "untrusted_jku"}
+        payload = {"ga4gh_visa_v1": {"type": "ControlledAccessGrants"}}
+        m_decode.return_value = header, payload
+        m_bonafide.return_value = False
+        dataset_permissions, bona_fide_status = await get_ga4gh_permissions({})
+        self.assertEqual(dataset_permissions, [("", header)])
+        self.assertEqual(bona_fide_status, False)
 
 
 if __name__ == "__main__":

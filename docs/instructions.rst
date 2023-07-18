@@ -3,7 +3,7 @@ Instructions
 
 .. note:: In order to run ``beacon-python`` Web Server requirements are as specified below:
 
-  * Python 3.8+;
+  * Python 3.10+;
   * running DB `PostgreSQL Server <https://www.postgresql.org/>`_  9.6+ (recommended 13).
 
 .. _env-setup:
