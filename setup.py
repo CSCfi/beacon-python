@@ -37,7 +37,7 @@ setup(
     ],
     install_requires=[
         "asyncpg==0.28.0",
-        "aiohttp==3.8.4",
+        "aiohttp==3.8.5",
         "Authlib==1.2.1",
         "aiohttp-cors==0.7.0",
         "jsonschema==4.18.3",
