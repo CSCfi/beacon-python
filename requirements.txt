@@ -8,4 +8,4 @@ uvloop==0.17.0
 aiocache==0.11.1
 ujson==5.8.0
 Authlib==1.2.1
-gunicorn==21.0.1
+gunicorn==21.2.0
