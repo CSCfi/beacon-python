@@ -1,4 +1,4 @@
-FROM python:3.10.12-slim as BUILD
+FROM python:3.11.4-slim as BUILD
 
 RUN apt-get update \
     && apt-get install -y build-essential bash git gcc \
@@ -18,7 +18,7 @@ COPY setup.py /root/beacon/setup.py
 COPY beacon_api /root/beacon/beacon_api
 RUN pip install /root/beacon
 
-FROM python:3.10.12-slim
+FROM python:3.11.4-slim
 
 RUN apt-get install -y bash
 
