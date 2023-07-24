@@ -41,7 +41,7 @@ setup(
         "Authlib==1.2.1",
         "aiohttp-cors==0.7.0",
         "jsonschema==4.18.3",
-        "gunicorn==21.0.1",
+        "gunicorn==21.2.0",
         "uvloop==0.17.0",
         "cyvcf2==0.30.22",
         "aiocache==0.11.1",
