@@ -64,6 +64,6 @@ setup(
             "aioresponses==0.7.4",
             "black==23.7.0",
         ],
-        "docs": ["sphinx >= 1.4", "sphinx_rtd_theme==1.2.2"],
+        "docs": ["sphinx >= 1.4", "sphinx_rtd_theme==1.3.0"],
     },
 )
