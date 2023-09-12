@@ -62,7 +62,7 @@ setup(
             "flake8==6.1.0",
             "flake8-docstrings==1.7.0",
             "aioresponses==0.7.4",
-            "black==23.7.0",
+            "black==23.9.1",
         ],
         "docs": ["sphinx >= 1.4", "sphinx_rtd_theme==1.3.0"],
     },
