@@ -51,7 +51,7 @@ setup(
         "vcf": [
             "numpy==1.26.0",
             "cyvcf2==0.30.22",
-            "Cython==3.0.2",
+            "Cython==3.0.3",
         ],
         "test": [
             "coverage==7.3.2",
