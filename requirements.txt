@@ -4,7 +4,7 @@ asyncpg==0.28.0
 jsonschema==4.19.1
 Cython==3.0.3
 cyvcf2==0.30.22
-uvloop==0.17.0
+uvloop==0.18.0
 aiocache==0.11.1
 ujson==5.8.0
 Authlib==1.2.1
